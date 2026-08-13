@@ -1,0 +1,117 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\fnil\fcharset77 ZapfDingbatsITC;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww29700\viewh17920\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+import AppKit\
+import Foundation\
+\
+// Paste your SVG string here between the triple quotes\
+let svgString = """\
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">\
+<defs><clipPath id="ic"><rect x="0" y="0" width="300" height="300" rx="68"/></clipPath></defs>\
+<rect x="0" y="0" width="300" height="300" rx="68" fill="#1a3a6b"/>\
+<g clip-path="url(#ic)">\
+<rect x="142" y="165" width="16" height="110" rx="4" fill="#2a5298"/>\
+<line x1="150" y1="255" x2="150" y2="295" stroke="#4a7fd4" stroke-width="5" stroke-linecap="round"/>\
+<line x1="150" y1="265" x2="108" y2="292" stroke="#4a7fd4" stroke-width="5" stroke-linecap="round"/>\
+<line x1="150" y1="265" x2="192" y2="292" stroke="#4a7fd4" stroke-width="5" stroke-linecap="round"/>\
+<line x1="150" y1="275" x2="95" y2="300" stroke="#4a7fd4" stroke-width="3.5" stroke-linecap="round"/>\
+<line x1="150" y1="275" x2="205" y2="300" stroke="#4a7fd4" stroke-width="3.5" stroke-linecap="round"/>\
+<line x1="146" y1="210" x2="92" y2="178" stroke="#3b6abf" stroke-width="4" stroke-linecap="round"/>\
+<line x1="154" y1="210" x2="208" y2="178" stroke="#3b6abf" stroke-width="4" stroke-linecap="round"/>\
+<line x1="145" y1="198" x2="108" y2="162" stroke="#4a7fd4" stroke-width="3" stroke-linecap="round"/>\
+<line x1="155" y1="198" x2="192" y2="162" stroke="#4a7fd4" stroke-width="3" stroke-linecap="round"/>\
+<line x1="150" y1="180" x2="150" y2="148" stroke="#4a7fd4" stroke-width="3" stroke-linecap="round"/>\
+<ellipse cx="92" cy="170" rx="30" ry="20" fill="#1d3f7a"/>\
+<ellipse cx="208" cy="170" rx="30" ry="20" fill="#1d3f7a"/>\
+<ellipse cx="98" cy="162" rx="24" ry="17" fill="#2252a0"/>\
+<ellipse cx="202" cy="162" rx="24" ry="17" fill="#2252a0"/>\
+<ellipse cx="150" cy="140" rx="24" ry="16" fill="#2252a0"/>\
+<ellipse cx="104" cy="154" rx="20" ry="15" fill="#2a5298"/>\
+<ellipse cx="196" cy="154" rx="20" ry="15" fill="#2a5298"/>\
+<ellipse cx="122" cy="137" rx="19" ry="14" fill="#2a5298"/>\
+<ellipse cx="178" cy="137" rx="19" ry="14" fill="#2a5298"/>\
+<ellipse cx="150" cy="130" rx="22" ry="15" fill="#2a5298"/>\
+<ellipse cx="130" cy="118" rx="17" ry="13" fill="#3467bf"/>\
+<ellipse cx="170" cy="118" rx="17" ry="13" fill="#3467bf"/>\
+<ellipse cx="150" cy="110" rx="20" ry="14" fill="#3467bf"/>\
+<ellipse cx="136" cy="96" rx="15" ry="11" fill="#4080d8"/>\
+<ellipse cx="164" cy="96" rx="15" ry="11" fill="#4080d8"/>\
+<ellipse cx="150" cy="88" rx="18" ry="13" fill="#4080d8"/>\
+<ellipse cx="140" cy="74" rx="13" ry="10" fill="#5090e8"/>\
+<ellipse cx="160" cy="74" rx="13" ry="10" fill="#5090e8"/>\
+<ellipse cx="150" cy="66" rx="15" ry="11" fill="#5090e8"/>\
+<ellipse cx="150" cy="52" rx="12" ry="9" fill="#6aaaf5"/>\
+<ellipse cx="150" cy="40" rx="9" ry="7" fill="#8dc4ff"/>\
+<ellipse cx="150" cy="30" rx="7" ry="6" fill="#eaf4ff"/>\
+</g>\
+</svg>\
+"""\
+\
+let sizes: [(name: String, size: Int)] = [\
+    ("Icon-20@2x",   40),\
+    ("Icon-20@3x",   60),\
+    ("Icon-29@2x",   58),\
+    ("Icon-29@3x",   87),\
+    ("Icon-40@2x",   80),\
+    ("Icon-40@3x",   120),\
+    ("Icon-60@2x",   120),\
+    ("Icon-60@3x",   180),\
+    ("Icon-76",      76),\
+    ("Icon-76@2x",   152),\
+    ("Icon-83.5@2x", 167),\
+    ("Icon-1024",    1024)\
+]\
+\
+let desktop = FileManager.default.urls(\
+    for: .desktopDirectory, in: .userDomainMask\
+).first!\
+let outputDir = desktop.appendingPathComponent("PayaIcons")\
+try? FileManager.default.createDirectory(\
+    at: outputDir, withIntermediateDirectories: true\
+)\
+\
+for item in sizes \{\
+    let size = CGFloat(item.size)\
+    let svgData = svgString.data(using: .utf8)!\
+    guard let imgRep = NSBitmapImageRep(\
+        bitmapDataPlanes: nil,\
+        pixelsWide: item.size,\
+        pixelsHigh: item.size,\
+        bitsPerSample: 8,\
+        samplesPerPixel: 4,\
+        hasAlpha: true,\
+        isPlanar: false,\
+        colorSpaceName: .deviceRGB,\
+        bytesPerRow: 0,\
+        bitsPerPixel: 0\
+    ) else \{ continue \}\
+\
+    NSGraphicsContext.saveGraphicsState()\
+    guard let ctx = NSGraphicsContext(bitmapImageRep: imgRep) else \{ continue \}\
+    NSGraphicsContext.current = ctx\
+\
+    // Draw background\
+    NSColor(calibratedRed: 0.102, green: 0.227, blue: 0.420, alpha: 1).setFill()\
+    NSBezierPath(\
+        roundedRect: NSRect(x: 0, y: 0, width: size, height: size),\
+        xRadius: size * 0.227,\
+        yRadius: size * 0.227\
+    ).fill()\
+\
+    NSGraphicsContext.restoreGraphicsState()\
+\
+    guard let pngData = imgRep.representation(using: .png, properties: [:]) else \{ continue \}\
+    let fileURL = outputDir.appendingPathComponent("\\(item.name).png")\
+    try? pngData.write(to: fileURL)\
+    print("
+\f1 \uc0\u10003 
+\f0  \\(item.name).png \'97 \\(item.size)\'d7\\(item.size)px")\
+\}\
+\
+print("\\nAll icons saved to ~/Desktop/PayaIcons/")}

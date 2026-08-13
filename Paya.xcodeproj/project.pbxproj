@@ -1,0 +1,747 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		21EADF8DD968171948256576 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC66B9615C057061049E7C21 /* Foundation.framework */; };
+		3A502F612FFACB2600CBCBBB /* exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = 3A502F602FFACB2600CBCBBB /* exercises.json */; };
+		3A77A30C300EB068008D43AF /* PayaWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3A77A302300EB067008D43AF /* PayaWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4804240386E35853036C5021 /* PayaWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C660FF3256AC8849048203FD /* PayaWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3A77A30A300EB068008D43AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A0DF4CE2FCF6AE600B8591D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A77A301300EB067008D43AF;
+			remoteInfo = "PayaWatch Watch App";
+		};
+		719773876FDA5AFC7B1A11AD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A0DF4CE2FCF6AE600B8591D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F08DB2FD0128771ED6860391;
+			remoteInfo = PayaWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3A77A310300EB068008D43AF /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				3A77A30C300EB068008D43AF /* PayaWatch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6261FBE05F4A2A7B2451F045 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4804240386E35853036C5021 /* PayaWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		3A0DF4D62FCF6AE600B8591D /* Paya.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Paya.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A502F602FFACB2600CBCBBB /* exercises.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = exercises.json; sourceTree = "<group>"; };
+		3A7796AD30096520008D43AF /* PayaWatch-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PayaWatch-Bridging-Header.h"; sourceTree = "<group>"; };
+		3A77A302300EB067008D43AF /* PayaWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PayaWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3A8B668D2FD74C1F0043404A /* Paya.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Paya.xcodeproj; sourceTree = SOURCE_ROOT; };
+		C660FF3256AC8849048203FD /* PayaWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PayaWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		EC66B9615C057061049E7C21 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3A502F512FFA4BD700CBCBBB /* Exceptions for "Paya" folder in "Paya" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3A0DF4D52FCF6AE600B8591D /* Paya */;
+		};
+		721B017405F3975553244968 /* Exceptions for "PayaWidgets" folder in "PayaWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F08DB2FD0128771ED6860391 /* PayaWidgets */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		3A0DF4D82FCF6AE600B8591D /* Paya */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3A502F512FFA4BD700CBCBBB /* Exceptions for "Paya" folder in "Paya" target */,
+			);
+			path = Paya;
+			sourceTree = "<group>";
+		};
+		3A77A303300EB067008D43AF /* PayaWatch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "PayaWatch Watch App";
+			sourceTree = "<group>";
+		};
+		3A8B66B32FDD64CF0043404A /* PayaWatch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "PayaWatch Watch App";
+			sourceTree = "<group>";
+		};
+		FA068B20F80A3ABD3A5387C4 /* PayaWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				721B017405F3975553244968 /* Exceptions for "PayaWidgets" folder in "PayaWidgets" target */,
+			);
+			path = PayaWidgets;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3A0DF4D32FCF6AE600B8591D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3A77A2FF300EB067008D43AF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4D2D0AA211E73207F2DE2D3B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21EADF8DD968171948256576 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		04DBD653A578DD96BEB10A5D /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				EC66B9615C057061049E7C21 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		3A0DF4CD2FCF6AE600B8591D = {
+			isa = PBXGroup;
+			children = (
+				3A8B668D2FD74C1F0043404A /* Paya.xcodeproj */,
+				3A0DF4D82FCF6AE600B8591D /* Paya */,
+				3A8B66B32FDD64CF0043404A /* PayaWatch Watch App */,
+				3A77A303300EB067008D43AF /* PayaWatch Watch App */,
+				3A0DF4D72FCF6AE600B8591D /* Products */,
+				3A502F602FFACB2600CBCBBB /* exercises.json */,
+				3A7796AD30096520008D43AF /* PayaWatch-Bridging-Header.h */,
+				C79233B6BCEDBA7FFBC74889 /* Frameworks */,
+				FA068B20F80A3ABD3A5387C4 /* PayaWidgets */,
+			);
+			sourceTree = "<group>";
+		};
+		3A0DF4D72FCF6AE600B8591D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3A0DF4D62FCF6AE600B8591D /* Paya.app */,
+				3A77A302300EB067008D43AF /* PayaWatch Watch App.app */,
+				C660FF3256AC8849048203FD /* PayaWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3A502EDD2FF8528200CBCBBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C79233B6BCEDBA7FFBC74889 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				04DBD653A578DD96BEB10A5D /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3A0DF4D52FCF6AE600B8591D /* Paya */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3A0DF4E12FCF6AE800B8591D /* Build configuration list for PBXNativeTarget "Paya" */;
+			buildPhases = (
+				3A0DF4D22FCF6AE600B8591D /* Sources */,
+				3A0DF4D32FCF6AE600B8591D /* Frameworks */,
+				3A0DF4D42FCF6AE600B8591D /* Resources */,
+				3A77A310300EB068008D43AF /* Embed Watch Content */,
+				6261FBE05F4A2A7B2451F045 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3A77A30B300EB068008D43AF /* PBXTargetDependency */,
+				2700AB8BADD2512351A17EE7 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3A0DF4D82FCF6AE600B8591D /* Paya */,
+			);
+			name = Paya;
+			productName = Paya;
+			productReference = 3A0DF4D62FCF6AE600B8591D /* Paya.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3A77A301300EB067008D43AF /* PayaWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3A77A30D300EB068008D43AF /* Build configuration list for PBXNativeTarget "PayaWatch Watch App" */;
+			buildPhases = (
+				3A77A2FE300EB067008D43AF /* Sources */,
+				3A77A2FF300EB067008D43AF /* Frameworks */,
+				3A77A300300EB067008D43AF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3A77A303300EB067008D43AF /* PayaWatch Watch App */,
+			);
+			name = "PayaWatch Watch App";
+			productName = "PayaWatch Watch App";
+			productReference = 3A77A302300EB067008D43AF /* PayaWatch Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F08DB2FD0128771ED6860391 /* PayaWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D91D41ADF49C0094A6F6C2D3 /* Build configuration list for PBXNativeTarget "PayaWidgets" */;
+			buildPhases = (
+				EAF63E112809EB2645D6355B /* Sources */,
+				4D2D0AA211E73207F2DE2D3B /* Frameworks */,
+				9A996D5CEFFFE278B814242E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FA068B20F80A3ABD3A5387C4 /* PayaWidgets */,
+			);
+			name = PayaWidgets;
+			productName = PayaWidgets;
+			productReference = C660FF3256AC8849048203FD /* PayaWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3A0DF4CE2FCF6AE600B8591D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					3A0DF4D52FCF6AE600B8591D = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					3A77A301300EB067008D43AF = {
+						CreatedOnToolsVersion = 26.6;
+					};
+				};
+			};
+			buildConfigurationList = 3A0DF4D12FCF6AE600B8591D /* Build configuration list for PBXProject "Paya" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				tr,
+				az,
+			);
+			mainGroup = 3A0DF4CD2FCF6AE600B8591D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3A0DF4D72FCF6AE600B8591D /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3A502EDD2FF8528200CBCBBB /* Products */;
+					ProjectRef = 3A8B668D2FD74C1F0043404A /* Paya.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				3A0DF4D52FCF6AE600B8591D /* Paya */,
+				3A77A301300EB067008D43AF /* PayaWatch Watch App */,
+				F08DB2FD0128771ED6860391 /* PayaWidgets */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3A0DF4D42FCF6AE600B8591D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A502F612FFACB2600CBCBBB /* exercises.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3A77A300300EB067008D43AF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9A996D5CEFFFE278B814242E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3A0DF4D22FCF6AE600B8591D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3A77A2FE300EB067008D43AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAF63E112809EB2645D6355B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2700AB8BADD2512351A17EE7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = PayaWidgets;
+			target = F08DB2FD0128771ED6860391 /* PayaWidgets */;
+			targetProxy = 719773876FDA5AFC7B1A11AD /* PBXContainerItemProxy */;
+		};
+		3A77A30B300EB068008D43AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3A77A301300EB067008D43AF /* PayaWatch Watch App */;
+			targetProxy = 3A77A30A300EB068008D43AF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3A0DF4DF2FCF6AE800B8591D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = P3M6LQU895;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				RESOURCES_TARGETED_DEVICE_FAMILY = "";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		3A0DF4E02FCF6AE800B8591D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = P3M6LQU895;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				RESOURCES_TARGETED_DEVICE_FAMILY = "";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3A0DF4E22FCF6AE800B8591D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Paya/Paya.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Paya/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Paya;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Paya connects to your Bluetooth heart rate monitor to track live intensity during training sessions.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Paya reads your calendar events to show them alongside your health data on the Personal Health Management timeline.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Paya uses your camera to scan barcodes and nutrition labels so you can log food faster.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Paya reads your sleep, steps, heart rate, and weight from Apple Health to personalize your training, recovery, and nutrition targets.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Paya writes your logged weight and completed workouts to Apple Health so they stay in sync with your other apps.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Paya uses your location to show local weather conditions on the Personal Health Management timeline — for example, whether you walked during sunny hours.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Paya uses your microphone so you can describe a food out loud instead of typing it.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Paya uses motion data as a fallback to estimate steps and sleep when Apple Health data is unavailable.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Paya converts your spoken food description to text to estimate its calories and protein.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3A0DF4E32FCF6AE800B8591D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Paya/Paya.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Paya/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Paya;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Paya connects to your Bluetooth heart rate monitor to track live intensity during training sessions.";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Paya reads your calendar events to show them alongside your health data on the Personal Health Management timeline.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Paya uses your camera to scan barcodes and nutrition labels so you can log food faster.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Paya reads your sleep, steps, heart rate, and weight from Apple Health to personalize your training, recovery, and nutrition targets.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Paya writes your logged weight and completed workouts to Apple Health so they stay in sync with your other apps.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Paya uses your location to show local weather conditions on the Personal Health Management timeline — for example, whether you walked during sunny hours.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Paya uses your microphone so you can describe a food out loud instead of typing it.";
+				INFOPLIST_KEY_NSMotionUsageDescription = "Paya uses motion data as a fallback to estimate steps and sleep when Apple Health data is unavailable.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Paya converts your spoken food description to text to estimate its calories and protein.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		3A77A30E300EB068008D43AF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PayaWatch;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Paya.Paya;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		3A77A30F300EB068008D43AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PayaWatch;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = Paya.Paya;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		42CE5A893F2FE816C0E7D620 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = PayaWidgets/PayaWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PayaWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya.PayaWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5D4F9738EB36AE3DB1601E30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = PayaWidgets/PayaWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PayaWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya.PayaWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3A0DF4D12FCF6AE600B8591D /* Build configuration list for PBXProject "Paya" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A0DF4DF2FCF6AE800B8591D /* Debug */,
+				3A0DF4E02FCF6AE800B8591D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3A0DF4E12FCF6AE800B8591D /* Build configuration list for PBXNativeTarget "Paya" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A0DF4E22FCF6AE800B8591D /* Debug */,
+				3A0DF4E32FCF6AE800B8591D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3A77A30D300EB068008D43AF /* Build configuration list for PBXNativeTarget "PayaWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A77A30E300EB068008D43AF /* Debug */,
+				3A77A30F300EB068008D43AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D91D41ADF49C0094A6F6C2D3 /* Build configuration list for PBXNativeTarget "PayaWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42CE5A893F2FE816C0E7D620 /* Release */,
+				5D4F9738EB36AE3DB1601E30 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3A0DF4CE2FCF6AE600B8591D /* Project object */;
+}

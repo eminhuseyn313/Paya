@@ -1,0 +1,31 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+xcuserdata/
+
+# macOS
+.DS_Store
+**/.DS_Store
+.Trashes
+._*
+
+# Swift Package Manager
+.build/
+Packages/
+
+# CocoaPods (if used later)
+Pods/
+
+# Secrets — NEVER commit
+*.p8
+*.p12
+*.pem
+*.cer
+*.mobileprovision
+
+# Claude Code
+.claude/

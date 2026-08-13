@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+Target 'Paya' in project 'Paya'
+➜ Explicit dependency on target 'PayaWatch Watch App' in project 'Paya'
+➜ Explicit dependency on target 'PayaWidgets' in project 'Paya'
+Target 'PayaWidgets' in project 'Paya' (no dependencies)
+Target 'PayaWatch Watch App' in project 'Paya' (no dependencies)

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>application-identifier</key>
+	<string>XYY5Y3F4W5.Paya.Paya.PayaWidgets</string>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.Paya.Paya.shared</string>
+	</array>
+</dict>
+</plist>

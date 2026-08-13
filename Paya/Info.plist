@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Paya connects to your Bluetooth heart rate monitor to track live intensity during training sessions.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Paya reads your calendar events to show them alongside your health data on the Personal Health Management timeline.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Paya uses your camera to scan barcodes and nutrition labels, and to photograph meals for AI calorie/protein estimates.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Paya accesses your photo library so you can save and review progress photos over time.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Paya uses your location to show local weather conditions on the Personal Health Management timeline — for example, whether you walked during sunny hours.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Paya reads your sleep, steps, heart rate, and weight from Apple Health to personalize your training, recovery, and nutrition targets.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Paya writes your logged weight and completed workouts to Apple Health so they stay in sync with your other apps.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Paya uses motion data as a fallback to estimate steps and sleep when Apple Health data is unavailable.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Paya uses your microphone so you can describe a food out loud instead of typing it.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Paya converts your spoken food description to text to estimate its calories and protein.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+</dict>
+</plist>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.healthkit</key>
+	<true/>
+	<key>com.apple.developer.healthkit.background-delivery</key>
+	<true/>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.Paya.Paya.shared</string>
+	</array>
+	<!-- com.apple.developer.family-controls intentionally NOT enabled here —
+	     personal/free Apple Developer teams cannot use this capability at
+	     all (not a "needs approval" wait, a hard block), and turning it on
+	     breaks signing for the whole app under the current team. See
+	     FocusModeManager.swift for the feature this unlocks once the
+	     project is signed under a paid team (REMITON LTD) that supports it. -->
+</dict>
+</plist>

@@ -1,0 +1,19 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- floor -->
+    <line x1="30" y1="205" x2="210" y2="205"/>
+    <!-- head -->
+    <circle cx="120" cy="65" r="17"/>
+    <!-- torso, upright -->
+    <line x1="120" y1="82" x2="120" y2="150"/>
+    <!-- relaxed arm at side -->
+    <line x1="120" y1="100" x2="95" y2="145"/>
+    <!-- loaded arm straight down holding weight -->
+    <line x1="120" y1="100" x2="145" y2="150"/>
+    <rect x="135" y="150" width="24" height="30" rx="4"/>
+    <!-- walking legs, mid-stride -->
+    <line x1="120" y1="150" x2="100" y2="205"/>
+    <line x1="120" y1="150" x2="145" y2="195"/>
+    <line x1="145" y1="195" x2="160" y2="205"/>
+  </g>
+</svg>

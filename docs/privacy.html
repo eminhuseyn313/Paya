@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — Paya</title>
+    <style>
+        :root {
+            --bg: #FFFFFF;
+            --text: #1A1A1A;
+            --muted: #6B7280;
+            --border: #E5E7EB;
+            --accent: #059669;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #111111;
+                --text: #F3F4F6;
+                --muted: #9CA3AF;
+                --border: #2D2D2D;
+                --accent: #34D399;
+            }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 40px 20px 80px;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+        .updated {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+        h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 32px;
+            margin-bottom: 8px;
+        }
+        p, ul {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 32px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">Paya</div>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: August 13, 2026</p>
+
+    <p>Paya ("we", "our", "the app") is a personal fitness and health tracking application. Your privacy is fundamental to how we build Paya. This policy explains what data we collect, how we use it, and the controls you have.</p>
+
+    <h2>Data We Collect</h2>
+    <p>All data listed below is stored locally on your device using Apple's SwiftData framework. We do not operate servers that store your personal data.</p>
+    <ul>
+        <li><strong>Health &amp; fitness data</strong> — workouts, exercise logs, sets, reps, weights, body measurements, sleep data, heart rate, and steps (via Apple HealthKit with your permission).</li>
+        <li><strong>Nutrition data</strong> — meals, calories, macronutrients, and supplement schedules you enter.</li>
+        <li><strong>Profile information</strong> — name, age, height, weight, and fitness goals you provide during setup.</li>
+        <li><strong>Progress photos</strong> — photos you take within the app, stored only on your device.</li>
+        <li><strong>Location data</strong> — used solely to fetch local weather and UV index from Open-Meteo (a free, open-source weather API). Your coordinates are sent to Open-Meteo to retrieve weather data; we do not store or transmit your location elsewhere.</li>
+    </ul>
+
+    <h2>AI Features</h2>
+    <p>Paya offers optional AI-powered coaching and nutrition analysis. These features may use on-device Apple Intelligence (data never leaves your device) or cloud-based AI services (Anthropic Claude or Google Gemini) that require your own API key.</p>
+    <p>Cloud-based AI requires your explicit consent:</p>
+    <ul>
+        <li>You must enable "Allow External AI" in Settings before any data is sent to external AI services.</li>
+        <li>When enabled, fitness and nutrition context is sent to the AI provider you configured.</li>
+        <li>We do not store, log, or have access to your API keys — they are saved in your device's secure Keychain.</li>
+        <li>The AI provider's own privacy policy governs how they handle your data. Review <a href="https://www.anthropic.com/privacy">Anthropic's</a> or <a href="https://ai.google/privacy">Google's</a> privacy policies.</li>
+        <li>You can revoke consent at any time by disabling "Allow External AI" in Settings.</li>
+        <li>You can use Paya fully without cloud AI — on-device Apple Intelligence and all non-AI features work without this consent.</li>
+    </ul>
+
+    <h2>Third-Party Services</h2>
+    <p>Paya connects to the following external services:</p>
+    <ul>
+        <li><strong>Open-Meteo</strong> (<a href="https://open-meteo.com">open-meteo.com</a>) — weather and UV data. Your approximate location is sent to retrieve local conditions. Open-Meteo is open-source and does not track users.</li>
+        <li><strong>OpenFoodFacts</strong> (<a href="https://openfoodfacts.org">openfoodfacts.org</a>) — barcode lookup for nutrition data. Only the barcode number is sent.</li>
+        <li><strong>Anthropic / Google Gemini</strong> — AI features, only when you provide your own API key and enable consent.</li>
+        <li><strong>GitHub raw content</strong> — exercise demonstration images.</li>
+    </ul>
+    <p>We do not use any analytics SDKs, advertising networks, crash reporting services, or tracking pixels.</p>
+
+    <h2>Apple HealthKit</h2>
+    <p>Paya reads and writes health data through Apple HealthKit with your explicit permission. We read: steps, heart rate, sleep analysis, body weight, active energy, and workout data. We write: body weight entries and completed workouts. HealthKit data is never shared with third parties, used for advertising, or transmitted off your device (except when you explicitly use AI features on that data with your consent).</p>
+
+    <h2>Data Storage &amp; Security</h2>
+    <ul>
+        <li>All personal data is stored locally on your device.</li>
+        <li>API keys are stored in the iOS Keychain (hardware-encrypted).</li>
+        <li>All network communication uses HTTPS (TLS 1.2+).</li>
+        <li>We do not have a backend server — there is nothing to breach.</li>
+        <li>Deleting the app removes all Paya data from your device.</li>
+    </ul>
+
+    <h2>Data Sharing</h2>
+    <p>We do not sell, rent, or share your personal data with anyone. Period.</p>
+
+    <h2>Children's Privacy</h2>
+    <p>Paya is not directed at children under 13. We do not knowingly collect data from children.</p>
+
+    <h2>Your Rights</h2>
+    <p>Since all data is stored on your device, you have full control:</p>
+    <ul>
+        <li>View all your data within the app at any time.</li>
+        <li>Delete any or all data by removing entries or uninstalling the app.</li>
+        <li>Revoke HealthKit permissions in Settings → Privacy → Health.</li>
+        <li>Remove API keys from Settings within the app.</li>
+        <li>Revoke AI data sharing consent at any time in Settings.</li>
+    </ul>
+
+    <h2>Changes to This Policy</h2>
+    <p>We may update this policy as the app evolves. Changes will be noted in the app's update release notes.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy questions: <a href="mailto:eminhuseyn313@gmail.com">eminhuseyn313@gmail.com</a></p>
+
+    <hr>
+    <p style="font-size: 13px; text-align: center;">© 2026 Paya. All rights reserved.</p>
+</body>
+</html>

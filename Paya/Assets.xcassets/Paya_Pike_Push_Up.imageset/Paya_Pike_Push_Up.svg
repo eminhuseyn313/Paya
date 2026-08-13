@@ -1,0 +1,16 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- floor -->
+    <line x1="30" y1="205" x2="210" y2="205"/>
+    <!-- hands on floor -->
+    <line x1="75" y1="205" x2="75" y2="200"/>
+    <!-- arms up to shoulders (near head, inverted V) -->
+    <line x1="75" y1="200" x2="105" y2="140"/>
+    <!-- head near hands -->
+    <circle cx="95" cy="125" r="15"/>
+    <!-- hips high, apex of inverted V -->
+    <line x1="105" y1="140" x2="150" y2="95"/>
+    <!-- legs down to feet -->
+    <line x1="150" y1="95" x2="185" y2="205"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Paya_Clamshell.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

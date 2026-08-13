@@ -1,0 +1,23 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- seat/back support -->
+    <line x1="120" y1="150" x2="120" y2="215"/>
+    <rect x="90" y="205" width="60" height="14" rx="6" fill="#9CA3AF" stroke="none"/>
+    <!-- head -->
+    <circle cx="120" cy="70" r="18"/>
+    <!-- torso -->
+    <line x1="120" y1="88" x2="120" y2="150"/>
+    <!-- upper arms out to sides -->
+    <line x1="120" y1="105" x2="70" y2="95"/>
+    <line x1="120" y1="105" x2="170" y2="95"/>
+    <!-- forearms curving in to meet in front of chest -->
+    <path d="M 70 95 Q 55 130 105 138"/>
+    <path d="M 170 95 Q 185 130 135 138"/>
+    <!-- pad handles -->
+    <circle cx="105" cy="138" r="7" fill="#9CA3AF" stroke="none"/>
+    <circle cx="135" cy="138" r="7" fill="#9CA3AF" stroke="none"/>
+    <!-- legs -->
+    <line x1="120" y1="150" x2="100" y2="205"/>
+    <line x1="120" y1="150" x2="140" y2="205"/>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head -->
+  <circle cx="120" cy="40" r="16" fill="none" stroke="#9CA3AF" stroke-width="7"/>
+  <!-- Torso -->
+  <line x1="120" y1="56" x2="120" y2="140" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round"/>
+  <!-- Legs -->
+  <line x1="120" y1="140" x2="95" y2="205" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round"/>
+  <line x1="120" y1="140" x2="145" y2="205" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round"/>
+  <!-- Upper arms (elbows tucked at sides) -->
+  <line x1="120" y1="75" x2="85" y2="105" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round"/>
+  <line x1="120" y1="75" x2="155" y2="105" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round"/>
+  <!-- Forearms curled up to chest, holding the bar -->
+  <line x1="85" y1="105" x2="100" y2="70" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round"/>
+  <line x1="155" y1="105" x2="140" y2="70" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round"/>
+  <!-- EZ curl bar: the zig-zag shape is the key visual distinguisher from a straight bar -->
+  <path d="M 92 68 L 100 74 L 108 66 L 116 74 L 124 66 L 132 74 L 140 68"
+        fill="none" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Small reverse-grip cue: thumbs-forward marks on the hands -->
+  <circle cx="100" cy="70" r="4" fill="#9CA3AF"/>
+  <circle cx="140" cy="70" r="4" fill="#9CA3AF"/>
+</svg>

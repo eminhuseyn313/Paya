@@ -1,0 +1,20 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#9CA3AF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- floor -->
+    <line x1="30" y1="205" x2="210" y2="205"/>
+    <!-- head -->
+    <circle cx="115" cy="65" r="17"/>
+    <!-- torso, quarter-squat -->
+    <line x1="115" y1="82" x2="120" y2="140"/>
+    <!-- arms slightly out for balance -->
+    <line x1="115" y1="100" x2="90" y2="120"/>
+    <line x1="115" y1="100" x2="140" y2="120"/>
+    <!-- bent legs, knees out, one stepping sideways -->
+    <line x1="120" y1="140" x2="95" y2="170"/>
+    <line x1="95" y1="170" x2="80" y2="205"/>
+    <line x1="120" y1="140" x2="150" y2="165"/>
+    <line x1="150" y1="165" x2="170" y2="205"/>
+    <!-- band around knees -->
+    <ellipse cx="128" cy="167" rx="42" ry="10"/>
+  </g>
+</svg>

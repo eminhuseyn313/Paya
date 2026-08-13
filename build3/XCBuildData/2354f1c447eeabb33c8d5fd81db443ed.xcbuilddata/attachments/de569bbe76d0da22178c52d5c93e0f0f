@@ -1,0 +1,59 @@
+{
+  "" : {
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatch Watch App-primary.dia",
+    "emit-module-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatch Watch App-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatch Watch App-primary-emit-module.dia",
+    "pch" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatch Watch App-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatch Watch App-primary.swiftdeps"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWatch Watch App/ColorHex.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ColorHex~partial.swiftmodule"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWatch Watch App/ContentView.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWatch Watch App/PayaWatchApp.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/PayaWatchApp~partial.swiftmodule"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWatch Watch App/WatchConnectivityManager.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/WatchConnectivityManager~partial.swiftmodule"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWatch Watch App.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

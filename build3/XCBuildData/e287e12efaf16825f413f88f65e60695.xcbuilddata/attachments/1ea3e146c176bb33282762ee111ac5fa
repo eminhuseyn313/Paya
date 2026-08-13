@@ -1,0 +1,49 @@
+{
+  "" : {
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgets-primary.dia",
+    "emit-module-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgets-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgets-primary-emit-module.dia",
+    "pch" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgets-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgets-primary.swiftdeps"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWidgets/PayaSessionActivityAttributes.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionActivityAttributes~partial.swiftmodule"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWidgets/PayaSessionLiveActivity.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaSessionLiveActivity~partial.swiftmodule"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWidgets/PayaWidgetsBundle.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/PayaWidgetsBundle~partial.swiftmodule"
+  },
+  "/Users/eminhuseynzade/Desktop/Paya/PayaWidgets/RecoveryWidget.swift" : {
+    "const-values" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget.swiftconstvalues",
+    "dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget.d",
+    "diagnostics" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget.dia",
+    "index-unit-output-path" : "/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget.o",
+    "llvm-bc" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget.bc",
+    "object" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget.o",
+    "swift-dependencies" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget.swiftdeps",
+    "swiftmodule" : "/Users/eminhuseynzade/Desktop/Paya/build3/Paya.build/Debug-iphonesimulator/PayaWidgets.build/Objects-normal/arm64/RecoveryWidget~partial.swiftmodule"
+  }
+}
