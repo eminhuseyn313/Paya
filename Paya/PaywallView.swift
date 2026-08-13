@@ -244,14 +244,14 @@ struct PaywallView: View {
                             Text("·")
                                 .foregroundColor(.secondary.opacity(0.5))
 
-                            Link("Privacy", destination: URL(string: "https://getpaya.app/privacy")!)
+                            Link("Privacy", destination: URL(string: "https://eminhuseyn313.github.io/Paya/privacy")!)
                                 .font(.system(size: 13))
                                 .foregroundColor(.secondary)
 
                             Text("·")
                                 .foregroundColor(.secondary.opacity(0.5))
 
-                            Link("Terms", destination: URL(string: "https://getpaya.app/terms")!)
+                            Link("Terms", destination: URL(string: "https://eminhuseyn313.github.io/Paya/terms")!)
                                 .font(.system(size: 13))
                                 .foregroundColor(.secondary)
                         }

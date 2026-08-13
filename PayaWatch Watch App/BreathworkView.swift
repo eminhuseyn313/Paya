@@ -291,7 +291,10 @@ struct BreathworkView: View {
     private func measureHRV(completion: @escaping (Double?) -> Void) {
         // Query the most recent HRV sample from HealthKit
         let healthStore = HKHealthStore()
-        let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+        guard let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else {
+            completion(nil)
+            return
+        }
 
         healthStore.requestAuthorization(toShare: nil, read: [hrvType]) { _, _ in
             let predicate = HKQuery.predicateForSamples(
