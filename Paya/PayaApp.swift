@@ -31,8 +31,10 @@ struct PayaApp: App {
                     }
                     StepMilestoneObserver.start()
 
-                    // Seed historical sessions the user performed outside the app
+                    // DEV ONLY — remove or gate behind #if DEBUG before App Store submission
+                    #if DEBUG
                     SessionSeeder.seedAugust10Monday(context: ModelContext(SharedModelContainer.shared))
+                    #endif
 
                     // Check momentum streak badges
                     MomentumEngine.grantBadges(context: ModelContext(SharedModelContainer.shared))

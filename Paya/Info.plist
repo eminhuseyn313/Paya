@@ -28,5 +28,10 @@
 	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<!-- Export compliance: Paya uses HTTPS (standard system TLS) but
+	     no custom encryption. This flag skips the manual "Does your app
+	     use encryption?" question on every TestFlight / App Store upload. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
