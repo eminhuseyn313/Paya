@@ -27,5 +27,8 @@ Pods/
 *.cer
 *.mobileprovision
 
+# Screenshots (App Store submission assets)
+Screenshots/
+
 # Claude Code
 .claude/
