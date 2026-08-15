@@ -38,17 +38,35 @@ struct HealthView: View {
 
                     switch section {
                     case .today:
-                        SymptomLogCard()
-                        HealthActivitiesCard(onOpen: { showHealthActivities = true })
-                        MedicationsCard()
-                        BloodPressureCard()
-                        OutdoorTimeCard()
-                        FlareRiskFactorsCard()
-                        SorenessCorrelationCard()
-                            .requiresPro()
+                        // HERO: Daily sliders — the two inputs most people
+                        // touch every single day, always visible.
                         JointPainCard(vm: vm, appState: appState, modelContext: modelContext)
                         SleepTrackerCard(vm: vm, appState: appState, modelContext: modelContext)
-                        NotesCard(vm: vm, notesText: $notesText, modelContext: modelContext)
+
+                        // Group 1: Health tracking inputs
+                        ProgressCollapsible(
+                            title: "Health tracking",
+                            icon: "list.clipboard.fill",
+                            color: "2563EB"
+                        ) {
+                            SymptomLogCard()
+                            MedicationsCard()
+                            BloodPressureCard()
+                            OutdoorTimeCard()
+                            HealthActivitiesCard(onOpen: { showHealthActivities = true })
+                        }
+
+                        // Group 2: Risk & observations
+                        ProgressCollapsible(
+                            title: "Risk & observations",
+                            icon: "exclamationmark.shield.fill",
+                            color: "B45309"
+                        ) {
+                            FlareRiskFactorsCard()
+                            SorenessCorrelationCard()
+                                .requiresPro()
+                            NotesCard(vm: vm, notesText: $notesText, modelContext: modelContext)
+                        }
 
                     case .insights:
                         AppleHealthCard(vm: vm)

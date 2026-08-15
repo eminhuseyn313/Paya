@@ -27,6 +27,21 @@ enum PayaSpacing {
 enum PayaRadius {
     static let card: CGFloat = 20
     static let chip: CGFloat = 12
+    static let button: CGFloat = 14
+    static let section: CGFloat = 16
+}
+
+/// Named palette — centralised hex references so new screens don't
+/// re-derive colors from memory or copy-paste. Semantic, not decorative:
+/// each name describes *what it signals*, not what it looks like.
+enum PayaColor {
+    static let primary   = Color(hex: "2563EB")   // Blue — navigation, default accent
+    static let positive  = Color(hex: "059669")    // Green — on-track, healthy
+    static let warning   = Color(hex: "F59E0B")    // Amber — caution, watch
+    static let critical  = Color(hex: "DC2626")    // Red — alert, danger
+    static let accent    = Color(hex: "8B5CF6")    // Purple — AI, premium
+    static let info      = Color(hex: "0891B2")    // Cyan — data, hydration
+    static let earth     = Color(hex: "B45309")    // Brown — flare, body
 }
 
 enum PayaAnimation {

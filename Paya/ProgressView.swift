@@ -2,13 +2,16 @@ import SwiftUI
 import SwiftData
 import Charts
 
-// Structural fix, not a cosmetic one: splitting one wall of cards into
-// three segmented walls still left every tab a vertical stack (Body &
-// Recovery alone stacked 10+ cards). The actual mechanism is different now —
-// each tab leads with ONE large hero (the single thing worth seeing first)
-// and everything secondary lives in a horizontal, swipeable CardCarousel
-// instead of being scrolled past vertically. No card was removed; every one
-// below still exists, just reachable by a swipe instead of a scroll.
+// MARK: - Progress Tab (Redesigned)
+//
+// Before: 57 cards across 4 segments, each segment a vertical card dump.
+// After: Same 4 segments, but each uses collapsible thematic groups so
+// users see 3-4 sections per segment, not 13-21 cards. Nothing removed —
+// every card still renders, just grouped by function.
+//
+// Design principle: Lead with the HERO visualization per segment, then
+// group related analytics into collapsible sections with descriptive headers.
+
 enum ProgressSection: String, CaseIterable, Identifiable {
     case strength = "Strength"
     case body = "Body"
@@ -33,7 +36,7 @@ struct ProgressTabView: View {
             ScrollView {
                 VStack(spacing: 10) {
 
-                    // Summary stats — the always-visible top billing
+                    // Summary stats — always visible
                     ProgressStatsRow(vm: viewModel, onSelectSection: { section = $0 })
 
                     Picker("Section", selection: $section) {
@@ -46,105 +49,13 @@ struct ProgressTabView: View {
 
                     switch section {
                     case .strength:
-                        TrophyCaseCard()
-                        PersonalBestTimelineCard()
-                        StrengthRadarCard(sessions: viewModel.allSessions)
-                        StrengthToWeightCard(sessions: viewModel.allSessions)
-                        StrengthStandardsCard(sessions: viewModel.allSessions)
-                        EstimatedOneRMCard(sessions: viewModel.allSessions)
-                        PRWallCard(sessions: viewModel.allSessions)
-                        PRTimelineCard(sessions: viewModel.allSessions)
-                        ExerciseSparklineCard(sessions: viewModel.allSessions)
-                        ProgressiveOverloadCard(sessions: viewModel.allSessions)
-                        ExerciseAlternativesCard(sessions: viewModel.allSessions)
-                        ExerciseProgressionCard(sessions: viewModel.allSessions)
-                        RecentPRsCard(sessions: viewModel.allSessions)
-                        VolumeLandmarkCard(sessions: viewModel.allSessions)
-                        WeeklyBodyMapCard(sessions: viewModel.allSessions)
-                        VolumePRCard(sessions: viewModel.allSessions)
-                        MuscleRecoveryInsightCard(sessions: viewModel.allSessions)
-                        if !PlateauEngine.detect(sessions: viewModel.allSessions).isEmpty {
-                            PlateauCard(sessions: viewModel.allSessions)
-                        }
-
+                        strengthSection
                     case .body:
-                        ProgressWeightChart(vm: viewModel)
-                        BodyCompositionCard()
-                        BodyRecompCard()
-                        VO2MaxCard()
-                        if !bodySignals.isEmpty {
-                            BodySignalsCard(insights: bodySignals)
-                        }
-                        Button {
-                            showBodyTracking = true
-                        } label: {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color(hex: "8B5CF6").opacity(0.15))
-                                        .frame(width: 40, height: 40)
-                                    Image(systemName: "ruler.fill")
-                                        .foregroundColor(Color(hex: "8B5CF6"))
-                                }
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Body Tracking")
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundColor(.primary)
-                                    Text("Measurements & progress photos")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            .payaCard(padding: 14)
-                        }
-                        .buttonStyle(.plain)
-
+                        bodySection
                     case .load:
-                        WorkoutIntensityScoreCard(sessions: viewModel.allSessions)
-                        ACWRCard()
-                        PeriodizationCard(sessions: viewModel.allSessions)
-                        FatigueIndexCard(sessions: viewModel.allSessions)
-                        RepRangeAnalysisCard(sessions: viewModel.allSessions)
-                        WorkoutDensityCard(sessions: viewModel.allSessions)
-                        WeeklyVolumeTrendCard(sessions: viewModel.allSessions)
-                        MuscleFreshnessMap(sessions: viewModel.allSessions)
-                        MuscleBalanceCard(sessions: viewModel.allSessions)
-                        RPETrendCard(sessions: viewModel.allSessions)
-                        HRZoneDistributionCard(sessions: viewModel.allSessions)
-                        PersonalHRZoneCard()
-                        MoodPerformanceCard()
-                        MuscleVolumeChart(sessions: viewModel.allSessions)
-                        RestTimeAnalyticsCard(sessions: viewModel.allSessions)
-                        SessionDurationTrendCard(sessions: viewModel.allSessions)
-                        TrimpTimelineCard(sessions: viewModel.allSessions)
-                        WeeklyLoadCard(sessions: viewModel.allSessions)
-                        SessionBaselinesCard(sessions: viewModel.allSessions)
-                        FeltVsMeasuredCard(sessions: viewModel.allSessions)
-                        HRRecoveryCard(sessions: viewModel.allSessions)
-
+                        loadSection
                     case .consistency:
-                        WeeklySummaryShareCard()
-                        TrainingTimeAnalysisCard()
-                            .requiresPro()
-                        ExercisePreferenceCard()
-                            .requiresPro()
-                        ConsistencyScoreCard(
-                            sessions: viewModel.allSessions,
-                            plannedPerWeek: 3
-                        )
-                        TrainingSplitCard(sessions: viewModel.allSessions)
-                        WorkoutMilestonesCard(sessions: viewModel.allSessions)
-                        TrainingFrequencyCard()
-                        TrainingHeatmapCard()
-                        WeeklyVolumeChart(vm: viewModel)
-                        TrainingCalendarV2()
-                        ProgressSectionHeader(title: "History & Insights")
-                        SessionHistoryCardV2()
-                        CorrelationInsightsCard()
+                        consistencySection
                     }
 
                     Spacer().frame(height: 20)
@@ -167,6 +78,255 @@ struct ProgressTabView: View {
         }
         .sheet(isPresented: $showBodyTracking) {
             BodyTrackingView()
+        }
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // STRENGTH (18 cards → 3 groups)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    @ViewBuilder
+    private var strengthSection: some View {
+        // HERO: Achievements + PRs (always visible)
+        TrophyCaseCard()
+        StrengthStandardsCard(sessions: viewModel.allSessions)
+
+        // Group 1: Personal Records
+        ProgressCollapsible(
+            title: "Personal records",
+            icon: "trophy.fill",
+            color: "F59E0B"
+        ) {
+            PersonalBestTimelineCard()
+            PRWallCard(sessions: viewModel.allSessions)
+            PRTimelineCard(sessions: viewModel.allSessions)
+            RecentPRsCard(sessions: viewModel.allSessions)
+            VolumePRCard(sessions: viewModel.allSessions)
+            VolumeLandmarkCard(sessions: viewModel.allSessions)
+        }
+
+        // Group 2: Strength Analysis
+        ProgressCollapsible(
+            title: "Strength analysis",
+            icon: "chart.line.uptrend.xyaxis",
+            color: "2563EB"
+        ) {
+            StrengthRadarCard(sessions: viewModel.allSessions)
+            StrengthToWeightCard(sessions: viewModel.allSessions)
+            EstimatedOneRMCard(sessions: viewModel.allSessions)
+            ExerciseSparklineCard(sessions: viewModel.allSessions)
+            ProgressiveOverloadCard(sessions: viewModel.allSessions)
+            ExerciseAlternativesCard(sessions: viewModel.allSessions)
+            ExerciseProgressionCard(sessions: viewModel.allSessions)
+        }
+
+        // Group 3: Muscle & Recovery
+        ProgressCollapsible(
+            title: "Muscle & recovery",
+            icon: "figure.strengthtraining.traditional",
+            color: "059669"
+        ) {
+            WeeklyBodyMapCard(sessions: viewModel.allSessions)
+            MuscleRecoveryInsightCard(sessions: viewModel.allSessions)
+            if !PlateauEngine.detect(sessions: viewModel.allSessions).isEmpty {
+                PlateauCard(sessions: viewModel.allSessions)
+            }
+        }
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // BODY (5 cards — already manageable)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    @ViewBuilder
+    private var bodySection: some View {
+        ProgressWeightChart(vm: viewModel)
+        BodyCompositionCard()
+        BodyRecompCard()
+        VO2MaxCard()
+        if !bodySignals.isEmpty {
+            BodySignalsCard(insights: bodySignals)
+        }
+        Button { showBodyTracking = true } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: "8B5CF6").opacity(0.15))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "ruler.fill")
+                        .foregroundColor(Color(hex: "8B5CF6"))
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Body Tracking")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.primary)
+                    Text("Measurements & progress photos")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .payaCard(padding: 14)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // LOAD (21 cards → 4 groups)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    @ViewBuilder
+    private var loadSection: some View {
+        // HERO: Intensity score + ACWR (always visible)
+        WorkoutIntensityScoreCard(sessions: viewModel.allSessions)
+        ACWRCard()
+
+        // Group 1: Volume & Periodization
+        ProgressCollapsible(
+            title: "Volume & periodization",
+            icon: "chart.bar.fill",
+            color: "8B5CF6"
+        ) {
+            PeriodizationCard(sessions: viewModel.allSessions)
+            WeeklyVolumeTrendCard(sessions: viewModel.allSessions)
+            RepRangeAnalysisCard(sessions: viewModel.allSessions)
+            WorkoutDensityCard(sessions: viewModel.allSessions)
+            MuscleVolumeChart(sessions: viewModel.allSessions)
+            WeeklyLoadCard(sessions: viewModel.allSessions)
+        }
+
+        // Group 2: Fatigue & Recovery
+        ProgressCollapsible(
+            title: "Fatigue & recovery",
+            icon: "battery.75percent",
+            color: "F59E0B"
+        ) {
+            FatigueIndexCard(sessions: viewModel.allSessions)
+            MuscleFreshnessMap(sessions: viewModel.allSessions)
+            MuscleBalanceCard(sessions: viewModel.allSessions)
+            RestTimeAnalyticsCard(sessions: viewModel.allSessions)
+        }
+
+        // Group 3: Heart Rate & Biometrics
+        ProgressCollapsible(
+            title: "Heart rate & biometrics",
+            icon: "heart.fill",
+            color: "DC2626"
+        ) {
+            HRZoneDistributionCard(sessions: viewModel.allSessions)
+            PersonalHRZoneCard()
+            TrimpTimelineCard(sessions: viewModel.allSessions)
+            HRRecoveryCard(sessions: viewModel.allSessions)
+        }
+
+        // Group 4: Session Trends
+        ProgressCollapsible(
+            title: "Session trends",
+            icon: "clock.fill",
+            color: "0891B2"
+        ) {
+            RPETrendCard(sessions: viewModel.allSessions)
+            MoodPerformanceCard()
+            SessionDurationTrendCard(sessions: viewModel.allSessions)
+            SessionBaselinesCard(sessions: viewModel.allSessions)
+            FeltVsMeasuredCard(sessions: viewModel.allSessions)
+        }
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // CONSISTENCY (13 cards → 3 groups)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    @ViewBuilder
+    private var consistencySection: some View {
+        // HERO: Score + summary
+        WeeklySummaryShareCard()
+        ConsistencyScoreCard(
+            sessions: viewModel.allSessions,
+            plannedPerWeek: 3
+        )
+
+        // Group 1: Training Patterns
+        ProgressCollapsible(
+            title: "Training patterns",
+            icon: "calendar",
+            color: "2563EB"
+        ) {
+            TrainingTimeAnalysisCard()
+                .requiresPro()
+            ExercisePreferenceCard()
+                .requiresPro()
+            TrainingSplitCard(sessions: viewModel.allSessions)
+            TrainingFrequencyCard()
+        }
+
+        // Group 2: History & Milestones
+        ProgressCollapsible(
+            title: "History & milestones",
+            icon: "star.fill",
+            color: "F59E0B"
+        ) {
+            WorkoutMilestonesCard(sessions: viewModel.allSessions)
+            TrainingHeatmapCard()
+            WeeklyVolumeChart(vm: viewModel)
+            TrainingCalendarV2()
+        }
+
+        // Group 3: Insights
+        ProgressCollapsible(
+            title: "Insights",
+            icon: "lightbulb.fill",
+            color: "059669"
+        ) {
+            SessionHistoryCardV2()
+            CorrelationInsightsCard()
+        }
+    }
+}
+
+// MARK: - Collapsible Section Component
+
+struct ProgressCollapsible<Content: View>: View {
+    let title: String
+    let icon: String
+    let color: String
+    @ViewBuilder let content: () -> Content
+
+    @State private var isExpanded = false
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { isExpanded.toggle() }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: icon)
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Color(hex: color))
+                        .frame(width: 26, height: 26)
+                        .background(Color(hex: color).opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 7))
+                    Text(title)
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(Color(.secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .buttonStyle(.plain)
+
+            if isExpanded {
+                content()
+            }
         }
     }
 }
@@ -369,7 +529,6 @@ struct ProgressWeightChart: View {
                 }
             }
 
-            // Weekly change
             if vm.weightLogs.count >= 2 {
                 HStack(spacing: 6) {
                     Image(systemName: vm.weeklyWeightChange <= 0
