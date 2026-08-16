@@ -48,19 +48,19 @@ struct PRWallCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "trophy.fill")
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                 Text("Personal Records")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(prs.count) lifts")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if prs.isEmpty {
                 Text("Log weighted sets to build your PR wall")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
             } else {
@@ -74,7 +74,7 @@ struct PRWallCard: View {
                     } label: {
                         Text(expanded ? "Show less" : "Show all \(prs.count) PRs")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
                     }
@@ -103,13 +103,13 @@ private struct PRRow: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
-                            .background(Color(hex: "059669"))
+                            .background(Pulse.positive)
                             .clipShape(Capsule())
                     }
                 }
                 Text(pr.date.formatted(.dateTime.day().month(.abbreviated)))
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer()
@@ -123,7 +123,7 @@ private struct PRRow: View {
                 let displayE1RM = appState.profile.prefersLbs ? pr.e1rm * 2.20462 : pr.e1rm
                 Text("e1RM \(String(format: "%.0f", displayE1RM))")
                     .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
             }
         }
         .padding(.vertical, 2)

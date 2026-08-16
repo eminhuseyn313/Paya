@@ -993,125 +993,111 @@ struct CompleteSessionSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
 
-                    ZStack {
-                        Circle()
-                            .fill(Color(hex: "059669").opacity(0.15))
-                            .frame(width: 100, height: 100)
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 64))
-                            .foregroundColor(Color(hex: "059669"))
-                    }
-                    .padding(.top, 20)
+                ScrollView {
+                    VStack(spacing: 20) {
 
-                    VStack(spacing: 4) {
-                        Text("Session Complete")
-                            .font(.title2.bold())
-                        Text(vm.selectedDay.name)
-                            .font(.subheadline)
-                            .foregroundColor(vm.selectedDay.color)
-                    }
-
-                    HStack(spacing: 10) {
-                        SummaryStatPill(
-                            icon: "timer",
-                            value: vm.sessionDurationFormatted,
-                            label: "Duration",
-                            color: Color(hex: "2563EB")
+                        // Hero celebration
+                        PulseSuccessCheck(
+                            size: 100,
+                            color: Pulse.positive,
+                            showBurst: prCount > 0
                         )
-                        SummaryStatPill(
-                            icon: "checkmark.circle.fill",
-                            value: "\(vm.totalCompletedSets)",
-                            label: "Sets done",
-                            color: Color(hex: "059669")
-                        )
-                        SummaryStatPill(
-                            icon: "scalemass.fill",
-                            value: String(format: "%.0f", appState.profile.prefersLbs ? vm.totalSessionVolume * 2.20462 : vm.totalSessionVolume),
-                            label: "\(appState.profile.prefersLbs ? "lbs" : "kg") volume",
-                            color: vm.selectedDay.color
-                        )
-                    }
-                    .padding(.horizontal, 16)
+                        .padding(.top, 20)
 
-                    if prCount > 0 || volumeDelta != nil {
-                        HStack(spacing: 12) {
-                            if prCount > 0 {
-                                HStack(spacing: 5) {
-                                    Image(systemName: "trophy.fill")
-                                        .font(.system(size: 12))
-                                        .foregroundColor(Color(hex: "F59E0B"))
-                                    Text("\(prCount) PR\(prCount > 1 ? "s" : "")")
-                                        .font(.caption.weight(.bold))
-                                        .foregroundColor(Color(hex: "F59E0B"))
+                        VStack(spacing: 4) {
+                            Text("Session Complete")
+                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .foregroundColor(Pulse.textPrimary)
+                            Text(vm.selectedDay.name)
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(vm.selectedDay.color)
+                        }
+
+                        // Stats row
+                        HStack(spacing: 10) {
+                            SummaryStatPill(
+                                icon: "timer",
+                                value: vm.sessionDurationFormatted,
+                                label: "Duration",
+                                color: Pulse.hydration
+                            )
+                            SummaryStatPill(
+                                icon: "checkmark.circle.fill",
+                                value: "\(vm.totalCompletedSets)",
+                                label: "Sets done",
+                                color: Pulse.positive
+                            )
+                            SummaryStatPill(
+                                icon: "scalemass.fill",
+                                value: String(format: "%.0f", appState.profile.prefersLbs ? vm.totalSessionVolume * 2.20462 : vm.totalSessionVolume),
+                                label: "\(appState.profile.prefersLbs ? "lbs" : "kg") volume",
+                                color: vm.selectedDay.color
+                            )
+                        }
+                        .padding(.horizontal, 16)
+
+                        // PR + volume delta badges
+                        if prCount > 0 || volumeDelta != nil {
+                            HStack(spacing: 12) {
+                                if prCount > 0 {
+                                    PulsePRBadge(count: prCount)
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color(hex: "F59E0B").opacity(0.12))
-                                .clipShape(Capsule())
-                            }
-                            if let delta = volumeDelta {
-                                HStack(spacing: 4) {
-                                    Image(systemName: delta >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                        .font(.system(size: 10))
-                                    Text(String(format: "%+.0f%% vs last", delta))
-                                        .font(.caption.weight(.bold))
+                                if let delta = volumeDelta {
+                                    PulseVolumeDelta(delta: delta)
                                 }
-                                .foregroundColor(delta >= 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background((delta >= 0 ? Color(hex: "059669") : Color(hex: "DC2626")).opacity(0.12))
-                                .clipShape(Capsule())
                             }
                         }
-                    }
 
-                    if hasHRData {
-                        SessionStrainCard(report: strainReport)
+                        if hasHRData {
+                            SessionStrainCard(report: strainReport)
+                                .padding(.horizontal, 16)
+
+                            HRTimelineChart(
+                                samples: HRSampleBuffer.shared.sessionSamples,
+                                intervalSeconds: HRSampleBuffer.shared.sessionSamplingIntervalSeconds,
+                                maxHR: hr.maxHR
+                            )
+                            .padding(.horizontal, 16)
+                        }
+
+                        // Per-exercise summary
+                        ExerciseSummaryList(vm: vm)
                             .padding(.horizontal, 16)
 
-                        HRTimelineChart(
-                            samples: HRSampleBuffer.shared.sessionSamples,
-                            intervalSeconds: HRSampleBuffer.shared.sessionSamplingIntervalSeconds,
-                            maxHR: hr.maxHR
-                        )
-                        .padding(.horizontal, 16)
-                    }
+                        VStack(spacing: 10) {
+                            Button(action: onConfirm) {
+                                Text("Complete & Save")
+                                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 16)
+                                    .background(Pulse.positive)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                            }
+                            .buttonStyle(PulsePrimaryPress())
 
-                    // Per-exercise summary
-                    ExerciseSummaryList(vm: vm)
-                        .padding(.horizontal, 16)
-
-                    VStack(spacing: 10) {
-                        Button(action: onConfirm) {
-                            Text("Complete & Save")
-                                .font(.headline.weight(.bold))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
-                                .background(Color(hex: "059669"))
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                            Button(action: onCancel) {
+                                Text("Not yet — keep training")
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .foregroundColor(Pulse.textTertiary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                            }
                         }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
 
-                        Button(action: onCancel) {
-                            Text("Not yet — keep training")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.secondary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                        }
+                        Spacer().frame(height: 30)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 12)
-
-                    Spacer().frame(height: 30)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.large])
+        .preferredColorScheme(.dark)
     }
 }
 
@@ -1124,18 +1110,27 @@ struct SummaryStatPill: View {
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.title3)
+                .font(.system(size: 18))
                 .foregroundColor(color)
             Text(value)
-                .font(.headline.bold())
+                .font(.system(size: 17, weight: .bold, design: .rounded))
+                .foregroundColor(Pulse.textPrimary)
+                .monospacedDigit()
+                .contentTransition(.numericText())
             Text(label)
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(color.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(
+            RoundedRectangle(cornerRadius: Pulse.Radius.md)
+                .fill(Pulse.surfaceFallback)
+                .overlay(
+                    RoundedRectangle(cornerRadius: Pulse.Radius.md)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                )
+        )
     }
 }
 
@@ -1152,7 +1147,8 @@ struct ExerciseSummaryList: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("EXERCISE BREAKDOWN")
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
+                .tracking(1.2)
 
             ForEach(vm.orderedExercises, id: \.id) { exercise in
                 if let state = vm.exerciseStates[exercise.id] {

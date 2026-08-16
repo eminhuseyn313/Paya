@@ -15,7 +15,7 @@ struct RPETrendCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "flame.fill")
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                         Text("RPE Trend")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -26,7 +26,7 @@ struct RPETrendCard: View {
                                 Text(String(format: "%+.1f", t))
                                     .font(.system(size: 10, weight: .bold))
                             }
-                            .foregroundColor(t > 0.5 ? Color(hex: "DC2626") : Color(hex: "059669"))
+                            .foregroundColor(t > 0.5 ? Pulse.critical : Pulse.positive)
                         }
                     }
 
@@ -36,9 +36,9 @@ struct RPETrendCard: View {
                             y: .value("RPE", point.rpe)
                         )
                         .foregroundStyle(
-                            point.rpe >= 9 ? Color(hex: "DC2626") :
-                            point.rpe >= 7 ? Color(hex: "F59E0B") :
-                            Color(hex: "059669")
+                            point.rpe >= 9 ? Pulse.critical :
+                            point.rpe >= 7 ? Pulse.nutrition :
+                            Pulse.positive
                         )
                         .cornerRadius(3)
 
@@ -63,22 +63,22 @@ struct RPETrendCard: View {
 
                     HStack(spacing: 16) {
                         HStack(spacing: 4) {
-                            Circle().fill(Color(hex: "DC2626")).frame(width: 5, height: 5)
+                            Circle().fill(Pulse.critical).frame(width: 5, height: 5)
                             Text(String(format: "Avg: %.1f RPE", avgRPE))
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 4) {
-                            Circle().fill(Color(hex: "059669")).frame(width: 5, height: 5)
+                            Circle().fill(Pulse.positive).frame(width: 5, height: 5)
                             Text("\(data.count) rated sessions")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
                     Text("Session RPE from your post-workout reflection. Sustained RPE > 9 increases injury risk.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }

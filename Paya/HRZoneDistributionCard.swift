@@ -19,7 +19,7 @@ struct HRZoneDistributionCard: View {
                         Spacer()
                         Text("Last 10 sessions")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     VStack(spacing: 6) {
@@ -40,7 +40,7 @@ struct HRZoneDistributionCard: View {
                                 Text(String(format: "%.0f%%", zone.percent))
                                     .font(.system(size: 10, weight: .bold, design: .rounded))
                                     .monospacedDigit()
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .frame(width: 34, alignment: .trailing)
                             }
                         }
@@ -52,14 +52,14 @@ struct HRZoneDistributionCard: View {
                                 Circle().fill(zone.color).frame(width: 5, height: 5)
                                 Text("\(zone.bpmRange)")
                                     .font(.system(size: 8))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
 
                     Text("Based on standard HR zones (% of est. max HR). Higher Zone 3-4 time indicates effective hypertrophy stimulus.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
@@ -97,11 +97,11 @@ struct HRZoneDistributionCard: View {
 
         let total = Double(allSamples.count)
         zones = [
-            ZoneData(name: "Zone 1", bpmRange: "<\(z1Max)", percent: Double(z1) / total * 100, color: Color(hex: "0891B2")),
-            ZoneData(name: "Zone 2", bpmRange: "\(z1Max)-\(z2Max)", percent: Double(z2) / total * 100, color: Color(hex: "059669")),
-            ZoneData(name: "Zone 3", bpmRange: "\(z2Max)-\(z3Max)", percent: Double(z3) / total * 100, color: Color(hex: "F59E0B")),
-            ZoneData(name: "Zone 4", bpmRange: "\(z3Max)-\(z4Max)", percent: Double(z4) / total * 100, color: Color(hex: "DC2626")),
-            ZoneData(name: "Zone 5", bpmRange: ">\(z4Max)", percent: Double(z5) / total * 100, color: Color(hex: "8B5CF6")),
+            ZoneData(name: "Zone 1", bpmRange: "<\(z1Max)", percent: Double(z1) / total * 100, color: Pulse.recovery),
+            ZoneData(name: "Zone 2", bpmRange: "\(z1Max)-\(z2Max)", percent: Double(z2) / total * 100, color: Pulse.positive),
+            ZoneData(name: "Zone 3", bpmRange: "\(z2Max)-\(z3Max)", percent: Double(z3) / total * 100, color: Pulse.nutrition),
+            ZoneData(name: "Zone 4", bpmRange: "\(z3Max)-\(z4Max)", percent: Double(z4) / total * 100, color: Pulse.critical),
+            ZoneData(name: "Zone 5", bpmRange: ">\(z4Max)", percent: Double(z5) / total * 100, color: Pulse.ai),
         ]
     }
 }

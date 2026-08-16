@@ -391,7 +391,7 @@ struct ProgramScienceView: View {
         let targets = GoalEngine.targets(
             goal: goal,
             bodyWeightKg: profile.currentWeightKg,
-            age: profile.age,
+            age: profile.currentAge,
             heightCm: profile.heightCm,
             sexRaw: profile.sexRaw
         )

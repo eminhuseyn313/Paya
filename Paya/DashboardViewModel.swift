@@ -58,6 +58,7 @@ class DashboardViewModel {
     var recoveryScore: Int? = nil
     var readiness: ReadinessEngine.Report? = nil
     var hasCheckedInToday: Bool = false
+    var hasWearableData: Bool = false
 
     // TDEE (BMR + steps/TRIMP activity)
     var tdeeToday: TDEEEngine.Breakdown? = nil
@@ -188,6 +189,7 @@ class DashboardViewModel {
         appleHealthHR = hrVal
         appleHealthHRV = hrvVal
         appleHealthSteps = stepsVal
+        hasWearableData = hrVal != nil || hrvVal != nil || (sleepVal != nil && sleepVal! > 0)
         tdeeToday = TDEEEngine.computeToday(profile: profile, steps: stepsVal ?? 0, context: context)
 
         // Weight resolution: Apple Health wins if newer than manual

@@ -57,10 +57,10 @@ struct WorkoutIntensityScoreCard: View {
     }
 
     private func scoreColor(_ score: Double) -> Color {
-        if score >= 75 { return Color(hex: "DC2626") }
-        if score >= 50 { return Color(hex: "F59E0B") }
-        if score >= 25 { return Color(hex: "059669") }
-        return Color(hex: "2563EB")
+        if score >= 75 { return Pulse.critical }
+        if score >= 50 { return Pulse.nutrition }
+        if score >= 25 { return Pulse.positive }
+        return Pulse.hydration
     }
 
     private func scoreLabel(_ score: Double) -> String {
@@ -74,7 +74,7 @@ struct WorkoutIntensityScoreCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "bolt.heart.fill")
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                 Text("Session Intensity")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -92,7 +92,7 @@ struct WorkoutIntensityScoreCard: View {
             if recentScores.isEmpty {
                 Text("Complete sessions to see intensity trends")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 12)
             } else {
@@ -115,7 +115,7 @@ struct WorkoutIntensityScoreCard: View {
 
                             Text(point.label)
                                 .font(.system(size: 7))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .lineLimit(1)
                         }
                         .frame(maxWidth: .infinity)
@@ -124,10 +124,10 @@ struct WorkoutIntensityScoreCard: View {
                 .frame(height: 100)
 
                 HStack(spacing: 16) {
-                    IntensityLegend(color: Color(hex: "2563EB"), label: "0–24 Recovery")
-                    IntensityLegend(color: Color(hex: "059669"), label: "25–49 Light")
-                    IntensityLegend(color: Color(hex: "F59E0B"), label: "50–74 Optimal")
-                    IntensityLegend(color: Color(hex: "DC2626"), label: "75+ Hard")
+                    IntensityLegend(color: Pulse.hydration, label: "0–24 Recovery")
+                    IntensityLegend(color: Pulse.positive, label: "25–49 Light")
+                    IntensityLegend(color: Pulse.nutrition, label: "50–74 Optimal")
+                    IntensityLegend(color: Pulse.critical, label: "75+ Hard")
                 }
                 .font(.system(size: 8))
             }
@@ -143,7 +143,7 @@ private struct IntensityLegend: View {
     var body: some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).foregroundColor(.secondary)
+            Text(label).foregroundColor(Pulse.textTertiary)
         }
     }
 }

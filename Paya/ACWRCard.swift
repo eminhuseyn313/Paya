@@ -75,7 +75,7 @@ struct ACWRCard: View {
                                     .font(.system(size: 18, weight: .bold, design: .rounded))
                                 Text("ACWR")
                                     .font(.system(size: 8, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
 
@@ -85,21 +85,21 @@ struct ACWRCard: View {
                                 label: "Acute (7d)",
                                 value: acuteLoad,
                                 icon: "bolt.fill",
-                                color: Color(hex: "F59E0B")
+                                color: Pulse.nutrition
                             )
                             loadRow(
                                 label: "Chronic (28d avg)",
                                 value: chronicLoad,
                                 icon: "chart.line.uptrend.xyaxis",
-                                color: Color(hex: "2563EB")
+                                color: Pulse.hydration
                             )
                             HStack(spacing: 4) {
                                 Image(systemName: "calendar")
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Text("\(sessionCountThisWeek) sessions this week")
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
@@ -109,7 +109,7 @@ struct ACWRCard: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("8-week trend")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
 
                             Chart {
                                 // Sweet spot zone band
@@ -119,7 +119,7 @@ struct ACWRCard: View {
                                     yStart: .value("Low", 0.8),
                                     yEnd: .value("High", 1.3)
                                 )
-                                .foregroundStyle(Color(hex: "059669").opacity(0.08))
+                                .foregroundStyle(Pulse.positive.opacity(0.08))
 
                                 ForEach(weeklyHistory, id: \.weekStart) { entry in
                                     LineMark(
@@ -154,9 +154,9 @@ struct ACWRCard: View {
                             }
 
                             HStack(spacing: 12) {
-                                legendDot(color: Color(hex: "059669"), label: "0.8–1.3 sweet spot")
-                                legendDot(color: Color(hex: "F59E0B"), label: ">1.3 spike risk")
-                                legendDot(color: Color(hex: "DC2626"), label: ">1.5 danger")
+                                legendDot(color: Pulse.positive, label: "0.8–1.3 sweet spot")
+                                legendDot(color: Pulse.nutrition, label: ">1.3 spike risk")
+                                legendDot(color: Pulse.critical, label: ">1.5 danger")
                             }
                         }
                     }
@@ -169,7 +169,7 @@ struct ACWRCard: View {
                             .padding(.top, 1)
                         Text(zone.recommendation(acwr: acwr, sessionsThisWeek: sessionCountThisWeek))
                             .font(.system(size: 10))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
@@ -178,11 +178,11 @@ struct ACWRCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "moon.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                                 .padding(.top, 1)
                             Text(sleepNote)
                                 .font(.system(size: 10))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -208,7 +208,7 @@ struct ACWRCard: View {
                 .frame(width: 14)
             Text(label)
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Spacer()
             Text(String(format: "%.0f %@", display, unit))
                 .font(.system(size: 10, weight: .bold))
@@ -218,14 +218,14 @@ struct ACWRCard: View {
     private func legendDot(color: Color, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).font(.system(size: 7)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
         }
     }
 
     private func colorForACWR(_ value: Double) -> Color {
-        if value >= 0.8 && value <= 1.3 { return Color(hex: "059669") }
-        if value > 1.5 || value < 0.5 { return Color(hex: "DC2626") }
-        return Color(hex: "F59E0B")
+        if value >= 0.8 && value <= 1.3 { return Pulse.positive }
+        if value > 1.5 || value < 0.5 { return Pulse.critical }
+        return Pulse.nutrition
     }
 
     // MARK: - Compute ACWR
@@ -348,10 +348,10 @@ private enum WorkloadZone {
 
     var color: Color {
         switch self {
-        case .undertrained: return Color(hex: "2563EB")
-        case .optimal:      return Color(hex: "059669")
-        case .caution:      return Color(hex: "F59E0B")
-        case .danger:       return Color(hex: "DC2626")
+        case .undertrained: return Pulse.hydration
+        case .optimal:      return Pulse.positive
+        case .caution:      return Pulse.nutrition
+        case .danger:       return Pulse.critical
         }
     }
 

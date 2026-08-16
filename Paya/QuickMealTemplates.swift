@@ -84,15 +84,15 @@ struct QuickSavedMealTemplatesCard: View {
             if templates.isEmpty {
                 VStack(spacing: 8) {
                     Text("No saved meals yet")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("Save your common meals to log them with one tap. Most people eat the same 10-15 meals — templates eliminate repeat typing.")
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(Pulse.textSecondary)
+                    Text("Save your common meals to log them with one tap. Most people eat the same 10–15 meals — templates eliminate repeat typing.")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, 12)
             } else {
                 // Show top 4 most-used templates as quick-tap chips
                 let sorted = templates.sorted { ($0.useCount, $0.lastUsed ?? .distantPast) > ($1.useCount, $1.lastUsed ?? .distantPast) }

@@ -150,7 +150,10 @@ struct ProfileEditorView: View {
             Form {
                 Section("Basics") {
                     TextField("Name", text: $profile.name)
-                    Stepper("Age: \(profile.age)", value: $profile.age, in: 12...90)
+                    Stepper("Age: \(profile.currentAge)", value: $profile.age, in: 12...90)
+                        .onChange(of: profile.age) { _, newAge in
+                            profile.birthYear = Calendar.current.component(.year, from: Date()) - newAge
+                        }
                     Picker("Sex", selection: $profile.sexRaw) {
                         Text("Male").tag("male")
                         Text("Female").tag("female")
@@ -200,7 +203,7 @@ struct ProfileEditorView: View {
                         let t = GoalEngine.targets(
                             goal: profile.goal,
                             bodyWeightKg: profile.currentWeightKg,
-                            age: profile.age,
+                            age: profile.currentAge,
                             heightCm: profile.heightCm,
                             sexRaw: profile.sexRaw
                         )

@@ -5,7 +5,9 @@ import SwiftData
 
 struct UserProfile: Codable {
     var name: String = "Emin"
-    var age: Int = 33
+    /// Birth year — age is computed dynamically so it never goes stale.
+    /// Migrated from legacy `age` field on first decode.
+    var birthYear: Int = Calendar.current.component(.year, from: Date()) - 30
     var sexRaw: String = "male"
     var heightCm: Double = 178.0
     var bodyWeightGoalKg: Double = 80.0
@@ -15,6 +17,80 @@ struct UserProfile: Codable {
     var restDayCalories: Double = 1900.0
     var trainingDays: [Int] = [2, 5, 7]
     var flareEngineEnabled: Bool = true
+
+    // Custom coding keys to handle migration from `age` to `birthYear`
+    private enum CodingKeys: String, CodingKey {
+        case name, birthYear, sexRaw, heightCm, bodyWeightGoalKg, currentWeightKg
+        case proteinTargetG, trainingDayCalories, restDayCalories, trainingDays
+        case flareEngineEnabled, reminderEnabled, reminderTime, preFlareAlertsEnabled
+        case notificationCategoryEnabled, notificationsQuietHoursEnabled
+        case quietHoursStart, quietHoursEnd, favoriteAzeFoodIds, prefersLbs, goalRaw
+        // Legacy key — read-only, used to migrate old JSON
+        case legacyAge = "age"
+    }
+
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        name = (try? c.decode(String.self, forKey: .name)) ?? "Emin"
+        sexRaw = (try? c.decode(String.self, forKey: .sexRaw)) ?? "male"
+        heightCm = (try? c.decode(Double.self, forKey: .heightCm)) ?? 178
+        bodyWeightGoalKg = (try? c.decode(Double.self, forKey: .bodyWeightGoalKg)) ?? 80
+        currentWeightKg = (try? c.decode(Double.self, forKey: .currentWeightKg)) ?? 85
+        proteinTargetG = (try? c.decode(Double.self, forKey: .proteinTargetG)) ?? 170
+        trainingDayCalories = (try? c.decode(Double.self, forKey: .trainingDayCalories)) ?? 2200
+        restDayCalories = (try? c.decode(Double.self, forKey: .restDayCalories)) ?? 1900
+        trainingDays = (try? c.decode([Int].self, forKey: .trainingDays)) ?? [2, 5, 7]
+        flareEngineEnabled = (try? c.decode(Bool.self, forKey: .flareEngineEnabled)) ?? true
+        reminderEnabled = (try? c.decode(Bool.self, forKey: .reminderEnabled)) ?? true
+        reminderTime = (try? c.decode(Date.self, forKey: .reminderTime)) ?? (Calendar.current.date(from: DateComponents(hour: 8)) ?? Date())
+        preFlareAlertsEnabled = (try? c.decode(Bool.self, forKey: .preFlareAlertsEnabled)) ?? false
+        notificationCategoryEnabled = (try? c.decode([String: Bool].self, forKey: .notificationCategoryEnabled)) ?? UserProfile().notificationCategoryEnabled
+        notificationsQuietHoursEnabled = (try? c.decode(Bool.self, forKey: .notificationsQuietHoursEnabled)) ?? false
+        quietHoursStart = (try? c.decode(Date.self, forKey: .quietHoursStart)) ?? (Calendar.current.date(from: DateComponents(hour: 22)) ?? Date())
+        quietHoursEnd = (try? c.decode(Date.self, forKey: .quietHoursEnd)) ?? (Calendar.current.date(from: DateComponents(hour: 7)) ?? Date())
+        favoriteAzeFoodIds = (try? c.decode([String].self, forKey: .favoriteAzeFoodIds)) ?? []
+        prefersLbs = (try? c.decode(Bool.self, forKey: .prefersLbs)) ?? false
+        goalRaw = (try? c.decode(String.self, forKey: .goalRaw)) ?? TrainingGoal.hypertrophy.rawValue
+
+        // Migration: prefer `birthYear`; fall back to legacy `age` → birthYear
+        let currentYear = Calendar.current.component(.year, from: Date())
+        if let by = try? c.decode(Int.self, forKey: .birthYear) {
+            birthYear = by
+        } else if let legacyAge = try? c.decode(Int.self, forKey: .legacyAge) {
+            birthYear = currentYear - legacyAge
+        } else {
+            birthYear = currentYear - 30
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(name, forKey: .name)
+        try c.encode(birthYear, forKey: .birthYear)
+        try c.encode(sexRaw, forKey: .sexRaw)
+        try c.encode(heightCm, forKey: .heightCm)
+        try c.encode(bodyWeightGoalKg, forKey: .bodyWeightGoalKg)
+        try c.encode(currentWeightKg, forKey: .currentWeightKg)
+        try c.encode(proteinTargetG, forKey: .proteinTargetG)
+        try c.encode(trainingDayCalories, forKey: .trainingDayCalories)
+        try c.encode(restDayCalories, forKey: .restDayCalories)
+        try c.encode(trainingDays, forKey: .trainingDays)
+        try c.encode(flareEngineEnabled, forKey: .flareEngineEnabled)
+        try c.encode(reminderEnabled, forKey: .reminderEnabled)
+        try c.encode(reminderTime, forKey: .reminderTime)
+        try c.encode(preFlareAlertsEnabled, forKey: .preFlareAlertsEnabled)
+        try c.encode(notificationCategoryEnabled, forKey: .notificationCategoryEnabled)
+        try c.encode(notificationsQuietHoursEnabled, forKey: .notificationsQuietHoursEnabled)
+        try c.encode(quietHoursStart, forKey: .quietHoursStart)
+        try c.encode(quietHoursEnd, forKey: .quietHoursEnd)
+        try c.encode(favoriteAzeFoodIds, forKey: .favoriteAzeFoodIds)
+        try c.encode(prefersLbs, forKey: .prefersLbs)
+        try c.encode(goalRaw, forKey: .goalRaw)
+        // Note: we intentionally do NOT encode `legacyAge` — once migrated,
+        // only `birthYear` is persisted.
+    }
 
     // Notifications
     var reminderEnabled: Bool = true
@@ -47,6 +123,13 @@ struct UserProfile: Codable {
     ) ?? Date()
     var favoriteAzeFoodIds: [String] = []
     var prefersLbs: Bool = false
+
+    /// Age computed from `birthYear` so it stays accurate over time.
+    var age: Int {
+        get { Calendar.current.component(.year, from: Date()) - birthYear }
+        set { birthYear = Calendar.current.component(.year, from: Date()) - newValue }
+    }
+
     // Training goal
         var goalRaw: String = TrainingGoal.hypertrophy.rawValue
 
@@ -111,7 +194,7 @@ class AppState {
         func syncFromPersonProfile(_ p: PersonProfile) {
             currentProfileId = p.id
             profile.name = p.name
-            profile.age = p.age
+            profile.age = p.currentAge
             profile.sexRaw = p.sexRaw
             profile.heightCm = p.heightCm
             profile.currentWeightKg = p.currentWeightKg
@@ -121,7 +204,7 @@ class AppState {
             profile.trainingDayCalories = p.trainingDayCalories
             profile.restDayCalories = p.restDayCalories
             flareEngineEnabled = p.hasInflammatoryCondition
-            LiveHRManager.shared.setMaxHRFromAge(p.age)
+            LiveHRManager.shared.setMaxHRFromAge(p.currentAge)
             dataRefreshTrigger = UUID()        }
 
     // MARK: - Today's Health Snapshot (lightweight, for dashboard)

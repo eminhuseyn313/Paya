@@ -33,7 +33,7 @@ struct ConsistencyScoreCard: View {
 
             Text(scoreMessage)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             HStack(alignment: .bottom, spacing: 3) {
                 ForEach(weekData) { week in
@@ -57,14 +57,14 @@ struct ConsistencyScoreCard: View {
                     Circle().fill(scoreColor).frame(width: 5, height: 5)
                     Text("Target: \(plannedPerWeek)/week")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 HStack(spacing: 4) {
                     let avg = weekData.isEmpty ? 0 : weekData.map(\.sessions).reduce(0, +) / max(1, weekData.count)
                     Circle().fill(scoreColor.opacity(0.4)).frame(width: 5, height: 5)
                     Text("Avg: \(avg)/week")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }
@@ -73,9 +73,9 @@ struct ConsistencyScoreCard: View {
     }
 
     private var scoreColor: Color {
-        if score >= 80 { return Color(hex: "059669") }
-        if score >= 50 { return Color(hex: "F59E0B") }
-        return Color(hex: "DC2626")
+        if score >= 80 { return Pulse.positive }
+        if score >= 50 { return Pulse.warning }
+        return Pulse.critical
     }
 
     private var scoreMessage: String {

@@ -16,7 +16,7 @@ struct MuscleVolumeChart: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "figure.strengthtraining.traditional")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Volume by Muscle (4 wk)")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -29,7 +29,7 @@ struct MuscleVolumeChart: View {
                         )
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [Color(hex: "8B5CF6"), Color(hex: "2563EB")],
+                                colors: [Pulse.ai, Pulse.hydration],
                                 startPoint: .leading, endPoint: .trailing
                             )
                         )
@@ -71,7 +71,7 @@ struct MuscleVolumeChart: View {
                 .font(.system(size: 11, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 8))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 

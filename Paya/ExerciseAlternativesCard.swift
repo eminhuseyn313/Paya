@@ -13,18 +13,18 @@ struct ExerciseAlternativesCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "arrow.triangle.swap")
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                         Text("Exercise Alternatives")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(suggestions.count) suggestions")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     Text("Exercises where you've plateaued — try swapping to break through.")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     let visible = expanded ? suggestions : Array(suggestions.prefix(3))
                     ForEach(visible) { suggestion in
@@ -32,11 +32,11 @@ struct ExerciseAlternativesCard: View {
                             HStack(spacing: 8) {
                                 ZStack {
                                     Circle()
-                                        .fill(Color(hex: "F59E0B").opacity(0.12))
+                                        .fill(Pulse.nutrition.opacity(0.12))
                                         .frame(width: 26, height: 26)
                                     Image(systemName: "minus")
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Color(hex: "F59E0B"))
+                                        .foregroundColor(Pulse.nutrition)
                                 }
 
                                 VStack(alignment: .leading, spacing: 1) {
@@ -45,7 +45,7 @@ struct ExerciseAlternativesCard: View {
                                         .lineLimit(1)
                                     Text("Plateaued for \(suggestion.plateauSessions) sessions")
                                         .font(.system(size: 9))
-                                        .foregroundColor(Color(hex: "F59E0B"))
+                                        .foregroundColor(Pulse.nutrition)
                                 }
 
                                 Spacer()
@@ -54,13 +54,13 @@ struct ExerciseAlternativesCard: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "arrow.right.arrow.left")
                                     .font(.system(size: 8))
-                                    .foregroundColor(Color(hex: "0891B2"))
+                                    .foregroundColor(Pulse.recovery)
                                 Text("Try: ")
                                     .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Text(suggestion.alternatives.joined(separator: " · "))
                                     .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(Color(hex: "0891B2"))
+                                    .foregroundColor(Pulse.recovery)
                                     .lineLimit(1)
                             }
                             .padding(.leading, 34)
@@ -74,10 +74,10 @@ struct ExerciseAlternativesCard: View {
                         } label: {
                             Text(expanded ? "Show less" : "Show all \(suggestions.count)")
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(Color(hex: "0891B2"))
+                                .foregroundColor(Pulse.recovery)
                                 .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
                 .payaCard(padding: 14)

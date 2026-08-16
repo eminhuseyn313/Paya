@@ -31,9 +31,10 @@ struct StrengthRadarCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "hexagon.fill")
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("Strength Radar")
                             .font(.subheadline.weight(.semibold))
+                            .foregroundColor(Pulse.textPrimary)
                         Spacer()
                     }
 
@@ -46,27 +47,27 @@ struct StrengthRadarCard: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.up.circle.fill")
                                     .font(.system(size: 10))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                                 Text("Strongest: \(strongest)")
                                     .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             }
                         }
                         if !weakest.isEmpty {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.down.circle.fill")
                                     .font(.system(size: 10))
-                                    .foregroundColor(Color(hex: "DC2626"))
+                                    .foregroundColor(Pulse.critical)
                                 Text("Weakest: \(weakest)")
                                     .font(.system(size: 10, weight: .semibold))
-                                    .foregroundColor(Color(hex: "DC2626"))
+                                    .foregroundColor(Pulse.critical)
                             }
                         }
                     }
 
                     Text("Relative strength across 6 movement patterns. Based on estimated 1RM (Epley). A balanced hexagon means balanced development.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
@@ -157,7 +158,7 @@ private struct RadarChartView: View {
                         }
                         path.closeSubpath()
                     }
-                    .stroke(Color.secondary.opacity(0.12), lineWidth: 0.5)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
                 }
 
                 // Spoke lines
@@ -168,7 +169,7 @@ private struct RadarChartView: View {
                         path.move(to: center)
                         path.addLine(to: pt)
                     }
-                    .stroke(Color.secondary.opacity(0.1), lineWidth: 0.5)
+                    .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
                 }
 
                 // Data polygon fill
@@ -184,7 +185,7 @@ private struct RadarChartView: View {
                 }
                 .fill(
                     LinearGradient(
-                        colors: [Color(hex: "2563EB").opacity(0.25), Color(hex: "8B5CF6").opacity(0.15)],
+                        colors: [Pulse.hydration.opacity(0.25), Pulse.ai.opacity(0.15)],
                         startPoint: .top, endPoint: .bottom
                     )
                 )
@@ -202,7 +203,7 @@ private struct RadarChartView: View {
                 }
                 .stroke(
                     LinearGradient(
-                        colors: [Color(hex: "2563EB"), Color(hex: "8B5CF6")],
+                        colors: [Pulse.hydration, Pulse.ai],
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     ),
                     lineWidth: 2
@@ -214,7 +215,7 @@ private struct RadarChartView: View {
                     let r = radius * max(0.05, axes[i].value)
                     let pt = pointAt(center: center, radius: r, angle: angle)
                     Circle()
-                        .fill(Color(hex: "2563EB"))
+                        .fill(Pulse.hydration)
                         .frame(width: 6, height: 6)
                         .position(pt)
                 }
@@ -229,9 +230,9 @@ private struct RadarChartView: View {
                             .font(.system(size: 8, weight: .bold))
                         Text(String(format: "%.0f", axes[i].rawValue))
                             .font(.system(size: 7, weight: .semibold, design: .rounded))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                     }
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .position(pt)
                 }
             }

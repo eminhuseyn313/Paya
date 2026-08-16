@@ -370,7 +370,7 @@ struct MaxHRCard: View {
             maxHR = hr.maxHR
         }
         .onChange(of: age) { _, newAge in
-            appState.profile.age = newAge
+            appState.profile.age = newAge   // triggers UserProfile.age setter → updates birthYear
             hr.setMaxHRFromAge(newAge)
             maxHR = hr.maxHR
         }

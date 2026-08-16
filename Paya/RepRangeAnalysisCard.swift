@@ -20,13 +20,13 @@ struct RepRangeAnalysisCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "chart.pie.fill")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Rep Range Distribution")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(totalSets) total sets")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     HStack(spacing: 6) {
@@ -34,7 +34,7 @@ struct RepRangeAnalysisCard: View {
                             VStack(spacing: 4) {
                                 ZStack(alignment: .bottom) {
                                     RoundedRectangle(cornerRadius: 4)
-                                        .fill(Color(.tertiarySystemBackground))
+                                        .fill(Pulse.surfaceElevatedFallback)
                                         .frame(height: 60)
                                     RoundedRectangle(cornerRadius: 4)
                                         .fill(
@@ -52,12 +52,12 @@ struct RepRangeAnalysisCard: View {
 
                                 Text(zone.label)
                                     .font(.system(size: 8, weight: .semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                     .lineLimit(1)
 
                                 Text(zone.repRange)
                                     .font(.system(size: 7))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
 
                                 Text(zone.purpose)
                                     .font(.system(size: 6, weight: .medium))
@@ -70,11 +70,11 @@ struct RepRangeAnalysisCard: View {
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "lightbulb.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                             .padding(.top, 1)
                         Text(insight)
                             .font(.system(size: 10))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
@@ -132,13 +132,13 @@ struct RepRangeAnalysisCard: View {
         let t = Double(total)
         zones = [
             RepZone(label: "Power", repRange: "1-3", purpose: "Max Strength",
-                    percent: Double(power) / t * 100, color: Color(hex: "DC2626")),
+                    percent: Double(power) / t * 100, color: Pulse.critical),
             RepZone(label: "Strength", repRange: "4-5", purpose: "Strength",
-                    percent: Double(strength) / t * 100, color: Color(hex: "F59E0B")),
+                    percent: Double(strength) / t * 100, color: Pulse.nutrition),
             RepZone(label: "Hyp.", repRange: "6-12", purpose: "Muscle",
-                    percent: Double(hypertrophy) / t * 100, color: Color(hex: "2563EB")),
+                    percent: Double(hypertrophy) / t * 100, color: Pulse.hydration),
             RepZone(label: "Endur.", repRange: "13+", purpose: "Endurance",
-                    percent: Double(endurance) / t * 100, color: Color(hex: "059669")),
+                    percent: Double(endurance) / t * 100, color: Pulse.positive),
         ]
 
         dominantZone = zones.max(by: { $0.percent < $1.percent })?.label ?? ""

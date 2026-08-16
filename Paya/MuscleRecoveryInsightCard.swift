@@ -17,9 +17,10 @@ struct MuscleRecoveryInsightCard: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: "pills.circle.fill")
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                     Text("Recovery Focus")
                         .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Pulse.textPrimary)
                     CardInfoButton(
                         title: "Recovery Focus",
                         explanation: "Cross-references this week's hardest-loaded muscle group (from Weekly Volume vs. Landmarks) against your actual active supplement stack — not a claim that any supplement targets a specific muscle, just a reminder of which general recovery levers (protein timing, magnesium, sleep) matter most given how much you loaded this week."
@@ -28,7 +29,7 @@ struct MuscleRecoveryInsightCard: View {
                 }
                 Text(insight.text)
                     .font(.caption)
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .payaCard(padding: 14)

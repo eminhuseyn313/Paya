@@ -30,16 +30,17 @@ struct MilestoneCelebrationCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "trophy.fill")
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.nutrition)
                         Text("Recent wins")
-                            .font(.subheadline.weight(.semibold))
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Text("\(recentAchievements.count) new")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.nutrition)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "B45309").opacity(0.1))
+                            .background(Pulse.nutrition.opacity(0.1))
                             .clipShape(Capsule())
                     }
 
@@ -58,10 +59,10 @@ struct MilestoneCelebrationCard: View {
                             Text("Share your wins")
                                 .font(.system(size: 11, weight: .bold))
                         }
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.nutrition)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
-                        .background(Color(hex: "B45309").opacity(0.1))
+                        .background(Pulse.nutrition.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
@@ -103,14 +104,14 @@ struct MilestoneCelebrationCard: View {
                 }
                 Text(achievement.subtitle)
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer(minLength: 0)
 
             Text(daysSince(achievement.earnedAt))
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .padding(8)
         .background(Color(hex: achievement.colorHex).opacity(0.04))

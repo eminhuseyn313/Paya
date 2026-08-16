@@ -27,7 +27,7 @@ struct WorkoutDensityCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "gauge.with.dots.needle.33percent")
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                         Text("Workout Density")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -38,7 +38,7 @@ struct WorkoutDensityCard: View {
                                 Text(String(format: "%+.0f%%", t))
                                     .font(.system(size: 10, weight: .bold))
                             }
-                            .foregroundColor(t > 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                            .foregroundColor(t > 0 ? Pulse.positive : Pulse.critical)
                         }
                     }
 
@@ -69,8 +69,8 @@ struct WorkoutDensityCard: View {
                         )
                         .foregroundStyle(
                             point.density >= avgDensity
-                                ? Color(hex: "059669").opacity(0.7)
-                                : Color(hex: "DC2626").opacity(0.5)
+                                ? Pulse.positive.opacity(0.7)
+                                : Pulse.critical.opacity(0.5)
                         )
                         .cornerRadius(3)
 
@@ -95,7 +95,7 @@ struct WorkoutDensityCard: View {
 
                     Text("Volume ÷ duration. Higher density = more efficient sessions. Green bars are above your average.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
@@ -109,7 +109,7 @@ struct WorkoutDensityCard: View {
                 .font(.system(size: 16, weight: .bold, design: .rounded))
             Text(title)
                 .font(.system(size: 8, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Text(subtitle)
                 .font(.system(size: 7))
                 .foregroundColor(.secondary.opacity(0.7))

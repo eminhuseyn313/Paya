@@ -410,6 +410,66 @@ class HealthKitManager {
         }
     }
 
+    // MARK: - Blood Oxygen (SpO2 %)
+
+    func fetchBloodOxygen() async -> Double? {
+        guard let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation) else {
+            return nil
+        }
+
+        let sortDescriptor = NSSortDescriptor(
+            key: HKSampleSortIdentifierEndDate,
+            ascending: false
+        )
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: spo2Type,
+                predicate: nil,
+                limit: 1,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, _ in
+                guard let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let pct = sample.quantity.doubleValue(for: .percent()) * 100
+                continuation.resume(returning: pct)
+            }
+            healthStore.execute(query)
+        }
+    }
+
+    // MARK: - Respiratory Rate (breaths/min)
+
+    func fetchRespiratoryRate() async -> Double? {
+        guard let respType = HKObjectType.quantityType(forIdentifier: .respiratoryRate) else {
+            return nil
+        }
+
+        let sortDescriptor = NSSortDescriptor(
+            key: HKSampleSortIdentifierEndDate,
+            ascending: false
+        )
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: respType,
+                predicate: nil,
+                limit: 1,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, _ in
+                guard let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let bpm = sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+                continuation.resume(returning: bpm)
+            }
+            healthStore.execute(query)
+        }
+    }
+
     // MARK: - Today's Active Energy (kcal)
 
     func fetchTodayActiveEnergy() async -> Double? {
