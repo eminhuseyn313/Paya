@@ -67,7 +67,7 @@ struct ProgramTemplatePickerView: View {
                     HStack {
                         Text("Browse all programs")
                             .font(.caption.weight(.bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Spacer()
                     }
                     .padding(.top, recommendation != nil ? 4 : 0)
@@ -92,7 +92,7 @@ struct ProgramTemplatePickerView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
                                     .background(selectedTier == tier
-                                        ? Color(hex: "2563EB")
+                                        ? Pulse.hydration
                                         : Color(.secondarySystemBackground))
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                                 }
@@ -100,7 +100,7 @@ struct ProgramTemplatePickerView: View {
                         }
                         Text(selectedTier.subtitle)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     // Goal-matched templates
@@ -110,7 +110,7 @@ struct ProgramTemplatePickerView: View {
                                 .foregroundColor(appState.profile.goal.color)
                             Text("For your goal · \(appState.profile.goal.displayName)")
                                 .font(.caption.weight(.bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Spacer()
                         }
                         ForEach(goalTemplates) { template in
@@ -122,7 +122,7 @@ struct ProgramTemplatePickerView: View {
                     } else {
                         Text("No \(selectedTier.displayName.lowercased()) template for \(appState.profile.goal.displayName) yet — check another tier.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 20)
                     }
@@ -132,7 +132,7 @@ struct ProgramTemplatePickerView: View {
                         HStack {
                             Text("Other goals")
                                 .font(.caption.weight(.bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Spacer()
                         }
                         .padding(.top, 8)
@@ -188,18 +188,18 @@ struct RecommendedProgramCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "sparkles")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Recommended for you")
                     .font(.caption.weight(.bold))
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Spacer()
                 if !recommendation.exactDayMatch {
                     Text("closest fit")
                         .font(.caption2.weight(.bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Capsule())
                 }
             }
@@ -209,7 +209,7 @@ struct RecommendedProgramCard: View {
                     .font(.headline.weight(.bold))
                 Text("\(recommendation.daysPerWeek)×/week · \(recommendation.template.goal.displayName)")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Button {
@@ -220,7 +220,7 @@ struct RecommendedProgramCard: View {
                     Image(systemName: showWhy ? "chevron.up" : "chevron.down")
                 }
                 .font(.caption.weight(.semibold))
-                .foregroundColor(Color(hex: "8B5CF6"))
+                .foregroundColor(Pulse.ai)
             }
 
             if showWhy {
@@ -229,17 +229,17 @@ struct RecommendedProgramCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                                 .padding(.top, 2)
                             Text(line)
                                 .font(.caption)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
                 .padding(10)
-                .background(Color(hex: "8B5CF6").opacity(0.08))
+                .background(Pulse.ai.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
@@ -254,10 +254,10 @@ struct RecommendedProgramCard: View {
                             Text("The science")
                                 .font(.caption.weight(.semibold))
                         }
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "8B5CF6").opacity(0.1))
+                        .background(Pulse.ai.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
@@ -268,7 +268,7 @@ struct RecommendedProgramCard: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "8B5CF6"))
+                        .background(Pulse.ai)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
@@ -276,7 +276,7 @@ struct RecommendedProgramCard: View {
         .payaCard(padding: 14)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(hex: "8B5CF6").opacity(0.3), lineWidth: 1.5)
+                .stroke(Pulse.ai.opacity(0.3), lineWidth: 1.5)
         )
         .sheet(isPresented: $showScience) {
             if let profile {
@@ -308,9 +308,9 @@ struct TemplateCardV2: View {
                     HStack(spacing: 6) {
                         Text("\(template.daysPerWeek)×/week")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("·")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         HStack(spacing: 3) {
                             Image(systemName: template.tier.icon)
                                 .font(.system(size: 9))
@@ -336,12 +336,12 @@ struct TemplateCardV2: View {
                 Spacer()
                 Text("\(template.days.reduce(0) { $0 + $1.exercises.count }) exercises")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Text(template.summary)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Button(action: onApply) {

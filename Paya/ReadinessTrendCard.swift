@@ -17,7 +17,7 @@ struct ReadinessTrendCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "heart.text.clipboard")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Recovery Trend")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -25,7 +25,7 @@ struct ReadinessTrendCard: View {
                     HStack(spacing: 4) {
                         Text("avg")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("\(avg)")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(scoreColor(avg))
@@ -36,7 +36,7 @@ struct ReadinessTrendCard: View {
             if scores.allSatisfy({ $0.score == nil }) {
                 Text("Check in daily and wear your device to build recovery trends")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
             } else {
@@ -63,9 +63,9 @@ struct ReadinessTrendCard: View {
                 .frame(height: 60)
 
                 HStack(spacing: 16) {
-                    legendDot(color: Color(hex: "059669"), label: "70+ Great")
-                    legendDot(color: Color(hex: "F59E0B"), label: "40-69 OK")
-                    legendDot(color: Color(hex: "DC2626"), label: "<40 Low")
+                    legendDot(color: Pulse.positive, label: "70+ Great")
+                    legendDot(color: Pulse.nutrition, label: "40-69 OK")
+                    legendDot(color: Pulse.critical, label: "<40 Low")
                 }
                 .font(.system(size: 8))
             }
@@ -77,14 +77,14 @@ struct ReadinessTrendCard: View {
     private func legendDot(color: Color, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).foregroundColor(.secondary)
+            Text(label).foregroundColor(Pulse.textTertiary)
         }
     }
 
     private func scoreColor(_ score: Int) -> Color {
-        if score >= 70 { return Color(hex: "059669") }
-        if score >= 40 { return Color(hex: "F59E0B") }
-        return Color(hex: "DC2626")
+        if score >= 70 { return Pulse.positive }
+        if score >= 40 { return Pulse.nutrition }
+        return Pulse.critical
     }
 
     private func loadScores() {

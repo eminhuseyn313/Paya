@@ -45,30 +45,30 @@ struct MobilityCheckInBanner: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "0891B2").opacity(0.15))
+                        .fill(Pulse.recovery.opacity(0.15))
                         .frame(width: 36, height: 36)
                     Image(systemName: "figure.flexibility")
                         .font(.subheadline)
-                        .foregroundColor(Color(hex: "0891B2"))
+                        .foregroundColor(Pulse.recovery)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Quick mobility check")
                         .font(.caption.weight(.semibold))
                     Text("10 seconds — shoulders, hips, ankles, before you load them today")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .padding(12)
-            .background(Color(hex: "0891B2").opacity(0.06))
+            .background(Pulse.recovery.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(hex: "0891B2").opacity(0.2), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Pulse.recovery.opacity(0.2), lineWidth: 1))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -96,7 +96,7 @@ struct MobilityCheckInSheet: View {
             VStack(spacing: 24) {
                 Text("Try each quick test, then rate how it felt.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                     .padding(.top, 12)
@@ -122,7 +122,7 @@ struct MobilityCheckInSheet: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(Color(hex: "0891B2"))
+                        .background(Pulse.recovery)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .disabled(shoulder == nil || hip == nil || ankle == nil)
@@ -143,12 +143,12 @@ struct MobilityCheckInSheet: View {
     private func ratingRow(title: String, icon: String, test: String, selection: Binding<Int?>) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(systemName: icon).foregroundColor(.secondary)
+                Image(systemName: icon).foregroundColor(Pulse.textTertiary)
                 Text(title).font(.subheadline.weight(.semibold))
             }
             Text(test)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 8) {
                 ForEach(1...3, id: \.self) { score in
@@ -161,10 +161,10 @@ struct MobilityCheckInSheet: View {
                             .foregroundColor(selection.wrappedValue == score ? .white : .primary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
-                            .background(selection.wrappedValue == score ? Color(hex: "0891B2") : Color(.tertiarySystemBackground))
+                            .background(selection.wrappedValue == score ? Pulse.recovery : Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
             }
         }

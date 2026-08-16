@@ -223,10 +223,10 @@ private enum StrengthLevel: String, CaseIterable {
     var color: Color {
         switch self {
         case .beginner: return Color(hex: "94A3B8")
-        case .novice: return Color(hex: "059669")
-        case .intermediate: return Color(hex: "2563EB")
-        case .advanced: return Color(hex: "8B5CF6")
-        case .elite: return Color(hex: "F59E0B")
+        case .novice: return Pulse.positive
+        case .intermediate: return Pulse.hydration
+        case .advanced: return Pulse.ai
+        case .elite: return Pulse.nutrition
         }
     }
 

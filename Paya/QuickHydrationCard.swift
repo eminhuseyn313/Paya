@@ -36,17 +36,17 @@ struct QuickHydrationCard: View {
                 // Icon + progress
                 ZStack {
                     Circle()
-                        .stroke(Color(hex: "0891B2").opacity(0.15), lineWidth: 3)
+                        .stroke(Pulse.recovery.opacity(0.15), lineWidth: 3)
                         .frame(width: 38, height: 38)
                     Circle()
                         .trim(from: 0, to: progress)
-                        .stroke(Color(hex: "0891B2"), style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .stroke(Pulse.recovery, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                         .frame(width: 38, height: 38)
                         .rotationEffect(.degrees(-90))
                         .animation(.spring(response: 0.4), value: progress)
                     Image(systemName: "drop.fill")
                         .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "0891B2"))
+                        .foregroundColor(Pulse.recovery)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -54,7 +54,7 @@ struct QuickHydrationCard: View {
                         .font(.subheadline.weight(.semibold))
                     Text("\(liters) / \(targetLiters)")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 Spacer()
@@ -71,9 +71,9 @@ struct QuickHydrationCard: View {
                 } label: {
                     Image(systemName: expanded ? "chevron.up" : "ellipsis")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .frame(width: 28, height: 28)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Circle())
                 }
             }
@@ -101,7 +101,7 @@ struct QuickHydrationCard: View {
                                                 : Color(hex: type.colorHex).opacity(0.1))
                                     .clipShape(Capsule())
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(PulsePress())
                             }
                         }
                     }
@@ -131,9 +131,9 @@ struct QuickHydrationCard: View {
                         } label: {
                             Image(systemName: "list.bullet")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .frame(width: 36, height: 30)
-                                .background(Color(.tertiarySystemBackground))
+                                .background(Pulse.surfaceElevatedFallback)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                     }
@@ -149,10 +149,10 @@ struct QuickHydrationCard: View {
         Button { add(ml) } label: {
             Text(label)
                 .font(.system(size: 11, weight: .bold))
-                .foregroundColor(Color(hex: "0891B2"))
+                .foregroundColor(Pulse.recovery)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color(hex: "0891B2").opacity(0.1))
+                .background(Pulse.recovery.opacity(0.1))
                 .clipShape(Capsule())
         }
     }

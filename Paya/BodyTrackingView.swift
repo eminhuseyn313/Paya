@@ -44,7 +44,7 @@ struct BodyTrackingView: View {
                         } else {
                             Text("No measurements logged yet — track neck, chest, waist, hips, arms, thighs, and calves to see recomposition weight alone can't show.")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .padding(.vertical, 8)
                         }
                     }
@@ -68,12 +68,12 @@ struct BodyTrackingView: View {
                         if photos.isEmpty {
                             Text("Photos tell you what the scale can't. Take one from the same angle every few weeks.")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .padding(.vertical, 8)
                         } else {
                             Text("Tap two photos to compare side by side.")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
 
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 8)], spacing: 8) {
                                 ForEach(photos) { photo in
@@ -171,7 +171,7 @@ struct MeasurementSummaryGrid: View {
                 HStack {
                     Text(row.label)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     Text(String(format: "%.1f cm", row.current ?? 0))
                         .font(.caption.weight(.semibold))
@@ -180,14 +180,14 @@ struct MeasurementSummaryGrid: View {
                         if abs(delta) >= 0.1 {
                             Text(delta > 0 ? "+\(String(format: "%.1f", delta))" : String(format: "%.1f", delta))
                                 .font(.caption2.weight(.bold))
-                                .foregroundColor(delta > 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                                .foregroundColor(delta > 0 ? Pulse.positive : Pulse.critical)
                         }
                     }
                 }
             }
             Text("Last logged \(latest.date.formatted(date: .abbreviated, time: .omitted))")
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 4)
         }
@@ -291,8 +291,8 @@ struct ProgressPhotoCapture: View {
                     .font(.caption.weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
-                    .background(Color(hex: "2563EB").opacity(0.1))
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .background(Pulse.hydration.opacity(0.1))
+                    .foregroundColor(Pulse.hydration)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
@@ -340,10 +340,10 @@ struct ProgressPhotoThumb: View {
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isSelected ? Color(hex: "8B5CF6") : .clear, lineWidth: 3)
+                    .stroke(isSelected ? Pulse.ai : .clear, lineWidth: 3)
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .contextMenu {
             Button(role: .destructive, action: onDelete) {
                 Label("Delete", systemImage: "trash")
@@ -392,10 +392,10 @@ struct PhotoCompareView: View {
                     if let daysBetween = Calendar.current.dateComponents([.day], from: before.date, to: after.date).day {
                         Text("\(daysBetween) days")
                             .font(.caption2.weight(.bold))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
-                            .background(Color(hex: "2563EB").opacity(0.1))
+                            .background(Pulse.hydration.opacity(0.1))
                             .clipShape(Capsule())
                     }
                     Spacer()
@@ -452,7 +452,7 @@ struct PhotoCompareView: View {
                     .overlay(
                         Image(systemName: "arrow.left.and.right")
                             .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                     )
                     .position(x: sliderPosition * geo.size.width, y: geo.size.height / 2)
             }
@@ -481,7 +481,7 @@ struct PhotoCompareView: View {
         VStack(spacing: 2) {
             Text(label)
                 .font(.caption2.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Text(date.formatted(date: .abbreviated, time: .omitted))
                 .font(.caption.weight(.semibold))
         }

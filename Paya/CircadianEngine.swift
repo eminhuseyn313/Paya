@@ -26,7 +26,7 @@ struct CircadianCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "clock.fill")
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                     .font(.system(size: 12))
                 Text("Circadian profile")
                     .font(.subheadline.weight(.semibold))
@@ -50,7 +50,7 @@ struct CircadianCard: View {
                 HStack(spacing: 6) {
                     ProgressView().scaleEffect(0.7)
                     Text("Analyzing sleep patterns…")
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption).foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 8)
             } else if let p = profile {
@@ -66,7 +66,7 @@ struct CircadianCard: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("YOUR OPTIMAL WINDOWS")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
 
                         windowRow(icon: "dumbbell.fill", color: "059669",
                                   label: "Peak training", time: p.optimalTrainingWindow,
@@ -94,7 +94,7 @@ struct CircadianCard: View {
                     Spacer()
                     Text("±\(p.stdDevMinutes) min")
                         .font(.system(size: 10, design: .rounded))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 HStack(spacing: 4) {
@@ -103,16 +103,16 @@ struct CircadianCard: View {
                     Text("Chronotype from sleep midpoint (Roenneberg 2003). Windows adjusted ±1h for your pattern.")
                         .font(.system(size: 9))
                 }
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             } else {
                 VStack(spacing: 6) {
                     Image(systemName: "clock.badge.questionmark")
-                        .font(.title3).foregroundColor(.secondary)
+                        .font(.title3).foregroundColor(Pulse.textTertiary)
                     Text("Need 30+ days of sleep data")
                         .font(.caption.weight(.semibold))
                     Text("Wear your Apple Watch to sleep for a month to unlock your circadian profile.")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 8)
@@ -132,7 +132,7 @@ struct CircadianCard: View {
                 .font(.system(size: 13, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 8, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
@@ -307,9 +307,9 @@ private struct ChronotypeProfile {
 
     var consistencyColor: Color {
         switch consistencyScore {
-        case .excellent: return Color(hex: "059669")
-        case .good: return Color(hex: "F59E0B")
-        case .poor: return Color(hex: "DC2626")
+        case .excellent: return Pulse.positive
+        case .good: return Pulse.nutrition
+        case .poor: return Pulse.critical
         }
     }
 }

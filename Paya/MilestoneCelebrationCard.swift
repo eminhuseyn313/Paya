@@ -98,7 +98,7 @@ struct MilestoneCelebrationCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
-                            .background(Color(hex: "DC2626"))
+                            .background(Pulse.critical)
                             .clipShape(Capsule())
                     }
                 }
@@ -155,12 +155,12 @@ struct MilestoneCelebrationCard: View {
                         .font(.system(size: 24, weight: .black))
                     Text("\(recentAchievements.count) achievements unlocked")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Image(systemName: "trophy.fill")
                     .font(.system(size: 30))
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Pulse.warning)
             }
             .padding(20)
 
@@ -177,7 +177,7 @@ struct MilestoneCelebrationCard: View {
                                 .font(.system(size: 13, weight: .bold))
                             Text(a.subtitle)
                                 .font(.system(size: 10))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                     }

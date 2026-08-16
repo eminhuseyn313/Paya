@@ -46,17 +46,17 @@ struct GLP1CompanionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "syringe.fill")
-                    .foregroundColor(Color(hex: "0891B2"))
+                    .foregroundColor(Pulse.recovery)
                     .font(.system(size: 12))
                 Text("GLP-1 Companion")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text(medication.displayName)
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(Color(hex: "0891B2"))
+                    .foregroundColor(Pulse.recovery)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3)
-                    .background(Color(hex: "0891B2").opacity(0.1))
+                    .background(Pulse.recovery.opacity(0.1))
                     .clipShape(Capsule())
             }
 
@@ -69,7 +69,7 @@ struct GLP1CompanionCard: View {
 
                         HStack(spacing: 4) {
                             Image(systemName: daysSince <= 7 ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
-                                .foregroundColor(daysSince <= 7 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                                .foregroundColor(daysSince <= 7 ? Pulse.positive : Pulse.critical)
                                 .font(.system(size: 12))
                             Text(daysSince <= 1 ? "Injected today" : "\(daysSince) days since injection")
                                 .font(.caption.weight(.semibold))
@@ -78,16 +78,16 @@ struct GLP1CompanionCard: View {
                         if daysUntilNext > 0 {
                             Text("Next dose in \(daysUntilNext) day\(daysUntilNext == 1 ? "" : "s")")
                                 .font(.system(size: 10))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         } else {
                             Text("Injection due today")
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(Color(hex: "DC2626"))
+                                .foregroundColor(Pulse.critical)
                         }
                     } else {
                         Text("No injection logged yet")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 Spacer()
@@ -106,7 +106,7 @@ struct GLP1CompanionCard: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
-                    .background(Color(hex: "0891B2"))
+                    .background(Pulse.recovery)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
@@ -116,7 +116,7 @@ struct GLP1CompanionCard: View {
                 HStack(spacing: 4) {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.system(size: 10))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                     Text("Adjusted protein target")
                         .font(.caption.weight(.semibold))
                 }
@@ -130,7 +130,7 @@ struct GLP1CompanionCard: View {
 
                 Text("GLP-1 users need 1.2-1.6 g/kg protein to preserve lean mass during weight loss (Heymsfield et al. 2024)")
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -138,7 +138,7 @@ struct GLP1CompanionCard: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("TODAY'S SIDE EFFECTS")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
 
                 FlowLayout(spacing: 6) {
                     ForEach(GLP1SideEffect.allCases) { effect in
@@ -160,11 +160,11 @@ struct GLP1CompanionCard: View {
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 5)
-                            .background(isOn ? Color(hex: "DC2626").opacity(0.15) : Color(.tertiarySystemBackground))
-                            .foregroundStyle(isOn ? Color(hex: "DC2626") : .primary)
+                            .background(isOn ? Pulse.critical.opacity(0.15) : Pulse.surfaceElevatedFallback)
+                            .foregroundStyle(isOn ? Pulse.critical : .primary)
                             .clipShape(Capsule())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
             }
@@ -173,11 +173,11 @@ struct GLP1CompanionCard: View {
             HStack(alignment: .top, spacing: 6) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 10))
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                     .padding(.top, 1)
                 Text("Without resistance training, ~40% of GLP-1 weight loss is lean mass (Wilding 2021 STEP 1). Keep training to preserve muscle.")
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -190,7 +190,7 @@ struct GLP1CompanionCard: View {
             } label: {
                 Text("Turn off GLP-1 mode")
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity)
             }
         }
@@ -203,7 +203,7 @@ struct GLP1CompanionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "syringe.fill")
-                    .foregroundColor(Color(hex: "0891B2"))
+                    .foregroundColor(Pulse.recovery)
                     .font(.system(size: 12))
                 Text("GLP-1 Companion")
                     .font(.subheadline.weight(.semibold))
@@ -212,7 +212,7 @@ struct GLP1CompanionCard: View {
 
             Text("On Ozempic, Wegovy, Mounjaro, or Zepbound? Enable GLP-1 mode to track injections, adjust protein targets for lean mass preservation, and log side effects.")
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 8) {
@@ -226,13 +226,13 @@ struct GLP1CompanionCard: View {
                     } label: {
                         Text(med.displayName)
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 6)
-                            .background(Color(hex: "0891B2").opacity(0.1))
+                            .background(Pulse.recovery.opacity(0.1))
                             .clipShape(Capsule())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
             }
         }

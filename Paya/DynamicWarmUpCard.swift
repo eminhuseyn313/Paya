@@ -109,7 +109,7 @@ struct DynamicWarmUpCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "figure.flexibility")
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                         Text("Warm-up for today")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -119,10 +119,10 @@ struct DynamicWarmUpCard: View {
                             Text("~\(estimatedMinutes) min")
                                 .font(.system(size: 9, weight: .bold))
                         }
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
-                        .background(Color(hex: "059669").opacity(0.1))
+                        .background(Pulse.positive.opacity(0.1))
                         .clipShape(Capsule())
                     }
 
@@ -131,14 +131,14 @@ struct DynamicWarmUpCard: View {
                         HStack(spacing: 4) {
                             Text("Targeting:")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             ForEach(muscleGroups, id: \.self) { group in
                                 Text(group.capitalized)
                                     .font(.system(size: 9, weight: .semibold))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(Color(hex: "059669").opacity(0.08))
+                                    .background(Pulse.positive.opacity(0.08))
                                     .clipShape(Capsule())
                             }
                         }
@@ -182,25 +182,25 @@ struct DynamicWarmUpCard: View {
                 }
                 Text(drill.muscleTarget)
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer()
 
             Text(drill.sets)
                 .font(.system(size: 10, weight: .bold, design: .rounded))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .padding(6)
-        .background(Color(.tertiarySystemBackground).opacity(0.5))
+        .background(Pulse.surfaceElevatedFallback.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     private func drillTypeColor(_ type: WarmUpDrill.DrillType) -> Color {
         switch type {
-        case .activation: return Color(hex: "2563EB")
-        case .mobility:   return Color(hex: "F59E0B")
-        case .dynamic:    return Color(hex: "059669")
+        case .activation: return Pulse.hydration
+        case .mobility:   return Pulse.nutrition
+        case .dynamic:    return Pulse.positive
         }
     }
 

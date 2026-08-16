@@ -18,7 +18,7 @@ struct SessionScoreCard: View {
             HStack {
                 ZStack {
                     Circle()
-                        .stroke(Color(.tertiarySystemBackground), lineWidth: 5)
+                        .stroke(Pulse.surfaceElevatedFallback, lineWidth: 5)
                         .frame(width: 48, height: 48)
                     Circle()
                         .trim(from: 0, to: CGFloat(score.total) / 100)
@@ -50,7 +50,7 @@ struct SessionScoreCard: View {
                         .clipShape(Capsule())
                     Text(dateLabel)
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -64,7 +64,7 @@ struct SessionScoreCard: View {
 
             Text("Composite score from volume (30%), intensity (25%), duration (20%), effort (15%), and cardio (10%). Higher = harder session.")
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
     }
@@ -82,7 +82,7 @@ struct SessionScoreCard: View {
         VStack(spacing: 3) {
             ZStack(alignment: .bottom) {
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(Color(.tertiarySystemBackground))
+                    .fill(Pulse.surfaceElevatedFallback)
                     .frame(width: 16, height: 28)
                 RoundedRectangle(cornerRadius: 2)
                     .fill(score.color.opacity(0.7))
@@ -93,7 +93,7 @@ struct SessionScoreCard: View {
                 .foregroundColor(score.color)
             Text(label)
                 .font(.system(size: 6, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -181,10 +181,10 @@ struct SessionScore {
 
     var color: Color {
         switch total {
-        case 80...: return Color(hex: "8B5CF6")
-        case 60..<80: return Color(hex: "2563EB")
-        case 40..<60: return Color(hex: "059669")
-        case 20..<40: return Color(hex: "F59E0B")
+        case 80...: return Pulse.ai
+        case 60..<80: return Pulse.hydration
+        case 40..<60: return Pulse.positive
+        case 20..<40: return Pulse.nutrition
         default: return .secondary
         }
     }

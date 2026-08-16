@@ -349,8 +349,8 @@ class AppState {
     func energyColor(_ level: Int) -> Color {
         switch level {
         case 1: return .red
-        case 2: return Color(hex: "B45309")
-        case 3: return Color(hex: "059669")
+        case 2: return Pulse.warning
+        case 3: return Pulse.positive
         default: return .gray
         }
     }

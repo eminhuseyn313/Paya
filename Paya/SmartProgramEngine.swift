@@ -90,7 +90,7 @@ enum SmartProgramEngine {
                 title: "Keep training",
                 detail: "Complete at least 3 sessions for smart recommendations to activate.",
                 icon: "brain.head.profile",
-                color: Color(hex: "8B5CF6"),
+                color: Pulse.ai,
                 priority: 1
             )]
         }
@@ -227,7 +227,7 @@ enum SmartProgramEngine {
                     title: "Add volume: \(muscle)",
                     detail: "Averaging \(String(format: "%.0f", avgSets)) sets/week — below the 10-set minimum for hypertrophy (Schoenfeld & Grgic 2018). Add 2-3 sets next week.",
                     icon: "chart.bar.fill",
-                    color: Color(hex: "F59E0B"),
+                    color: Pulse.nutrition,
                     priority: 3
                 ))
             } else if avgSets > 22 {
@@ -238,7 +238,7 @@ enum SmartProgramEngine {
                     title: "Reduce volume: \(muscle)",
                     detail: "Averaging \(String(format: "%.0f", avgSets)) sets/week — beyond MRV for most lifters. Cut 3-4 sets to improve recovery.",
                     icon: "chart.bar.fill",
-                    color: Color(hex: "DC2626"),
+                    color: Pulse.critical,
                     priority: 2
                 ))
             }
@@ -255,7 +255,7 @@ enum SmartProgramEngine {
                     title: "Volume spike detected",
                     detail: String(format: "%.0f%% more volume than last week. Acute:chronic ratio is elevated — keep RPE moderate to manage fatigue.", change),
                     icon: "exclamationmark.triangle.fill",
-                    color: Color(hex: "F59E0B"),
+                    color: Pulse.nutrition,
                     priority: 2
                 ))
             }
@@ -306,7 +306,7 @@ enum SmartProgramEngine {
                         title: "Plateau: \(exercise.name)",
                         detail: "Weight hasn't moved in 4 sessions (\(String(format: "%.0f", convert(avgWeight))) \(unit)). Try swapping to \(suggestion) for 3-4 weeks, or add a technique intensifier (pause reps, tempo sets).",
                         icon: "arrow.triangle.2.circlepath",
-                        color: Color(hex: "DC2626"),
+                        color: Pulse.critical,
                         priority: 1
                     ))
                 } else {
@@ -317,7 +317,7 @@ enum SmartProgramEngine {
                         title: "Plateau: \(exercise.name)",
                         detail: "Weight stuck at \(String(format: "%.0f", convert(avgWeight))) \(unit) for 4 sessions. Try a different rep range (drop to 4-6 for a strength block, or increase to 12-15 for metabolite stress).",
                         icon: "arrow.triangle.2.circlepath",
-                        color: Color(hex: "F59E0B"),
+                        color: Pulse.nutrition,
                         priority: 2
                     ))
                 }
@@ -345,7 +345,7 @@ enum SmartProgramEngine {
                     title: "Increase: \(exercise.name)",
                     detail: "Hit top of rep range on all sets. Move to \(String(format: "%.1f", convert(newWeight))) \(unit) (+\(String(format: "%.1f", convert(increment)))) next session.",
                     icon: "arrow.up.circle.fill",
-                    color: Color(hex: "059669"),
+                    color: Pulse.positive,
                     priority: 2
                 ))
             }
@@ -372,7 +372,7 @@ enum SmartProgramEngine {
                 title: "Average RPE is high",
                 detail: String(format: "Running at RPE %.1f average across 4 weeks. Consider a deload week (reduce volume 40-50%%, keep intensity) to dissipate fatigue before pushing again.", all.avgRPE),
                 icon: "battery.25percent",
-                color: Color(hex: "DC2626"),
+                color: Pulse.critical,
                 priority: 1
             ))
         }
@@ -395,7 +395,7 @@ enum SmartProgramEngine {
                 title: "Take a rest day",
                 detail: "\(consecutiveDays) consecutive training days. Recovery quality drops after 4-5 straight days (Kreher & Schwartz 2012). Schedule a rest day tomorrow.",
                 icon: "bed.double.fill",
-                color: Color(hex: "DC2626"),
+                color: Pulse.critical,
                 priority: 1
             ))
         }
@@ -438,7 +438,7 @@ enum SmartProgramEngine {
                 title: "Add heavy work",
                 detail: String(format: "Only %.0f%% of sets in the 1-5 rep range. Including 2-3 heavy compound sets per session builds strength that supports hypertrophy long-term.", strPct),
                 icon: "scalemass.fill",
-                color: Color(hex: "2563EB"),
+                color: Pulse.hydration,
                 priority: 4
             ))
         }
@@ -451,7 +451,7 @@ enum SmartProgramEngine {
                 title: "Shift to moderate reps",
                 detail: String(format: "%.0f%% of sets are 13+ reps. For muscle growth, Schoenfeld (2021) shows 6-12 reps are most efficient. Reserve high-rep work for finishers.", endPct),
                 icon: "chart.pie.fill",
-                color: Color(hex: "8B5CF6"),
+                color: Pulse.ai,
                 priority: 4
             ))
         }
@@ -488,7 +488,7 @@ enum SmartProgramEngine {
                         title: "Split \(muscle) across 2 days",
                         detail: "Doing \(String(format: "%.0f", setsPerWeek)) sets/week in ~1 session. Splitting across 2 sessions improves recovery and per-set quality (Schoenfeld 2016 meta-analysis).",
                         icon: "calendar.badge.plus",
-                        color: Color(hex: "2563EB"),
+                        color: Pulse.hydration,
                         priority: 5
                     ))
                 }

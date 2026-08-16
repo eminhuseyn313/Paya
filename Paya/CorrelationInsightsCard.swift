@@ -17,24 +17,24 @@ struct CorrelationInsightsCard: View {
                 HStack(spacing: 10) {
                     ZStack {
                         Circle()
-                            .fill(Color(hex: "8B5CF6").opacity(0.15))
+                            .fill(Pulse.ai.opacity(0.15))
                             .frame(width: 36, height: 36)
                         Image(systemName: "point.3.connected.trianglepath.dotted")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Correlations")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         Text("\(sampleDays) days tracked · \(insights.count) patterns found")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 if isLoading {
@@ -49,7 +49,7 @@ struct CorrelationInsightsCard: View {
                          ? "Keep logging — need 8+ overlapping days to find patterns."
                          : "No strong correlations yet. Normal result — check back as more data builds up.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 } else {
                     if let top = insights.first {
                         topInsightPreview(top)
@@ -57,13 +57,13 @@ struct CorrelationInsightsCard: View {
                     if insights.count > 1 {
                         Text("+\(insights.count - 1) more pattern\(insights.count > 2 ? "s" : "")")
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .task {
             days = await CorrelationEngine.gatherDailyMetrics(context: modelContext)
             sampleDays = days.count
@@ -81,20 +81,20 @@ struct CorrelationInsightsCard: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(advice.headline)
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.primary)
+                .foregroundColor(Pulse.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             Text(advice.actionTip)
                 .font(.system(size: 10))
-                .foregroundColor(Color(hex: "059669"))
+                .foregroundColor(Pulse.positive)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
 
     private func strengthColor(_ r: Double) -> Color {
         switch abs(r) {
-        case 0.6...: return Color(hex: "8B5CF6")
-        case 0.45..<0.6: return Color(hex: "0891B2")
-        case 0.35..<0.45: return Color(hex: "059669")
+        case 0.6...: return Pulse.ai
+        case 0.45..<0.6: return Pulse.recovery
+        case 0.35..<0.45: return Pulse.positive
         default: return .secondary
         }
     }
@@ -116,8 +116,8 @@ struct CorrelationDetailView: View {
     @State private var builderMetricA: String = ""
     @State private var builderMetricB: String = ""
 
-    private let accentPurple = Color(hex: "8B5CF6")
-    private let accentTeal = Color(hex: "0891B2")
+    private let accentPurple = Pulse.ai
+    private let accentTeal = Pulse.recovery
 
     var body: some View {
         NavigationStack {
@@ -173,7 +173,7 @@ struct CorrelationDetailView: View {
                     )
                     Text("patterns discovered across \(sampleDays) days")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
             }
@@ -195,7 +195,7 @@ struct CorrelationDetailView: View {
             Circle().fill(color).frame(width: 6, height: 6)
             Text("\(count) \(label)")
                 .font(.caption2.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 5)
@@ -209,7 +209,7 @@ struct CorrelationDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("CORRELATION STRENGTH")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             let sorted = insights.sorted { abs($0.r) > abs($1.r) }
             VStack(spacing: 2) {
@@ -235,7 +235,7 @@ struct CorrelationDetailView: View {
 
                             Text("\(insight.metricA.label) × \(insight.metricB.label)")
                                 .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .lineLimit(1)
                                 .padding(.leading, 8)
 
@@ -243,11 +243,11 @@ struct CorrelationDetailView: View {
 
                             Image(systemName: insight.r > 0 ? "arrow.up.right" : "arrow.down.right")
                                 .font(.system(size: 9))
-                                .foregroundColor(insight.r > 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                                .foregroundColor(insight.r > 0 ? Pulse.positive : Pulse.critical)
                         }
                         .padding(.vertical, 2)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     if selectedInsight?.id == insight.id {
                         insightDetailExpanded(insight)
@@ -262,7 +262,7 @@ struct CorrelationDetailView: View {
         let absR = abs(r)
         if absR >= 0.6 { return accentPurple }
         if absR >= 0.45 { return accentTeal }
-        return Color(hex: "059669")
+        return Pulse.positive
     }
 
     // MARK: - Expanded Insight Detail
@@ -305,7 +305,7 @@ struct CorrelationDetailView: View {
 
             Text(insight.text)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 16) {
@@ -314,7 +314,7 @@ struct CorrelationDetailView: View {
                 Label(insight.r > 0 ? "Positive" : "Inverse", systemImage: insight.r > 0 ? "arrow.up.right" : "arrow.down.right")
             }
             .font(.system(size: 9, weight: .medium))
-            .foregroundColor(.secondary)
+            .foregroundColor(Pulse.textTertiary)
 
             Button {
                 builderMetricA = insight.metricA.id
@@ -327,7 +327,7 @@ struct CorrelationDetailView: View {
             }
         }
         .padding(12)
-        .background(Color(.tertiarySystemBackground))
+        .background(Pulse.surfaceElevatedFallback)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -338,22 +338,22 @@ struct CorrelationDetailView: View {
             HStack(spacing: 6) {
                 Image(systemName: "lightbulb.fill")
                     .font(.system(size: 12))
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                 Text("WHAT TO TRY THIS WEEK")
                     .font(.caption.weight(.bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             let tips = insights.prefix(3).map { CorrelationAdvice.generate(for: $0) }
             ForEach(Array(tips.enumerated()), id: \.offset) { _, advice in
                 HStack(alignment: .top, spacing: 10) {
                     Circle()
-                        .fill(Color(hex: "059669"))
+                        .fill(Pulse.positive)
                         .frame(width: 6, height: 6)
                         .padding(.top, 5)
                     Text(advice.actionTip)
                         .font(.subheadline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -367,7 +367,7 @@ struct CorrelationDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("KEY FINDINGS")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             let actionable = generateActionableInsights()
             ForEach(Array(actionable.enumerated()), id: \.offset) { _, item in
@@ -382,7 +382,7 @@ struct CorrelationDetailView: View {
                             .font(.subheadline.weight(.semibold))
                         Text(item.body)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -405,11 +405,11 @@ struct CorrelationDetailView: View {
             let icon: String
             let color: Color
             switch advice.category {
-            case .sleep: icon = "moon.fill"; color = Color(hex: "8B5CF6")
-            case .training: icon = "figure.strengthtraining.traditional"; color = Color(hex: "059669")
-            case .nutrition: icon = "fork.knife"; color = Color(hex: "B45309")
-            case .recovery: icon = "heart.fill"; color = Color(hex: "DC2626")
-            case .environment: icon = "sun.max.fill"; color = Color(hex: "F59E0B")
+            case .sleep: icon = "moon.fill"; color = Pulse.ai
+            case .training: icon = "figure.strengthtraining.traditional"; color = Pulse.positive
+            case .nutrition: icon = "fork.knife"; color = Pulse.warning
+            case .recovery: icon = "heart.fill"; color = Pulse.critical
+            case .environment: icon = "sun.max.fill"; color = Pulse.nutrition
             case .general: icon = absR >= 0.5 ? "exclamationmark.circle.fill" : "info.circle.fill"; color = accentTeal
             }
             return ActionableInsight(
@@ -434,7 +434,7 @@ struct CorrelationDetailView: View {
                  ? "Log training, nutrition, sleep, water, and check-ins across at least 8 days so the engine has enough overlapping data points to test every pair."
                  : "With \(sampleDays) days of data, no two metrics showed a correlation above the r=0.35 threshold. That's a real result — it means the things you're tracking are varying independently, which is useful to know.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -462,19 +462,19 @@ struct CorrelationDetailView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Build your own")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Text("Pick any two of \(CorrelationEngine.metrics.count) metrics and see the scatter plot")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 
     // MARK: - Methodology
@@ -483,7 +483,7 @@ struct CorrelationDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("HOW THIS WORKS")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             VStack(alignment: .leading, spacing: 6) {
                 methodologyRow("chart.bar.fill", "Pearson correlation coefficient (r) measures linear association between -1 and +1")
@@ -493,7 +493,7 @@ struct CorrelationDetailView: View {
             }
         }
         .padding(14)
-        .background(Color(.tertiarySystemBackground).opacity(0.6))
+        .background(Pulse.surfaceElevatedFallback.opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
     }
 
@@ -501,12 +501,12 @@ struct CorrelationDetailView: View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: icon)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .frame(width: 14)
                 .padding(.top, 2)
             Text(text)
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

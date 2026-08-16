@@ -29,7 +29,7 @@ struct NutritionTrendCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Nutrition Trend")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -45,7 +45,7 @@ struct NutritionTrendCard: View {
             if dataPoints.isEmpty {
                 Text("Log meals to see your trend here.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.vertical, 8)
             } else {
                 Chart {
@@ -59,13 +59,13 @@ struct NutritionTrendCard: View {
                         )
                         .foregroundStyle(
                             value >= target * 0.9
-                                ? Color(hex: "059669").gradient
-                                : Color(hex: "F59E0B").gradient
+                                ? Pulse.positive.gradient
+                                : Pulse.nutrition.gradient
                         )
                         .cornerRadius(4)
 
                         RuleMark(y: .value("Target", target))
-                            .foregroundStyle(Color(hex: "DC2626").opacity(0.5))
+                            .foregroundStyle(Pulse.critical.opacity(0.5))
                             .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
                     }
                 }
@@ -93,17 +93,17 @@ struct NutritionTrendCard: View {
                 .frame(height: 140)
 
                 HStack(spacing: 12) {
-                    legendDot(color: Color(hex: "059669"), label: "On target")
-                    legendDot(color: Color(hex: "F59E0B"), label: "Below target")
-                    legendDot(color: Color(hex: "DC2626"), label: "Target line", isDashed: true)
+                    legendDot(color: Pulse.positive, label: "On target")
+                    legendDot(color: Pulse.nutrition, label: "Below target")
+                    legendDot(color: Pulse.critical, label: "Target line", isDashed: true)
                 }
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
                 if let avg = averageValue {
                     Text("7-day avg: \(metric == .calories ? "\(Int(avg)) kcal" : "\(Int(avg))g protein")")
                         .font(.caption2.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }

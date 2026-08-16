@@ -46,7 +46,7 @@ struct WeeklyEffortCard: View {
                             HeroNumberText(value: "\(report.score)", size: 22, color: Color(hex: report.grade.colorHex))
                             Text("/100")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     .accessibilityElement(children: .ignore)
@@ -54,7 +54,7 @@ struct WeeklyEffortCard: View {
 
                     Text(report.headline)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Spacer()
@@ -74,7 +74,7 @@ struct WeeklyEffortCard: View {
                                     .font(.caption.weight(.semibold))
                                 Text(component.detail)
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             Spacer()
                             Text("\(component.score)")
@@ -87,7 +87,7 @@ struct WeeklyEffortCard: View {
             } else {
                 Text("Computing your week…")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .payaCard(padding: 14)
@@ -112,9 +112,9 @@ struct WeeklyEffortCard: View {
 
     private func scoreColor(_ score: Int) -> Color {
         switch score {
-        case 80...: return Color(hex: "059669")
-        case 55..<80: return Color(hex: "B45309")
-        default: return Color(hex: "DC2626")
+        case 80...: return Pulse.positive
+        case 55..<80: return Pulse.warning
+        default: return Pulse.critical
         }
     }
 }

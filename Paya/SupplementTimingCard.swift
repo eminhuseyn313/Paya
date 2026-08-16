@@ -44,25 +44,25 @@ struct SupplementTimingCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "pills.fill")
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                         Text("Supplement timing")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         if appState.isTrainingDay {
                             Text("Training day")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(Color(hex: "059669"))
+                                .foregroundColor(Pulse.positive)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
-                                .background(Color(hex: "059669").opacity(0.1))
+                                .background(Pulse.positive.opacity(0.1))
                                 .clipShape(Capsule())
                         } else {
                             Text("Rest day")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
-                                .background(Color(.tertiarySystemBackground))
+                                .background(Pulse.surfaceElevatedFallback)
                                 .clipShape(Capsule())
                         }
                     }
@@ -78,7 +78,7 @@ struct SupplementTimingCard: View {
                                         .frame(width: 10, height: 10)
                                     if index < timelineEntries.count - 1 {
                                         Rectangle()
-                                            .fill(Color(.tertiarySystemBackground))
+                                            .fill(Pulse.surfaceElevatedFallback)
                                             .frame(width: 2)
                                             .frame(maxHeight: .infinity)
                                     }
@@ -104,7 +104,7 @@ struct SupplementTimingCard: View {
 
                                         Text(entry.dose)
                                             .font(.system(size: 10))
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
 
                                     Text(entry.rationale)
@@ -181,7 +181,7 @@ struct SupplementTimingCard: View {
                 label: label,
                 hour: hour,
                 icon: "bolt.fill",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 rationale: isTrainingDay
                     ? "30-60 min before training for peak effect (Goldstein 2010). Avoid after 2pm for sleep quality."
                     : "Morning only on rest days. Skip if sleep was poor — caffeine masks fatigue without resolving it."
@@ -195,7 +195,7 @@ struct SupplementTimingCard: View {
                 label: isTrainingDay ? "Post-train" : "Morning",
                 hour: hour,
                 icon: "atom",
-                color: Color(hex: "2563EB"),
+                color: Pulse.hydration,
                 rationale: "Timing doesn't matter (ISSN 2017), but post-workout with carbs may slightly improve muscle uptake."
             )
         }
@@ -207,7 +207,7 @@ struct SupplementTimingCard: View {
                 label: isTrainingDay ? "Post-train" : "With meal",
                 hour: hour,
                 icon: "fork.knife",
-                color: Color(hex: "059669"),
+                color: Pulse.positive,
                 rationale: isTrainingDay
                     ? "Within 2h post-training. Total daily intake matters more than timing (Schoenfeld & Aragon 2018)."
                     : "Distribute evenly across meals — 20-40g per serving for optimal MPS."
@@ -220,7 +220,7 @@ struct SupplementTimingCard: View {
                 label: "Breakfast",
                 hour: 8,
                 icon: "sun.max.fill",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 rationale: "Take with a fat-containing meal for absorption (Dawson-Hughes 2017)."
             )
         }
@@ -231,7 +231,7 @@ struct SupplementTimingCard: View {
                 label: "With meal",
                 hour: 12,
                 icon: "drop.fill",
-                color: Color(hex: "0891B2"),
+                color: Pulse.recovery,
                 rationale: "With food for absorption. Split dose if taking >2g (Schuchardt & Hahn 2013)."
             )
         }
@@ -242,7 +242,7 @@ struct SupplementTimingCard: View {
                 label: "Evening",
                 hour: 21,
                 icon: "moon.fill",
-                color: Color(hex: "8B5CF6"),
+                color: Pulse.ai,
                 rationale: "Evening dosing may support sleep quality and muscle recovery (Abbasi et al. 2012)."
             )
         }
@@ -253,7 +253,7 @@ struct SupplementTimingCard: View {
                 label: "Any time",
                 hour: 10,
                 icon: "sparkles",
-                color: Color(hex: "0891B2"),
+                color: Pulse.recovery,
                 rationale: "Timing doesn't matter — beta-alanine works by saturation, not acute effect (ISSN 2015). Split to reduce tingling."
             )
         }
@@ -264,7 +264,7 @@ struct SupplementTimingCard: View {
                 label: "Bedtime",
                 hour: 22,
                 icon: "moon.stars.fill",
-                color: Color(hex: "8B5CF6"),
+                color: Pulse.ai,
                 rationale: "Take on empty stomach before bed. Don't combine with calcium — it blocks zinc absorption."
             )
         }
@@ -274,7 +274,7 @@ struct SupplementTimingCard: View {
             label: "With meal",
             hour: 9,
             icon: "pill.fill",
-            color: Color(hex: "059669"),
+            color: Pulse.positive,
             rationale: "Follow the dosing instructions on the label."
         )
     }

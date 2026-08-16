@@ -53,7 +53,7 @@ struct PersonalHealthView: View {
                             Button { showReadinessDetail = true } label: {
                                 ReadinessMiniCard(report: readiness)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PulsePress())
                         }
 
                         // Walk nudge
@@ -216,13 +216,13 @@ struct PermissionBanner: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "sparkles")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Connect the full picture")
                     .font(.subheadline.weight(.bold))
             }
             Text("Add your calendar and location to see events and weather alongside your health data.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             HStack(spacing: 8) {
                 if !calendarService.isAuthorized {
@@ -236,8 +236,8 @@ struct PermissionBanner: View {
                             .font(.caption.weight(.semibold))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color(hex: "8B5CF6").opacity(0.12))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .background(Pulse.ai.opacity(0.12))
+                            .foregroundColor(Pulse.ai)
                             .clipShape(Capsule())
                     }
                 }
@@ -249,17 +249,17 @@ struct PermissionBanner: View {
                             .font(.caption.weight(.semibold))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color(hex: "8B5CF6").opacity(0.12))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .background(Pulse.ai.opacity(0.12))
+                            .foregroundColor(Pulse.ai)
                             .clipShape(Capsule())
                     }
                 }
             }
         }
         .padding(14)
-        .background(Color(hex: "8B5CF6").opacity(0.06))
+        .background(Pulse.ai.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(hex: "8B5CF6").opacity(0.2), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Pulse.ai.opacity(0.2), lineWidth: 1))
     }
 }
 
@@ -301,7 +301,7 @@ struct ReadinessMiniCard: View {
                 if let note = report.journeyNotes.first {
                     Text(note)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -320,17 +320,17 @@ struct NudgeCard: View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: "figure.walk.circle.fill")
                 .font(.title3)
-                .foregroundColor(Color(hex: "B45309"))
+                .foregroundColor(Pulse.warning)
             Text(text)
                 .font(.caption)
-                .foregroundColor(.primary)
+                .foregroundColor(Pulse.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
         .padding(12)
-        .background(Color(hex: "B45309").opacity(0.08))
+        .background(Pulse.warning.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "B45309").opacity(0.2), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Pulse.warning.opacity(0.2), lineWidth: 1))
     }
 }
 
@@ -364,7 +364,7 @@ struct StatTile: View {
                 .font(.title3.bold())
             Text(label)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .payaCard(padding: 12)
@@ -380,19 +380,19 @@ struct InsightsCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "link")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Today's connections")
                     .font(.subheadline.weight(.bold))
             }
             ForEach(insights, id: \.self) { insight in
                 HStack(alignment: .top, spacing: 8) {
                     Circle()
-                        .fill(Color(hex: "2563EB"))
+                        .fill(Pulse.hydration)
                         .frame(width: 4, height: 4)
                         .padding(.top, 6)
                     Text(insight)
                         .font(.caption)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -426,7 +426,7 @@ struct BodySection: View {
                         if let min = hrData.map(\.hr).min(), let max = hrData.map(\.hr).max() {
                             Text("\(Int(min))–\(Int(max)) bpm")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
@@ -435,7 +435,7 @@ struct BodySection: View {
                             x: .value("Hour", point.hour),
                             y: .value("BPM", point.hr)
                         )
-                        .foregroundStyle(Color(hex: "DC2626"))
+                        .foregroundStyle(Pulse.critical)
                         .interpolationMethod(.catmullRom)
 
                         AreaMark(
@@ -444,7 +444,7 @@ struct BodySection: View {
                         )
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [Color(hex: "DC2626").opacity(0.15), Color.clear],
+                                colors: [Pulse.critical.opacity(0.15), Color.clear],
                                 startPoint: .top, endPoint: .bottom
                             )
                         )
@@ -470,11 +470,11 @@ struct BodySection: View {
                 HStack(spacing: 12) {
                     ZStack {
                         Circle()
-                            .fill(Color(hex: "8B5CF6").opacity(0.12))
+                            .fill(Pulse.ai.opacity(0.12))
                             .frame(width: 40, height: 40)
                         Image(systemName: "moon.fill")
                             .font(.system(size: 16))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text(String(format: "%.1f hours", sleep))
@@ -482,14 +482,14 @@ struct BodySection: View {
                         let quality = sleep >= 7 ? "Within recommended range" : sleep >= 6 ? "Slightly below optimal" : "Below recommended 7-9h"
                         Text(quality)
                             .font(.caption2)
-                            .foregroundColor(sleep >= 7 ? Color(hex: "059669") : Color(hex: "F59E0B"))
+                            .foregroundColor(sleep >= 7 ? Pulse.positive : Pulse.nutrition)
                     }
                     Spacer()
                     if let onset = overview.sleepOnsetHour {
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("Bedtime")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             let hr = Int(onset) % 24
                             let mn = Int((onset - Double(Int(onset))) * 60)
                             let h12 = hr % 12 == 0 ? 12 : hr % 12
@@ -503,18 +503,18 @@ struct BodySection: View {
                 HStack(spacing: 12) {
                     ZStack {
                         Circle()
-                            .fill(Color(hex: "8B5CF6").opacity(0.12))
+                            .fill(Pulse.ai.opacity(0.12))
                             .frame(width: 40, height: 40)
                         Image(systemName: "moon.fill")
                             .font(.system(size: 16))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Sleep")
                             .font(.subheadline.weight(.bold))
                         Text("No sleep data — wear your Apple Watch to bed, or check Health app permissions for Sleep.")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                 }
@@ -545,7 +545,7 @@ struct ActivitySection: View {
                         Spacer()
                         Text("\(overview.totalSteps) total")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     Chart(stepData, id: \.hour) { point in
@@ -553,7 +553,7 @@ struct ActivitySection: View {
                             x: .value("Hour", point.hour),
                             y: .value("Steps", point.steps)
                         )
-                        .foregroundStyle(Color(hex: "059669").opacity(0.7))
+                        .foregroundStyle(Pulse.positive.opacity(0.7))
                         .cornerRadius(3)
                     }
                     .chartXAxis {
@@ -576,11 +576,11 @@ struct ActivitySection: View {
                 HStack(spacing: 12) {
                     ZStack {
                         Circle()
-                            .fill(Color(hex: "B45309").opacity(0.12))
+                            .fill(Pulse.warning.opacity(0.12))
                             .frame(width: 36, height: 36)
                         Image(systemName: "sun.max.fill")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         if overview.timeInDaylightMin > 0 {
@@ -590,7 +590,7 @@ struct ActivitySection: View {
                         if overview.sunnyHoursWalked > 0 {
                             Text("\(overview.sunnyHoursWalked) sunny hour\(overview.sunnyHoursWalked == 1 ? "" : "s") with steps")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     Spacer()
@@ -633,7 +633,7 @@ struct EnvironmentSection: View {
                         if let min = weatherHours.map(\.temp).min(), let max = weatherHours.map(\.temp).max() {
                             Text("\(Int(min))°–\(Int(max))°C")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
@@ -642,7 +642,7 @@ struct EnvironmentSection: View {
                             x: .value("Hour", point.hour),
                             y: .value("Temp", point.temp)
                         )
-                        .foregroundStyle(Color(hex: "0891B2"))
+                        .foregroundStyle(Pulse.recovery)
                         .interpolationMethod(.catmullRom)
                     }
                     .chartXAxis {
@@ -665,13 +665,13 @@ struct EnvironmentSection: View {
                                 VStack(spacing: 2) {
                                     Image(systemName: w.icon)
                                         .font(.system(size: 11))
-                                        .foregroundColor(w.sunny ? Color(hex: "B45309") : .secondary)
+                                        .foregroundColor(w.sunny ? Pulse.warning : .secondary)
                                     Text("\(Int(w.temp))°")
                                         .font(.system(size: 9))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                     Text(hourLabel(w.hour))
                                         .font(.system(size: 8))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 .frame(width: 36)
                             }
@@ -691,7 +691,7 @@ struct EnvironmentSection: View {
                         if loud > 0 {
                             Text("\(loud) hour\(loud == 1 ? "" : "s") above 70dB")
                                 .font(.caption2)
-                                .foregroundColor(Color(hex: "DC2626"))
+                                .foregroundColor(Pulse.critical)
                         }
                     }
 
@@ -700,7 +700,7 @@ struct EnvironmentSection: View {
                             x: .value("Hour", point.hour),
                             y: .value("dB", point.db)
                         )
-                        .foregroundStyle(point.db >= 70 ? Color(hex: "DC2626").opacity(0.7) : Color(hex: "0891B2").opacity(0.5))
+                        .foregroundStyle(point.db >= 70 ? Pulse.critical.opacity(0.7) : Pulse.recovery.opacity(0.5))
                         .cornerRadius(3)
                     }
                     .chartXAxis {
@@ -741,7 +741,7 @@ struct SectionLabel: View {
                 .foregroundColor(Color(hex: color))
             Text(title.uppercased())
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .padding(.top, 4)
     }
@@ -756,7 +756,7 @@ struct WeeklyPatternsCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: "calendar.day.timeline.left")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("This week's pattern")
                     .font(.subheadline.weight(.bold))
             }
@@ -766,7 +766,7 @@ struct WeeklyPatternsCard: View {
                     x: .value("Day", day.weekdayLabel),
                     y: .value("Steps", day.totalSteps)
                 )
-                .foregroundStyle(Color(hex: "059669").opacity(0.8))
+                .foregroundStyle(Pulse.positive.opacity(0.8))
                 .cornerRadius(4)
             }
             .frame(height: 110)
@@ -778,16 +778,16 @@ struct WeeklyPatternsCard: View {
                         if let sleep = day.sleepHours {
                             Text(String(format: "%.1fh", sleep))
                                 .font(.system(size: 9, weight: .semibold))
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                         } else {
                             Text("—")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         if let energy = day.checkInEnergy {
                             Image(systemName: energy >= 3 ? "bolt.fill" : "bolt.slash")
                                 .font(.system(size: 8))
-                                .foregroundColor(energy >= 3 ? Color(hex: "B45309") : .secondary)
+                                .foregroundColor(energy >= 3 ? Pulse.warning : .secondary)
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -800,12 +800,12 @@ struct WeeklyPatternsCard: View {
                 ForEach(PersonalHealthTimelineEngine.buildWeekInsights(summaries), id: \.self) { insight in
                     HStack(alignment: .top, spacing: 8) {
                         Circle()
-                            .fill(Color(hex: "059669"))
+                            .fill(Pulse.positive)
                             .frame(width: 4, height: 4)
                             .padding(.top, 6)
                         Text(insight)
                             .font(.caption)
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -853,7 +853,7 @@ struct HourRow: View {
         HStack(alignment: .top, spacing: 10) {
             Text(block.label)
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .frame(width: 42, alignment: .leading)
                 .padding(.top, 10)
 
@@ -893,7 +893,7 @@ struct HourRow: View {
                 ForEach(block.meals, id: \.id) { meal in
                     Text("\(meal.name): \(meal.food)")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .lineLimit(1)
                 }
             }
@@ -902,7 +902,7 @@ struct HourRow: View {
             Spacer()
         }
         .padding(.horizontal, 12)
-        .background(block.isAsleep ? Color(hex: "8B5CF6").opacity(0.05) : Color.clear)
+        .background(block.isAsleep ? Pulse.ai.opacity(0.05) : Color.clear)
         .opacity(block.hasAnyData ? 1.0 : 0.45)
     }
 }

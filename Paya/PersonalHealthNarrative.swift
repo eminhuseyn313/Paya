@@ -32,7 +32,7 @@ struct PersonalHealthNarrativeCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "text.book.closed.fill")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                     .font(.system(size: 12))
                 Text("Your health story")
                     .font(.subheadline.weight(.semibold))
@@ -40,10 +40,10 @@ struct PersonalHealthNarrativeCard: View {
                 if lastGenerated != nil {
                     Text("Monthly")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
-                        .background(Color(hex: "2563EB").opacity(0.1))
+                        .background(Pulse.hydration.opacity(0.1))
                         .clipShape(Capsule())
                 }
             }
@@ -53,7 +53,7 @@ struct PersonalHealthNarrativeCard: View {
                     ProgressView()
                     Text("Synthesizing your month…")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -62,7 +62,7 @@ struct PersonalHealthNarrativeCard: View {
                     let displayText = isExpanded ? narrative : String(narrative.prefix(200)) + "…"
                     Text(displayText)
                         .font(.system(size: 11))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineSpacing(2)
 
@@ -71,26 +71,26 @@ struct PersonalHealthNarrativeCard: View {
                     } label: {
                         Text(isExpanded ? "Show less" : "Read full narrative")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                     }
 
                     if let date = lastGenerated {
                         let formatter = RelativeDateTimeFormatter()
                         Text("Generated \(formatter.localizedString(for: date, relativeTo: .now))")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "text.book.closed")
                         .font(.title3)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("Generate your monthly health narrative")
                         .font(.caption.weight(.semibold))
                     Text("AI synthesizes 30 days of training, nutrition, sleep, and recovery into one coherent story.")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
 
                     Button {
@@ -101,7 +101,7 @@ struct PersonalHealthNarrativeCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
-                            .background(Color(hex: "2563EB"))
+                            .background(Pulse.hydration)
                             .clipShape(Capsule())
                     }
                 }
@@ -115,7 +115,7 @@ struct PersonalHealthNarrativeCard: View {
                 Text("Powered by \(AIService.shared.providerName) · Your data stays \(AIService.shared.isAppleIntelligenceAvailable ? "on-device" : "encrypted in transit")")
                     .font(.system(size: 9))
             }
-            .foregroundColor(.secondary)
+            .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
         .onAppear { loadCache() }

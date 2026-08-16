@@ -50,18 +50,18 @@ struct PostWorkoutNutritionCard: View {
             HStack {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "059669").opacity(0.12))
+                        .fill(Pulse.positive.opacity(0.12))
                         .frame(width: 32, height: 32)
                     Image(systemName: "fork.knife")
                         .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Post-Workout Nutrition")
                         .font(.subheadline.weight(.semibold))
                     Text("Eat within \(windowMinutes) min for optimal recovery")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Text(intensity.label)
@@ -74,24 +74,24 @@ struct PostWorkoutNutritionCard: View {
             }
 
             HStack(spacing: 12) {
-                macroBlock(value: "\(proteinTarget)g", label: "Protein", color: Color(hex: "2563EB"), icon: "p.circle.fill")
-                macroBlock(value: "\(carbTarget)g", label: "Carbs", color: Color(hex: "F59E0B"), icon: "c.circle.fill")
-                macroBlock(value: "Low", label: "Fat", color: Color(hex: "DC2626"), icon: "f.circle.fill")
+                macroBlock(value: "\(proteinTarget)g", label: "Protein", color: Pulse.hydration, icon: "p.circle.fill")
+                macroBlock(value: "\(carbTarget)g", label: "Carbs", color: Pulse.nutrition, icon: "c.circle.fill")
+                macroBlock(value: "Low", label: "Fat", color: Pulse.critical, icon: "f.circle.fill")
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Suggested meals")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
 
                 ForEach(mealSuggestions, id: \.self) { meal in
                     HStack(spacing: 6) {
                         Circle()
-                            .fill(Color(hex: "059669"))
+                            .fill(Pulse.positive)
                             .frame(width: 4, height: 4)
                         Text(meal)
                             .font(.system(size: 11))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                     }
                 }
             }
@@ -99,7 +99,7 @@ struct PostWorkoutNutritionCard: View {
 
             Text("Prioritize fast-digesting protein + carbs. Delay fat to avoid slowing absorption.")
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
     }
@@ -113,7 +113,7 @@ struct PostWorkoutNutritionCard: View {
                 .font(.system(size: 14, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -158,9 +158,9 @@ private enum SessionIntensity {
 
     var color: Color {
         switch self {
-        case .light: return Color(hex: "059669")
-        case .moderate: return Color(hex: "F59E0B")
-        case .high: return Color(hex: "DC2626")
+        case .light: return Pulse.positive
+        case .moderate: return Pulse.nutrition
+        case .high: return Pulse.critical
         }
     }
 }

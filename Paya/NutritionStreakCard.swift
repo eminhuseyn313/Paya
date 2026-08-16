@@ -23,7 +23,7 @@ struct NutritionStreakCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "flame.circle.fill")
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                         Text("Nutrition Streaks")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -34,21 +34,21 @@ struct NutritionStreakCard: View {
                             value: "\(proteinStreak)",
                             label: "Protein streak",
                             sublabel: "days",
-                            color: Color(hex: "2563EB"),
+                            color: Pulse.hydration,
                             icon: "p.circle.fill"
                         )
                         streakStat(
                             value: "\(calorieStreak)",
                             label: "Calorie streak",
                             sublabel: "days",
-                            color: Color(hex: "F59E0B"),
+                            color: Pulse.nutrition,
                             icon: "c.circle.fill"
                         )
                         streakStat(
                             value: "\(proteinHitRate)%",
                             label: "Protein hit",
                             sublabel: "14d rate",
-                            color: Color(hex: "059669"),
+                            color: Pulse.positive,
                             icon: "target"
                         )
                     }
@@ -56,7 +56,7 @@ struct NutritionStreakCard: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Last 14 days")
                             .font(.system(size: 8, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
 
                         HStack(spacing: 3) {
                             ForEach(dayDots) { dot in
@@ -71,34 +71,34 @@ struct NutritionStreakCard: View {
                                         .frame(width: 14, height: 14)
                                     Text(dot.dayLabel)
                                         .font(.system(size: 6))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                             }
                         }
 
                         HStack(spacing: 12) {
                             HStack(spacing: 3) {
-                                Circle().fill(Color(hex: "2563EB")).frame(width: 5, height: 5)
-                                Text("Protein").font(.system(size: 7)).foregroundColor(.secondary)
+                                Circle().fill(Pulse.hydration).frame(width: 5, height: 5)
+                                Text("Protein").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
-                                Circle().fill(Color(hex: "F59E0B")).frame(width: 5, height: 5)
-                                Text("Calories").font(.system(size: 7)).foregroundColor(.secondary)
+                                Circle().fill(Pulse.nutrition).frame(width: 5, height: 5)
+                                Text("Calories").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
-                                Circle().fill(Color(hex: "059669")).frame(width: 5, height: 5)
-                                Text("Hit").font(.system(size: 7)).foregroundColor(.secondary)
+                                Circle().fill(Pulse.positive).frame(width: 5, height: 5)
+                                Text("Hit").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
-                                Circle().fill(Color(hex: "DC2626").opacity(0.4)).frame(width: 5, height: 5)
-                                Text("Miss").font(.system(size: 7)).foregroundColor(.secondary)
+                                Circle().fill(Pulse.critical.opacity(0.4)).frame(width: 5, height: 5)
+                                Text("Miss").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
 
                     Text("Green = within 90% of target. Keep the streak alive — consistency matters more than perfection.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
@@ -115,7 +115,7 @@ struct NutritionStreakCard: View {
                 .font(.system(size: 18, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 8, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Text(sublabel)
                 .font(.system(size: 7))
                 .foregroundColor(.secondary.opacity(0.7))
@@ -165,8 +165,8 @@ struct NutritionStreakCard: View {
 
                 dots.append(DayDot(
                     dayLabel: label,
-                    proteinColor: proteinHit ? Color(hex: "059669") : Color(hex: "DC2626").opacity(0.4),
-                    calorieColor: calorieHit ? Color(hex: "059669") : Color(hex: "DC2626").opacity(0.4)
+                    proteinColor: proteinHit ? Pulse.positive : Pulse.critical.opacity(0.4),
+                    calorieColor: calorieHit ? Pulse.positive : Pulse.critical.opacity(0.4)
                 ))
 
                 // Streak counting (from most recent day backward)
@@ -179,8 +179,8 @@ struct NutritionStreakCard: View {
             } else {
                 dots.append(DayDot(
                     dayLabel: label,
-                    proteinColor: Color(.tertiarySystemBackground),
-                    calorieColor: Color(.tertiarySystemBackground)
+                    proteinColor: Pulse.surfaceElevatedFallback,
+                    calorieColor: Pulse.surfaceElevatedFallback
                 ))
                 pStreakCounting = false
                 cStreakCounting = false

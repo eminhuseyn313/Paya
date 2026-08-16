@@ -46,7 +46,7 @@ struct SorenessCorrelationCard: View {
             if !result.referenceIsYesterday, let session = result.referenceSession {
                 Text("No session logged yesterday — showing your last one instead (\(session.date.formatted(.dateTime.month(.abbreviated).day()))).")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             HStack(spacing: 24) {
@@ -56,23 +56,23 @@ struct SorenessCorrelationCard: View {
                         BodyFigureView(isFront: true, regionColors: colorMap(result))
                         soreOverlay(isFront: true)
                     }
-                    Text("Front").font(.caption2).foregroundColor(.secondary)
+                    Text("Front").font(.caption2).foregroundColor(Pulse.textTertiary)
                 }
                 VStack(spacing: 4) {
                     ZStack {
                         BodyFigureView(isFront: false, regionColors: colorMap(result))
                         soreOverlay(isFront: false)
                     }
-                    Text("Back").font(.caption2).foregroundColor(.secondary)
+                    Text("Back").font(.caption2).foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
             }
 
             HStack(spacing: 10) {
-                Text("Tap where you're sore today").font(.caption2.weight(.bold)).foregroundColor(.secondary)
+                Text("Tap where you're sore today").font(.caption2.weight(.bold)).foregroundColor(Pulse.textTertiary)
                 Spacer()
                 legendDot(Color(hex: "7C3AED"), "DOMS")
-                legendDot(Color(hex: "DC2626"), "Flare")
+                legendDot(Pulse.critical, "Flare")
             }
 
             FlowChips(
@@ -95,10 +95,10 @@ struct SorenessCorrelationCard: View {
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: result.flareTaggedUnexplainedCount > 0 ? "exclamationmark.triangle.fill" : (result.unexplainedCount > 0 && result.matchedCount == 0 ? "questionmark.circle.fill" : "checkmark.seal.fill"))
                         .font(.caption)
-                        .foregroundColor(result.flareTaggedUnexplainedCount > 0 ? Color(hex: "DC2626") : (result.matchedCount > 0 ? Color(hex: "059669") : Color(hex: "B45309")))
+                        .foregroundColor(result.flareTaggedUnexplainedCount > 0 ? Pulse.critical : (result.matchedCount > 0 ? Pulse.positive : Pulse.warning))
                     Text(summary)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -109,7 +109,7 @@ struct SorenessCorrelationCard: View {
     private func legendDot(_ color: Color, _ label: String) -> some View {
         HStack(spacing: 4) {
             Circle().stroke(color, lineWidth: 2).frame(width: 8, height: 8)
-            Text(label).font(.system(size: 9)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
         }
     }
 
@@ -128,7 +128,7 @@ struct SorenessCorrelationCard: View {
         ForEach(Array(positions.enumerated()), id: \.offset) { _, pair in
             if let kind = soreKinds[pair.0] {
                 Circle()
-                    .stroke(kind == .flare ? Color(hex: "DC2626") : Color(hex: "7C3AED"), lineWidth: 2.5)
+                    .stroke(kind == .flare ? Pulse.critical : Color(hex: "7C3AED"), lineWidth: 2.5)
                     .frame(width: 14, height: 14)
                     .position(pair.1)
             }
@@ -168,7 +168,7 @@ private struct FlowChips: View {
                         .background(chipColor(kind))
                         .clipShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
             }
         }
     }
@@ -177,7 +177,7 @@ private struct FlowChips: View {
         switch kind {
         case .none: return Color(.tertiarySystemFill)
         case .doms: return Color(hex: "7C3AED")
-        case .flare: return Color(hex: "DC2626")
+        case .flare: return Pulse.critical
         }
     }
 }

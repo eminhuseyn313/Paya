@@ -97,7 +97,7 @@ struct InsightsHubView: View {
                     DailyRoutineCard()
                         .requiresPro()
                     TodaysPictureCard(overview: todaysPicture, onOpen: { showPersonalHealth = true })
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                 }
 
                 // MARK: - Utilities
@@ -149,14 +149,14 @@ struct InsightsHubView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 7))
                     Text(title)
                         .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
 
             if isExpanded.wrappedValue {
                 content()
@@ -174,28 +174,28 @@ struct InsightsHubView: View {
                 HStack(spacing: 14) {
                     ZStack {
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(hex: "2563EB").opacity(0.15))
+                            .fill(Pulse.hydration.opacity(0.15))
                             .frame(width: 50, height: 50)
                         Image(systemName: "books.vertical.fill")
                             .font(.title2)
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                     }
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Exercise Library")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         Text("800+ exercises with images and instructions")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
         }
     }
 
@@ -211,16 +211,16 @@ struct InsightsHubView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 6) {
                     Image(systemName: AIService.shared.providerIcon)
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                     Text("Weekly Insight")
                         .font(.subheadline.weight(.semibold))
                     Spacer()
                     Text(AIService.shared.providerName)
                         .font(.caption2.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Capsule())
                 }
                 if let insight = vm.weeklyInsight {
@@ -230,7 +230,7 @@ struct InsightsHubView: View {
                 } else {
                     Text("AI analysis of your week so far.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Button {
                     Task { await vm.fetchWeeklyInsight(context: context, apiKey: apiKey, profile: profile) }
@@ -247,7 +247,7 @@ struct InsightsHubView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
-                    .background(Color(hex: "8B5CF6"))
+                    .background(Pulse.ai)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .disabled(vm.isFetchingInsight)

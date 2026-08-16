@@ -17,7 +17,7 @@ struct VO2MaxCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "lungs.fill")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Cardio Fitness")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -33,7 +33,7 @@ struct VO2MaxCard: View {
             } else if vo2 == nil && hrRecovery == nil {
                 Text("No cardio fitness readings yet — do an outdoor walk, run, or hike with your Watch to start building this trend.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else {
                 HStack(spacing: 20) {
                     if let vo2 {
@@ -43,11 +43,11 @@ struct VO2MaxCard: View {
                                     .font(.title3.bold())
                                 Text("VO2 max")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             Text(vo2.date.formatted(.relative(presentation: .named)))
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     if let hrRecovery {
@@ -57,17 +57,17 @@ struct VO2MaxCard: View {
                                     .font(.title3.bold())
                                 Text("bpm recovery")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             Text(hrRecovery.date.formatted(.relative(presentation: .named)))
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
                 Text("VO2 max: how efficiently your body uses oxygen during exercise. HR recovery: how fast your heart rate drops in the first minute after peak effort — both standard aerobic-fitness markers, both estimated from outdoor GPS workouts.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

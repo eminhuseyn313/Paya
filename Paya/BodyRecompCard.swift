@@ -30,7 +30,7 @@ struct BodyRecompCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "arrow.up.and.down.circle.fill")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Body Recomposition")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -47,17 +47,17 @@ struct BodyRecompCard: View {
                         recompMetric(
                             title: "Weight Δ",
                             value: String(format: "%+.1f %@", useLbs ? a.weightChange * 2.20462 : a.weightChange, unit),
-                            color: abs(a.weightChange) < 0.5 ? Color(hex: "059669") : Color(hex: "F59E0B")
+                            color: abs(a.weightChange) < 0.5 ? Pulse.positive : Pulse.nutrition
                         )
                         recompMetric(
                             title: "Strength Δ",
                             value: String(format: "%+.1f%%", a.strengthChange),
-                            color: a.strengthChange > 0 ? Color(hex: "059669") : Color(hex: "DC2626")
+                            color: a.strengthChange > 0 ? Pulse.positive : Pulse.critical
                         )
                         recompMetric(
                             title: "Est. Lean Δ",
                             value: String(format: "%+.1f %@", useLbs ? a.estimatedLeanChange * 2.20462 : a.estimatedLeanChange, unit),
-                            color: a.estimatedLeanChange > 0 ? Color(hex: "2563EB") : Color(hex: "DC2626")
+                            color: a.estimatedLeanChange > 0 ? Pulse.hydration : Pulse.critical
                         )
                     }
 
@@ -69,7 +69,7 @@ struct BodyRecompCard: View {
                                     y: .value("Value", useLbs ? point.weight * 2.20462 : point.weight),
                                     series: .value("Series", "Weight")
                                 )
-                                .foregroundStyle(Color(hex: "F59E0B"))
+                                .foregroundStyle(Pulse.nutrition)
                                 .interpolationMethod(.catmullRom)
                                 .symbol(.circle)
 
@@ -78,7 +78,7 @@ struct BodyRecompCard: View {
                                     y: .value("Value", useLbs ? point.estimatedLean * 2.20462 : point.estimatedLean),
                                     series: .value("Series", "Lean Mass")
                                 )
-                                .foregroundStyle(Color(hex: "2563EB"))
+                                .foregroundStyle(Pulse.hydration)
                                 .interpolationMethod(.catmullRom)
                                 .lineStyle(StrokeStyle(lineWidth: 2, dash: [4, 3]))
                                 .symbol(.diamond)
@@ -101,19 +101,19 @@ struct BodyRecompCard: View {
 
                         HStack(spacing: 12) {
                             HStack(spacing: 3) {
-                                Circle().fill(Color(hex: "F59E0B")).frame(width: 5, height: 5)
-                                Text("Weight").font(.system(size: 8)).foregroundColor(.secondary)
+                                Circle().fill(Pulse.nutrition).frame(width: 5, height: 5)
+                                Text("Weight").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
-                                Circle().fill(Color(hex: "2563EB")).frame(width: 5, height: 5)
-                                Text("Est. Lean Mass").font(.system(size: 8)).foregroundColor(.secondary)
+                                Circle().fill(Pulse.hydration).frame(width: 5, height: 5)
+                                Text("Est. Lean Mass").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
 
                     Text(a.insight)
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text("Estimate based on Katch-McArdle proxy: strength gains with stable weight suggest lean tissue accretion (Schoenfeld 2010). Not a DEXA replacement.")
@@ -133,7 +133,7 @@ struct BodyRecompCard: View {
                 .foregroundColor(color)
             Text(title)
                 .font(.system(size: 8, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -277,11 +277,11 @@ private struct RecompAnalysis {
 
     var statusColor: Color {
         switch status {
-        case .recomping: return Color(hex: "8B5CF6")
-        case .bulking: return Color(hex: "2563EB")
-        case .cutting: return Color(hex: "059669")
-        case .caution: return Color(hex: "DC2626")
-        case .maintaining: return Color(hex: "F59E0B")
+        case .recomping: return Pulse.ai
+        case .bulking: return Pulse.hydration
+        case .cutting: return Pulse.positive
+        case .caution: return Pulse.critical
+        case .maintaining: return Pulse.nutrition
         }
     }
 }

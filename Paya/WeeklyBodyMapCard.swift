@@ -124,7 +124,7 @@ struct WeeklyBodyMapCard: View {
             ForEach(Array(positions.enumerated()), id: \.offset) { _, pair in
                 if flaggedRegions.contains(pair.0) {
                     Circle()
-                        .fill(Color(hex: "B45309"))
+                        .fill(Pulse.warning)
                         .frame(width: 8, height: 8)
                         .overlay(Circle().stroke(.white, lineWidth: 1))
                         .position(x: pair.1.x * sx, y: pair.1.y * sy)

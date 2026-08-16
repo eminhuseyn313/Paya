@@ -48,16 +48,16 @@ struct PersonalHRZoneCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "heart.text.square.fill")
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                         Text("Your HR zones")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("Personalized")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "DC2626").opacity(0.1))
+                            .background(Pulse.critical.opacity(0.1))
                             .clipShape(Capsule())
                     }
 
@@ -68,14 +68,14 @@ struct PersonalHRZoneCard: View {
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                             Text("Max HR")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text(maxSource)
                                 .font(.system(size: 7))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(8)
-                        .background(Color(hex: "DC2626").opacity(0.06))
+                        .background(Pulse.critical.opacity(0.06))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         VStack(spacing: 2) {
@@ -83,14 +83,14 @@ struct PersonalHRZoneCard: View {
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                             Text("Resting HR")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text("Apple Health")
                                 .font(.system(size: 7))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(8)
-                        .background(Color(hex: "2563EB").opacity(0.06))
+                        .background(Pulse.hydration.opacity(0.06))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         VStack(spacing: 2) {
@@ -98,14 +98,14 @@ struct PersonalHRZoneCard: View {
                                 .font(.system(size: 22, weight: .bold, design: .rounded))
                             Text("HR Reserve")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text("Karvonen")
                                 .font(.system(size: 7))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(8)
-                        .background(Color(hex: "059669").opacity(0.06))
+                        .background(Pulse.positive.opacity(0.06))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
 
@@ -124,7 +124,7 @@ struct PersonalHRZoneCard: View {
                                     let high = min(1, Double(zone.highBPM) / maxBPM)
                                     ZStack(alignment: .leading) {
                                         RoundedRectangle(cornerRadius: 3)
-                                            .fill(Color(.tertiarySystemBackground))
+                                            .fill(Pulse.surfaceElevatedFallback)
                                         RoundedRectangle(cornerRadius: 3)
                                             .fill(zone.color)
                                             .frame(width: geo.size.width * (high - low))
@@ -136,7 +136,7 @@ struct PersonalHRZoneCard: View {
                                 Text(zone.range)
                                     .font(.system(size: 9, weight: .bold, design: .rounded))
                                     .monospacedDigit()
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .frame(width: 60, alignment: .trailing)
                             }
                         }
@@ -151,7 +151,7 @@ struct PersonalHRZoneCard: View {
                                     .foregroundColor(zone.color)
                                 Text(zone.purpose)
                                     .font(.system(size: 7))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .lineLimit(1)
                             }
                         }
@@ -162,11 +162,11 @@ struct PersonalHRZoneCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text("Generic 220-age gives \(genericMaxHR) bpm — \(abs(hrDifference)) bpm \(hrDifference > 0 ? "lower" : "higher") than your actual data. Using generic zones would put you in the wrong zone \(abs(hrDifference) > 5 ? "significantly" : "slightly").")
                                 .font(.system(size: 10))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -243,7 +243,7 @@ struct PersonalHRZoneCard: View {
                 name: "Zone 1",
                 range: "\(karvonen(0.5))–\(karvonen(0.6))",
                 purpose: "Recovery",
-                color: Color(hex: "0891B2"),
+                color: Pulse.recovery,
                 lowBPM: karvonen(0.5),
                 highBPM: karvonen(0.6)
             ),
@@ -251,7 +251,7 @@ struct PersonalHRZoneCard: View {
                 name: "Zone 2",
                 range: "\(karvonen(0.6))–\(karvonen(0.7))",
                 purpose: "Aerobic base",
-                color: Color(hex: "059669"),
+                color: Pulse.positive,
                 lowBPM: karvonen(0.6),
                 highBPM: karvonen(0.7)
             ),
@@ -259,7 +259,7 @@ struct PersonalHRZoneCard: View {
                 name: "Zone 3",
                 range: "\(karvonen(0.7))–\(karvonen(0.8))",
                 purpose: "Tempo",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 lowBPM: karvonen(0.7),
                 highBPM: karvonen(0.8)
             ),
@@ -267,7 +267,7 @@ struct PersonalHRZoneCard: View {
                 name: "Zone 4",
                 range: "\(karvonen(0.8))–\(karvonen(0.9))",
                 purpose: "Threshold",
-                color: Color(hex: "DC2626"),
+                color: Pulse.critical,
                 lowBPM: karvonen(0.8),
                 highBPM: karvonen(0.9)
             ),
@@ -275,7 +275,7 @@ struct PersonalHRZoneCard: View {
                 name: "Zone 5",
                 range: "\(karvonen(0.9))–\(estimatedMaxHR)",
                 purpose: "Max effort",
-                color: Color(hex: "8B5CF6"),
+                color: Pulse.ai,
                 lowBPM: karvonen(0.9),
                 highBPM: estimatedMaxHR
             ),

@@ -21,26 +21,26 @@ struct BehaviorTagPicker: View {
         let content = VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "tag.fill")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                     .font(.system(size: 12))
                 Text("Today's behaviors")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(activeTags.count) tagged")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Text("Tag what you did today — Paya correlates these with your recovery.")
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             ForEach(BehaviorCategory.allCases) { category in
                 let tags = BehaviorTags.all.filter { $0.category == category }
                 VStack(alignment: .leading, spacing: 6) {
                     Text(category.displayName.uppercased())
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     FlowLayout(spacing: 6) {
                         ForEach(tags) { tag in
@@ -64,7 +64,7 @@ struct BehaviorTagPicker: View {
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 7)
-                                .background(isOn ? Color(hex: tag.colorHex).opacity(0.2) : Color(.tertiarySystemBackground))
+                                .background(isOn ? Color(hex: tag.colorHex).opacity(0.2) : Pulse.surfaceElevatedFallback)
                                 .foregroundStyle(isOn ? Color(hex: tag.colorHex) : .primary)
                                 .clipShape(Capsule())
                                 .overlay(
@@ -72,7 +72,7 @@ struct BehaviorTagPicker: View {
                                         .strokeBorder(isOn ? Color(hex: tag.colorHex).opacity(0.5) : .clear, lineWidth: 1)
                                 )
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PulsePress())
                         }
                     }
                 }
@@ -114,7 +114,7 @@ struct BehaviorRecoveryCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "arrow.triangle.branch")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                     .font(.system(size: 12))
                 Text("Behavior ↔ Recovery")
                     .font(.subheadline.weight(.semibold))
@@ -122,10 +122,10 @@ struct BehaviorRecoveryCard: View {
                 if !insights.isEmpty {
                     Text("\(insights.count) patterns")
                         .font(.caption2)
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
-                        .background(Color(hex: "8B5CF6").opacity(0.1))
+                        .background(Pulse.ai.opacity(0.1))
                         .clipShape(Capsule())
                 }
             }
@@ -136,7 +136,7 @@ struct BehaviorRecoveryCard: View {
                         .scaleEffect(0.7)
                     Text("Analyzing patterns…")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical, 8)
@@ -144,12 +144,12 @@ struct BehaviorRecoveryCard: View {
                 VStack(spacing: 6) {
                     Image(systemName: "chart.line.text.clipboard")
                         .font(.title3)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("Not enough data yet")
                         .font(.caption.weight(.semibold))
                     Text("Tag your daily behaviors for 2+ weeks to see how they affect your recovery.")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
@@ -166,7 +166,7 @@ struct BehaviorRecoveryCard: View {
                     } label: {
                         Text(showAllInsights ? "Show less" : "See all \(insights.count) patterns")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 6)
                     }
@@ -180,7 +180,7 @@ struct BehaviorRecoveryCard: View {
                 Text("Correlation, not causation. Based on your data only.")
                     .font(.system(size: 9))
             }
-            .foregroundColor(.secondary)
+            .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
         .task {
@@ -207,7 +207,7 @@ struct BehaviorRecoveryCard: View {
                     .font(.caption.weight(.semibold))
                 Text(insight.text)
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -220,11 +220,11 @@ struct BehaviorRecoveryCard: View {
                 Text("\(Int(abs(insight.delta)))%")
                     .font(.system(size: 11, weight: .bold, design: .rounded))
             }
-            .foregroundColor(insight.isPositive ? Color(hex: "059669") : Color(hex: "DC2626"))
+            .foregroundColor(insight.isPositive ? Pulse.positive : Pulse.critical)
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
             .background(
-                (insight.isPositive ? Color(hex: "059669") : Color(hex: "DC2626")).opacity(0.1)
+                (insight.isPositive ? Pulse.positive : Pulse.critical).opacity(0.1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }

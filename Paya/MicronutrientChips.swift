@@ -32,11 +32,11 @@ struct MicronutrientChips: View {
                                 .font(.caption.weight(.bold))
                             Text("\(chip.label) (\(chip.unit))")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }

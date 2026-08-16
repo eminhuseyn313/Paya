@@ -20,16 +20,16 @@ struct PRTimelineCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "trophy.fill")
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                         Text("PR Timeline")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(events.count) PRs")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "B45309").opacity(0.12))
+                            .background(Pulse.warning.opacity(0.12))
                             .clipShape(Capsule())
                     }
 
@@ -37,7 +37,7 @@ struct PRTimelineCard: View {
                         HStack(alignment: .top, spacing: 10) {
                             VStack(spacing: 0) {
                                 Circle()
-                                    .fill(event.isRecent ? Color(hex: "059669") : Color(hex: "B45309"))
+                                    .fill(event.isRecent ? Pulse.positive : Pulse.warning)
                                     .frame(width: 10, height: 10)
                                 if index < displayEvents.count - 1 {
                                     Rectangle()
@@ -58,23 +58,23 @@ struct PRTimelineCard: View {
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 4)
                                             .padding(.vertical, 1)
-                                            .background(Color(hex: "059669"))
+                                            .background(Pulse.positive)
                                             .clipShape(Capsule())
                                     }
                                     Spacer()
                                     Text(event.date.formatted(.dateTime.month(.abbreviated).day()))
                                         .font(.system(size: 9))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 HStack(spacing: 8) {
                                     let w = useLbs ? event.weightKg * 2.20462 : event.weightKg
                                     Text(String(format: "%.0f %@ × %d", w, useLbs ? "lbs" : "kg", event.reps))
                                         .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                        .foregroundColor(Color(hex: "B45309"))
+                                        .foregroundColor(Pulse.warning)
                                     let e1rm = useLbs ? event.e1RM * 2.20462 : event.e1RM
                                     Text(String(format: "e1RM %.0f", e1rm))
                                         .font(.system(size: 10))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                             }
                             .padding(.bottom, 8)
@@ -91,7 +91,7 @@ struct PRTimelineCard: View {
                                 Image(systemName: showAll ? "chevron.up" : "chevron.down")
                                     .font(.system(size: 9))
                             }
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                             .frame(maxWidth: .infinity)
                         }
                     }

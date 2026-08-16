@@ -37,7 +37,7 @@ struct HRTimelineChart: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "waveform.path.ecg")
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                 Text("HR Timeline")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -46,17 +46,17 @@ struct HRTimelineChart: View {
             if dataPoints.isEmpty {
                 Text("No HR data recorded this session")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 40)
             } else {
                 Chart {
                     ForEach([
-                        ZoneBand(from: 0.5, to: 0.6, color: Color(hex: "2563EB")),
-                        ZoneBand(from: 0.6, to: 0.7, color: Color(hex: "059669")),
-                        ZoneBand(from: 0.7, to: 0.8, color: Color(hex: "B45309")),
+                        ZoneBand(from: 0.5, to: 0.6, color: Pulse.hydration),
+                        ZoneBand(from: 0.6, to: 0.7, color: Pulse.positive),
+                        ZoneBand(from: 0.7, to: 0.8, color: Pulse.warning),
                         ZoneBand(from: 0.8, to: 0.9, color: Color(hex: "C2410C")),
-                        ZoneBand(from: 0.9, to: 1.0, color: Color(hex: "DC2626"))
+                        ZoneBand(from: 0.9, to: 1.0, color: Pulse.critical)
                     ]) { band in
                         RectangleMark(
                             xStart: .value("start", 0.0),
@@ -72,7 +72,7 @@ struct HRTimelineChart: View {
                             x: .value("Minute", point.minute),
                             y: .value("BPM", point.bpm)
                         )
-                        .foregroundStyle(Color(hex: "DC2626"))
+                        .foregroundStyle(Pulse.critical)
                         .lineStyle(StrokeStyle(lineWidth: 2))
                         .interpolationMethod(.catmullRom)
                     }

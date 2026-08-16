@@ -45,7 +45,7 @@ struct ExerciseProgressionCard: View {
 
             HStack {
                 Image(systemName: "chart.xyaxis.line")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Strength Progression")
                     .font(.subheadline.weight(.bold))
                 CardInfoButton(
@@ -58,7 +58,7 @@ struct ExerciseProgressionCard: View {
             if loggedExercises.isEmpty {
                 Text("Complete sessions to see per-exercise strength trends.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.vertical, 10)
             } else {
                 // Exercise switcher as quick-tap chips, not a dropdown Menu —
@@ -82,10 +82,10 @@ struct ExerciseProgressionCard: View {
                                     .foregroundColor(isSelected ? .white : .primary)
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 8)
-                                    .background(isSelected ? Color(hex: "2563EB") : Color(.tertiarySystemBackground))
+                                    .background(isSelected ? Pulse.hydration : Pulse.surfaceElevatedFallback)
                                     .clipShape(Capsule())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PulsePress())
                         }
                     }
                     .padding(.horizontal, 1)
@@ -98,16 +98,16 @@ struct ExerciseProgressionCard: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(selectedExercise?.name.uppercased() ?? "")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .tracking(0.5)
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
                             Text(String(format: "%.1f", pr.bestE1RM))
                                 .font(.system(size: 36, weight: .bold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .contentTransition(.numericText())
                             Text("kg e1RM")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Spacer()
                             if let delta = trendDelta {
                                 HStack(spacing: 3) {
@@ -116,10 +116,10 @@ struct ExerciseProgressionCard: View {
                                     Text(String(format: "%+.1fkg", delta))
                                         .font(.subheadline.weight(.bold))
                                 }
-                                .foregroundColor(delta >= 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                                .foregroundColor(delta >= 0 ? Pulse.positive : Pulse.critical)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background((delta >= 0 ? Color(hex: "059669") : Color(hex: "DC2626")).opacity(0.12))
+                                .background((delta >= 0 ? Pulse.positive : Pulse.critical).opacity(0.12))
                                 .clipShape(Capsule())
                             }
                         }
@@ -136,7 +136,7 @@ struct ExerciseProgressionCard: View {
                             )
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [Color(hex: "2563EB").opacity(0.25), Color(hex: "2563EB").opacity(0.0)],
+                                    colors: [Pulse.hydration.opacity(0.25), Pulse.hydration.opacity(0.0)],
                                     startPoint: .top, endPoint: .bottom
                                 )
                             )
@@ -146,7 +146,7 @@ struct ExerciseProgressionCard: View {
                                 x: .value("Date", point.date),
                                 y: .value("e1RM", point.bestE1RM)
                             )
-                            .foregroundStyle(Color(hex: "2563EB"))
+                            .foregroundStyle(Pulse.hydration)
                             .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
                             .interpolationMethod(.catmullRom)
                         }
@@ -155,7 +155,7 @@ struct ExerciseProgressionCard: View {
                                 x: .value("Date", last.date),
                                 y: .value("e1RM", last.bestE1RM)
                             )
-                            .foregroundStyle(Color(hex: "2563EB"))
+                            .foregroundStyle(Pulse.hydration)
                             .symbolSize(70)
                         }
                     }
@@ -186,7 +186,7 @@ struct ExerciseProgressionCard: View {
                 } else {
                     Text("Log this exercise in at least 2 sessions to see the trend.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .padding(.vertical, 10)
                 }
 
@@ -197,19 +197,19 @@ struct ExerciseProgressionCard: View {
                             icon: "scalemass.fill",
                             label: "Best Set",
                             value: String(format: "%.1fkg × %d", pr.bestWeight, pr.bestWeightReps),
-                            color: Color(hex: "2563EB")
+                            color: Pulse.hydration
                         )
                         PRStat(
                             icon: "bolt.fill",
                             label: "Est. 1RM",
                             value: String(format: "%.1fkg", pr.bestE1RM),
-                            color: Color(hex: "B45309")
+                            color: Pulse.warning
                         )
                         PRStat(
                             icon: "square.stack.3d.up.fill",
                             label: "Best Volume",
                             value: String(format: "%.0fkg", pr.bestSessionVolume),
-                            color: Color(hex: "059669")
+                            color: Pulse.positive
                         )
                     }
                 }
@@ -218,10 +218,10 @@ struct ExerciseProgressionCard: View {
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "arrow.up.right.circle")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("If this pace continues: ~\(String(format: "%.0f", projection.projectedIn4Weeks))kg e1RM in 4 weeks, ~\(String(format: "%.0f", projection.projectedIn8Weeks))kg in 8. A straight-line estimate, not a guarantee.")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .padding(.top, 2)
@@ -245,13 +245,13 @@ struct PRStat: View {
                 .foregroundColor(color)
             Text(value)
                 .font(.subheadline.weight(.bold))
-                .foregroundColor(.primary)
+                .foregroundColor(Pulse.textPrimary)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
                 .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
@@ -274,7 +274,7 @@ struct RecentPRsCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "trophy.fill")
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Pulse.warning)
                 Text("Recent Records")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -284,13 +284,13 @@ struct RecentPRsCard: View {
                 Spacer()
                 Text("Last 30 days")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if events.isEmpty {
                 Text("Beat a previous best to land a record here. 🏆")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.vertical, 6)
             } else {
                 VStack(spacing: 6) {
@@ -310,7 +310,7 @@ struct RecentPRsCard: View {
                                     .lineLimit(1)
                                 Text(event.kind.label)
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             Spacer()
                             VStack(alignment: .trailing, spacing: 1) {
@@ -325,7 +325,7 @@ struct RecentPRsCard: View {
                                 }
                                 Text(event.date.formatted(.dateTime.day().month(.abbreviated)))
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
@@ -349,7 +349,7 @@ struct VolumeLandmarkCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "chart.bar.doc.horizontal")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Weekly Volume vs. Landmarks")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -359,13 +359,13 @@ struct VolumeLandmarkCard: View {
                 Spacer()
                 Text("Last 7 days")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if volumes.isEmpty {
                 Text("Log a week of training and this fills in — hard sets per muscle against published volume landmarks (MEV/MAV/MRV).")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.vertical, 6)
             } else {
                 VStack(spacing: 10) {
@@ -389,7 +389,7 @@ struct VolumeLandmarkCard: View {
     private func legendDot(color: String, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(Color(hex: color)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 8)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
         }
     }
 }
@@ -410,7 +410,7 @@ private struct VolumeLandmarkRow: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(Color(.tertiarySystemBackground))
+                        .fill(Pulse.surfaceElevatedFallback)
                         .frame(height: 6)
                     RoundedRectangle(cornerRadius: 3)
                         .fill(Color(hex: mv.zone.colorHex))
@@ -444,7 +444,7 @@ struct PlateauCard: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "arrow.trianglehead.2.clockwise")
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.warning)
                     Text("Stalled Lifts")
                         .font(.subheadline.weight(.semibold))
                     Spacer()
@@ -458,7 +458,7 @@ struct PlateauCard: View {
                                     .font(.caption.weight(.semibold))
                                 Text(flag.suggestion)
                                     .font(.system(size: 10))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer()

@@ -75,10 +75,10 @@ enum FlareRiskLevel: String, Codable {
 
     var color: Color {
         switch self {
-        case .low:      return Color(hex: "059669")
-        case .moderate: return Color(hex: "B45309")
+        case .low:      return Pulse.positive
+        case .moderate: return Pulse.warning
         case .elevated: return Color(hex: "EA580C")
-        case .high:     return Color(hex: "DC2626")
+        case .high:     return Pulse.critical
         }
     }
 

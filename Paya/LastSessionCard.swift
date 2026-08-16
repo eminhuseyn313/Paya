@@ -46,16 +46,16 @@ struct LastSessionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Last Session")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text(daysAgo)
                     .font(.caption2.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(Capsule())
             }
 
@@ -80,10 +80,10 @@ struct LastSessionCard: View {
                     ForEach(topExercises, id: \.self) { name in
                         Text(name)
                             .font(.system(size: 9, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 3)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(Capsule())
                             .lineLimit(1)
                     }
@@ -105,7 +105,7 @@ struct LastSessionCard: View {
             }
             Text(unit)
                 .font(.system(size: 8))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }

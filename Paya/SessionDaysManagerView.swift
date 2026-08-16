@@ -38,16 +38,16 @@ struct SessionDaysManagerView: View {
                             Text("Add training day")
                                 .font(.subheadline.weight(.semibold))
                         }
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(Color(hex: "2563EB").opacity(0.1))
+                        .background(Pulse.hydration.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
                     Text("New days start empty — use the composer (sliders icon on the Train tab) to add exercises from the library.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 12)
 
@@ -126,7 +126,7 @@ struct DayConfigCard: View {
                         .onChange(of: day.name) { _, _ in onChanged() }
                     TextField("Focus (subtitle)", text: $day.focus)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .onChange(of: day.focus) { _, _ in onChanged() }
                 }
 
@@ -160,10 +160,10 @@ struct DayConfigCard: View {
                         Image(systemName: "chevron.down")
                             .font(.system(size: 8, weight: .bold))
                     }
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(Capsule())
                 }
 

@@ -25,22 +25,22 @@ struct WeeklyStatsCard: View {
                 icon: "flame.fill",
                 value: "\(weekStreak)",
                 label: weekStreak == 1 ? "Week" : "Weeks",
-                color: Color(hex: "DC2626")
+                color: Pulse.critical
             )
             divider
             statCell(
                 icon: "scalemass.fill",
                 value: volumeLabel,
                 label: "Volume",
-                color: Color(hex: "0891B2")
+                color: Pulse.recovery
             )
         }
         .payaCard(padding: 12)
     }
 
     private var sessionColor: Color {
-        if thisWeekSessions >= plannedSessions { return Color(hex: "059669") }
-        if thisWeekSessions > 0 { return Color(hex: "F59E0B") }
+        if thisWeekSessions >= plannedSessions { return Pulse.positive }
+        if thisWeekSessions > 0 { return Pulse.nutrition }
         return .secondary
     }
 
@@ -73,7 +73,7 @@ struct WeeklyStatsCard: View {
             }
             Text(label)
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
     }

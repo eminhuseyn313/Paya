@@ -23,22 +23,22 @@ struct TrainingBlockCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Image(systemName: "calendar.badge.clock")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Training Block")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("Week \(status.weeksInBlock)")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 3)
-                                .fill(Color(.tertiarySystemBackground))
+                                .fill(Pulse.surfaceElevatedFallback)
                                 .frame(height: 6)
                             RoundedRectangle(cornerRadius: 3)
-                                .fill(status.isPhaseChangeDue ? Color(hex: "B45309") : Color(hex: "8B5CF6"))
+                                .fill(status.isPhaseChangeDue ? Pulse.warning : Pulse.ai)
                                 .frame(width: geo.size.width * min(1.0, Double(status.weeksInBlock) / Double(PeriodizationEngine.suggestedBlockWeeks)), height: 6)
                         }
                     }
@@ -46,7 +46,7 @@ struct TrainingBlockCard: View {
 
                     Text(status.rationale)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     if status.isPhaseChangeDue {
@@ -63,7 +63,7 @@ struct TrainingBlockCard: View {
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 8)
-                                    .background(Color(hex: "B45309"))
+                                    .background(Pulse.warning)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                         }

@@ -14,31 +14,31 @@ struct NutrientDashboardCard: View {
                 HStack(spacing: 10) {
                     ZStack {
                         Circle()
-                            .fill(Color(hex: "059669").opacity(0.15))
+                            .fill(Pulse.positive.opacity(0.15))
                             .frame(width: 36, height: 36)
                         Image(systemName: "leaf.fill")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Nutrient Balance")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         if let report {
                             let defCount = report.deficits.count
                             Text(defCount == 0 ? "All nutrients on track" : "\(defCount) nutrient\(defCount == 1 ? "" : "s") running low")
                                 .font(.caption2)
-                                .foregroundColor(defCount == 0 ? .secondary : Color(hex: "F59E0B"))
+                                .foregroundColor(defCount == 0 ? .secondary : Pulse.nutrition)
                         } else {
                             Text("Tap to see your nutrient breakdown")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 if let report, !report.nutrients.isEmpty {
@@ -47,7 +47,7 @@ struct NutrientDashboardCard: View {
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .onAppear { loadReport() }
         .onChange(of: appState.dataRefreshTrigger) { _, _ in loadReport() }
         .sheet(isPresented: $showDetail) {
@@ -76,7 +76,7 @@ struct NutrientDashboardCard: View {
                         .frame(width: 6, height: 6)
                     Text(nutrient.target.name)
                         .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .lineLimit(1)
                     Spacer()
                     Text("\(Int(nutrient.percentRDA))%")
@@ -131,11 +131,11 @@ struct NutrientDetailView: View {
             HStack(spacing: 14) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "059669").opacity(0.15))
+                        .fill(Pulse.positive.opacity(0.15))
                         .frame(width: 52, height: 52)
                     Image(systemName: "leaf.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Daily Nutrient Balance")
@@ -143,7 +143,7 @@ struct NutrientDetailView: View {
                     let ok = report.nutrients.filter { $0.level == .adequate }.count
                     Text("\(ok)/\(report.nutrients.count) nutrients at adequate levels")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
             }
@@ -161,7 +161,7 @@ struct NutrientDetailView: View {
     private func legendPill(_ label: String, color: String) -> some View {
         HStack(spacing: 4) {
             Circle().fill(Color(hex: color)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(Pulse.textTertiary)
         }
     }
 
@@ -171,7 +171,7 @@ struct NutrientDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("YOUR INTAKE VS RDA")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             ForEach(report.nutrients) { nutrient in
                 NutrientRow(nutrient: nutrient)
@@ -185,20 +185,20 @@ struct NutrientDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("CONSIDER SUPPLEMENTING")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             ForEach(Array(report.supplementRecommendations.enumerated()), id: \.offset) { _, rec in
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 3) {
                         Text(rec.nutrientName)
                             .font(.subheadline.weight(.semibold))
                         Text(rec.reason)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -211,20 +211,20 @@ struct NutrientDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("REVIEW YOUR SUPPLEMENTS")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             ForEach(Array(report.supplementStopSuggestions.enumerated()), id: \.offset) { _, stop in
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "minus.circle.fill")
                         .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.warning)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 3) {
                         Text(stop.supplementName)
                             .font(.subheadline.weight(.semibold))
                         Text(stop.reason)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -242,7 +242,7 @@ struct NutrientDetailView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("TOP FOOD SOURCES")
                         .font(.caption.weight(.bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     ForEach(low) { nutrient in
                         let sources = NutrientFoodSources.sources(for: nutrient.target.id)
@@ -259,7 +259,7 @@ struct NutrientDetailView: View {
                                                 .font(.caption.weight(.medium))
                                             Text(src.portion)
                                                 .font(.system(size: 9))
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(Pulse.textTertiary)
                                         }
                                         Spacer()
                                         Text(src.amount)
@@ -282,14 +282,14 @@ struct NutrientDetailView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("DATA SOURCE")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Text("RDA values from the Institute of Medicine / National Academies \"Dietary Reference Intakes\" (2019 consolidated tables), adjusted for your age (\(age)) and sex (\(sex.lowercased())). Nutrient amounts are AI-estimated from food descriptions — not lab-measured. Use as directional guidance, not clinical data.")
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(14)
-        .background(Color(.tertiarySystemBackground).opacity(0.6))
+        .background(Pulse.surfaceElevatedFallback.opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
     }
 }
@@ -311,7 +311,7 @@ struct NutrientRow: View {
                 if nutrient.isSupplemented {
                     Image(systemName: "pills.fill")
                         .font(.system(size: 9))
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                 }
 
                 Spacer()
@@ -328,7 +328,7 @@ struct NutrientRow: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(.tertiarySystemBackground))
+                        .fill(Pulse.surfaceElevatedFallback)
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color(hex: nutrient.level.color))
                         .frame(width: min(geo.size.width, geo.size.width * CGFloat(nutrient.percentRDA / 100)))
@@ -348,7 +348,7 @@ struct NutrientRow: View {
                 HStack(spacing: 4) {
                     Text("7-day avg:")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("\(formatted(nutrient.weekAvgIntake))\(nutrient.target.unit) (\(Int(nutrient.weekPercentRDA))%)")
                         .font(.system(size: 9, weight: .medium))
                         .foregroundColor(Color(hex: nutrient.level.color))

@@ -298,8 +298,8 @@ struct RestTimerBar: View {
     }
 
     var displayColor: Color {
-        if manager.secondsRemaining == 0 { return Color(hex: "059669") }
-        if manager.secondsRemaining <= 10 { return Color(hex: "B45309") }
+        if manager.secondsRemaining == 0 { return Pulse.positive }
+        if manager.secondsRemaining <= 10 { return Pulse.warning }
         return manager.sessionColor
     }
 
@@ -347,7 +347,7 @@ struct RestTimerBar: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(isComplete ? "Ready for next set" : "Resting")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .lineLimit(1)
                         .fixedSize()
                     Text(isComplete ? "Go" : timeText)
@@ -370,9 +370,9 @@ struct RestTimerBar: View {
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .frame(width: 36, height: 36)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Circle())
                 }
                 .accessibilityLabel("Skip rest")
@@ -390,9 +390,9 @@ struct RestTimerBar: View {
                         Label("−15", systemImage: "minus")
                             .labelStyle(.titleOnly)
                             .font(.system(size: 13, weight: .bold, design: .rounded).monospacedDigit())
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .frame(width: 52, height: 32)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
 
@@ -413,7 +413,7 @@ struct RestTimerBar: View {
                         HStack(spacing: 6) {
                             Text("\(peak)")
                                 .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Image(systemName: "arrow.right")
                                 .font(.system(size: 8, weight: .bold))
                                 .foregroundColor(.secondary.opacity(0.6))
@@ -423,12 +423,12 @@ struct RestTimerBar: View {
                             if let drop = recoveryDrop, drop > 0 {
                                 Text("↓\(drop)")
                                     .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             }
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Capsule())
                     }
                 }

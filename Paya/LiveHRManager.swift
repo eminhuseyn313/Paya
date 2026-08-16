@@ -30,11 +30,11 @@ class LiveHRManager {
 
         var color: Color {
             switch self {
-            case .one:   return Color(hex: "2563EB")
-            case .two:   return Color(hex: "059669")
-            case .three: return Color(hex: "B45309")
+            case .one:   return Pulse.hydration
+            case .two:   return Pulse.positive
+            case .three: return Pulse.warning
             case .four:  return Color(hex: "C2410C")
-            case .five:  return Color(hex: "DC2626")
+            case .five:  return Pulse.critical
             }
         }
 

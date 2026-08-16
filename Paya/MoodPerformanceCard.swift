@@ -71,32 +71,32 @@ struct PreSessionMoodCheck: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "brain.head.profile.fill")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Quick check-in")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("3 taps")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             moodRow(label: "Stress", value: $stress, options: [
                 (1, "Low", "face.smiling"),
                 (2, "Moderate", "face.dashed"),
                 (3, "High", "exclamationmark.triangle"),
-            ], color: Color(hex: "DC2626"))
+            ], color: Pulse.critical)
 
             moodRow(label: "Motivation", value: $motivation, options: [
                 (1, "Low", "arrow.down"),
                 (2, "Moderate", "arrow.right"),
                 (3, "Fired up", "flame.fill"),
-            ], color: Color(hex: "F59E0B"))
+            ], color: Pulse.nutrition)
 
             moodRow(label: "Soreness", value: $soreness, options: [
                 (1, "None", "checkmark.circle"),
                 (2, "Some", "minus.circle"),
                 (3, "Significant", "xmark.circle"),
-            ], color: Color(hex: "2563EB"))
+            ], color: Pulse.hydration)
 
             Button {
                 MoodDataStore.save(MoodDataStore.PreSessionMood(
@@ -113,7 +113,7 @@ struct PreSessionMoodCheck: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
-                    .background(Color(hex: "8B5CF6"))
+                    .background(Pulse.ai)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
@@ -124,7 +124,7 @@ struct PreSessionMoodCheck: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             HStack(spacing: 6) {
                 ForEach(options, id: \.0) { option in
                     Button {
@@ -142,7 +142,7 @@ struct PreSessionMoodCheck: View {
                         .background(value.wrappedValue == option.0 ? color : color.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
             }
         }
@@ -178,13 +178,13 @@ struct MoodPerformanceCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "brain.head.profile.fill")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Mood → performance")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(MoodDataStore.loadAll().count) sessions")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     ForEach(correlations) { corr in
@@ -196,11 +196,11 @@ struct MoodPerformanceCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(bestState)
                                 .font(.system(size: 10))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -231,7 +231,7 @@ struct MoodPerformanceCard: View {
                 HStack(spacing: 4) {
                     Text(corr.lowLabel)
                         .font(.system(size: 8))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .frame(width: 30, alignment: .trailing)
                     GeometryReader { geo in
                         let maxVol = max(corr.lowAvgVolume, corr.highAvgVolume)
@@ -244,7 +244,7 @@ struct MoodPerformanceCard: View {
                 HStack(spacing: 4) {
                     Text(corr.highLabel)
                         .font(.system(size: 8))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .frame(width: 30, alignment: .trailing)
                     GeometryReader { geo in
                         let maxVol = max(corr.lowAvgVolume, corr.highAvgVolume)
@@ -260,7 +260,7 @@ struct MoodPerformanceCard: View {
 
             Text(String(format: "%+.0f%%", corr.percentDiff))
                 .font(.system(size: 11, weight: .bold, design: .rounded))
-                .foregroundColor(corr.percentDiff > 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                .foregroundColor(corr.percentDiff > 0 ? Pulse.positive : Pulse.critical)
         }
     }
 
@@ -316,7 +316,7 @@ struct MoodPerformanceCard: View {
             results.append(MoodCorrelation(
                 dimension: "Stress",
                 icon: "brain.fill",
-                color: Color(hex: "DC2626"),
+                color: Pulse.critical,
                 lowLabel: "Low",
                 highLabel: "High",
                 lowAvgVolume: lowAvg,
@@ -335,7 +335,7 @@ struct MoodPerformanceCard: View {
             results.append(MoodCorrelation(
                 dimension: "Motivation",
                 icon: "flame.fill",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 lowLabel: "Low",
                 highLabel: "High",
                 lowAvgVolume: lowAvg,
@@ -354,7 +354,7 @@ struct MoodPerformanceCard: View {
             results.append(MoodCorrelation(
                 dimension: "Soreness",
                 icon: "figure.walk",
-                color: Color(hex: "2563EB"),
+                color: Pulse.hydration,
                 lowLabel: "Fresh",
                 highLabel: "Sore",
                 lowAvgVolume: freshAvg,

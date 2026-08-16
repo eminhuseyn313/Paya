@@ -47,7 +47,7 @@ struct PlateCalculatorView: View {
                 if !isExactMatch {
                     Text("Closest achievable: \(String(format: "%.2f", achieved))kg with this plate set")
                         .font(.caption)
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.warning)
                 }
 
                 // Visual bar
@@ -64,14 +64,14 @@ struct PlateCalculatorView: View {
 
                 Text("Per side — mirror on the other end")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
 
                 if plates.isEmpty {
                     Text(targetWeightKg < barWeight.rawValue
                          ? "Target is lighter than the bar itself."
                          : "No plates needed — bar weight only.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .padding(.top, 8)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
@@ -79,7 +79,7 @@ struct PlateCalculatorView: View {
                             HStack {
                                 Text("\(group.count) ×")
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Text("\(weight, specifier: "%.2f") kg plate\(group.count > 1 ? "s" : "")")
                                     .font(.subheadline.weight(.semibold))
                                 Spacer()
@@ -142,7 +142,7 @@ private struct PlateBar: View {
                 .frame(width: width, height: height)
             Text(weightKg.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(weightKg))" : String(format: "%.1f", weightKg))
                 .font(.system(size: 8, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }

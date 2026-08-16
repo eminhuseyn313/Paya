@@ -17,30 +17,30 @@ struct TrainingCoachCard: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "2563EB").opacity(0.15))
+                        .fill(Pulse.hydration.opacity(0.15))
                         .frame(width: 40, height: 40)
                     Image(systemName: "brain.head.profile")
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(profile.cachedCoachRecommendation == nil ? "Get an AI training review" : "Your training review")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Text(profile.cachedCoachRecommendation == nil
                          ? "Reads your plateaus, volume, and recovery to recommend what to change"
                          : "Tap to review or regenerate")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .lineLimit(2)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -77,10 +77,10 @@ struct TrainingCoachView: View {
                         VStack(spacing: 10) {
                             Image(systemName: "brain.head.profile")
                                 .font(.system(size: 36))
-                                .foregroundColor(Color(hex: "2563EB"))
+                                .foregroundColor(Pulse.hydration)
                             Text("Reads your stalled lifts, weekly volume per muscle, and deload status — grounded in the same data driving the rest of the app.")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.top, 30)
@@ -93,7 +93,7 @@ struct TrainingCoachView: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
-                                .background(Color(hex: "2563EB"))
+                                .background(Pulse.hydration)
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .padding(.top, 8)
@@ -102,20 +102,20 @@ struct TrainingCoachView: View {
                             SwiftUI.ProgressView()
                             Text("Reviewing your recent training…")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(.top, 60)
                     } else if let recommendation = profile.cachedCoachRecommendation {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack(spacing: 6) {
                                 Image(systemName: "brain.head.profile")
-                                    .foregroundColor(Color(hex: "2563EB"))
+                                    .foregroundColor(Pulse.hydration)
                                 Text("Training review")
                                     .font(.subheadline.weight(.bold))
                             }
                             Text(recommendation)
                                 .font(.subheadline)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         .payaCard(padding: 14)
@@ -127,10 +127,10 @@ struct TrainingCoachView: View {
                         if let rebuiltMessage {
                             HStack(spacing: 6) {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                                 Text(rebuiltMessage)
                                     .font(.caption)
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             }
 
                             Button {
@@ -141,7 +141,7 @@ struct TrainingCoachView: View {
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(Color(hex: "059669"))
+                                    .background(Pulse.positive)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                             .padding(.top, 4)
@@ -152,7 +152,7 @@ struct TrainingCoachView: View {
                         } label: {
                             Text("Regenerate")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(Color(hex: "2563EB"))
+                                .foregroundColor(Pulse.hydration)
                         }
                         .padding(.top, 4)
                     }
@@ -160,7 +160,7 @@ struct TrainingCoachView: View {
                     if let errorText {
                         Text(errorText)
                             .font(.caption)
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                             .multilineTextAlignment(.center)
                             .padding(.top, 8)
                     }
@@ -188,14 +188,14 @@ struct TrainingCoachView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "arrow.triangle.2.circlepath")
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Pulse.warning)
                 Text("\(target.displayName) is under your minimum effective weekly volume")
                     .font(.caption.weight(.semibold))
                     .fixedSize(horizontal: false, vertical: true)
             }
             Text("Rebuilding adds a \(target.displayName.lowercased())-focused slot to your program using the same generator onboarding uses — your logged history and PRs aren't affected.")
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
             Button {
@@ -211,16 +211,16 @@ struct TrainingCoachView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "B45309"))
+                        .background(Pulse.warning)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             .disabled(isRebuilding)
         }
         .padding(14)
-        .background(Color(hex: "B45309").opacity(0.06))
+        .background(Pulse.warning.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(hex: "B45309").opacity(0.2), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Pulse.warning.opacity(0.2), lineWidth: 1))
     }
 
     private func generate() async {

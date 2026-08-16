@@ -56,7 +56,7 @@ struct SleepDebtCard: View {
                         .foregroundColor(debtColor)
                     Text(sleepDebt <= 0 ? "surplus" : "debt")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -70,7 +70,7 @@ struct SleepDebtCard: View {
 
                         Text(entry.day)
                             .font(.system(size: 7))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 Spacer()
@@ -79,16 +79,16 @@ struct SleepDebtCard: View {
             // Target line label
             HStack(spacing: 4) {
                 Rectangle()
-                    .fill(Color(hex: "059669").opacity(0.4))
+                    .fill(Pulse.positive.opacity(0.4))
                     .frame(width: 12, height: 1)
                 Text("8h target")
                     .font(.system(size: 8))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Text(recommendation)
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(1)
         }
@@ -135,9 +135,9 @@ struct SleepDebtCard: View {
     // MARK: - Presentation
 
     private var debtColor: Color {
-        if sleepDebt <= 0 { return Color(hex: "059669") }
-        if sleepDebt < 3 { return Color(hex: "F59E0B") }
-        return Color(hex: "DC2626")
+        if sleepDebt <= 0 { return Pulse.positive }
+        if sleepDebt < 3 { return Pulse.nutrition }
+        return Pulse.critical
     }
 
     private var debtLabel: String {
@@ -161,8 +161,8 @@ struct SleepDebtCard: View {
     }
 
     private func barColor(for hours: Double) -> Color {
-        if hours >= 7 { return Color(hex: "059669") }
-        if hours >= 6 { return Color(hex: "F59E0B") }
-        return Color(hex: "DC2626")
+        if hours >= 7 { return Pulse.positive }
+        if hours >= 6 { return Pulse.nutrition }
+        return Pulse.critical
     }
 }

@@ -95,19 +95,19 @@ struct DailyCheckInView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 6) {
                             Image(systemName: "tag.fill")
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                                 .font(.system(size: 12))
                             Text("Yesterday's behaviors")
                                 .font(.subheadline.weight(.semibold))
                             Spacer()
                             Text("\(selectedBehaviors.count) tagged")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
 
                         Text("What did you do yesterday? This helps Paya learn what helps your recovery.")
                             .font(.system(size: 10))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
 
                         FlowLayout(spacing: 6) {
                             ForEach(BehaviorTags.all) { tag in
@@ -125,7 +125,7 @@ struct DailyCheckInView: View {
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 7)
-                                    .background(isOn ? Color(hex: tag.colorHex).opacity(0.2) : Color(.tertiarySystemBackground))
+                                    .background(isOn ? Color(hex: tag.colorHex).opacity(0.2) : Pulse.surfaceElevatedFallback)
                                     .foregroundStyle(isOn ? Color(hex: tag.colorHex) : .primary)
                                     .clipShape(Capsule())
                                     .overlay(
@@ -133,7 +133,7 @@ struct DailyCheckInView: View {
                                             .strokeBorder(isOn ? Color(hex: tag.colorHex).opacity(0.5) : .clear, lineWidth: 1)
                                     )
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(PulsePress())
                             }
                         }
                     }
@@ -160,7 +160,7 @@ struct DailyCheckInView: View {
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 7)
-                                    .background(isOn ? Color(hex: flag.color).opacity(0.2) : Color(.tertiarySystemBackground))
+                                    .background(isOn ? Color(hex: flag.color).opacity(0.2) : Pulse.surfaceElevatedFallback)
                                     .foregroundStyle(isOn ? Color(hex: flag.color) : .primary)
                                     .clipShape(Capsule())
                                     .overlay(
@@ -168,7 +168,7 @@ struct DailyCheckInView: View {
                                             .strokeBorder(isOn ? Color(hex: flag.color).opacity(0.5) : .clear, lineWidth: 1)
                                     )
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(PulsePress())
                             }
                         }
                     }
@@ -197,7 +197,7 @@ struct DailyCheckInView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 15)
-                            .background(hasAnyData ? Color(hex: "059669") : Color.secondary.opacity(0.3))
+                            .background(hasAnyData ? Pulse.positive : Color.secondary.opacity(0.3))
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .disabled(!hasAnyData || didSave)
@@ -341,7 +341,7 @@ struct MoodRow: View {
                         .background(
                             value == opt.id
                                 ? Color.accentColor.opacity(0.12)
-                                : Color(.tertiarySystemBackground)
+                                : Pulse.surfaceElevatedFallback
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
@@ -349,7 +349,7 @@ struct MoodRow: View {
                                 .strokeBorder(value == opt.id ? Color.accentColor.opacity(0.4) : .clear, lineWidth: 1.5)
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
             }
         }
@@ -388,7 +388,7 @@ struct SorenessSection: View {
                             .foregroundColor(soreness == value ? .white : .primary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(soreness == value ? Color(hex: colors[value]) : Color(.tertiarySystemBackground))
+                            .background(soreness == value ? Color(hex: colors[value]) : Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }

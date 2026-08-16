@@ -77,7 +77,7 @@ struct SymptomLogSheet: View {
 
                     Text("What are you experiencing?")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .padding(.top, 8)
 
                     FlowLayout(spacing: 6) {
@@ -93,14 +93,14 @@ struct SymptomLogSheet: View {
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 7)
-                                .background(isOn ? Color(hex: option.color).opacity(0.2) : Color(.tertiarySystemBackground))
+                                .background(isOn ? Color(hex: option.color).opacity(0.2) : Pulse.surfaceElevatedFallback)
                                 .foregroundStyle(isOn ? Color(hex: option.color) : .primary)
                                 .clipShape(Capsule())
                                 .overlay(
                                     Capsule().strokeBorder(isOn ? Color(hex: option.color).opacity(0.5) : .clear, lineWidth: 1)
                                 )
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PulsePress())
                         }
                     }
                     .payaCard(padding: 14)
@@ -138,10 +138,10 @@ struct SymptomLogSheet: View {
                                             .foregroundColor(severity == level ? .white : .primary)
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, 10)
-                                            .background(severity == level ? Color(hex: severityColors[level - 1]) : Color(.tertiarySystemBackground))
+                                            .background(severity == level ? Color(hex: severityColors[level - 1]) : Pulse.surfaceElevatedFallback)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
                                     }
-                                    .buttonStyle(.plain)
+                                    .buttonStyle(PulsePress())
                                 }
                             }
                         }
@@ -154,7 +154,7 @@ struct SymptomLogSheet: View {
                                 .font(.caption)
                                 .lineLimit(2...4)
                                 .padding(10)
-                                .background(Color(.tertiarySystemBackground))
+                                .background(Pulse.surfaceElevatedFallback)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                         .payaCard(padding: 14)
@@ -181,7 +181,7 @@ struct SymptomLogSheet: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
-                        .background(selectedTag != nil ? Color(hex: "DC2626") : Color.secondary.opacity(0.3))
+                        .background(selectedTag != nil ? Pulse.critical : Color.secondary.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                     .disabled(selectedTag == nil || didSave)
@@ -209,13 +209,13 @@ struct SymptomLogSheet: View {
         } label: {
             Text(label)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 6)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 
     private func save() {
@@ -238,7 +238,7 @@ struct SymptomLogCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "stethoscope")
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                 Text("Symptoms")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -255,19 +255,19 @@ struct SymptomLogCard: View {
                         Text("Log")
                             .font(.caption.weight(.bold))
                     }
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
-                    .background(Color(hex: "DC2626").opacity(0.1))
+                    .background(Pulse.critical.opacity(0.1))
                     .clipShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
             }
 
             if todaysLogs.isEmpty {
                 Text("Nothing logged today — tap + to record a symptom when it happens.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else {
                 ForEach(todaysLogs) { log in
                     let option = symptomOptions.first { $0.id == log.tag }
@@ -279,13 +279,13 @@ struct SymptomLogCard: View {
                                 .font(.caption.weight(.semibold))
                             Text("Started \(log.onsetDate.formatted(date: .omitted, time: .shortened)) · \(["Mild", "Moderate", "Severe"][min(log.severity - 1, 2)])")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                         if !log.notes.isEmpty {
                             Image(systemName: "note.text")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     .padding(.vertical, 2)
@@ -313,7 +313,7 @@ struct SymptomTimelineCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "stethoscope")
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                 Text("Symptoms")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -324,19 +324,19 @@ struct SymptomTimelineCard: View {
                         Text("Log")
                             .font(.caption.weight(.bold))
                     }
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
-                    .background(Color(hex: "DC2626").opacity(0.1))
+                    .background(Pulse.critical.opacity(0.1))
                     .clipShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
             }
 
             if symptomLogs.isEmpty {
                 Text("Log a symptom when it happens — the earlier you capture it, the better the correlation engine can trace what led to it.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else {
                 ForEach(symptomLogs) { log in
                     let option = symptomOptions.first { $0.id == log.tag }
@@ -352,7 +352,7 @@ struct SymptomTimelineCard: View {
                                 Text(["Mild", "Moderate", "Severe"][min(log.severity - 1, 2)])
                             }
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                     }

@@ -62,50 +62,50 @@ struct ExercisePreferenceCard: View {
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "brain.head.profile.fill")
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                             Text("Your exercise preferences")
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Spacer()
                             Text("Learned from \(suggestions.reduce(0) { $0 + $1.sessionCount }) sessions")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Image(systemName: expanded ? "chevron.up" : "chevron.down")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     if expanded {
                         ForEach(suggestions) { day in
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(day.dayName)
                                     .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
 
                                 if !day.alwaysDo.isEmpty {
-                                    exerciseRow(label: "Always", exercises: day.alwaysDo, color: Color(hex: "059669"))
+                                    exerciseRow(label: "Always", exercises: day.alwaysDo, color: Pulse.positive)
                                 }
                                 if !day.usuallyDo.isEmpty {
-                                    exerciseRow(label: "Usually", exercises: day.usuallyDo, color: Color(hex: "2563EB"))
+                                    exerciseRow(label: "Usually", exercises: day.usuallyDo, color: Pulse.hydration)
                                 }
                                 if !day.rarelyDo.isEmpty {
-                                    exerciseRow(label: "Rarely", exercises: day.rarelyDo, color: Color(hex: "DC2626"))
+                                    exerciseRow(label: "Rarely", exercises: day.rarelyDo, color: Pulse.critical)
                                 }
                             }
                             .padding(10)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
 
                         HStack(spacing: 6) {
                             Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                             Text("Exercises you rarely do might be worth swapping. Go to Manage → Customize Today's Exercises to update your program.")
                                 .font(.system(size: 10))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 

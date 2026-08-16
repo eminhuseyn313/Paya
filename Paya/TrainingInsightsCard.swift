@@ -18,16 +18,16 @@ struct TrainingInsightsCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "sparkles")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Insights")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(insights.count)")
                             .font(.caption.weight(.bold))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "8B5CF6").opacity(0.12))
+                            .background(Pulse.ai.opacity(0.12))
                             .clipShape(Capsule())
                     }
 
@@ -45,10 +45,10 @@ struct TrainingInsightsCard: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(insight.title)
                                     .font(.caption.weight(.semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                 Text(insight.detail)
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                         }
@@ -64,7 +64,7 @@ struct TrainingInsightsCard: View {
                                 Image(systemName: showAll ? "chevron.up" : "chevron.down")
                                     .font(.system(size: 9))
                             }
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                             .frame(maxWidth: .infinity)
                             .padding(.top, 4)
                         }

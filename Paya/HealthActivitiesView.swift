@@ -26,20 +26,20 @@ struct HealthActivitiesCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Health Activities")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Text("Eye care, morning light, and blocking distractions during sessions")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .lineLimit(2)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -70,7 +70,7 @@ struct HealthActivitiesView: View {
                             )
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     Button { showMorningLight = true } label: {
                         ActivityRow(
@@ -84,12 +84,12 @@ struct HealthActivitiesView: View {
                             )
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     Button { showHydration = true } label: {
                         ActivityRow(
                             icon: "drop.fill",
-                            color: Color(hex: "0891B2"),
+                            color: Pulse.recovery,
                             title: "Hydration",
                             description: "A nudge at \(LifestyleReminderSettings.hydrationCheckHour):00 if you're under 40% of your \(String(format: "%.1f", Double(LifestyleReminderSettings.hydrationTargetMl) / 1000))L target.",
                             isOn: Binding(
@@ -98,7 +98,7 @@ struct HealthActivitiesView: View {
                             )
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     Button {
                         showHeartRateMonitor = true
@@ -106,28 +106,28 @@ struct HealthActivitiesView: View {
                         HStack(spacing: 12) {
                             ZStack {
                                 Circle()
-                                    .fill(Color(hex: "DC2626").opacity(0.15))
+                                    .fill(Pulse.critical.opacity(0.15))
                                     .frame(width: 40, height: 40)
                                 Image(systemName: "heart.text.square.fill")
-                                    .foregroundColor(Color(hex: "DC2626"))
+                                    .foregroundColor(Pulse.critical)
                             }
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Heart Rate Monitor")
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                 Text("Connect a Bluetooth HR monitor to unlock the Effort Map — see which exercises actually pushed you each session")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .payaCard(padding: 14)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     Button {
                         showFocusModeSettings = true
@@ -135,28 +135,28 @@ struct HealthActivitiesView: View {
                         HStack(spacing: 12) {
                             ZStack {
                                 Circle()
-                                    .fill(Color(hex: "DC2626").opacity(0.15))
+                                    .fill(Pulse.critical.opacity(0.15))
                                     .frame(width: 40, height: 40)
                                 Image(systemName: "hand.raised.slash.fill")
-                                    .foregroundColor(Color(hex: "DC2626"))
+                                    .foregroundColor(Pulse.critical)
                             }
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Block Distractions")
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                 Text("Shield social media and other apps you choose for the duration of a training session")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .payaCard(padding: 14)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     Spacer().frame(height: 20)
                 }
@@ -225,7 +225,7 @@ private struct ActivityRow: View {
                 }
                 Text(title)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                 Spacer()
                 Text(isOn ? "On" : "Off")
                     .font(.caption2.weight(.bold))
@@ -236,11 +236,11 @@ private struct ActivityRow: View {
                     .clipShape(Capsule())
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             Text(description)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .payaCard(padding: 14)

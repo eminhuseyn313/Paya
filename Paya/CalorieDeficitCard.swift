@@ -190,7 +190,7 @@ struct CalorieDeficitCard: View {
                 HStack {
                     Text("Calorie Balance")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     if let report, report.streakDays > 0 {
                         HStack(spacing: 3) {
@@ -208,7 +208,7 @@ struct CalorieDeficitCard: View {
                     }
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 if let report {
@@ -217,12 +217,12 @@ struct CalorieDeficitCard: View {
                 } else {
                     Text("Log food to see your balance")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .onAppear { loadReport() }
         .onChange(of: appState.dataRefreshTrigger) { _, _ in loadReport() }
         .sheet(isPresented: $showDetail) {
@@ -243,30 +243,30 @@ struct CalorieDeficitCard: View {
                 VStack(spacing: 2) {
                     Text("\(inVal)")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                     Text("eaten")
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
 
                 Text("−")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
 
                 VStack(spacing: 2) {
                     Text("\(outVal)")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(Color(hex: "DC2626"))
+                        .foregroundColor(Pulse.critical)
                     Text("burned")
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
 
                 Text("=")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
 
                 VStack(spacing: 2) {
                     Text(bal >= 0 ? "+\(bal)" : "\(bal)")
@@ -274,7 +274,7 @@ struct CalorieDeficitCard: View {
                         .foregroundColor(balanceColor(day))
                     Text(bal >= 0 ? "surplus" : "deficit")
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -284,7 +284,7 @@ struct CalorieDeficitCard: View {
                     let frac = min(1.0, day.caloriesIn / max(1.0, day.caloriesOut))
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(.tertiarySystemBackground))
+                            .fill(Pulse.surfaceElevatedFallback)
                             .frame(height: 6)
                         RoundedRectangle(cornerRadius: 4)
                             .fill(balanceColor(day))
@@ -296,11 +296,11 @@ struct CalorieDeficitCard: View {
                 HStack {
                     Text(balanceInsight(day))
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     Text(day.targetDescription)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }
@@ -308,8 +308,8 @@ struct CalorieDeficitCard: View {
 
     private func balanceColor(_ day: CalorieDeficitEngine.DayResult) -> Color {
         guard day.caloriesIn > 0 else { return .secondary }
-        if day.isOnTarget { return Color(hex: "059669") }
-        return day.balance > 0 ? Color(hex: "B45309") : Color(hex: "2563EB")
+        if day.isOnTarget { return Pulse.positive }
+        return day.balance > 0 ? Pulse.warning : Pulse.hydration
     }
 
     private func balanceInsight(_ day: CalorieDeficitEngine.DayResult) -> String {
@@ -358,9 +358,9 @@ struct CalorieDeficitCard: View {
     }
 
     private func barFill(_ day: CalorieDeficitEngine.DayResult) -> Color {
-        guard day.caloriesIn > 0 else { return Color(.tertiarySystemBackground) }
-        if day.isOnTarget { return Color(hex: "059669") }
-        return day.balance > 0 ? Color(hex: "B45309") : Color(hex: "2563EB")
+        guard day.caloriesIn > 0 else { return Pulse.surfaceElevatedFallback }
+        if day.isOnTarget { return Pulse.positive }
+        return day.balance > 0 ? Pulse.warning : Pulse.hydration
     }
 }
 
@@ -414,7 +414,7 @@ struct CalorieDeficitDetailView: View {
                             .foregroundColor(balanceColor(today))
                         Text("kcal")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
 
@@ -426,18 +426,18 @@ struct CalorieDeficitDetailView: View {
                         VStack(alignment: .leading, spacing: 1) {
                             Text("\(Int(today.caloriesIn))")
                                 .font(.subheadline.weight(.bold))
-                                .foregroundColor(Color(hex: "059669"))
+                                .foregroundColor(Pulse.positive)
                             Text("Calories in")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         VStack(alignment: .leading, spacing: 1) {
                             Text("\(Int(today.caloriesOut))")
                                 .font(.subheadline.weight(.bold))
-                                .foregroundColor(Color(hex: "DC2626"))
+                                .foregroundColor(Pulse.critical)
                             Text("Calories out")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
@@ -447,7 +447,7 @@ struct CalorieDeficitDetailView: View {
             if today.caloriesIn > 0 {
                 Text(today.targetDescription)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(balanceColor(today).opacity(0.08))
@@ -470,7 +470,7 @@ struct CalorieDeficitDetailView: View {
                 }
                 Text("Day streak")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .frame(maxWidth: .infinity)
             .payaCard(padding: 14)
@@ -479,10 +479,10 @@ struct CalorieDeficitDetailView: View {
                 let onTarget = report.last7Days.filter { $0.isOnTarget }.count
                 Text("\(onTarget)/7")
                     .font(.title2.weight(.bold))
-                    .foregroundColor(onTarget >= 5 ? Color(hex: "059669") : .primary)
+                    .foregroundColor(onTarget >= 5 ? Pulse.positive : .primary)
                 Text("Days on target")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .frame(maxWidth: .infinity)
             .payaCard(padding: 14)
@@ -495,7 +495,7 @@ struct CalorieDeficitDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("LAST 7 DAYS")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             ForEach(report.last7Days.reversed(), id: \.date) { day in
                 HStack(spacing: 10) {
@@ -527,7 +527,7 @@ struct CalorieDeficitDetailView: View {
                     if day.isOnTarget && day.caloriesIn > 0 {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                     } else {
                         Color.clear.frame(width: 10)
                     }
@@ -544,7 +544,7 @@ struct CalorieDeficitDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("WHY THIS TARGET")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             let explanation: String = {
                 switch profile.goal {
@@ -561,11 +561,11 @@ struct CalorieDeficitDetailView: View {
 
             Text(explanation)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(14)
-        .background(Color(.tertiarySystemBackground).opacity(0.6))
+        .background(Pulse.surfaceElevatedFallback.opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
     }
 
@@ -573,13 +573,13 @@ struct CalorieDeficitDetailView: View {
 
     private func balanceColor(_ day: CalorieDeficitEngine.DayResult) -> Color {
         guard day.caloriesIn > 0 else { return .secondary }
-        if day.isOnTarget { return Color(hex: "059669") }
-        return day.balance > 0 ? Color(hex: "B45309") : Color(hex: "2563EB")
+        if day.isOnTarget { return Pulse.positive }
+        return day.balance > 0 ? Pulse.warning : Pulse.hydration
     }
 
     private func barFill(_ day: CalorieDeficitEngine.DayResult) -> Color {
-        guard day.caloriesIn > 0 else { return Color(.tertiarySystemBackground) }
-        if day.isOnTarget { return Color(hex: "059669") }
-        return day.balance > 0 ? Color(hex: "B45309") : Color(hex: "2563EB")
+        guard day.caloriesIn > 0 else { return Pulse.surfaceElevatedFallback }
+        if day.isOnTarget { return Pulse.positive }
+        return day.balance > 0 ? Pulse.warning : Pulse.hydration
     }
 }

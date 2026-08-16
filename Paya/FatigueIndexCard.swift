@@ -124,9 +124,9 @@ struct FatigueIndexCard: View {
     }
 
     private var fatigueColor: Color {
-        if fatigueScore >= 70 { return Color(hex: "DC2626") }
-        if fatigueScore >= 45 { return Color(hex: "F59E0B") }
-        return Color(hex: "059669")
+        if fatigueScore >= 70 { return Pulse.critical }
+        if fatigueScore >= 45 { return Pulse.nutrition }
+        return Pulse.positive
     }
 
     private var fatigueLabel: String {
@@ -152,9 +152,9 @@ struct FatigueIndexCard: View {
         let frequencyScore = min(30, Double(sessionCount) * 6)
         score += frequencyScore
         if sessionCount >= 5 {
-            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Color(hex: "DC2626")))
+            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Pulse.critical))
         } else if sessionCount >= 3 {
-            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Color(hex: "F59E0B")))
+            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Pulse.nutrition))
         }
 
         let totalVolume = thisWeek.reduce(0.0) { total, session in
@@ -165,7 +165,7 @@ struct FatigueIndexCard: View {
         let volumeScore = min(30, totalVolume / 1000)
         score += volumeScore
         if totalVolume > 10000 {
-            factorList.append(FatigueFactor(icon: "scalemass.fill", text: String(format: "%.0f kg total volume", totalVolume), color: Color(hex: "F59E0B")))
+            factorList.append(FatigueFactor(icon: "scalemass.fill", text: String(format: "%.0f kg total volume", totalVolume), color: Pulse.nutrition))
         }
 
         let rpes = thisWeek.compactMap(\.subjectiveRPE)
@@ -174,16 +174,16 @@ struct FatigueIndexCard: View {
             let rpeScore = max(0, (avgRPE - 6) * 10)
             score += rpeScore
             if avgRPE >= 8.5 {
-                factorList.append(FatigueFactor(icon: "flame.fill", text: String(format: "Avg RPE %.1f (high)", avgRPE), color: Color(hex: "DC2626")))
+                factorList.append(FatigueFactor(icon: "flame.fill", text: String(format: "Avg RPE %.1f (high)", avgRPE), color: Pulse.critical))
             } else if avgRPE >= 7 {
-                factorList.append(FatigueFactor(icon: "flame", text: String(format: "Avg RPE %.1f", avgRPE), color: Color(hex: "F59E0B")))
+                factorList.append(FatigueFactor(icon: "flame", text: String(format: "Avg RPE %.1f", avgRPE), color: Pulse.nutrition))
             }
         }
 
         let consecutiveDays = countConsecutiveTrainingDays(sessions: thisWeek)
         if consecutiveDays >= 3 {
             score += Double(consecutiveDays) * 3
-            factorList.append(FatigueFactor(icon: "arrow.right.arrow.left", text: "\(consecutiveDays) consecutive training days", color: Color(hex: "DC2626")))
+            factorList.append(FatigueFactor(icon: "arrow.right.arrow.left", text: "\(consecutiveDays) consecutive training days", color: Pulse.critical))
         }
 
         fatigueScore = min(100, Int(score))
@@ -255,9 +255,9 @@ private enum FatigueTrend {
 
     var color: Color {
         switch self {
-        case .rising: return Color(hex: "DC2626")
-        case .stable: return Color(hex: "F59E0B")
-        case .dropping: return Color(hex: "059669")
+        case .rising: return Pulse.critical
+        case .stable: return Pulse.nutrition
+        case .dropping: return Pulse.positive
         }
     }
 }

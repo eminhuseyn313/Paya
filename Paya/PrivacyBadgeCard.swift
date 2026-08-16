@@ -37,7 +37,7 @@ struct PrivacyBadgeCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "lock.shield.fill")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Your data, your device")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -47,10 +47,10 @@ struct PrivacyBadgeCard: View {
                     Text("100% local")
                         .font(.system(size: 9, weight: .bold))
                 }
-                .foregroundColor(Color(hex: "059669"))
+                .foregroundColor(Pulse.positive)
                 .padding(.horizontal, 7)
                 .padding(.vertical, 3)
-                .background(Color(hex: "059669").opacity(0.1))
+                .background(Pulse.positive.opacity(0.1))
                 .clipShape(Capsule())
             }
 
@@ -90,7 +90,7 @@ struct PrivacyBadgeCard: View {
                     Image(systemName: showFullDashboard ? "chevron.up" : "chevron.down")
                         .font(.system(size: 8))
                 }
-                .foregroundColor(Color(hex: "059669"))
+                .foregroundColor(Pulse.positive)
             }
 
             // Days tracked
@@ -99,10 +99,10 @@ struct PrivacyBadgeCard: View {
                 HStack(spacing: 4) {
                     Image(systemName: "calendar")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("\(totalDataPoints) data points across \(days) days — all stored locally on this device.")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -110,11 +110,11 @@ struct PrivacyBadgeCard: View {
             HStack(alignment: .top, spacing: 6) {
                 Image(systemName: "info.circle.fill")
                     .font(.system(size: 10))
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                     .padding(.top, 1)
                 Text("No account, no cloud sync, no subscription wall. Your training, nutrition, and health data never leaves your iPhone. Export anytime — it's yours.")
                     .font(.system(size: 10))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -129,10 +129,10 @@ struct PrivacyBadgeCard: View {
                     Text("Export all my data")
                         .font(.system(size: 11, weight: .bold))
                 }
-                .foregroundColor(Color(hex: "059669"))
+                .foregroundColor(Pulse.positive)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
-                .background(Color(hex: "059669").opacity(0.1))
+                .background(Pulse.positive.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
@@ -149,7 +149,7 @@ struct PrivacyBadgeCard: View {
                 .font(.system(size: 16, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 8, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -340,27 +340,27 @@ struct DataExportSheet: View {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 8) {
                         Image(systemName: "lock.shield.fill")
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                         Text("Your data export")
                             .font(.headline)
                     }
 
                     Text("Everything Paya knows about you, in standard JSON format. Copy, save, import into any tool — it's yours.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     Text(String(json.prefix(5000)))
                         .font(.system(size: 9, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     if json.count > 5000 {
                         Text("… \(json.count - 5000) more characters (full data in shared file)")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 .padding()

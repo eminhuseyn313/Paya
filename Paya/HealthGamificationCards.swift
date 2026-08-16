@@ -14,7 +14,7 @@ struct WeeklyHealthGoalsCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "target")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Weekly Goals")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -26,26 +26,26 @@ struct WeeklyHealthGoalsCard: View {
                     label: "Daily check-ins",
                     value: "\(report.weekCheckIns)/7",
                     progress: Double(report.weekCheckIns) / 7.0,
-                    color: Color(hex: "2563EB")
+                    color: Pulse.hydration
                 )
                 GoalRow(
                     icon: "pills.fill",
                     label: "Supplement adherence",
                     value: "\(Int(report.weekSupplementAdherence * 100))%",
                     progress: report.weekSupplementAdherence,
-                    color: Color(hex: "8B5CF6")
+                    color: Pulse.ai
                 )
                 GoalRow(
                     icon: "moon.zzz.fill",
                     label: "7h+ sleep nights",
                     value: "\(report.weekSleepGoalNights)/7",
                     progress: Double(report.weekSleepGoalNights) / 7.0,
-                    color: Color(hex: "0891B2")
+                    color: Pulse.recovery
                 )
             } else {
                 Text("Log your health daily to track weekly goals.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .payaCard(padding: 14)

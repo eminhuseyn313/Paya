@@ -30,7 +30,7 @@ struct BiologicalAgeCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "heart.text.clipboard.fill")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                     .font(.system(size: 12))
                 Text("Biological age estimate")
                     .font(.subheadline.weight(.semibold))
@@ -38,10 +38,10 @@ struct BiologicalAgeCard: View {
                 if bioAge != nil {
                     Text("Quarterly")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
-                        .background(Color(hex: "8B5CF6").opacity(0.1))
+                        .background(Pulse.ai.opacity(0.1))
                         .clipShape(Capsule())
                 }
             }
@@ -50,7 +50,7 @@ struct BiologicalAgeCard: View {
                 HStack(spacing: 6) {
                     ProgressView().scaleEffect(0.7)
                     Text("Analyzing biomarkers…")
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption).foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 8)
             } else if let est = bioAge {
@@ -63,7 +63,7 @@ struct BiologicalAgeCard: View {
                             .foregroundColor(est.deltaColor)
                         Text("Bio age")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     // vs chronological
@@ -80,7 +80,7 @@ struct BiologicalAgeCard: View {
 
                         Text(est.summaryText)
                             .font(.system(size: 10))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -91,7 +91,7 @@ struct BiologicalAgeCard: View {
                 VStack(spacing: 6) {
                     Text("COMPONENTS")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     ForEach(est.components) { comp in
                         HStack {
@@ -119,16 +119,16 @@ struct BiologicalAgeCard: View {
                     Text("Estimate from consumer wearable data, not clinical biomarkers. Not a diagnosis. Levine (2013) phenotypic age model adapted.")
                         .font(.system(size: 9))
                 }
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             } else {
                 VStack(spacing: 6) {
                     Image(systemName: "heart.text.clipboard")
-                        .font(.title3).foregroundColor(.secondary)
+                        .font(.title3).foregroundColor(Pulse.textTertiary)
                     Text("Not enough data")
                         .font(.caption.weight(.semibold))
                     Text("Needs at least 30 days of HRV, resting HR, and sleep data to estimate biological age.")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 8)
@@ -291,9 +291,9 @@ private struct BiologicalAgeEstimate {
     }
 
     var deltaColor: Color {
-        if delta < 0 { return Color(hex: "059669") }
-        if delta > 0 { return Color(hex: "DC2626") }
-        return Color(hex: "F59E0B")
+        if delta < 0 { return Pulse.positive }
+        if delta > 0 { return Pulse.critical }
+        return Pulse.nutrition
     }
 }
 
@@ -313,8 +313,8 @@ private struct BioAgeComponent: Identifiable {
     }
 
     var impactColor: Color {
-        if impact < -0.5 { return Color(hex: "059669") }
-        if impact > 0.5 { return Color(hex: "DC2626") }
+        if impact < -0.5 { return Pulse.positive }
+        if impact > 0.5 { return Pulse.critical }
         return .secondary
     }
 }

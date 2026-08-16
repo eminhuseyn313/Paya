@@ -117,7 +117,7 @@ struct BloodPressureCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "waveform.path.ecg.rectangle")
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                 Text("Blood Pressure")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -129,7 +129,7 @@ struct BloodPressureCard: View {
                     showEntry = true
                 } label: {
                     Image(systemName: "plus.circle.fill")
-                        .foregroundColor(Color(hex: "DC2626"))
+                        .foregroundColor(Pulse.critical)
                 }
             }
 
@@ -140,7 +140,7 @@ struct BloodPressureCard: View {
                         .font(.title2.bold())
                     Text("mmHg")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     Text(category.rawValue)
                         .font(.caption.weight(.bold))
@@ -152,7 +152,7 @@ struct BloodPressureCard: View {
                 }
                 Text(latest.date.formatted(.relative(presentation: .named)))
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 if category == .crisis {
                     Text("A reading this high warrants medical attention, not just app tracking.")
                         .font(.caption2)
@@ -164,7 +164,7 @@ struct BloodPressureCard: View {
             } else {
                 Text("No readings yet — log one from your own cuff, or connect one that syncs to Apple Health.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .payaCard(padding: 14)
@@ -186,7 +186,7 @@ struct BloodPressureCard: View {
     /// Stage 1 number is a one-off or a real pattern; a trend can.
     private var trendChart: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("LAST 30 DAYS").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+            Text("LAST 30 DAYS").font(.system(size: 9, weight: .bold)).foregroundColor(Pulse.textTertiary)
             GeometryReader { geo in
                 let systolics = history.map { Double($0.systolic) }
                 let diastolics = history.map { Double($0.diastolic) }
@@ -196,19 +196,19 @@ struct BloodPressureCard: View {
 
                 ZStack {
                     linePath(sparklinePoints(systolics, minV: minV, range: range, size: geo.size))
-                        .stroke(Color(hex: "DC2626"), lineWidth: 2)
+                        .stroke(Pulse.critical, lineWidth: 2)
                     linePath(sparklinePoints(diastolics, minV: minV, range: range, size: geo.size))
-                        .stroke(Color(hex: "DC2626").opacity(0.45), lineWidth: 1.5)
+                        .stroke(Pulse.critical.opacity(0.45), lineWidth: 1.5)
                 }
             }
             .frame(height: 40)
             HStack {
-                Text("Systolic").font(.system(size: 9)).foregroundColor(Color(hex: "DC2626"))
-                Text("Diastolic").font(.system(size: 9)).foregroundColor(Color(hex: "DC2626").opacity(0.6))
+                Text("Systolic").font(.system(size: 9)).foregroundColor(Pulse.critical)
+                Text("Diastolic").font(.system(size: 9)).foregroundColor(Pulse.critical.opacity(0.6))
                 Spacer()
                 Text("\(history.count) readings")
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
     }
@@ -246,11 +246,11 @@ private struct BloodPressureEntrySheet: View {
                         TextField("Systolic", text: $systolic)
                             .keyboardType(.numberPad)
                         Text("/")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         TextField("Diastolic", text: $diastolic)
                             .keyboardType(.numberPad)
                         Text("mmHg")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
             }

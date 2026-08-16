@@ -16,7 +16,7 @@ struct ReadinessDetailView: View {
 
                     Text("WHAT'S DRIVING IT")
                         .font(.caption.weight(.bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     VStack(spacing: 10) {
                         ForEach(report.drivers) { driver in
@@ -63,7 +63,7 @@ struct ReadinessDetailView: View {
                     .foregroundColor(color)
                 Text("Composite of all drivers below, weighted by how reliably each predicts recovery")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
@@ -80,7 +80,7 @@ struct ReadinessDetailView: View {
                     .foregroundColor(color)
                 Text("Today's recommendation")
                     .font(.caption.weight(.bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             Text(report.recommendation)
                 .font(.subheadline.weight(.semibold))
@@ -107,7 +107,7 @@ struct ReadinessDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("TODAY'S STORY")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .padding(.top, 4)
 
             VStack(alignment: .leading, spacing: 8) {
@@ -119,7 +119,7 @@ struct ReadinessDetailView: View {
                             .padding(.top, 6)
                         Text(note)
                             .font(.caption)
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -133,15 +133,15 @@ struct ReadinessDetailView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("HOW THIS WORKS")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             Text("Each driver is scored against YOUR rolling 30-day baseline via z-score (standard deviations from your mean), not a population average — the same methodology WHOOP's Recovery and Oura's Readiness scores use. Weights: HRV 40%, Resting HR 25%, Sleep 25%, Training Load 10%, Check-in 15%. A flagged symptom caps the band regardless of biometrics.")
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(14)
-        .background(Color(.tertiarySystemBackground).opacity(0.6))
+        .background(Pulse.surfaceElevatedFallback.opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
     }
 }
@@ -154,9 +154,9 @@ struct DriverCard: View {
 
     private var driverColor: Color {
         switch driver.score {
-        case 70...: return Color(hex: "059669")
-        case 50..<70: return Color(hex: "F59E0B")
-        default: return Color(hex: "DC2626")
+        case 70...: return Pulse.positive
+        case 50..<70: return Pulse.nutrition
+        default: return Pulse.critical
         }
     }
 
@@ -182,12 +182,12 @@ struct DriverCard: View {
                                 .foregroundColor(driverColor)
                             Text("/100")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     Text(driver.detail)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -195,7 +195,7 @@ struct DriverCard: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(.tertiarySystemBackground))
+                        .fill(Pulse.surfaceElevatedFallback)
                     RoundedRectangle(cornerRadius: 4)
                         .fill(driverColor)
                         .frame(width: geo.size.width * CGFloat(driver.score / 100))
@@ -206,7 +206,7 @@ struct DriverCard: View {
             // Context explanation
             Text(explanation)
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
             // Actionable advice when score is low
@@ -214,15 +214,15 @@ struct DriverCard: View {
                 HStack(spacing: 6) {
                     Image(systemName: "lightbulb.fill")
                         .font(.system(size: 10))
-                        .foregroundColor(Color(hex: "F59E0B"))
+                        .foregroundColor(Pulse.nutrition)
                     Text(actionAdvice)
                         .font(.caption)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(hex: "F59E0B").opacity(0.08))
+                .background(Pulse.nutrition.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }

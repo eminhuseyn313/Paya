@@ -138,7 +138,7 @@ struct ReflectionSheet: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 15)
-                                .background(hasAnyData ? Color(hex: "059669") : Color.secondary.opacity(0.4))
+                                .background(hasAnyData ? Pulse.positive : Color.secondary.opacity(0.4))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         .disabled(!hasAnyData)
@@ -149,7 +149,7 @@ struct ReflectionSheet: View {
                         } label: {
                             Text("Skip")
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
                         }
@@ -186,7 +186,7 @@ struct ReflectionSheet: View {
             shareImage = SessionShareRenderer.render(
                 session: session,
                 profileName: appState.profile.name,
-                profileColor: SessionType(rawValue: session.sessionType)?.color ?? Color(hex: "2563EB")
+                profileColor: SessionType(rawValue: session.sessionType)?.color ?? Pulse.hydration
             )
             if let profile = ProfileStore.current(context: modelContext), profile.hasInflammatoryCondition {
                 activeCondition = profile.chronicCondition
@@ -259,7 +259,7 @@ struct SessionHeaderStrip: View {
                     + (session.hrRecovery60.map { " · HRR \($0)↓" } ?? "")
                 )
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             Spacer()
         }
@@ -274,10 +274,10 @@ struct RPESection: View {
 
     func colorForRPE(_ value: Int) -> Color {
         switch value {
-        case 1...3:  return Color(hex: "059669")
-        case 4...6:  return Color(hex: "B45309")
+        case 1...3:  return Pulse.positive
+        case 4...6:  return Pulse.warning
         case 7...8:  return Color(hex: "C2410C")
-        default:     return Color(hex: "DC2626")
+        default:     return Pulse.critical
         }
     }
 
@@ -321,7 +321,7 @@ struct RPESection: View {
                             .padding(.vertical, 12)
                             .background(rpe == value
                                 ? colorForRPE(value)
-                                : Color(.tertiarySystemBackground))
+                                : Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
@@ -330,15 +330,15 @@ struct RPESection: View {
             HStack {
                 Text("Easy")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Spacer()
                 Text("Moderate")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Spacer()
                 Text("Max")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .padding(.horizontal, 4)
         }
@@ -384,7 +384,7 @@ struct EnergyAfterSection: View {
                         .padding(.vertical, 12)
                         .background(energy == option.id
                             ? Color(hex: option.color)
-                            : Color(.tertiarySystemBackground))
+                            : Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
@@ -462,13 +462,13 @@ struct NotesSection: View {
                         }
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 TextField("Anything else you want to remember?", text: $notes, axis: .vertical)
                     .lineLimit(2...5)
                     .padding(10)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 Button {
@@ -482,7 +482,7 @@ struct NotesSection: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                     }
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 }
             }
         }

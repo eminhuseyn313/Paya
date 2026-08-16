@@ -64,9 +64,9 @@ struct StatusCard: View {
 
     var statusColor: Color {
         switch ble.connectionState {
-        case .connected: return Color(hex: "059669")
-        case .connecting, .scanning: return Color(hex: "B45309")
-        case .bluetoothOff, .unauthorized: return Color(hex: "DC2626")
+        case .connected: return Pulse.positive
+        case .connecting, .scanning: return Pulse.warning
+        case .bluetoothOff, .unauthorized: return Pulse.critical
         default: return .secondary
         }
     }
@@ -103,12 +103,12 @@ struct StatusCard: View {
                     Text("\(battery)%")
                         .font(.caption.weight(.semibold))
                 }
-                .foregroundColor(battery > 20 ? .secondary : Color(hex: "B45309"))
+                .foregroundColor(battery > 20 ? .secondary : Pulse.warning)
             }
             if let error = ble.errorMessage {
                 Text(error)
                     .font(.caption)
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Pulse.warning)
                     .multilineTextAlignment(.center)
             }
         }
@@ -139,7 +139,7 @@ struct LiveHRDetailsCard: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("BPM")
                         .font(.caption.weight(.bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     if let zone = hr.currentZone {
                         Text(zone.shortName)
                             .font(.subheadline.weight(.bold))
@@ -180,7 +180,7 @@ struct ScanControlsCard: View {
                 if !isScanning && ble.discoveredDevices.isEmpty {
                     Text("Tap Scan to search")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -189,7 +189,7 @@ struct ScanControlsCard: View {
                     ProgressView()
                     Text("Searching for heart rate monitors...")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -206,10 +206,10 @@ struct ScanControlsCard: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(device.name)
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                     Text("Signal: \(device.signalStrength.displayName)")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 Spacer()
                                 Text("Pair")
@@ -217,11 +217,11 @@ struct ScanControlsCard: View {
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 5)
-                                    .background(Color(hex: "2563EB"))
+                                    .background(Pulse.hydration)
                                     .clipShape(Capsule())
                             }
                             .padding(10)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                     }
@@ -245,8 +245,8 @@ struct ScanControlsCard: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .background(isScanning
-                    ? Color(hex: "B45309")
-                    : Color(hex: "2563EB"))
+                    ? Pulse.warning
+                    : Pulse.hydration)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
@@ -281,7 +281,7 @@ struct CompatibleDevicesInfo: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "info.circle.fill")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Compatible with any standard BLE HR device")
                     .font(.caption.weight(.semibold))
                 Spacer()
@@ -303,10 +303,10 @@ struct CompatBullet: View {
     var text: String
     var body: some View {
         HStack(alignment: .top, spacing: 6) {
-            Text("·").foregroundColor(.secondary)
+            Text("·").foregroundColor(Pulse.textTertiary)
             Text(text)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }
@@ -330,7 +330,7 @@ struct MaxHRCard: View {
                 } label: {
                     Text("Show breakdown")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                 }
             }
 
@@ -338,7 +338,7 @@ struct MaxHRCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Age")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     HStack {
                         Stepper("\(age)", value: $age, in: 15...90)
                             .labelsHidden()
@@ -350,19 +350,19 @@ struct MaxHRCard: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("Max HR")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("\(maxHR) BPM")
                         .font(.subheadline.weight(.bold))
-                        .foregroundColor(Color(hex: "DC2626"))
+                        .foregroundColor(Pulse.critical)
                 }
             }
             .padding(10)
-            .background(Color(.tertiarySystemBackground))
+            .background(Pulse.surfaceElevatedFallback)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             Text("Max HR is estimated as 220 minus your age. Override in User Profile if you know your true max.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
         .onAppear {
@@ -397,7 +397,7 @@ struct ZonesBreakdownCard: View {
                             .foregroundColor(zone.color)
                         Text("\(hr.bpmForPercent(zone.lowerPercent))–\(hr.bpmForPercent(zone.lowerPercent + 0.10)) BPM")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                 }

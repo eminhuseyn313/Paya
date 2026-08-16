@@ -26,18 +26,18 @@ struct NutritionSupplementsCard: View {
             HStack(spacing: 10) {
                 ZStack {
                     Circle()
-                        .stroke(Color(hex: "8B5CF6").opacity(0.15), lineWidth: 5)
+                        .stroke(Pulse.ai.opacity(0.15), lineWidth: 5)
                         .frame(width: 40, height: 40)
                     Circle()
                         .trim(from: 0, to: completion)
-                        .stroke(Color(hex: "8B5CF6"),
+                        .stroke(Pulse.ai,
                                 style: StrokeStyle(lineWidth: 5, lineCap: .round))
                         .frame(width: 40, height: 40)
                         .rotationEffect(.degrees(-90))
                         .animation(PayaAnimation.dataChange, value: completion)
                     Image(systemName: "pills.fill")
                         .font(.caption)
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -45,7 +45,7 @@ struct NutritionSupplementsCard: View {
                         .font(.subheadline.weight(.semibold))
                     Text("\(takenToday.count)/\(supplements.count) today")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 Spacer()
@@ -54,14 +54,14 @@ struct NutritionSupplementsCard: View {
                     HStack(spacing: 3) {
                         Image(systemName: "flame.fill")
                             .font(.caption)
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                         Text("\(streakDays)d")
                             .font(.caption.weight(.bold))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color(hex: "B45309").opacity(0.1))
+                    .background(Pulse.warning.opacity(0.1))
                     .clipShape(Capsule())
                 }
 
@@ -70,9 +70,9 @@ struct NutritionSupplementsCard: View {
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .frame(width: 30, height: 30)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Circle())
                 }
             }
@@ -80,7 +80,7 @@ struct NutritionSupplementsCard: View {
             if supplements.isEmpty {
                 Text("No supplements configured — tap the sliders to add.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else {
                 VStack(spacing: 6) {
                     ForEach(supplements, id: \.id) { supplement in
@@ -91,18 +91,18 @@ struct NutritionSupplementsCard: View {
                             HStack(spacing: 10) {
                                 Image(systemName: taken ? "checkmark.circle.fill" : "circle")
                                     .font(.subheadline)
-                                    .foregroundColor(taken ? Color(hex: "059669") : .secondary.opacity(0.5))
+                                    .foregroundColor(taken ? Pulse.positive : .secondary.opacity(0.5))
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(supplement.name)
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                         .strikethrough(taken)
                                     if !supplement.dose.isEmpty || !supplement.timing.isEmpty {
                                         Text([supplement.dose, supplement.timing]
                                             .filter { !$0.isEmpty }
                                             .joined(separator: " · "))
                                             .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
                                 }
                                 Spacer()
@@ -111,12 +111,12 @@ struct NutritionSupplementsCard: View {
                             .padding(.vertical, 8)
                             .background(
                                 taken
-                                    ? Color(hex: "059669").opacity(0.08)
-                                    : Color(.tertiarySystemBackground)
+                                    ? Pulse.positive.opacity(0.08)
+                                    : Pulse.surfaceElevatedFallback
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
             }

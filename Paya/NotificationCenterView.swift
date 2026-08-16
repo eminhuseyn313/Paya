@@ -61,7 +61,7 @@ struct NotificationCenterView: View {
                 } label: {
                     NotificationCard(record: record)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
                 .swipeActions {
                     Button(role: .destructive) {
                         try? NotificationCenterStore.delete(record, context: modelContext)
@@ -81,7 +81,7 @@ struct NotificationBellButton: View {
             ZStack(alignment: .topTrailing) {
                 Image(systemName: unreadCount > 0 ? "bell.badge.fill" : "bell.fill")
                     .font(.title3)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(width: 40, height: 40)
                     .background(Color(.secondarySystemBackground))
                     .clipShape(Circle())
@@ -145,20 +145,20 @@ private extension NotificationCategory {
     }
     var color: Color {
         switch self {
-        case .training: return Color(hex: "2563EB")
+        case .training: return Pulse.hydration
         case .meal: return .orange
         case .supplement: return .purple
         case .hydration: return .cyan
         case .recovery: return .indigo
         case .weighIn: return .teal
-        case .milestone: return Color(hex: "B45309")
+        case .milestone: return Pulse.warning
         case .flareRisk: return .red
         case .restTimer: return .green
-        case .medication: return Color(hex: "DC2626")
+        case .medication: return Pulse.critical
         case .eyeCare: return Color(hex: "0EA5E9")
         case .circadian: return Color(hex: "D97706")
-        case .postWorkoutNutrition: return Color(hex: "059669")
-        case .weeklyDigest: return Color(hex: "2563EB")
+        case .postWorkoutNutrition: return Pulse.positive
+        case .weeklyDigest: return Pulse.hydration
         }
     }
 }

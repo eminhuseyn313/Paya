@@ -255,7 +255,7 @@ struct ComposerHeaderCard: View {
                     .font(.subheadline.weight(.semibold))
                 Text(isCustomized ? "Custom composition" : "Using default program")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             Spacer()
         }
@@ -285,26 +285,26 @@ struct ComposerExerciseCard: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(exercise.exerciseName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
                     HStack(spacing: 6) {
                         Text(exercise.muscleGroup)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         if exercise.source == .library {
                             Text("Library")
                                 .font(.system(size: 9, weight: .bold))
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 2)
-                                .background(Color(hex: "2563EB").opacity(0.15))
-                                .foregroundColor(Color(hex: "2563EB"))
+                                .background(Pulse.hydration.opacity(0.15))
+                                .foregroundColor(Pulse.hydration)
                                 .clipShape(Capsule())
                         }
                         if exercise.isJointSensitive {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.system(size: 9))
-                                .foregroundColor(Color(hex: "B45309"))
+                                .foregroundColor(Pulse.warning)
                         }
                     }
                 }
@@ -317,7 +317,7 @@ struct ComposerExerciseCard: View {
                             .font(.caption.weight(.bold))
                             .foregroundColor(canMoveUp ? sessionColor : .secondary.opacity(0.3))
                             .frame(width: 28, height: 20)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 5))
                     }
                     .disabled(!canMoveUp)
@@ -327,7 +327,7 @@ struct ComposerExerciseCard: View {
                             .font(.caption.weight(.bold))
                             .foregroundColor(canMoveDown ? sessionColor : .secondary.opacity(0.3))
                             .frame(width: 28, height: 20)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 5))
                     }
                     .disabled(!canMoveDown)
@@ -351,10 +351,10 @@ struct ComposerExerciseCard: View {
                         Text(isLinkedWithNext ? "Superset with next — tap to unlink" : "Link with next as superset")
                     }
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(isLinkedWithNext ? .white : Color(hex: "8B5CF6"))
+                    .foregroundColor(isLinkedWithNext ? .white : Pulse.ai)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
-                    .background(isLinkedWithNext ? Color(hex: "8B5CF6") : Color(hex: "8B5CF6").opacity(0.1))
+                    .background(isLinkedWithNext ? Pulse.ai : Pulse.ai.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
@@ -407,10 +407,10 @@ struct ParamPill: View {
                 .font(.system(size: 10, weight: .semibold))
                 .monospacedDigit()
         }
-        .foregroundColor(.secondary)
+        .foregroundColor(Pulse.textTertiary)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Color(.tertiarySystemBackground))
+        .background(Pulse.surfaceElevatedFallback)
         .clipShape(Capsule())
     }
 }
@@ -446,32 +446,32 @@ struct ExerciseParamEditor: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Rep range")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         HStack(spacing: 8) {
                             HStack {
                                 Text("Min")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Stepper("\(exercise.repMin)", value: $exercise.repMin, in: 1...30)
                                     .labelsHidden()
                                 Text("\(exercise.repMin)")
                                     .font(.subheadline.weight(.bold))
                             }
                             .padding(10)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
 
                             HStack {
                                 Text("Max")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Stepper("\(exercise.repMax)", value: $exercise.repMax, in: 1...30)
                                     .labelsHidden()
                                 Text("\(exercise.repMax)")
                                     .font(.subheadline.weight(.bold))
                             }
                             .padding(10)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
                     }
@@ -495,13 +495,13 @@ struct ExerciseParamEditor: View {
                     // Joint-sensitive toggle
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Joint-sensitive")
                                 .font(.subheadline.weight(.semibold))
                             Text("Flags for extra caution on flare days")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                         Toggle("", isOn: $exercise.isJointSensitive)
@@ -513,11 +513,11 @@ struct ExerciseParamEditor: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Notes")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         TextField("Form cues, warnings", text: $exercise.notes, axis: .vertical)
                             .lineLimit(2...5)
                             .padding(10)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                     .payaCard(padding: 12)
@@ -555,7 +555,7 @@ struct ParamRow<Control: View>: View {
             Spacer()
             Text(value)
                 .font(.subheadline.weight(.bold))
-                .foregroundColor(Color(hex: "2563EB"))
+                .foregroundColor(Pulse.hydration)
                 .frame(minWidth: 60, alignment: .trailing)
             control
         }

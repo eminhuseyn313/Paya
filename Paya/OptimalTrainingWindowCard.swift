@@ -41,16 +41,16 @@ struct OptimalTrainingWindowCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "clock.badge.checkmark.fill")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Optimal training window")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text(chronotype)
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "8B5CF6").opacity(0.1))
+                            .background(Pulse.ai.opacity(0.1))
                             .clipShape(Capsule())
                     }
 
@@ -62,7 +62,7 @@ struct OptimalTrainingWindowCard: View {
                                     .font(.system(size: 24, weight: .bold, design: .rounded))
                                 Text("–")
                                     .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Text(windowEnd)
                                     .font(.system(size: 24, weight: .bold, design: .rounded))
                             }
@@ -70,21 +70,21 @@ struct OptimalTrainingWindowCard: View {
                             if isInWindow {
                                 HStack(spacing: 4) {
                                     Circle()
-                                        .fill(Color(hex: "059669"))
+                                        .fill(Pulse.positive)
                                         .frame(width: 6, height: 6)
                                     Text("You're in the window now")
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Color(hex: "059669"))
+                                        .foregroundColor(Pulse.positive)
                                 }
                             } else if let hours = hoursUntilWindow {
                                 if hours > 0 {
                                     Text("In ~\(hours) hours")
                                         .font(.system(size: 10, weight: .semibold))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 } else {
                                     Text("Window passed for today")
                                         .font(.system(size: 10, weight: .semibold))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                             }
                         }
@@ -101,18 +101,18 @@ struct OptimalTrainingWindowCard: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "moon.fill")
                                     .font(.system(size: 9))
-                                    .foregroundColor(Color(hex: "8B5CF6"))
+                                    .foregroundColor(Pulse.ai)
                                 Text(String(format: "%.1fh sleep", sleep))
                                     .font(.system(size: 10))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 4) {
                                 Image(systemName: "sunrise.fill")
                                     .font(.system(size: 9))
-                                    .foregroundColor(Color(hex: "F59E0B"))
+                                    .foregroundColor(Pulse.nutrition)
                                 Text("Woke ~\(wake)")
                                     .font(.system(size: 10))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
@@ -122,11 +122,11 @@ struct OptimalTrainingWindowCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(note)
                                 .font(.system(size: 10))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -152,9 +152,9 @@ struct OptimalTrainingWindowCard: View {
                     let isCurrent = hour == currentHour
                     RoundedRectangle(cornerRadius: 2)
                         .fill(
-                            isCurrent ? Color(hex: "DC2626") :
-                            isWindow ? Color(hex: "8B5CF6") :
-                            Color(.tertiarySystemBackground)
+                            isCurrent ? Pulse.critical :
+                            isWindow ? Pulse.ai :
+                            Pulse.surfaceElevatedFallback
                         )
                         .frame(width: 6, height: isCurrent ? 18 : (isWindow ? 14 : 10))
                 }
@@ -162,11 +162,11 @@ struct OptimalTrainingWindowCard: View {
             HStack {
                 Text("6am")
                     .font(.system(size: 7))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Spacer()
                 Text("10pm")
                     .font(.system(size: 7))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .frame(width: CGFloat((23 - 6) * 8))
         }

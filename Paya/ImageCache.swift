@@ -196,7 +196,7 @@ struct CachedAsyncImage: View {
 
     var body: some View {
         ZStack {
-            Color(.tertiarySystemBackground)
+            Pulse.surfaceElevatedFallback
 
             if let localAssetName {
                 Image(localAssetName)
