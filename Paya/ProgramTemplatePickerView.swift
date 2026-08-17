@@ -93,7 +93,7 @@ struct ProgramTemplatePickerView: View {
                                     .padding(.vertical, 10)
                                     .background(selectedTier == tier
                                         ? Pulse.hydration
-                                        : Color(.secondarySystemBackground))
+                                        : Pulse.surfaceFallback)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                                 }
                             }

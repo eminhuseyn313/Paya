@@ -85,7 +85,7 @@ struct NumberPadSheet: View {
                     .lineLimit(1)
                     .padding(.bottom, 8)
             }
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
 
             // MARK: Active field display
             HStack(spacing: 12) {
@@ -115,7 +115,7 @@ struct NumberPadSheet: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
 
             // MARK: Quick-adjust chips
             ScrollView(.horizontal, showsIndicators: false) {
@@ -197,7 +197,7 @@ struct NumberPadSheet: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 12)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
 
             // MARK: Action buttons
             HStack(spacing: 10) {
@@ -251,9 +251,9 @@ struct NumberPadSheet: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
         }
-        .background(Color(.secondarySystemBackground))
+        .background(Pulse.surfaceFallback)
         .presentationDetents([.height(560)])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(24)

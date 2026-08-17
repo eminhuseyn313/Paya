@@ -126,7 +126,7 @@ struct GramPresetButton: View {
                 .padding(.vertical, 7)
                 .background(abs(current - grams) < 1
                     ? Pulse.hydration
-                    : Color(.secondarySystemBackground))
+                    : Pulse.surfaceFallback)
                 .clipShape(Capsule())
         }
     }

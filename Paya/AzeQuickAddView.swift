@@ -39,7 +39,7 @@ struct AzeQuickAddView: View {
                                 .padding(.vertical, 8)
                                 .background(selectedCategory == cat
                                     ? Pulse.positive
-                                    : Color(.secondarySystemBackground))
+                                    : Pulse.surfaceFallback)
                                 .clipShape(Capsule())
                             }
                         }
@@ -277,7 +277,7 @@ struct PortionPresetButton: View {
                 .padding(.vertical, 7)
                 .background(abs(current - grams) < 1
                     ? Pulse.positive
-                    : Color(.secondarySystemBackground))
+                    : Pulse.surfaceFallback)
                 .clipShape(Capsule())
         }
     }

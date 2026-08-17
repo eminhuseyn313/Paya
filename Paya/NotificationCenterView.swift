@@ -23,27 +23,53 @@ struct NotificationCenterView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if records.isEmpty {
-                    ContentUnavailableView(
-                        "Nothing new yet",
-                        systemImage: "bell.badge",
-                        description: Text("Paya will keep your training, nutrition, recovery, and progress updates here.")
-                    )
-                } else {
-                    List {
-                        if !today.isEmpty { notificationSection("Today", records: today) }
-                        if !earlier.isEmpty { notificationSection("Earlier", records: earlier) }
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
+
+                Group {
+                    if records.isEmpty {
+                        VStack(spacing: 16) {
+                            Image(systemName: "bell.badge")
+                                .font(.system(size: 48))
+                                .foregroundColor(Pulse.textTertiary)
+                                .shadow(color: Pulse.hydration.opacity(0.2), radius: 16)
+                            Text("Nothing new yet")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(Pulse.textPrimary)
+                            Text("Paya will keep your training, nutrition, recovery, and progress updates here.")
+                                .font(.system(size: 13))
+                                .foregroundColor(Pulse.textTertiary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+                        }
+                    } else {
+                        ScrollView(showsIndicators: false) {
+                            VStack(spacing: 16) {
+                                if !today.isEmpty { notificationSection("Today", records: today) }
+                                if !earlier.isEmpty { notificationSection("Earlier", records: earlier) }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 8)
+                            .padding(.bottom, 30)
+                        }
                     }
-                    .listStyle(.insetGrouped)
                 }
             }
-            .navigationTitle("Notifications")
+            .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Notifications")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Mark all read") {
                         try? NotificationCenterStore.markAllRead(profileId: profileId, context: modelContext)
                     }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Pulse.hydration)
                     .disabled(records.allSatisfy { $0.readAt != nil })
                 }
             }
@@ -52,7 +78,12 @@ struct NotificationCenterView: View {
 
     @ViewBuilder
     private func notificationSection(_ title: String, records: [NotificationRecord]) -> some View {
-        Section(title) {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title.uppercased())
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundColor(Pulse.textTertiary)
+                .padding(.leading, 4)
+
             ForEach(records, id: \.id) { record in
                 Button {
                     try? NotificationCenterStore.markRead(record, context: modelContext)
@@ -62,11 +93,6 @@ struct NotificationCenterView: View {
                     NotificationCard(record: record)
                 }
                 .buttonStyle(PulsePress())
-                .swipeActions {
-                    Button(role: .destructive) {
-                        try? NotificationCenterStore.delete(record, context: modelContext)
-                    } label: { Label("Delete", systemImage: "trash") }
-                }
             }
         }
     }
@@ -83,7 +109,7 @@ struct NotificationBellButton: View {
                     .font(.title3)
                     .foregroundColor(Pulse.textTertiary)
                     .frame(width: 40, height: 40)
-                    .background(Color(.secondarySystemBackground))
+                    .background(Pulse.surfaceFallback)
                     .clipShape(Circle())
                 if unreadCount > 0 {
                     Text(unreadCount > 99 ? "99+" : "\(unreadCount)")
@@ -106,21 +132,35 @@ private struct NotificationCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image(systemName: record.category.symbol)
-                .font(.headline)
-                .foregroundStyle(record.category.color)
-                .frame(width: 36, height: 36)
-                .background(record.category.color.opacity(0.13))
-                .clipShape(Circle())
+            ZStack {
+                Circle()
+                    .fill(record.category.color.opacity(0.13))
+                    .frame(width: 40, height: 40)
+                Image(systemName: record.category.symbol)
+                    .font(.system(size: 16))
+                    .foregroundStyle(record.category.color)
+            }
             VStack(alignment: .leading, spacing: 4) {
-                Text(record.title).font(.subheadline.weight(record.readAt == nil ? .bold : .regular))
-                Text(record.message).font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                Text(record.createdAt, style: .relative).font(.caption2).foregroundStyle(.tertiary)
+                Text(record.title)
+                    .font(.system(size: 14, weight: record.readAt == nil ? .bold : .regular))
+                    .foregroundColor(Pulse.textPrimary)
+                Text(record.message)
+                    .font(.system(size: 12))
+                    .foregroundColor(Pulse.textTertiary)
+                    .lineLimit(2)
+                Text(record.createdAt, style: .relative)
+                    .font(.system(size: 10))
+                    .foregroundColor(Pulse.textTertiary.opacity(0.6))
             }
             Spacer(minLength: 0)
-            if record.readAt == nil { Circle().fill(record.category.color).frame(width: 8, height: 8) }
+            if record.readAt == nil {
+                Circle()
+                    .fill(record.category.color)
+                    .frame(width: 8, height: 8)
+                    .shadow(color: record.category.color.opacity(0.4), radius: 4)
+            }
         }
-        .padding(.vertical, 3)
+        .payaCard(padding: 12)
     }
 }
 

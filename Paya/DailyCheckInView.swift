@@ -16,24 +16,38 @@ struct DailyCheckInView: View {
     @State private var selectedBehaviors: Set<String> = []
     @State private var didSave = false
 
+    @State private var hasAppeared = false
+
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ZStack {
+                // Atmospheric background
+                Pulse.canvasFallback.ignoresSafeArea()
+                BreathingOrb(color: Pulse.recovery, size: 240)
+                    .offset(y: -280)
+                    .opacity(0.35)
+
+                ScrollView(showsIndicators: false) {
                 VStack(spacing: 24) {
 
                     // MARK: - Header
-                    VStack(spacing: 6) {
+                    VStack(spacing: 10) {
                         Text(greetingEmoji)
-                            .font(.system(size: 48))
+                            .font(.system(size: 56))
                             .id(greetingEmoji)
                             .transition(.scale.combined(with: .opacity))
+                            .shadow(color: Pulse.recovery.opacity(0.3), radius: 20)
                         Text(greetingText)
-                            .font(.title3.weight(.bold))
-                        Text("Takes 10 seconds. Shapes your readiness score.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
+                        Text("Takes 10 seconds · shapes your readiness score")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(Pulse.textTertiary)
                     }
-                    .padding(.top, 8)
+                    .padding(.top, 16)
+                    .opacity(hasAppeared ? 1 : 0)
+                    .offset(y: hasAppeared ? 0 : 15)
+                    .animation(.easeOut(duration: 0.6).delay(0.1), value: hasAppeared)
 
                     // MARK: - Body
                     MoodRow(
@@ -185,30 +199,36 @@ struct DailyCheckInView: View {
                                 dismiss()
                             }
                         } label: {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 8) {
                                 if didSave {
-                                    Image(systemName: "checkmark")
-                                        .font(.headline.weight(.bold))
-                                        .transition(.scale)
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 18, weight: .bold))
+                                        .transition(.scale.combined(with: .opacity))
                                 }
-                                Text(didSave ? "Done" : "Log check-in")
-                                    .font(.headline.weight(.bold))
+                                Text(didSave ? "Logged" : "Log check-in")
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
                             }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 15)
-                            .background(hasAnyData ? Pulse.positive : Color.secondary.opacity(0.3))
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .padding(.vertical, 16)
+                            .background(
+                                hasAnyData
+                                    ? LinearGradient(colors: [Pulse.positive, Pulse.positive.opacity(0.8)], startPoint: .leading, endPoint: .trailing)
+                                    : LinearGradient(colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)], startPoint: .leading, endPoint: .trailing)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: Pulse.Radius.sm))
+                            .shadow(color: hasAnyData ? Pulse.positive.opacity(0.3) : .clear, radius: 12, y: 4)
                         }
                         .disabled(!hasAnyData || didSave)
+                        .buttonStyle(PulsePrimaryPress())
 
                         Button {
                             onDone()
                             dismiss()
                         } label: {
                             Text("Skip today")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(Pulse.textTertiary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
                         }
@@ -217,11 +237,21 @@ struct DailyCheckInView: View {
                     Spacer().frame(height: 16)
                 }
                 .padding(.horizontal, 16)
+                }
             }
-            .navigationTitle("Morning check-in")
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Morning check-in")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                }
+            }
         }
         .presentationDetents([.large])
+        .onAppear { withAnimation { hasAppeared = true } }
     }
 
     // MARK: - Data
@@ -309,44 +339,48 @@ struct MoodRow: View {
     let subtitle: String
     @Binding var value: Int?
     let options: [(id: Int, emoji: String, label: String)]
+    var accentColor: Color = Pulse.recovery
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(Pulse.textPrimary)
                 Text(subtitle)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             HStack(spacing: 6) {
                 ForEach(options, id: \.id) { opt in
+                    let isSelected = value == opt.id
                     Button {
                         withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
                             value = opt.id
                         }
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     } label: {
-                        VStack(spacing: 3) {
+                        VStack(spacing: 4) {
                             Text(opt.emoji)
-                                .font(.system(size: value == opt.id ? 26 : 22))
-                                .scaleEffect(value == opt.id ? 1.1 : 1.0)
+                                .font(.system(size: isSelected ? 28 : 22))
+                                .scaleEffect(isSelected ? 1.15 : 1.0)
+                                .shadow(color: isSelected ? accentColor.opacity(0.4) : .clear, radius: 8)
                             Text(opt.label)
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundStyle(value == opt.id ? .primary : .secondary)
+                                .font(.system(size: 9, weight: isSelected ? .bold : .medium))
+                                .foregroundColor(isSelected ? Pulse.textPrimary : Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
-                            value == opt.id
-                                ? Color.accentColor.opacity(0.12)
+                            isSelected
+                                ? accentColor.opacity(0.15)
                                 : Pulse.surfaceElevatedFallback
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: Pulse.Radius.sm))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(value == opt.id ? Color.accentColor.opacity(0.4) : .clear, lineWidth: 1.5)
+                            RoundedRectangle(cornerRadius: Pulse.Radius.sm)
+                                .strokeBorder(isSelected ? accentColor.opacity(0.4) : Color.white.opacity(0.06), lineWidth: isSelected ? 1.5 : 0.5)
                         )
                     }
                     .buttonStyle(PulsePress())

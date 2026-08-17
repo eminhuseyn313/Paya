@@ -10,10 +10,17 @@ struct ExerciseDetailView: View {
     let exercise: Exercise
 
     @State private var currentImageIndex: Int = 0
+    @State private var hasAppeared = false
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
+                BreathingOrb(color: Pulse.hydration, size: 200)
+                    .offset(y: -300)
+                    .opacity(0.25)
+
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
 
                     // Image carousel
@@ -26,7 +33,8 @@ struct ExerciseDetailView: View {
                     // Header info
                     VStack(alignment: .leading, spacing: 8) {
                         Text(exercise.name)
-                            .font(.title3.bold())
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
 
                         HStack(spacing: 6) {
                             LevelBadge(level: exercise.level)
@@ -142,19 +150,31 @@ struct ExerciseDetailView: View {
                         .padding(.horizontal, 16)
                     }
 
-                    Spacer().frame(height: 20)
+                    Spacer().frame(height: 30)
                 }
                 .padding(.top, 8)
+                .opacity(hasAppeared ? 1 : 0)
+                .offset(y: hasAppeared ? 0 : 12)
+            }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(exercise.name)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                        .lineLimit(1)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .fontWeight(.semibold)
+                        .foregroundColor(Pulse.textSecondary)
                 }
             }
         }
         .presentationDetents([.large])
+        .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { hasAppeared = true } }
     }
 }
 

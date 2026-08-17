@@ -436,13 +436,14 @@ struct RestTimerBar: View {
                 .padding(.bottom, 10)
             }
         }
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .background(Pulse.surfaceElevatedFallback)
+        .clipShape(RoundedRectangle(cornerRadius: Pulse.Radius.md))
         .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(displayColor.opacity(0.25), lineWidth: 1)
+            RoundedRectangle(cornerRadius: Pulse.Radius.md)
+                .stroke(displayColor.opacity(0.2), lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.12), radius: 10, y: 3)
+        .shadow(color: displayColor.opacity(0.15), radius: 16, y: 4)
+        .shadow(color: .black.opacity(0.3), radius: 8, y: 2)
         .padding(.horizontal, 12)
         .transition(.move(edge: .top).combined(with: .opacity))
     }

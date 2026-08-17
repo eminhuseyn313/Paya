@@ -7,39 +7,58 @@ struct ReadinessDetailView: View {
 
     private var color: Color { Color(hex: report.band.colorHex) }
 
+    @State private var hasAppeared = false
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    scoreHeader
-                    recommendationBanner
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
+                BreathingOrb(color: color, size: 260)
+                    .offset(y: -240)
+                    .opacity(0.4)
 
-                    Text("WHAT'S DRIVING IT")
-                        .font(.caption.weight(.bold))
-                        .foregroundColor(Pulse.textTertiary)
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        scoreHeader
+                            .opacity(hasAppeared ? 1 : 0)
+                            .scaleEffect(hasAppeared ? 1 : 0.92)
+                        recommendationBanner
 
-                    VStack(spacing: 10) {
-                        ForEach(report.drivers) { driver in
-                            DriverCard(driver: driver, bandColor: color)
+                        PulseSectionHeader(title: "What's driving it", icon: "chart.bar.fill")
+
+                        VStack(spacing: 10) {
+                            ForEach(report.drivers) { driver in
+                                DriverCard(driver: driver, bandColor: color)
+                            }
                         }
-                    }
 
-                    if !report.journeyNotes.isEmpty {
-                        journeySection
-                    }
+                        if !report.journeyNotes.isEmpty {
+                            journeySection
+                        }
 
-                    methodologyNote
+                        methodologyNote
+
+                        Spacer().frame(height: 30)
+                    }
+                    .padding(16)
                 }
-                .padding(16)
             }
-            .navigationTitle("Readiness")
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Readiness")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                }
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Done") { dismiss() }
+                        .foregroundColor(Pulse.textSecondary)
                 }
             }
         }
+        .onAppear { withAnimation(.easeOut(duration: 0.6).delay(0.1)) { hasAppeared = true } }
     }
 
     // MARK: - Score Header

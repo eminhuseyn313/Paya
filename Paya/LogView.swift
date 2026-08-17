@@ -252,7 +252,7 @@ struct LogView: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
 

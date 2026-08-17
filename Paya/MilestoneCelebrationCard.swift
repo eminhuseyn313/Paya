@@ -187,7 +187,7 @@ struct MilestoneCelebrationCard: View {
             .padding(.bottom, 20)
         }
         .frame(width: width)
-        .background(Color(.systemBackground))
+        .background(Pulse.canvasFallback)
         .clipShape(RoundedRectangle(cornerRadius: 16))
 
         let renderer = ImageRenderer(content: view)

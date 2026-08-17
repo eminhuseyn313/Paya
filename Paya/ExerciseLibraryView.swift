@@ -25,6 +25,9 @@ struct ExerciseLibraryView: View {
 
     var body: some View {
         NavigationStack {
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
+
             VStack(spacing: 0) {
 
                 // Search
@@ -105,12 +108,19 @@ struct ExerciseLibraryView: View {
                                         }
                 }
             }
-            .navigationTitle("Exercise Library")
+            }
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Exercise Library")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .fontWeight(.semibold)
+                        .foregroundColor(Pulse.textSecondary)
                 }
             }
             .sheet(item: $selectedExercise) { exercise in
@@ -157,7 +167,7 @@ struct RecommendedToggleRow: View {
                 .padding(.vertical, 6)
                 .background(db.showOnlyRecommended
                     ? Pulse.warning
-                    : Color(.secondarySystemBackground))
+                    : Pulse.surfaceFallback)
                 .clipShape(Capsule())
             }
 
@@ -278,10 +288,10 @@ struct ChipLabel: View {
             Image(systemName: "chevron.down")
                 .font(.system(size: 8, weight: .bold))
         }
-        .foregroundColor(isActive ? .white : .primary)
+        .foregroundColor(isActive ? .white : Pulse.textPrimary)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(isActive ? Pulse.hydration : Color(.secondarySystemBackground))
+        .background(isActive ? Pulse.hydration : Pulse.surfaceFallback)
         .clipShape(Capsule())
     }
 }

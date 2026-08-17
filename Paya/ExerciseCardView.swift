@@ -7,46 +7,54 @@ struct ExerciseInfoSheet: View {
     var exercise: ExerciseDefinition
     var sessionColor: Color
 
+    @State private var hasAppeared = false
+
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
+                BreathingOrb(color: sessionColor, size: 200)
+                    .offset(y: -300)
+                    .opacity(0.3)
+
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
 
+                    // Hero demo area
                     VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Image(systemName: "play.rectangle.fill")
-                                .foregroundColor(sessionColor)
-                            Text("DEMONSTRATION")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(Pulse.textTertiary)
-                        }
-                        .padding(.horizontal)
-
                         ExerciseDemoView(
                             exerciseName: exercise.name,
                             urlString: exercise.gifURL,
                             muscleGroup: exercise.muscleGroup,
                             sessionColor: sessionColor,
-                            height: 220
+                            height: 240
                         )
+                        .clipShape(RoundedRectangle(cornerRadius: Pulse.Radius.md))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Pulse.Radius.md)
+                                .stroke(sessionColor.opacity(0.15), lineWidth: 1)
+                        )
+                        .shadow(color: sessionColor.opacity(0.1), radius: 20, y: 8)
                         .padding(.horizontal)
                     }
+                    .opacity(hasAppeared ? 1 : 0)
+                    .scaleEffect(hasAppeared ? 1 : 0.95)
 
-                    VStack(alignment: .leading, spacing: 8) {
+                    // Title + tags
+                    VStack(alignment: .leading, spacing: 10) {
                         Text(exercise.name)
-                            .font(.title3.bold())
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
                             .padding(.horizontal)
                         HStack(spacing: 8) {
                             TagBadge(text: exercise.type.rawValue, color: sessionColor)
-                            TagBadge(text: exercise.muscleGroup, color: .secondary)
+                            TagBadge(text: exercise.muscleGroup, color: Pulse.textTertiary)
                             if exercise.isJointSensitive {
                                 TagBadge(text: "JOINT SENSITIVE", color: Pulse.warning)
                             }
                         }
                         .padding(.horizontal)
                     }
-
-                    Divider()
 
                     InfoSection(title: "Prescription") {
                         VStack(spacing: 8) {
@@ -180,19 +188,28 @@ struct ExerciseInfoSheet: View {
                         }
                     }
 
-                    Spacer().frame(height: 20)
+                    Spacer().frame(height: 30)
                 }
                 .padding(.top, 12)
             }
-            .navigationTitle("Exercise Info")
+            }
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Exercise Info")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
+                        .foregroundColor(Pulse.textSecondary)
                 }
             }
         }
         .presentationDetents([.large])
+        .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { hasAppeared = true } }
     }
 
     /// isJointSensitive is a broad flag used across ~80 exercises spanning
@@ -369,7 +386,7 @@ struct ExerciseCardView: View {
         .background(
             state.allSetsCompleted
                 ? Pulse.positive.opacity(0.06)
-                : Color(.secondarySystemBackground)
+                : Pulse.surfaceFallback
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
@@ -699,7 +716,7 @@ struct ExerciseCardView: View {
                 }
             }
         }
-        .background(Color(.secondarySystemBackground))
+        .background(Pulse.surfaceFallback)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
             RoundedRectangle(cornerRadius: 16)
@@ -1009,7 +1026,7 @@ struct SetRowView: View {
                                     ? Pulse.ai.opacity(0.04)
                                     : setState.isCompleted
                                         ? sessionColor.opacity(0.04)
-                                        : Color(.secondarySystemBackground)
+                                        : Pulse.surfaceFallback
                     )
                     .offset(x: swipeOffset)
             }
