@@ -91,7 +91,7 @@ struct DashboardView: View {
                         Button { showFlareRiskDetail = true } label: {
                             FlareAlertBanner(assessment: assessment)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
 
                     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -133,30 +133,30 @@ struct DashboardView: View {
                         HStack(spacing: 10) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color(hex: "8B5CF6").opacity(0.1))
+                                    .fill(Pulse.ai.opacity(0.1))
                                     .frame(width: 36, height: 36)
                                 Image(systemName: "chart.bar.xaxis.ascending")
                                     .font(.system(size: 15, weight: .semibold))
-                                    .foregroundColor(Color(hex: "8B5CF6"))
+                                    .foregroundColor(Pulse.ai)
                             }
                             VStack(alignment: .leading, spacing: 1) {
                                 Text("Insights & analytics")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                 Text("Training, nutrition, recovery deep-dives")
                                     .font(.system(size: 11))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(14)
                         .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
 
                     Spacer().frame(height: 30)
                 }
@@ -329,10 +329,10 @@ struct StatusHeader: View {
     private var scoreColor: Color {
         guard let score = viewModel.recoveryScore else { return .secondary }
         switch score {
-        case 80...100: return Color(hex: "059669")
+        case 80...100: return Pulse.positive
         case 60..<80:  return Color(hex: "4D7C0F")
-        case 40..<60:  return Color(hex: "B45309")
-        default:       return Color(hex: "DC2626")
+        case 40..<60:  return Pulse.warning
+        default:       return Pulse.critical
         }
     }
 
@@ -344,7 +344,7 @@ struct StatusHeader: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(appState.greeting + ",")
                         .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text(appState.profile.name)
                         .font(.system(size: 22, weight: .bold))
                 }
@@ -385,7 +385,7 @@ struct StatusHeader: View {
                             if let rec = viewModel.readiness?.recommendation {
                                 Text(rec)
                                     .font(.system(size: 11))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .lineLimit(2)
                             }
                         }
@@ -394,13 +394,13 @@ struct StatusHeader: View {
 
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     .padding(12)
                     .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
 
                 // Biometric chips
                 biometricChips
@@ -474,11 +474,11 @@ struct StatusHeader: View {
         Button(action: onProfile) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: "2563EB").opacity(0.12))
+                    .fill(Pulse.hydration.opacity(0.12))
                     .frame(width: 34, height: 34)
                 Text(String(appState.profile.name.prefix(1)).uppercased())
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
             }
         }
     }
@@ -498,7 +498,7 @@ struct StatusHeader: View {
         Button(action: onSettings) {
             Image(systemName: "gearshape.fill")
                 .font(.system(size: 14))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .frame(width: 34, height: 34)
                 .background(Color(.secondarySystemBackground))
                 .clipShape(Circle())
@@ -513,10 +513,10 @@ struct StatusHeader: View {
             Text("Flare")
                 .font(.system(size: 10, weight: .bold))
         }
-        .foregroundColor(Color(hex: "B45309"))
+        .foregroundColor(Pulse.warning)
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(Color(hex: "B45309").opacity(0.12))
+        .background(Pulse.warning.opacity(0.12))
         .clipShape(Capsule())
     }
 }
@@ -557,7 +557,7 @@ struct TodayFocusCard: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(day.name)
                                 .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text(day.focus)
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(day.color)
@@ -573,25 +573,25 @@ struct TodayFocusCard: View {
                     } else {
                         ZStack {
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(hex: "059669").opacity(0.15))
+                                .fill(Pulse.positive.opacity(0.15))
                                 .frame(width: 48, height: 48)
                             Image(systemName: "leaf.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(Color(hex: "059669"))
+                                .foregroundColor(Pulse.positive)
                         }
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Rest day")
                                 .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text("Recovery + nutrition focus")
                                 .font(.system(size: 12))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                     }
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
 
             // Exercise pills (training day only)
             if todayDay != nil, !exercises.isEmpty {
@@ -600,10 +600,10 @@ struct TodayFocusCard: View {
                         ForEach(exercises, id: \.self) { name in
                             Text(shortName(name))
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color(.tertiarySystemBackground))
+                                .background(Pulse.surfaceElevatedFallback)
                                 .clipShape(Capsule())
                         }
                     }
@@ -626,7 +626,7 @@ struct TodayFocusCard: View {
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                         Text(action.title)
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Text(action.domain)
                             .font(.system(size: 8, weight: .bold))
@@ -682,7 +682,7 @@ struct TodayFocusCard: View {
                 icon: "moon.fill",
                 title: "Low sleep — reduce intensity",
                 detail: String(format: "%.1fh sleep. Drop volume ~20%%.", sleep),
-                color: Color(hex: "DC2626"),
+                color: Pulse.critical,
                 priority: 1,
                 domain: "recovery"
             ))
@@ -700,7 +700,7 @@ struct TodayFocusCard: View {
                     icon: "fork.knife",
                     title: "Front-load protein today",
                     detail: String(format: "%.0fg deficit yesterday.", deficit),
-                    color: Color(hex: "2563EB"),
+                    color: Pulse.hydration,
                     priority: 2,
                     domain: "nutrition"
                 ))
@@ -728,7 +728,7 @@ struct TodayFocusCard: View {
                 icon: "exclamationmark.triangle.fill",
                 title: "\(consecutiveDays) days straight — watch fatigue",
                 detail: "Consider lighter volume today.",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 priority: 2,
                 domain: "training"
             ))
@@ -739,7 +739,7 @@ struct TodayFocusCard: View {
                 icon: "bolt.slash.fill",
                 title: "Low energy — check hydration",
                 detail: "Aim 2-3L water, eat within 1h of waking.",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 priority: 3,
                 domain: "health"
             ))
@@ -861,24 +861,24 @@ struct VitalsStrip: View {
                     Text(value)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     if !unit.isEmpty {
                         Text(unit)
                             .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
 
                 Text(label)
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -903,7 +903,7 @@ struct RecoveryBrief: View {
                 HStack(spacing: 6) {
                     Image(systemName: "heart.text.clipboard")
                         .font(.system(size: 11))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                     Text("Recovery notes")
                         .font(.system(size: 13, weight: .semibold))
                 }
@@ -919,7 +919,7 @@ struct RecoveryBrief: View {
                                 .font(.system(size: 12, weight: .semibold))
                             Text(item.detail)
                                 .font(.system(size: 11))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
@@ -987,15 +987,15 @@ struct FlareAlertBanner: View {
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(assessment.level.color)
             Text("·")
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Text(assessment.recommendation)
                 .font(.system(size: 11))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .lineLimit(1)
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
@@ -1027,7 +1027,7 @@ struct WeekSummary: View {
             HStack(spacing: 6) {
                 Image(systemName: "calendar")
                     .font(.system(size: 11))
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("This week")
                     .font(.system(size: 13, weight: .semibold))
                 Spacer()
@@ -1038,10 +1038,10 @@ struct WeekSummary: View {
                         Text("\(viewModel.weekStreak)w streak")
                             .font(.system(size: 10, weight: .bold))
                     }
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3)
-                    .background(Color(hex: "DC2626").opacity(0.08))
+                    .background(Pulse.critical.opacity(0.08))
                     .clipShape(Capsule())
                 }
             }
@@ -1060,7 +1060,7 @@ struct WeekSummary: View {
                 statCell(
                     value: volumeLabel,
                     label: "Volume",
-                    color: Color(hex: "0891B2")
+                    color: Pulse.recovery
                 )
                 if let lastSession = viewModel.lastSession {
                     Rectangle()
@@ -1079,8 +1079,8 @@ struct WeekSummary: View {
     }
 
     private var sessionColor: Color {
-        if viewModel.thisWeekSessions >= viewModel.thisWeekPossibleSessions { return Color(hex: "059669") }
-        if viewModel.thisWeekSessions > 0 { return Color(hex: "F59E0B") }
+        if viewModel.thisWeekSessions >= viewModel.thisWeekPossibleSessions { return Pulse.positive }
+        if viewModel.thisWeekSessions > 0 { return Pulse.nutrition }
         return .secondary
     }
 
@@ -1107,7 +1107,7 @@ struct WeekSummary: View {
                 .foregroundColor(color)
             Text(label)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -1131,19 +1131,19 @@ extension DashboardView {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Morning check-in")
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         Text("Rate body, energy & sleep — adjusts training loads")
                             .font(.system(size: 10))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 12)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
         }
 
         private var greetingEmoji: String {
@@ -1173,11 +1173,11 @@ extension DashboardView {
                             .multilineTextAlignment(.center)
                             .font(.system(size: 44, weight: .bold))
                             .padding()
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                         Text("kg")
                             .font(.title.bold())
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     .padding(.horizontal, 40)
                     Button(action: onSave) {
@@ -1186,7 +1186,7 @@ extension DashboardView {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(weightInput.isEmpty ? Color.secondary.opacity(0.5) : Color(hex: "059669"))
+                            .background(weightInput.isEmpty ? Color.secondary.opacity(0.5) : Pulse.positive)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .padding(.horizontal, 20)

@@ -25,6 +25,9 @@ struct ExerciseLibraryView: View {
 
     var body: some View {
         NavigationStack {
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
+
             VStack(spacing: 0) {
 
                 // Search
@@ -47,11 +50,11 @@ struct ExerciseLibraryView: View {
                     if let error = db.loadError {
                         Label(error, systemImage: "exclamationmark.triangle")
                             .font(.caption)
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                     } else {
                         Text("\(results.count) exercise\(results.count == 1 ? "" : "s")")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     if !filter.isEmpty {
@@ -61,7 +64,7 @@ struct ExerciseLibraryView: View {
                         } label: {
                             Text("Clear all")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(Color(hex: "2563EB"))
+                                .foregroundColor(Pulse.hydration)
                         }
                     }
                 }
@@ -105,12 +108,19 @@ struct ExerciseLibraryView: View {
                                         }
                 }
             }
-            .navigationTitle("Exercise Library")
+            }
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Exercise Library")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .fontWeight(.semibold)
+                        .foregroundColor(Pulse.textSecondary)
                 }
             }
             .sheet(item: $selectedExercise) { exercise in
@@ -156,8 +166,8 @@ struct RecommendedToggleRow: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(db.showOnlyRecommended
-                    ? Color(hex: "B45309")
-                    : Color(.secondarySystemBackground))
+                    ? Pulse.warning
+                    : Pulse.surfaceFallback)
                 .clipShape(Capsule())
             }
 
@@ -166,7 +176,7 @@ struct RecommendedToggleRow: View {
                      ? "\(db.recommendedCount) essentials"
                      : "\(db.totalCuratedCount) total")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer()
@@ -183,7 +193,7 @@ struct LibrarySearchBar: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             TextField("Search exercises, muscles, equipment", text: $text)
                 .focused($isFocused)
                 .autocorrectionDisabled()
@@ -193,7 +203,7 @@ struct LibrarySearchBar: View {
                     text = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }
@@ -278,10 +288,10 @@ struct ChipLabel: View {
             Image(systemName: "chevron.down")
                 .font(.system(size: 8, weight: .bold))
         }
-        .foregroundColor(isActive ? .white : .primary)
+        .foregroundColor(isActive ? .white : Pulse.textPrimary)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(isActive ? Color(hex: "2563EB") : Color(.secondarySystemBackground))
+        .background(isActive ? Pulse.hydration : Pulse.surfaceFallback)
         .clipShape(Capsule())
     }
 }
@@ -309,18 +319,18 @@ struct ExerciseRow: View {
                         if exercise.isRecommended {
                             Image(systemName: "star.fill")
                                 .font(.system(size: 9))
-                                .foregroundColor(Color(hex: "B45309"))
+                                .foregroundColor(Pulse.warning)
                         }
                         Text(exercise.name)
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                     }
 
                     Text(exercise.primaryMusclesLabel)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .lineLimit(1)
 
                     HStack(spacing: 4) {
@@ -330,8 +340,8 @@ struct ExerciseRow: View {
                                 .font(.system(size: 9, weight: .semibold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color(.tertiarySystemBackground))
-                                .foregroundColor(.secondary)
+                                .background(Pulse.surfaceElevatedFallback)
+                                .foregroundColor(Pulse.textTertiary)
                                 .clipShape(Capsule())
                         }
                     }
@@ -341,11 +351,11 @@ struct ExerciseRow: View {
 
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .payaCard(padding: 10)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -354,9 +364,9 @@ struct LevelBadge: View {
 
     var color: Color {
         switch level.lowercased() {
-        case "beginner":     return Color(hex: "059669")
-        case "intermediate": return Color(hex: "B45309")
-        case "expert":       return Color(hex: "DC2626")
+        case "beginner":     return Pulse.positive
+        case "intermediate": return Pulse.warning
+        case "expert":       return Pulse.critical
         default:             return .secondary
         }
     }
@@ -387,27 +397,27 @@ struct LibraryEmptyState: View {
                     .scaleEffect(1.4)
                 Text("Loading exercises…")
                     .font(.headline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else if hasError {
                 Image(systemName: "exclamationmark.triangle")
                     .font(.system(size: 44))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Text("Couldn't load exercises")
                     .font(.headline)
                 Text("Make sure exercises.json is added to the Paya target in Xcode.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             } else if !filter.query.isEmpty || !filter.isEmpty {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 44))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Text("No exercises match")
                     .font(.headline)
                 Text("Try clearing some filters, or toggle 'Show all exercises'.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
             }

@@ -16,7 +16,7 @@ struct VolumePRCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "chart.bar.doc.horizontal.fill")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Volume PRs")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -27,14 +27,14 @@ struct VolumePRCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color(hex: "8B5CF6"))
+                                .background(Pulse.ai)
                                 .clipShape(Capsule())
                         }
                     }
 
                     Text("Highest single-session volume per exercise — total weight × reps across all sets.")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     let visible = expanded ? volumePRs : Array(volumePRs.prefix(5))
                     ForEach(visible) { pr in
@@ -42,12 +42,12 @@ struct VolumePRCard: View {
                             ZStack {
                                 Circle()
                                     .fill(pr.isRecent
-                                        ? Color(hex: "8B5CF6").opacity(0.15)
-                                        : Color(.tertiarySystemBackground))
+                                        ? Pulse.ai.opacity(0.15)
+                                        : Pulse.surfaceElevatedFallback)
                                     .frame(width: 28, height: 28)
                                 Image(systemName: pr.isRecent ? "star.fill" : "checkmark")
                                     .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(pr.isRecent ? Color(hex: "8B5CF6") : .secondary)
+                                    .foregroundColor(pr.isRecent ? Pulse.ai : .secondary)
                             }
 
                             VStack(alignment: .leading, spacing: 2) {
@@ -61,13 +61,13 @@ struct VolumePRCard: View {
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 4)
                                             .padding(.vertical, 1)
-                                            .background(Color(hex: "8B5CF6"))
+                                            .background(Pulse.ai)
                                             .clipShape(Capsule())
                                     }
                                 }
                                 Text(pr.dateLabel)
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
 
                             Spacer()
@@ -77,7 +77,7 @@ struct VolumePRCard: View {
                                 ? String(format: "%.1f%@", vol / 1000, useLbs ? "klbs" : "t")
                                 : String(format: "%.0f %@", vol, useLbs ? "lbs" : "kg"))
                                 .font(.system(size: 12, weight: .bold, design: .rounded))
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                         }
                         .padding(.vertical, 2)
                     }
@@ -88,10 +88,10 @@ struct VolumePRCard: View {
                         } label: {
                             Text(expanded ? "Show less" : "Show all \(volumePRs.count)")
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                                 .frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
                 .payaCard(padding: 14)

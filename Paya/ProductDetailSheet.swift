@@ -30,7 +30,7 @@ struct ProductDetailSheet: View {
                 VStack(spacing: 4) {
                     Image(systemName: "barcode.viewfinder")
                         .font(.title)
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                     Text(product.name)
                         .font(.headline)
                         .multilineTextAlignment(.center)
@@ -60,7 +60,7 @@ struct ProductDetailSheet: View {
                 let ref = product.nutritionFor(grams: 100)
                 Text(String(format: "Per 100g: %.1fg protein · %.0f kcal", ref.protein, ref.calories))
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
 
                 // Portion controls
                 VStack(spacing: 10) {
@@ -69,7 +69,7 @@ struct ProductDetailSheet: View {
                         .monospacedDigit()
 
                     Slider(value: $grams, in: 10...500, step: 5)
-                        .tint(Color(hex: "2563EB"))
+                        .tint(Pulse.hydration)
                         .padding(.horizontal, 20)
 
                     HStack(spacing: 8) {
@@ -90,7 +90,7 @@ struct ProductDetailSheet: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
-                        .background(Color(hex: "2563EB"))
+                        .background(Pulse.hydration)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .padding(.horizontal, 16)
@@ -125,8 +125,8 @@ struct GramPresetButton: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 7)
                 .background(abs(current - grams) < 1
-                    ? Color(hex: "2563EB")
-                    : Color(.secondarySystemBackground))
+                    ? Pulse.hydration
+                    : Pulse.surfaceFallback)
                 .clipShape(Capsule())
         }
     }

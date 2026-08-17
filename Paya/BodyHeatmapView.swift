@@ -28,7 +28,7 @@ struct BodyHeatmapCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 6) {
                     Image(systemName: "figure.arms.open")
-                        .foregroundColor(Color(hex: "DC2626"))
+                        .foregroundColor(Pulse.critical)
                     Text("Muscle Map")
                         .font(.subheadline.weight(.semibold))
                     CardInfoButton(
@@ -42,11 +42,11 @@ struct BodyHeatmapCard: View {
                     Spacer()
                     VStack(spacing: 4) {
                         BodyFigureView(isFront: true, regionColors: regionColors)
-                        Text("Front").font(.caption2).foregroundColor(.secondary)
+                        Text("Front").font(.caption2).foregroundColor(Pulse.textTertiary)
                     }
                     VStack(spacing: 4) {
                         BodyFigureView(isFront: false, regionColors: regionColors)
-                        Text("Back").font(.caption2).foregroundColor(.secondary)
+                        Text("Back").font(.caption2).foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                 }
@@ -61,7 +61,7 @@ struct BodyHeatmapCard: View {
                 if !hasAnyHRData {
                     Text("No heart-rate monitor connected this session — colors reflect relative training load, not measured effort.")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
             .payaCard(padding: 14)
@@ -75,7 +75,7 @@ struct BodyHeatmapCard: View {
                 .frame(width: 6, height: 6)
             Text(zone.rawValue)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }

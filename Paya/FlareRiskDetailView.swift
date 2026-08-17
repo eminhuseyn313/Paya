@@ -31,7 +31,7 @@ struct FlareRiskDetailView: View {
                                 .font(.headline)
                             Text("Score \(assessment.score)/100 — \(assessment.confidence.displayName)")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                     }
@@ -46,11 +46,11 @@ struct FlareRiskDetailView: View {
                     if assessment.factors.isEmpty {
                         Text("Nothing stands out today — this score reflects normal ranges across the board.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     } else {
                         Text("WHY")
                             .font(.caption.weight(.bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
 
                         VStack(spacing: 10) {
                             ForEach(assessment.factors) { factor in
@@ -64,7 +64,7 @@ struct FlareRiskDetailView: View {
                                             .font(.subheadline.weight(.semibold))
                                         Text(factor.observation)
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
                                     Spacer()
                                 }
@@ -75,7 +75,7 @@ struct FlareRiskDetailView: View {
 
                     Text("\(assessment.confidence.subtitle) — this is pattern-spotting from your own data, not a diagnosis.")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(16)
             }
@@ -91,9 +91,9 @@ struct FlareRiskDetailView: View {
 
     private func severityColor(_ severity: Int) -> Color {
         switch severity {
-        case 0...1: return Color(hex: "B45309")
+        case 0...1: return Pulse.warning
         case 2: return Color(hex: "EA580C")
-        default: return Color(hex: "DC2626")
+        default: return Pulse.critical
         }
     }
 }

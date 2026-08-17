@@ -57,23 +57,23 @@ struct MuscleRecoveryStatusCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "figure.strengthtraining.traditional")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Muscle Recovery")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(muscleStatuses.filter { $0.recoveryPercent >= 1.0 }.count)/\(muscleStatuses.count) ready")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(hex: "059669").opacity(0.1))
+                    .background(Pulse.positive.opacity(0.1))
                     .clipShape(Capsule())
             }
 
             if muscleStatuses.isEmpty {
                 Text("Complete a session to see recovery status")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 8)
             } else {
@@ -95,9 +95,9 @@ private struct MuscleRecoveryRow: View {
     let status: MuscleStatus
 
     private var statusColor: Color {
-        if status.recoveryPercent >= 1.0 { return Color(hex: "059669") }
-        if status.recoveryPercent >= 0.7 { return Color(hex: "F59E0B") }
-        return Color(hex: "DC2626")
+        if status.recoveryPercent >= 1.0 { return Pulse.positive }
+        if status.recoveryPercent >= 0.7 { return Pulse.nutrition }
+        return Pulse.critical
     }
 
     private var statusLabel: String {

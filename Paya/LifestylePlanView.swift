@@ -15,30 +15,30 @@ struct LifestylePlanCard: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "8B5CF6").opacity(0.15))
+                        .fill(Pulse.ai.opacity(0.15))
                         .frame(width: 40, height: 40)
                     Image(systemName: "sparkles")
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(profile.cachedLifestylePlan == nil ? "Get your lifestyle plan" : "Your lifestyle plan")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Text(profile.cachedLifestylePlan == nil
                          ? "AI-generated nutrition, supplements & recovery guidance from your profile"
                          : "Nutrition, supplements & recovery — tap to review or regenerate")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .lineLimit(2)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -80,10 +80,10 @@ struct LifestylePlanView: View {
                         VStack(spacing: 10) {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 36))
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                             Text("Your goal, experience, equipment, diet, sleep, and stress — synthesized into one plan.")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.top, 30)
@@ -95,7 +95,7 @@ struct LifestylePlanView: View {
                             ProgressView()
                             Text("Thinking through your profile…")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(.top, 40)
                     }
@@ -103,7 +103,7 @@ struct LifestylePlanView: View {
                     if let errorText {
                         Text(errorText)
                             .font(.caption)
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                             .padding(.horizontal, 20)
                     }
 
@@ -117,7 +117,7 @@ struct LifestylePlanView: View {
                             }
                             Text(section.body)
                                 .font(.subheadline)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         .payaCard(padding: 14)
@@ -128,11 +128,11 @@ struct LifestylePlanView: View {
                         let daysSince = Calendar.current.dateComponents([.day], from: date, to: .now).day ?? 0
                         Text("Generated \(date.formatted(date: .abbreviated, time: .shortened))")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         if daysSince >= 7 {
                             Text("A week of real logging has happened since — regenerate to reflect it")
                                 .font(.caption2)
-                                .foregroundColor(Color(hex: "B45309"))
+                                .foregroundColor(Pulse.warning)
                         }
                     }
 
@@ -144,7 +144,7 @@ struct LifestylePlanView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 15)
-                            .background(isGenerating ? Color.secondary.opacity(0.4) : Color(hex: "8B5CF6"))
+                            .background(isGenerating ? Color.secondary.opacity(0.4) : Pulse.ai)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                     .disabled(isGenerating)

@@ -45,13 +45,13 @@ struct ProgramScienceView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: "brain.head.profile.fill")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Evidence behind your plan")
                     .font(.subheadline.weight(.bold))
             }
             Text("Every decision below is grounded in peer-reviewed research. Tap any section to see why your program is structured the way it is.")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .payaCard(padding: 14)
@@ -73,13 +73,13 @@ struct ProgramScienceView: View {
                             .font(.subheadline.weight(.bold))
                         Text("\(recommendation.daysPerWeek)×/week")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
 
                 Text(splitExplanation)
                     .font(.caption)
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 CitationRow(text: "Schoenfeld et al. (2016). \"Effects of Resistance Training Frequency on Measures of Muscle Hypertrophy.\" Sports Med. — 2×/week per muscle outperforms 1×/week for hypertrophy.")
@@ -100,11 +100,11 @@ struct ProgramScienceView: View {
     private var splitBadge: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 10)
-                .fill(Color(hex: "2563EB").opacity(0.12))
+                .fill(Pulse.hydration.opacity(0.12))
                 .frame(width: 40, height: 40)
             Text("\(recommendation.daysPerWeek)")
                 .font(.title3.weight(.bold).monospacedDigit())
-                .foregroundColor(Color(hex: "2563EB"))
+                .foregroundColor(Pulse.hydration)
         }
     }
 
@@ -139,13 +139,13 @@ struct ProgramScienceView: View {
                         HStack(spacing: 3) {
                             ForEach(0..<times, id: \.self) { _ in
                                 Circle()
-                                    .fill(Color(hex: "059669"))
+                                    .fill(Pulse.positive)
                                     .frame(width: 6, height: 6)
                             }
                         }
                         Text("\(times)×/wk")
                             .font(.caption2.monospacedDigit())
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .frame(width: 40, alignment: .trailing)
                     }
                 }
@@ -181,7 +181,7 @@ struct ProgramScienceView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Renaissance Periodization's published volume landmarks (Israetel, Hoffmann & Smith) define three thresholds for each muscle group:")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -212,7 +212,7 @@ struct ProgramScienceView: View {
                 .frame(width: 32, alignment: .leading)
             Text(text)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -285,7 +285,7 @@ struct ProgramScienceView: View {
                 Text("\(vol.sets) sets")
                     .font(.caption2.monospacedDigit())
                 Text("·")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Text(zone)
                     .font(.caption2.weight(.semibold))
                     .foregroundColor(Color(hex: zoneHex))
@@ -348,14 +348,14 @@ struct ProgramScienceView: View {
                 .font(.caption.weight(.bold).monospacedDigit())
                 .foregroundColor(.white)
                 .frame(width: 20, height: 20)
-                .background(Color(hex: "8B5CF6"))
+                .background(Pulse.ai)
                 .clipShape(Circle())
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.caption.weight(.bold))
                 Text(text)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -374,7 +374,7 @@ struct ProgramScienceView: View {
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                             .padding(.top, 2)
                         Text(line)
                             .font(.caption)
@@ -391,7 +391,7 @@ struct ProgramScienceView: View {
         let targets = GoalEngine.targets(
             goal: goal,
             bodyWeightKg: profile.currentWeightKg,
-            age: profile.age,
+            age: profile.currentAge,
             heightCm: profile.heightCm,
             sexRaw: profile.sexRaw
         )
@@ -447,11 +447,11 @@ struct ProgramScienceView: View {
                 Spacer()
                 Text(value)
                     .font(.caption.weight(.bold).monospacedDigit())
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
             }
             Text(detail)
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -487,11 +487,11 @@ struct ProgramScienceView: View {
                 .font(.system(size: 10, weight: .semibold))
             Text(title)
                 .font(.system(size: 10))
-                .foregroundColor(.primary)
+                .foregroundColor(Pulse.textPrimary)
                 .italic()
             Text(journal)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .padding(.vertical, 2)
     }
@@ -521,11 +521,11 @@ private struct ScienceSection<Content: View>: View {
                         .clipShape(Circle())
                     Text(title)
                         .font(.subheadline.weight(.bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .rotationEffect(.degrees(expanded ? 180 : 0))
                 }
             }
@@ -548,16 +548,16 @@ private struct CitationRow: View {
         HStack(alignment: .top, spacing: 6) {
             Image(systemName: "doc.text.fill")
                 .font(.system(size: 8))
-                .foregroundColor(Color(hex: "8B5CF6").opacity(0.6))
+                .foregroundColor(Pulse.ai.opacity(0.6))
                 .padding(.top, 3)
             Text(text)
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .italic()
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(8)
-        .background(Color(hex: "8B5CF6").opacity(0.05))
+        .background(Pulse.ai.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

@@ -33,30 +33,30 @@ struct WeeklySummaryShareCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "person.2.fill")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Share your week")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("Accountability")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "8B5CF6").opacity(0.1))
+                            .background(Pulse.ai.opacity(0.1))
                             .clipShape(Capsule())
                     }
 
                     // Preview stats
                     HStack(spacing: 0) {
-                        miniStat(value: "\(sessionsThisWeek)", label: "Sessions", icon: "dumbbell.fill", color: Color(hex: "2563EB"))
-                        miniStat(value: "\(prCount)", label: "PRs", icon: "trophy.fill", color: Color(hex: "B45309"))
-                        miniStat(value: "\(proteinHitDays)/7", label: "Protein days", icon: "fork.knife", color: Color(hex: "059669"))
-                        miniStat(value: "\(currentStreak)w", label: "Streak", icon: "flame.fill", color: Color(hex: "DC2626"))
+                        miniStat(value: "\(sessionsThisWeek)", label: "Sessions", icon: "dumbbell.fill", color: Pulse.hydration)
+                        miniStat(value: "\(prCount)", label: "PRs", icon: "trophy.fill", color: Pulse.warning)
+                        miniStat(value: "\(proteinHitDays)/7", label: "Protein days", icon: "fork.knife", color: Pulse.positive)
+                        miniStat(value: "\(currentStreak)w", label: "Streak", icon: "flame.fill", color: Pulse.critical)
                     }
 
                     Text("Send your training buddy a summary card to keep each other accountable. 40% better adherence with a training partner.")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     Button {
                         shareImage = renderWeeklyCard()
@@ -71,7 +71,7 @@ struct WeeklySummaryShareCard: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "8B5CF6"))
+                        .background(Pulse.ai)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
@@ -95,7 +95,7 @@ struct WeeklySummaryShareCard: View {
                 .font(.system(size: 14, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 7, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -207,7 +207,7 @@ struct WeeklySummaryShareCard: View {
                             Text("\(currentStreak)w streak")
                                 .font(.system(size: 12, weight: .bold))
                         }
-                        .foregroundColor(Color(hex: "F59E0B"))
+                        .foregroundColor(Pulse.nutrition)
                     }
                 }
             }
@@ -221,13 +221,13 @@ struct WeeklySummaryShareCard: View {
                         value: "\(sessionsThisWeek)",
                         label: "Sessions",
                         icon: "dumbbell.fill",
-                        color: Color(hex: "2563EB")
+                        color: Pulse.hydration
                     )
                     shareStatBox(
                         value: String(format: "%.0f %@", volume, unit),
                         label: "Volume",
                         icon: "scalemass.fill",
-                        color: Color(hex: "8B5CF6")
+                        color: Pulse.ai
                     )
                 }
                 HStack(spacing: 12) {
@@ -235,13 +235,13 @@ struct WeeklySummaryShareCard: View {
                         value: "\(prCount) PRs",
                         label: "Records",
                         icon: "trophy.fill",
-                        color: Color(hex: "B45309")
+                        color: Pulse.warning
                     )
                     shareStatBox(
                         value: "\(proteinHitDays)/7",
                         label: "Protein target hit",
                         icon: "fork.knife",
-                        color: Color(hex: "059669")
+                        color: Pulse.positive
                     )
                 }
                 HStack(spacing: 12) {
@@ -249,13 +249,13 @@ struct WeeklySummaryShareCard: View {
                         value: "\(avgDuration)min",
                         label: "Avg session",
                         icon: "clock.fill",
-                        color: Color(hex: "0891B2")
+                        color: Pulse.recovery
                     )
                     shareStatBox(
                         value: currentStreak > 0 ? "\(currentStreak) weeks" : "—",
                         label: "Training streak",
                         icon: "flame.fill",
-                        color: Color(hex: "DC2626")
+                        color: Pulse.critical
                     )
                 }
             }
@@ -295,7 +295,7 @@ struct WeeklySummaryShareCard: View {
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                 Text(label)
                     .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             Spacer()
         }

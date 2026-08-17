@@ -151,27 +151,27 @@ struct ProgressTabView: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "8B5CF6").opacity(0.15))
+                        .fill(Pulse.ai.opacity(0.15))
                         .frame(width: 40, height: 40)
                     Image(systemName: "ruler.fill")
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Body Tracking")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Text("Measurements & progress photos")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -311,18 +311,18 @@ struct ProgressCollapsible<Content: View>: View {
                         .clipShape(RoundedRectangle(cornerRadius: 7))
                     Text(title)
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
 
             if isExpanded {
                 content()
@@ -340,7 +340,7 @@ struct BodySignalsCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "waveform.path.ecg.rectangle")
-                    .foregroundColor(Color(hex: "0891B2"))
+                    .foregroundColor(Pulse.recovery)
                 Text("Body signals today")
                     .font(.subheadline.weight(.bold))
                 Spacer()
@@ -353,13 +353,13 @@ struct BodySignalsCard: View {
                         .padding(.top, 1)
                     Text(insight.text)
                         .font(.caption)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
             Text("Based on today's heart rate against logged meals and water — patterns worth noticing, not a diagnosis.")
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .padding(.top, 2)
         }
         .payaCard(padding: 14)
@@ -381,14 +381,14 @@ struct ProgressStatsRow: View {
                 value: "\(vm.totalSessionCount)",
                 label: "Total Sessions",
                 icon: "dumbbell.fill",
-                color: Color(hex: "2563EB"),
+                color: Pulse.hydration,
                 action: { onSelectSection(.consistency) }
             )
             ProgressStatChip(
                 value: "\(vm.currentStreak)",
                 label: "Week Streak",
                 icon: "flame.fill",
-                color: Color(hex: "B45309"),
+                color: Pulse.warning,
                 action: { onSelectSection(.consistency) }
             )
             ProgressStatChip(
@@ -398,8 +398,8 @@ struct ProgressStatsRow: View {
                 label: useLbs ? "lbs Change" : "kg Change",
                 icon: "arrow.up.arrow.down",
                 color: vm.totalWeightChange <= 0
-                    ? Color(hex: "059669")
-                    : Color(hex: "B45309"),
+                    ? Pulse.positive
+                    : Pulse.warning,
                 action: { onSelectSection(.body) }
             )
         }
@@ -423,10 +423,10 @@ struct ProgressStatChip: View {
                     .font(.system(size: 16, weight: .bold))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                 Text(label)
                     .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
@@ -434,7 +434,7 @@ struct ProgressStatChip: View {
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -459,20 +459,20 @@ struct ProgressWeightChart: View {
                             Text(String(format: "%.1f %@ now",
                                         convert(vm.weightLogs.last?.weightKg ?? 0), unit))
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text(String(format: "%+.1f %@ total",
                                         convert(vm.totalWeightChange), unit))
                                 .font(.caption.weight(.semibold))
                                 .foregroundColor(vm.totalWeightChange <= 0
-                                    ? Color(hex: "059669")
-                                    : Color(hex: "B45309"))
+                                    ? Pulse.positive
+                                    : Pulse.warning)
                         }
                     }
                 }
                 Spacer()
                 Text("Last 30 entries")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if vm.last30Weights.isEmpty {
@@ -486,7 +486,7 @@ struct ProgressWeightChart: View {
                         x: .value("Date", entry.date),
                         y: .value("Weight", convert(entry.weightKg))
                     )
-                    .foregroundStyle(Color(hex: "2563EB"))
+                    .foregroundStyle(Pulse.hydration)
                     .interpolationMethod(.catmullRom)
 
                     AreaMark(
@@ -496,8 +496,8 @@ struct ProgressWeightChart: View {
                     .foregroundStyle(
                         LinearGradient(
                             colors: [
-                                Color(hex: "2563EB").opacity(0.2),
-                                Color(hex: "2563EB").opacity(0.0)
+                                Pulse.hydration.opacity(0.2),
+                                Pulse.hydration.opacity(0.0)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -509,7 +509,7 @@ struct ProgressWeightChart: View {
                         x: .value("Date", entry.date),
                         y: .value("Weight", convert(entry.weightKg))
                     )
-                    .foregroundStyle(Color(hex: "2563EB"))
+                    .foregroundStyle(Pulse.hydration)
                     .symbolSize(16)
                 }
                 .frame(height: 85)
@@ -535,15 +535,15 @@ struct ProgressWeightChart: View {
                           ? "arrow.down.circle.fill"
                           : "arrow.up.circle.fill")
                         .foregroundColor(vm.weeklyWeightChange <= 0
-                            ? Color(hex: "059669")
-                            : Color(hex: "B45309"))
+                            ? Pulse.positive
+                            : Pulse.warning)
                         .font(.caption)
                     Text(String(format: "%+.2f %@ this week",
                                 convert(vm.weeklyWeightChange), unit))
                         .font(.caption.weight(.semibold))
                         .foregroundColor(vm.weeklyWeightChange <= 0
-                            ? Color(hex: "059669")
-                            : Color(hex: "B45309"))
+                            ? Pulse.positive
+                            : Pulse.warning)
                     Spacer()
                 }
             }
@@ -552,10 +552,10 @@ struct ProgressWeightChart: View {
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "arrow.up.right.circle")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("If this pace continues: ~\(String(format: "%.1f", convert(projection.projectedIn4Weeks)))\(unit) in 4 weeks, ~\(String(format: "%.1f", convert(projection.projectedIn8Weeks)))\(unit) in 8. A straight-line estimate, not a guarantee.")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.top, 2)
@@ -593,7 +593,7 @@ struct WeeklyVolumeChart: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color(hex: "2563EB"),
+                            colors: [Pulse.hydration,
                                      Color(hex: "7c3aed")],
                             startPoint: .bottom,
                             endPoint: .top
@@ -621,12 +621,12 @@ struct WeeklyVolumeChart: View {
                     HStack(spacing: 6) {
                         Image(systemName: "dumbbell.fill")
                             .font(.caption)
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text(String(format: "%.0f %@ this week · %d sessions",
                                     vol, unit,
                                     latest.sessionCount))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
             }
@@ -643,7 +643,7 @@ struct ProgressSectionHeader: View {
     var body: some View {
         Text(title)
             .font(.caption.weight(.bold))
-            .foregroundColor(.secondary)
+            .foregroundColor(Pulse.textTertiary)
             .textCase(.uppercase)
             .padding(.horizontal, 2)
             .padding(.top, 4)
@@ -663,7 +663,7 @@ struct EmptyChartPlaceholder: View {
                 .foregroundColor(.secondary.opacity(0.3))
             Text(message)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)

@@ -44,16 +44,16 @@ struct DailyActionCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "checklist")
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("Today's game plan")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(actions.count) actions")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "2563EB").opacity(0.1))
+                            .background(Pulse.hydration.opacity(0.1))
                             .clipShape(Capsule())
                     }
 
@@ -72,7 +72,7 @@ struct DailyActionCard: View {
                                 Image(systemName: expanded ? "chevron.up" : "chevron.down")
                                     .font(.system(size: 8, weight: .bold))
                             }
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                             .frame(maxWidth: .infinity)
                         }
                     }
@@ -101,10 +101,10 @@ struct DailyActionCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(action.title)
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                 Text(action.detail)
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -146,7 +146,7 @@ struct DailyActionCard: View {
                     icon: "moon.fill",
                     title: "Low sleep — adjust intensity",
                     detail: String(format: "You logged %.1fh sleep. Drop training volume ~20%% or switch to light cardio. Knowles et al. (2018): <6h sleep reduces strength output 10-15%%.", sleep),
-                    color: Color(hex: "DC2626"),
+                    color: Pulse.critical,
                     priority: 1,
                     domain: "recovery"
                 ))
@@ -155,7 +155,7 @@ struct DailyActionCard: View {
                     icon: "moon.stars.fill",
                     title: "Great sleep — push harder today",
                     detail: String(format: "%.1fh of sleep is above optimal. Your recovery is primed for a high-intensity session.", sleep),
-                    color: Color(hex: "059669"),
+                    color: Pulse.positive,
                     priority: 5,
                     domain: "recovery"
                 ))
@@ -175,7 +175,7 @@ struct DailyActionCard: View {
                     icon: "fork.knife",
                     title: "Front-load protein today",
                     detail: String(format: "You missed %.0fg protein yesterday. Start with a high-protein breakfast (eggs + Greek yogurt = ~40g) to stay on track today.", deficit),
-                    color: Color(hex: "2563EB"),
+                    color: Pulse.hydration,
                     priority: 2,
                     domain: "nutrition"
                 ))
@@ -189,7 +189,7 @@ struct DailyActionCard: View {
                 icon: "dumbbell.fill",
                 title: "Training day",
                 detail: "Your session is planned for today. Warm up properly — 5 min light cardio + dynamic stretches for the target muscles.",
-                color: Color(hex: "8B5CF6"),
+                color: Pulse.ai,
                 priority: 3,
                 domain: "training"
             ))
@@ -198,7 +198,7 @@ struct DailyActionCard: View {
                 icon: "figure.walk",
                 title: "Active recovery day",
                 detail: "Rest day — but don't be sedentary. A 20-30 min walk and 10 min mobility work speeds recovery more than sitting.",
-                color: Color(hex: "059669"),
+                color: Pulse.positive,
                 priority: 4,
                 domain: "recovery"
             ))
@@ -231,7 +231,7 @@ struct DailyActionCard: View {
                 icon: "exclamationmark.triangle.fill",
                 title: "Watch for overreaching",
                 detail: "\(consecutiveDays) consecutive training days. If RPE feels >8 today, cut 1-2 sets per exercise to avoid overtraining. Consider a rest day tomorrow.",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 priority: 2,
                 domain: "training"
             ))
@@ -251,7 +251,7 @@ struct DailyActionCard: View {
                 icon: "battery.25percent",
                 title: "Consider a deload",
                 detail: "Your fatigue index is \(fatigueEstimate)/100. A deload week (50-60% of normal volume) would help recovery without losing progress.",
-                color: Color(hex: "DC2626"),
+                color: Pulse.critical,
                 priority: 1,
                 domain: "training"
             ))
@@ -275,7 +275,7 @@ struct DailyActionCard: View {
                         icon: "scalemass.fill",
                         title: "Weight dropping fast",
                         detail: String(format: "%.1f kg lost this week — aim for 0.5-1%% bodyweight/week to preserve muscle. Consider adding 200 cal today.", weeklyLoss),
-                        color: Color(hex: "F59E0B"),
+                        color: Pulse.nutrition,
                         priority: 3,
                         domain: "nutrition"
                     ))
@@ -289,7 +289,7 @@ struct DailyActionCard: View {
                 icon: "bolt.slash.fill",
                 title: "Low energy yesterday",
                 detail: "You reported low energy. Check hydration (aim 2-3L), eat within 1h of waking, and consider 200mg caffeine 30 min pre-workout if training today.",
-                color: Color(hex: "F59E0B"),
+                color: Pulse.nutrition,
                 priority: 3,
                 domain: "health"
             ))

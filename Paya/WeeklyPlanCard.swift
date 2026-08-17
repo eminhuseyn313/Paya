@@ -23,16 +23,16 @@ struct WeeklyPlanCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "calendar.badge.clock")
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("This week")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("auto-planned")
                             .font(.system(size: 8, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(Capsule())
                     }
 
@@ -66,7 +66,7 @@ struct WeeklyPlanCard: View {
                                 if plan.isCompleted {
                                     Image(systemName: "checkmark.circle.fill")
                                         .font(.system(size: 10))
-                                        .foregroundColor(Color(hex: "059669"))
+                                        .foregroundColor(Pulse.positive)
                                 } else {
                                     Color.clear.frame(height: 10)
                                 }
@@ -89,23 +89,23 @@ struct WeeklyPlanCard: View {
                         let completed = dayPlans.filter { $0.isCompleted }.count
 
                         HStack(spacing: 4) {
-                            Circle().fill(Color(hex: "2563EB")).frame(width: 6, height: 6)
+                            Circle().fill(Pulse.hydration).frame(width: 6, height: 6)
                             Text("\(trainingDays) training")
                                 .font(.system(size: 9, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 4) {
-                            Circle().fill(Color(.tertiarySystemBackground)).frame(width: 6, height: 6)
+                            Circle().fill(Pulse.surfaceElevatedFallback).frame(width: 6, height: 6)
                             Text("\(restDays) rest")
                                 .font(.system(size: 9, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         if completed > 0 {
                             HStack(spacing: 4) {
-                                Circle().fill(Color(hex: "059669")).frame(width: 6, height: 6)
+                                Circle().fill(Pulse.positive).frame(width: 6, height: 6)
                                 Text("\(completed) done")
                                     .font(.system(size: 9, weight: .semibold))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             }
                         }
                     }
@@ -169,10 +169,10 @@ struct WeeklyPlanCard: View {
                     icon: "dumbbell.fill",
                     shortLabel: assigned.code,
                     backgroundColor: isCompleted
-                        ? Color(hex: "059669").opacity(0.1)
+                        ? Pulse.positive.opacity(0.1)
                         : assigned.color.opacity(0.1),
                     iconColor: isCompleted
-                        ? Color(hex: "059669")
+                        ? Pulse.positive
                         : assigned.color,
                     todayColor: assigned.color
                 ))
@@ -184,7 +184,7 @@ struct WeeklyPlanCard: View {
                     isCompleted: false,
                     icon: "bed.double.fill",
                     shortLabel: "Rest",
-                    backgroundColor: Color(.tertiarySystemBackground),
+                    backgroundColor: Pulse.surfaceElevatedFallback,
                     iconColor: .secondary.opacity(0.5),
                     todayColor: .secondary
                 ))

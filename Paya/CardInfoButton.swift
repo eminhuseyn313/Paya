@@ -20,16 +20,16 @@ struct CardInfoButton: View {
         } label: {
             Image(systemName: "info.circle")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .popover(isPresented: $showing) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(title)
                     .font(.subheadline.weight(.bold))
                 Text(explanation)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(16)

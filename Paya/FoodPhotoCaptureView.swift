@@ -71,10 +71,10 @@ struct FoodPhotoEstimateView: View {
                     VStack(spacing: 10) {
                         Image(systemName: "key.slash")
                             .font(.system(size: 32))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("Add a free Gemini API key in Settings to use this.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 40)
@@ -91,7 +91,7 @@ struct FoodPhotoEstimateView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "text.bubble")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             TextField("Add context (e.g. 'large serving', 'just the chicken')", text: $photoComment)
                                 .font(.subheadline)
                                 .textFieldStyle(.roundedBorder)
@@ -101,7 +101,7 @@ struct FoodPhotoEstimateView: View {
                                 } label: {
                                     Text("Re-scan")
                                         .font(.caption.weight(.semibold))
-                                        .foregroundColor(Color(hex: "059669"))
+                                        .foregroundColor(Pulse.positive)
                                 }
                             }
                         }
@@ -117,7 +117,7 @@ struct FoodPhotoEstimateView: View {
                     } else if let errorText {
                         Text(errorText)
                             .font(.caption)
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 16)
                     }
@@ -170,7 +170,7 @@ struct FoodPhotoEstimateView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("My portion")
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             HStack(spacing: 8) {
                 ForEach([0.5, 1.0, 2.0, 3.0], id: \.self) { p in
                     Button {
@@ -180,7 +180,7 @@ struct FoodPhotoEstimateView: View {
                             .font(.system(size: 13, weight: .semibold))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(portionCount == p ? Color(hex: "059669") : Color(.tertiarySystemGroupedBackground))
+                            .background(portionCount == p ? Pulse.positive : Color(.tertiarySystemGroupedBackground))
                             .foregroundColor(portionCount == p ? .white : .primary)
                             .clipShape(Capsule())
                     }
@@ -189,7 +189,7 @@ struct FoodPhotoEstimateView: View {
             if portionCount != 1.0 {
                 Text(portionCount < 1 ? "Logging half the plate" : "Plate shared \(Int(portionCount)) ways — logging your portion")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .padding(.horizontal, 16)
@@ -211,25 +211,25 @@ struct FoodPhotoEstimateView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(Int(adjProtein))g")
                         .font(.title3.bold())
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                     Text("protein")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(Int(adjCalories))")
                         .font(.title3.bold())
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.warning)
                     Text("kcal")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
             MicronutrientChips(estimate: estimate, portionFraction: frac)
             if !estimate.confidence.isEmpty {
                 Text(estimate.confidence)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -250,7 +250,7 @@ struct FoodPhotoEstimateView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "059669"))
+                    .background(Pulse.positive)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }

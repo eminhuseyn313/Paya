@@ -38,7 +38,7 @@ struct TrainingConsistencyBanner: View {
                         }
                         Text("week streak")
                             .font(.system(size: 7, weight: .semibold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
@@ -48,14 +48,14 @@ struct TrainingConsistencyBanner: View {
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                             Text("adherence · 8 weeks")
                                 .font(.system(size: 10))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
 
                         // Week dots (last 8 weeks)
                         HStack(spacing: 3) {
                             ForEach(0..<weekDots.count, id: \.self) { i in
                                 Circle()
-                                    .fill(weekDots[i] ? Color(hex: "059669") : Color(hex: "DC2626").opacity(0.3))
+                                    .fill(weekDots[i] ? Pulse.positive : Pulse.critical.opacity(0.3))
                                     .frame(width: 8, height: 8)
                             }
                         }
@@ -63,7 +63,7 @@ struct TrainingConsistencyBanner: View {
                         if longestStreak > currentStreak {
                             Text("Best: \(longestStreak) weeks")
                                 .font(.system(size: 8, weight: .semibold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
@@ -76,9 +76,9 @@ struct TrainingConsistencyBanner: View {
     }
 
     private var streakColor: Color {
-        if currentStreak >= 8 { return Color(hex: "059669") }
-        if currentStreak >= 4 { return Color(hex: "F59E0B") }
-        return Color(hex: "DC2626")
+        if currentStreak >= 8 { return Pulse.positive }
+        if currentStreak >= 4 { return Pulse.nutrition }
+        return Pulse.critical
     }
 
     private func compute() {

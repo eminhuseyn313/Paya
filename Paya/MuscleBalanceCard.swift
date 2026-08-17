@@ -12,7 +12,7 @@ struct MuscleBalanceCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "scalemass.fill")
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                         Text("Muscle Balance")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -22,7 +22,7 @@ struct MuscleBalanceCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
-                                .background(Color(hex: "DC2626"))
+                                .background(Pulse.critical)
                                 .clipShape(Capsule())
                         }
                     }
@@ -32,11 +32,11 @@ struct MuscleBalanceCard: View {
                             HStack {
                                 Text(pair.pushGroup)
                                     .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                 Spacer()
                                 Text(pair.pullGroup)
                                     .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                             }
 
                             GeometryReader { geo in
@@ -48,7 +48,7 @@ struct MuscleBalanceCard: View {
                                     HStack(spacing: 0) {
                                         Spacer()
                                         RoundedRectangle(cornerRadius: 3)
-                                            .fill(Color(hex: "2563EB"))
+                                            .fill(Pulse.hydration)
                                             .frame(width: pushWidth, height: 8)
                                     }
                                     .frame(width: midX - 2)
@@ -56,7 +56,7 @@ struct MuscleBalanceCard: View {
 
                                     HStack(spacing: 0) {
                                         RoundedRectangle(cornerRadius: 3)
-                                            .fill(Color(hex: "059669"))
+                                            .fill(Pulse.positive)
                                             .frame(width: pullWidth, height: 8)
                                         Spacer()
                                     }
@@ -73,7 +73,7 @@ struct MuscleBalanceCard: View {
                             HStack {
                                 Text(String(format: "%.0f sets", pair.pushSets))
                                     .font(.system(size: 9))
-                                    .foregroundColor(Color(hex: "2563EB"))
+                                    .foregroundColor(Pulse.hydration)
                                 Spacer()
                                 Text(ratioLabel(pair.ratio))
                                     .font(.system(size: 9, weight: .bold))
@@ -81,14 +81,14 @@ struct MuscleBalanceCard: View {
                                 Spacer()
                                 Text(String(format: "%.0f sets", pair.pullSets))
                                     .font(.system(size: 9))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             }
                         }
                     }
 
                     Text("Push:Pull set ratio over last 4 weeks. Aim for 0.8–1.2 to prevent imbalances.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
@@ -103,8 +103,8 @@ struct MuscleBalanceCard: View {
     }
 
     private func ratioColor(_ ratio: Double) -> Color {
-        if ratio >= 0.8 && ratio <= 1.2 { return Color(hex: "059669") }
-        return Color(hex: "F59E0B")
+        if ratio >= 0.8 && ratio <= 1.2 { return Pulse.positive }
+        return Pulse.nutrition
     }
 
     private func compute() {

@@ -10,10 +10,17 @@ struct ExerciseDetailView: View {
     let exercise: Exercise
 
     @State private var currentImageIndex: Int = 0
+    @State private var hasAppeared = false
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ZStack {
+                Pulse.canvasFallback.ignoresSafeArea()
+                BreathingOrb(color: Pulse.hydration, size: 200)
+                    .offset(y: -300)
+                    .opacity(0.25)
+
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
 
                     // Image carousel
@@ -26,7 +33,8 @@ struct ExerciseDetailView: View {
                     // Header info
                     VStack(alignment: .leading, spacing: 8) {
                         Text(exercise.name)
-                            .font(.title3.bold())
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
 
                         HStack(spacing: 6) {
                             LevelBadge(level: exercise.level)
@@ -35,8 +43,8 @@ struct ExerciseDetailView: View {
                                     .font(.system(size: 10, weight: .semibold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(Color(hex: "2563EB").opacity(0.12))
-                                    .foregroundColor(Color(hex: "2563EB"))
+                                    .background(Pulse.hydration.opacity(0.12))
+                                    .foregroundColor(Pulse.hydration)
                                     .clipShape(Capsule())
                             }
                             if let mechanic = exercise.mechanic {
@@ -44,8 +52,8 @@ struct ExerciseDetailView: View {
                                     .font(.system(size: 10, weight: .semibold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(Color(hex: "059669").opacity(0.12))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .background(Pulse.positive.opacity(0.12))
+                                    .foregroundColor(Pulse.positive)
                                     .clipShape(Capsule())
                             }
                             if let force = exercise.force {
@@ -53,8 +61,8 @@ struct ExerciseDetailView: View {
                                     .font(.system(size: 10, weight: .semibold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(Color(hex: "B45309").opacity(0.12))
-                                    .foregroundColor(Color(hex: "B45309"))
+                                    .background(Pulse.warning.opacity(0.12))
+                                    .foregroundColor(Pulse.warning)
                                     .clipShape(Capsule())
                             }
                         }
@@ -73,14 +81,14 @@ struct ExerciseDetailView: View {
                                 HStack(alignment: .top, spacing: 6) {
                                     Text("PRIMARY")
                                         .font(.system(size: 9, weight: .bold))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 62, alignment: .leading)
                                     ForEach(Array(Set(exercise.primaryMuscles)).sorted(), id: \.self) { m in                                        Text(m.capitalized)
                                             .font(.caption.weight(.bold))
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 3)
-                                            .background(Color(hex: "DC2626").opacity(0.15))
-                                            .foregroundColor(Color(hex: "DC2626"))
+                                            .background(Pulse.critical.opacity(0.15))
+                                            .foregroundColor(Pulse.critical)
                                             .clipShape(Capsule())
                                     }
                                     Spacer()
@@ -90,15 +98,15 @@ struct ExerciseDetailView: View {
                                 HStack(alignment: .top, spacing: 6) {
                                     Text("SECONDARY")
                                         .font(.system(size: 9, weight: .bold))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 62, alignment: .leading)
                                     ForEach(exercise.secondaryMuscles, id: \.self) { m in
                                         Text(m.capitalized)
                                             .font(.caption.weight(.semibold))
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 3)
-                                            .background(Color(.tertiarySystemBackground))
-                                            .foregroundColor(.primary)
+                                            .background(Pulse.surfaceElevatedFallback)
+                                            .foregroundColor(Pulse.textPrimary)
                                             .clipShape(Capsule())
                                     }
                                     Spacer()
@@ -108,7 +116,7 @@ struct ExerciseDetailView: View {
                                 HStack(alignment: .top, spacing: 6) {
                                     Text("EQUIPMENT")
                                         .font(.system(size: 9, weight: .bold))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 62, alignment: .leading)
                                     HStack(spacing: 4) {
                                         Image(systemName: "dumbbell")
@@ -118,8 +126,8 @@ struct ExerciseDetailView: View {
                                     }
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(Color(hex: "2563EB").opacity(0.12))
-                                    .foregroundColor(Color(hex: "2563EB"))
+                                    .background(Pulse.hydration.opacity(0.12))
+                                    .foregroundColor(Pulse.hydration)
                                     .clipShape(Capsule())
                                     Spacer()
                                 }
@@ -142,19 +150,31 @@ struct ExerciseDetailView: View {
                         .padding(.horizontal, 16)
                     }
 
-                    Spacer().frame(height: 20)
+                    Spacer().frame(height: 30)
                 }
                 .padding(.top, 8)
+                .opacity(hasAppeared ? 1 : 0)
+                .offset(y: hasAppeared ? 0 : 12)
+            }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(exercise.name)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                        .lineLimit(1)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .fontWeight(.semibold)
+                        .foregroundColor(Pulse.textSecondary)
                 }
             }
         }
         .presentationDetents([.large])
+        .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { hasAppeared = true } }
     }
 }
 
@@ -170,7 +190,7 @@ struct ExerciseImageCarousel: View {
             if let localAssetName {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.tertiarySystemBackground))
+                        .fill(Pulse.surfaceElevatedFallback)
                         .aspectRatio(1.4, contentMode: .fit)
                     Image(localAssetName)
                         .resizable()
@@ -180,15 +200,15 @@ struct ExerciseImageCarousel: View {
                 .padding(.horizontal, 16)
                 Text("Original illustration — this exercise predates the photo library")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else if urls.isEmpty {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.tertiarySystemBackground))
+                        .fill(Pulse.surfaceElevatedFallback)
                         .aspectRatio(1.4, contentMode: .fit)
                     Image(systemName: "photo.on.rectangle")
                         .font(.system(size: 40))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.horizontal, 16)
             } else {
@@ -199,7 +219,7 @@ struct ExerciseImageCarousel: View {
                                                     contentMode: .fit,
                                                     targetSize: CGSize(width: 600, height: 400)
                                                 )
-                                                .background(Color(.tertiarySystemBackground))
+                                                .background(Pulse.surfaceElevatedFallback)
                                                 .clipShape(RoundedRectangle(cornerRadius: 16))
                                                 .tag(index)
                     }
@@ -212,7 +232,7 @@ struct ExerciseImageCarousel: View {
                 if urls.count > 1 {
                     Text(currentIndex == 0 ? "Start position" : "End position")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }
@@ -229,15 +249,15 @@ struct InstructionStep: View {
         HStack(alignment: .top, spacing: 10) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: "2563EB").opacity(0.15))
+                    .fill(Pulse.hydration.opacity(0.15))
                     .frame(width: 24, height: 24)
                 Text("\(number)")
                     .font(.caption.weight(.bold))
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
             }
             Text(text)
                 .font(.subheadline)
-                .foregroundColor(.primary)
+                .foregroundColor(Pulse.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }

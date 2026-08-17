@@ -46,11 +46,11 @@ struct PeriodizationCard: View {
                             VStack(spacing: 4) {
                                 Text(week.label)
                                     .font(.system(size: 7, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
 
                                 ZStack(alignment: .bottom) {
                                     RoundedRectangle(cornerRadius: 3)
-                                        .fill(Color(.tertiarySystemBackground))
+                                        .fill(Pulse.surfaceElevatedFallback)
                                         .frame(height: 40)
 
                                     RoundedRectangle(cornerRadius: 3)
@@ -65,13 +65,13 @@ struct PeriodizationCard: View {
 
                                 ZStack(alignment: .bottom) {
                                     RoundedRectangle(cornerRadius: 3)
-                                        .fill(Color(.tertiarySystemBackground))
+                                        .fill(Pulse.surfaceElevatedFallback)
                                         .frame(height: 40)
 
                                     RoundedRectangle(cornerRadius: 3)
                                         .fill(
                                             LinearGradient(
-                                                colors: [Color(hex: "F59E0B").opacity(0.6), Color(hex: "F59E0B").opacity(0.2)],
+                                                colors: [Pulse.nutrition.opacity(0.6), Pulse.nutrition.opacity(0.2)],
                                                 startPoint: .bottom, endPoint: .top
                                             )
                                         )
@@ -85,11 +85,11 @@ struct PeriodizationCard: View {
                     HStack(spacing: 12) {
                         HStack(spacing: 3) {
                             Circle().fill(phase.color).frame(width: 5, height: 5)
-                            Text("Volume").font(.system(size: 8)).foregroundColor(.secondary)
+                            Text("Volume").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 3) {
-                            Circle().fill(Color(hex: "F59E0B")).frame(width: 5, height: 5)
-                            Text("Intensity").font(.system(size: 8)).foregroundColor(.secondary)
+                            Circle().fill(Pulse.nutrition).frame(width: 5, height: 5)
+                            Text("Intensity").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
                         }
                     }
 
@@ -101,7 +101,7 @@ struct PeriodizationCard: View {
                                 .padding(.top, 1)
                             Text(recommendation)
                                 .font(.system(size: 10))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -228,11 +228,11 @@ private enum TrainingPhase {
 
     var color: Color {
         switch self {
-        case .accumulation: return Color(hex: "2563EB")
-        case .intensification: return Color(hex: "F59E0B")
-        case .peaking: return Color(hex: "8B5CF6")
-        case .deload: return Color(hex: "059669")
-        case .general: return Color(hex: "0891B2")
+        case .accumulation: return Pulse.hydration
+        case .intensification: return Pulse.nutrition
+        case .peaking: return Pulse.ai
+        case .deload: return Pulse.positive
+        case .general: return Pulse.recovery
         }
     }
 }

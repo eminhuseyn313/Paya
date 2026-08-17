@@ -36,10 +36,10 @@ struct SupplementsManagerView: View {
                             Text("Add supplement")
                                 .font(.subheadline.weight(.semibold))
                         }
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(Color(hex: "2563EB").opacity(0.1))
+                        .background(Pulse.hydration.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
@@ -84,7 +84,7 @@ struct SupplementEditRow: View {
 
                 Toggle("", isOn: $supplement.isActive)
                     .labelsHidden()
-                    .tint(Color(hex: "059669"))
+                    .tint(Pulse.positive)
                     .onChange(of: supplement.isActive) { _, _ in onChanged() }
 
                 Button(action: onDelete) {
@@ -100,13 +100,13 @@ struct SupplementEditRow: View {
                 TextField("Dose (e.g. 5g)", text: $supplement.dose)
                     .font(.caption)
                     .padding(8)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .onChange(of: supplement.dose) { _, _ in onChanged() }
                 TextField("Timing (e.g. Morning)", text: $supplement.timing)
                     .font(.caption)
                     .padding(8)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .onChange(of: supplement.timing) { _, _ in onChanged() }
             }

@@ -56,11 +56,11 @@ struct DrinkManagementView: View {
         VStack(spacing: 14) {
             ZStack {
                 Circle()
-                    .stroke(Color(hex: "0891B2").opacity(0.12), lineWidth: 12)
+                    .stroke(Pulse.recovery.opacity(0.12), lineWidth: 12)
                     .frame(width: 120, height: 120)
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(Color(hex: "0891B2"), style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                    .stroke(Pulse.recovery, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                     .frame(width: 120, height: 120)
                     .rotationEffect(.degrees(-90))
                     .animation(.spring(response: 0.5), value: progress)
@@ -68,27 +68,27 @@ struct DrinkManagementView: View {
                     HeroNumberText(
                         value: String(format: "%.1f", Double(waterMl) / 1000.0),
                         size: 28,
-                        color: Color(hex: "0891B2")
+                        color: Pulse.recovery
                     )
                     Text("of \(targetL)")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
             if progress >= 1.0 {
                 HStack(spacing: 4) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                     Text("Daily target reached")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                 }
             } else {
                 let remaining = max(0, WaterStore.dailyTargetMl - waterMl)
                 Text("\(remaining)ml remaining")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .frame(maxWidth: .infinity)
@@ -103,7 +103,7 @@ struct DrinkManagementView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("ADD DRINK")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             // Drink type selector — scrollable grid
             ScrollView(.horizontal, showsIndicators: false) {
@@ -119,7 +119,7 @@ struct DrinkManagementView: View {
                                     Circle()
                                         .fill(selectedDrink == type
                                               ? Color(hex: type.colorHex).opacity(0.18)
-                                              : Color(.tertiarySystemBackground))
+                                              : Pulse.surfaceElevatedFallback)
                                         .frame(width: 44, height: 44)
                                     Image(systemName: type.icon)
                                         .font(.system(size: 15))
@@ -132,7 +132,7 @@ struct DrinkManagementView: View {
                             }
                             .frame(width: 56)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
                 .padding(.horizontal, 2)
@@ -153,7 +153,7 @@ struct DrinkManagementView: View {
                             .background(drinkColor.opacity(0.08))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
             }
 
@@ -163,7 +163,7 @@ struct DrinkManagementView: View {
                     .keyboardType(.numberPad)
                     .font(.subheadline)
                     .padding(10)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Button {
@@ -176,7 +176,7 @@ struct DrinkManagementView: View {
                         .font(.title2)
                         .foregroundColor(drinkColor)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
                 .disabled(Int(customMl) == nil || Int(customMl)! <= 0)
             }
         }
@@ -201,7 +201,7 @@ struct DrinkManagementView: View {
                 Spacer()
                 Text("per 250ml")
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             LazyVGrid(columns: cols, spacing: 6) {
@@ -214,7 +214,7 @@ struct DrinkManagementView: View {
                             .font(.system(size: 10, weight: .bold).monospacedDigit())
                         Text(comp.label)
                             .font(.system(size: 8, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .lineLimit(1)
                     }
                     .frame(maxWidth: .infinity)
@@ -238,7 +238,7 @@ struct DrinkManagementView: View {
                     HStack {
                         Text("TODAY'S DRINK INTAKE")
                             .font(.caption.weight(.bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Spacer()
                     }
 
@@ -275,17 +275,17 @@ struct DrinkManagementView: View {
                     if caffeineMg > 400 {
                         Text("FDA considers 400mg/day a safe upper bound for most healthy adults. Consider cutting back, especially after 2pm.")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                     } else if caffeineMg > 200 {
                         Text("Moderate intake. Avoid caffeine 6+ hours before bed — Gardiner et al. (J Clin Sleep Med 2023) found it measurably shortens deep sleep even at this level.")
                             .font(.system(size: 10))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     if drinkSugar > 50 {
                         Text("WHO recommends keeping added sugar under 25g/day. Your drink sugar alone is \(Int(drinkSugar))g — consider switching to water or unsweetened alternatives.")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                     }
                 }
                 .payaCard(padding: 14)
@@ -307,7 +307,7 @@ struct DrinkManagementView: View {
                 .font(.system(size: 14, weight: .bold).monospacedDigit())
             Text(label)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             if let badge {
                 Text(badge)
                     .font(.system(size: 8, weight: .bold))
@@ -350,17 +350,17 @@ struct DrinkManagementView: View {
             HStack {
                 Text("TODAY'S LOG")
                     .font(.caption.weight(.bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Spacer()
                 Text("\(todayEvents.count) entries")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if todayEvents.isEmpty {
                 Text("No drinks logged yet today")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 16)
             } else {
@@ -384,16 +384,16 @@ struct DrinkManagementView: View {
                                 if type.caffeineMgPer250ml > 0 {
                                     let caffMg = Int(Double(event.ml) / 250.0 * type.caffeineMgPer250ml)
                                     Text("\(caffMg)mg caff")
-                                        .foregroundColor(Color(hex: "B45309"))
+                                        .foregroundColor(Pulse.warning)
                                 }
                                 if type.sugarGPer250ml > 0 {
                                     let sugarG = Int(Double(event.ml) / 250.0 * type.sugarGPer250ml)
                                     Text("\(sugarG)g sugar")
-                                        .foregroundColor(Color(hex: "F59E0B"))
+                                        .foregroundColor(Pulse.nutrition)
                                 }
                             }
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                         Text("\(event.ml)ml")
@@ -413,12 +413,12 @@ struct DrinkManagementView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("THIS WEEK")
                 .font(.caption.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             if weekData.isEmpty {
                 Text("No data yet")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 16)
             } else {
@@ -429,8 +429,8 @@ struct DrinkManagementView: View {
                     )
                     .foregroundStyle(
                         day.ml >= WaterStore.dailyTargetMl
-                            ? Color(hex: "059669").opacity(0.7)
-                            : Color(hex: "0891B2").opacity(0.6)
+                            ? Pulse.positive.opacity(0.7)
+                            : Pulse.recovery.opacity(0.6)
                     )
                     .cornerRadius(4)
 
@@ -463,7 +463,7 @@ struct DrinkManagementView: View {
     private func legendDot(_ label: String, color: String) -> some View {
         HStack(spacing: 4) {
             Circle().fill(Color(hex: color)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 9)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
         }
     }
 

@@ -17,7 +17,7 @@ struct EstimatedOneRMCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "trophy.fill")
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                         Text("Estimated 1RM Tracker")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -34,14 +34,14 @@ struct EstimatedOneRMCard: View {
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 5)
                                         .background(selectedIndex == i
-                                            ? Color(hex: "F59E0B").opacity(0.2)
-                                            : Color(.tertiarySystemBackground))
+                                            ? Pulse.nutrition.opacity(0.2)
+                                            : Pulse.surfaceElevatedFallback)
                                         .foregroundColor(selectedIndex == i
-                                            ? Color(hex: "F59E0B")
+                                            ? Pulse.nutrition
                                             : .secondary)
                                         .clipShape(Capsule())
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(PulsePress())
                             }
                         }
                     }
@@ -56,7 +56,7 @@ struct EstimatedOneRMCard: View {
                                     .font(.system(size: 22, weight: .bold, design: .rounded))
                                 Text(useLbs ? "lbs" : "kg")
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
 
                             if let change = ex.changePercent {
@@ -67,10 +67,10 @@ struct EstimatedOneRMCard: View {
                                         Text(String(format: "%+.1f%%", change))
                                             .font(.system(size: 12, weight: .bold, design: .rounded))
                                     }
-                                    .foregroundColor(change >= 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                                    .foregroundColor(change >= 0 ? Pulse.positive : Pulse.critical)
                                     Text("trend")
                                         .font(.system(size: 9))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                             }
 
@@ -79,12 +79,12 @@ struct EstimatedOneRMCard: View {
                             VStack(alignment: .trailing, spacing: 2) {
                                 Text("\(ex.dataPoints.count) sessions")
                                     .font(.system(size: 10))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 if let best = ex.allTimeBest {
                                     let bestDisplay = useLbs ? best * 2.20462 : best
                                     Text(String(format: "Best: %.0f %@", bestDisplay, useLbs ? "lbs" : "kg"))
                                         .font(.system(size: 10, weight: .semibold))
-                                        .foregroundColor(Color(hex: "F59E0B"))
+                                        .foregroundColor(Pulse.nutrition)
                                 }
                             }
                         }
@@ -95,7 +95,7 @@ struct EstimatedOneRMCard: View {
                                     x: .value("Date", point.date),
                                     y: .value("e1RM", useLbs ? point.e1rm * 2.20462 : point.e1rm)
                                 )
-                                .foregroundStyle(Color(hex: "F59E0B"))
+                                .foregroundStyle(Pulse.nutrition)
                                 .interpolationMethod(.catmullRom)
 
                                 AreaMark(
@@ -104,7 +104,7 @@ struct EstimatedOneRMCard: View {
                                 )
                                 .foregroundStyle(
                                     LinearGradient(
-                                        colors: [Color(hex: "F59E0B").opacity(0.2), .clear],
+                                        colors: [Pulse.nutrition.opacity(0.2), .clear],
                                         startPoint: .top, endPoint: .bottom
                                     )
                                 )
@@ -114,7 +114,7 @@ struct EstimatedOneRMCard: View {
                                     x: .value("Date", point.date),
                                     y: .value("e1RM", useLbs ? point.e1rm * 2.20462 : point.e1rm)
                                 )
-                                .foregroundStyle(Color(hex: "F59E0B"))
+                                .foregroundStyle(Pulse.nutrition)
                                 .symbolSize(16)
                             }
                             .frame(height: 80)
@@ -136,7 +136,7 @@ struct EstimatedOneRMCard: View {
 
                     Text("Epley formula: weight × (1 + reps ÷ 30). Tracks your strength ceiling over time.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }

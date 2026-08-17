@@ -54,16 +54,16 @@ struct RestDayCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "leaf.fill")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Recovery Day")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("Active rest")
                     .font(.caption2.weight(.bold))
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(hex: "059669").opacity(0.12))
+                    .background(Pulse.positive.opacity(0.12))
                     .clipShape(Capsule())
             }
 
@@ -78,7 +78,7 @@ struct RestDayCard: View {
                             .font(.caption.weight(.semibold))
                         Text(activity.detail)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }

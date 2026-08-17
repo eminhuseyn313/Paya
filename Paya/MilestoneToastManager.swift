@@ -58,28 +58,50 @@ struct MilestoneToastOverlay: View {
 
 private struct MilestoneToastCard: View {
     let milestone: MilestoneEngine.Milestone
+    @State private var appeared = false
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: "trophy.fill")
-                .font(.title2)
-                .foregroundColor(Color(hex: "B45309"))
-                .frame(width: 44, height: 44)
-                .background(Color(hex: "B45309").opacity(0.15))
-                .clipShape(Circle())
-            VStack(alignment: .leading, spacing: 2) {
+            ZStack {
+                Circle()
+                    .fill(Pulse.nutrition.opacity(0.15))
+                    .frame(width: 44, height: 44)
+                Circle()
+                    .fill(Pulse.nutrition.opacity(0.06))
+                    .frame(width: 52, height: 52)
+                    .blur(radius: 6)
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(Pulse.nutrition)
+            }
+            VStack(alignment: .leading, spacing: 3) {
                 Text(milestone.title)
-                    .font(.subheadline.weight(.bold))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(Pulse.textPrimary)
                 Text(milestone.body)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(Pulse.textSecondary)
                     .lineLimit(2)
             }
             Spacer(minLength: 0)
         }
-        .padding(12)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Pulse.surfaceElevatedFallback)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Pulse.nutrition.opacity(0.15), lineWidth: 0.5)
+                )
+        )
+        .shadow(color: Pulse.nutrition.opacity(0.15), radius: 12, y: 4)
+        .shadow(color: .black.opacity(0.3), radius: 8, y: 2)
+        .scaleEffect(appeared ? 1 : 0.9)
+        .onAppear {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                appeared = true
+            }
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
     }
 }

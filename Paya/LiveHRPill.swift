@@ -78,7 +78,7 @@ struct LiveHRPanel: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text("BPM")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text(zone.shortName)
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(zone.color)
@@ -99,7 +99,7 @@ struct LiveHRPanel: View {
                         VStack(alignment: .leading, spacing: 1) {
                             Text("PEAK")
                                 .font(.system(size: 8, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text("\(peak)")
                                 .font(.subheadline.weight(.bold))
                                 .monospacedDigit()
@@ -107,12 +107,12 @@ struct LiveHRPanel: View {
 
                         Image(systemName: "arrow.right")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
 
                         VStack(alignment: .leading, spacing: 1) {
                             Text("NOW")
                                 .font(.system(size: 8, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text("\(bpm)")
                                 .font(.subheadline.weight(.bold))
                                 .monospacedDigit()
@@ -120,26 +120,26 @@ struct LiveHRPanel: View {
 
                         Image(systemName: "arrow.down")
                             .font(.caption2)
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
 
                         Text("\(drop)")
                             .font(.subheadline.weight(.bold))
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                             .monospacedDigit()
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(Capsule())
                 }
             } else {
 
                 HStack(spacing: 6) {
                     Image(systemName: "heart.slash")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("No HR monitor connected")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }

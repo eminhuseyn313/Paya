@@ -33,7 +33,7 @@ struct PostWorkoutWindowCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "fork.knife.circle.fill")
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                         Text("Post-workout fuel")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -44,11 +44,11 @@ struct PostWorkoutWindowCard: View {
                                 Text("\(120 - minutesSinceSession)min window left")
                                     .font(.system(size: 9, weight: .bold))
                             }
-                            .foregroundColor(minutesSinceSession < 60 ? Color(hex: "059669") : Color(hex: "F59E0B"))
+                            .foregroundColor(minutesSinceSession < 60 ? Pulse.positive : Pulse.nutrition)
                         } else {
                             Text("Window closed")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
@@ -59,14 +59,14 @@ struct PostWorkoutWindowCard: View {
                             remaining: proteinRemaining,
                             target: proteinTarget,
                             unit: "g",
-                            color: Color(hex: "2563EB")
+                            color: Pulse.hydration
                         )
                         macroGauge(
                             label: "Calories left",
                             remaining: caloriesRemaining,
                             target: calorieTarget,
                             unit: "cal",
-                            color: Color(hex: "F59E0B")
+                            color: Pulse.nutrition
                         )
                     }
 
@@ -74,11 +74,11 @@ struct PostWorkoutWindowCard: View {
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "lightbulb.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                             .padding(.top, 1)
                         Text(suggestion)
                             .font(.system(size: 10))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
@@ -96,14 +96,14 @@ struct PostWorkoutWindowCard: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.system(size: 9, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(String(format: "%.0f", max(0, remaining)))
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                 Text(unit)
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             let progress = target > 0 ? min(1, (target - remaining) / target) : 0
@@ -120,7 +120,7 @@ struct PostWorkoutWindowCard: View {
 
             Text(String(format: "%.0f/%.0f %@", max(0, target - remaining), target, unit))
                 .font(.system(size: 8))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)

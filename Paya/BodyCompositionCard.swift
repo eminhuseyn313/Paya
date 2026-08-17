@@ -42,7 +42,7 @@ struct BodyCompositionCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "figure.stand")
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                         Text("Body composition")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -75,12 +75,12 @@ struct BodyCompositionCard: View {
                                             .font(.system(size: 18, weight: .bold, design: .rounded))
                                         Text("%")
                                             .font(.system(size: 9))
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
                                 }
                                 Text("Body fat")
                                     .font(.system(size: 9, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
 
@@ -90,14 +90,14 @@ struct BodyCompositionCard: View {
                                 massRow(
                                     label: "Lean mass",
                                     value: lean,
-                                    color: Color(hex: "059669")
+                                    color: Pulse.positive
                                 )
                             }
                             if let fat = fatMass {
                                 massRow(
                                     label: "Fat mass",
                                     value: fat,
-                                    color: Color(hex: "F59E0B")
+                                    color: Pulse.nutrition
                                 )
                             }
                         }
@@ -111,7 +111,7 @@ struct BodyCompositionCard: View {
                                 x: .value("Date", entry.date),
                                 y: .value("BF%", entry.bf)
                             )
-                            .foregroundStyle(Color(hex: "0891B2"))
+                            .foregroundStyle(Pulse.recovery)
                             .interpolationMethod(.catmullRom)
 
                             AreaMark(
@@ -120,7 +120,7 @@ struct BodyCompositionCard: View {
                             )
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [Color(hex: "0891B2").opacity(0.2), .clear],
+                                    colors: [Pulse.recovery.opacity(0.2), .clear],
                                     startPoint: .top, endPoint: .bottom
                                 )
                             )
@@ -130,7 +130,7 @@ struct BodyCompositionCard: View {
                                 x: .value("Date", entry.date),
                                 y: .value("BF%", entry.bf)
                             )
-                            .foregroundStyle(Color(hex: "0891B2"))
+                            .foregroundStyle(Pulse.recovery)
                             .symbolSize(12)
                         }
                         .frame(height: 60)
@@ -170,7 +170,7 @@ struct BodyCompositionCard: View {
                 .frame(width: 8, height: 8)
             Text(label)
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Spacer()
             Text(String(format: "%.1f %@", display, unit))
                 .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -241,19 +241,19 @@ struct BodyCompositionCard: View {
     private func classify(bf: Double, isMale: Bool) -> (String, Color) {
         if isMale {
             switch bf {
-            case ..<6:  return ("Essential", Color(hex: "DC2626"))
-            case ..<14: return ("Athletic", Color(hex: "059669"))
-            case ..<18: return ("Fit", Color(hex: "2563EB"))
-            case ..<25: return ("Average", Color(hex: "F59E0B"))
-            default:    return ("Above avg", Color(hex: "DC2626"))
+            case ..<6:  return ("Essential", Pulse.critical)
+            case ..<14: return ("Athletic", Pulse.positive)
+            case ..<18: return ("Fit", Pulse.hydration)
+            case ..<25: return ("Average", Pulse.nutrition)
+            default:    return ("Above avg", Pulse.critical)
             }
         } else {
             switch bf {
-            case ..<14: return ("Essential", Color(hex: "DC2626"))
-            case ..<21: return ("Athletic", Color(hex: "059669"))
-            case ..<25: return ("Fit", Color(hex: "2563EB"))
-            case ..<32: return ("Average", Color(hex: "F59E0B"))
-            default:    return ("Above avg", Color(hex: "DC2626"))
+            case ..<14: return ("Essential", Pulse.critical)
+            case ..<21: return ("Athletic", Pulse.positive)
+            case ..<25: return ("Fit", Pulse.hydration)
+            case ..<32: return ("Average", Pulse.nutrition)
+            default:    return ("Above avg", Pulse.critical)
             }
         }
     }

@@ -179,7 +179,7 @@ struct SessionEditHeader: View {
                         .font(.headline)
                     Text(session.date.formatted(.dateTime.weekday(.wide).day().month().year()))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     if session.isFlareDay {
                         HStack(spacing: 4) {
                             Image(systemName: "exclamationmark.triangle.fill")
@@ -187,7 +187,7 @@ struct SessionEditHeader: View {
                             Text("Flare day")
                                 .font(.caption2.weight(.semibold))
                         }
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.warning)
                     }
                 }
                 Spacer()
@@ -197,12 +197,12 @@ struct SessionEditHeader: View {
                 EditStatPill(
                     icon: "timer",
                     value: "\(session.durationMinutes)m",
-                    color: Color(hex: "2563EB")
+                    color: Pulse.hydration
                 )
                 EditStatPill(
                     icon: "dumbbell.fill",
                     value: "\(session.exercises.count) ex",
-                    color: Color(hex: "059669")
+                    color: Pulse.positive
                 )
                 EditStatPill(
                     icon: "scalemass.fill",
@@ -227,7 +227,7 @@ struct EditStatPill: View {
                 .foregroundColor(color)
             Text(value)
                 .font(.caption.weight(.bold))
-                .foregroundColor(.primary)
+                .foregroundColor(Pulse.textPrimary)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -246,11 +246,11 @@ struct SessionNotesField: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Notes")
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             TextField("How did this session feel?", text: $notes, axis: .vertical)
                 .font(.subheadline)
                 .padding(10)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .lineLimit(2...5)
                 .onChange(of: notes) { _, _ in onSave() }
@@ -302,15 +302,15 @@ struct EditableExerciseCard: View {
                                 .lineLimit(2)
                             Text("\(exerciseLog.sets.count) sets")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
 
                 Button {
                     showDeleteConfirm = true
@@ -342,7 +342,7 @@ struct EditableExerciseCard: View {
                         Color.clear.frame(width: 28)
                     }
                     .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
 
                     ForEach(sortedSets) { setLog in
                         EditableSetRow(
@@ -419,7 +419,7 @@ struct EditableSetRow: View {
         HStack(spacing: 6) {
             Text("\(setLog.setNumber)")
                 .font(.subheadline.weight(.bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .frame(width: 24, alignment: .leading)
 
             TextField("0", text: $weightText)
@@ -428,7 +428,7 @@ struct EditableSetRow: View {
                 .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .focused($weightFocused)
                 .onChange(of: weightText) { _, new in
@@ -444,7 +444,7 @@ struct EditableSetRow: View {
                 .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .focused($repsFocused)
                 .onChange(of: repsText) { _, new in
@@ -550,15 +550,15 @@ struct AddExerciseToSessionSheet: View {
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(exercise.name)
                                                 .font(.subheadline.weight(.semibold))
-                                                .foregroundColor(.primary)
+                                                .foregroundColor(Pulse.textPrimary)
                                             Text("\(exercise.muscleGroup) · \(exercise.sets) sets")
                                                 .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(Pulse.textTertiary)
                                         }
                                         Spacer()
                                         Image(systemName: "chevron.right")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
                                     .payaCard(padding: 12)
                                 }
@@ -575,13 +575,13 @@ struct AddExerciseToSessionSheet: View {
                         VStack(spacing: 10) {
                             TextField("Exercise name", text: $customName)
                                 .padding(12)
-                                .background(Color(.tertiarySystemBackground))
+                                .background(Pulse.surfaceElevatedFallback)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                             HStack {
                                 Text("Sets")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Spacer()
                                 Stepper("\(initialSets)", value: $initialSets, in: 1...10)
                                     .labelsHidden()
@@ -590,7 +590,7 @@ struct AddExerciseToSessionSheet: View {
                                     .frame(width: 28)
                             }
                             .padding(12)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
 
                             Button {
@@ -602,7 +602,7 @@ struct AddExerciseToSessionSheet: View {
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 14)
                                     .background(customName.isEmpty
-                                        ? Color(.tertiarySystemBackground)
+                                        ? Pulse.surfaceElevatedFallback
                                         : sessionColor)
                                     .foregroundColor(customName.isEmpty ? .secondary : .white)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -619,7 +619,7 @@ struct AddExerciseToSessionSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }
@@ -695,14 +695,14 @@ struct AddExerciseToSessionSheet: View {
                         Image(systemName: hasReflection
                               ? "text.bubble.fill"
                               : "text.bubble")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text(hasReflection ? "Your reflection" : "Add reflection")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Image(systemName: hasReflection ? "pencil" : "chevron.right")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     if hasReflection {
@@ -723,8 +723,8 @@ struct AddExerciseToSessionSheet: View {
                                         .font(.caption2.weight(.semibold))
                                         .padding(.horizontal, 8)
                                         .padding(.vertical, 3)
-                                        .background(Color(hex: "8B5CF6").opacity(0.12))
-                                        .foregroundColor(Color(hex: "8B5CF6"))
+                                        .background(Pulse.ai.opacity(0.12))
+                                        .foregroundColor(Pulse.ai)
                                         .clipShape(Capsule())
                                 }
                             }
@@ -733,19 +733,19 @@ struct AddExerciseToSessionSheet: View {
                         if let notes = session.reflectionNotes, !notes.isEmpty {
                             Text(notes)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     } else {
                         Text("How did this session feel? Tap to add.")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 .payaCard(padding: 14)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
             .sheet(isPresented: $showReflectionSheet) {
                 ReflectionSheet(session: session)
             }
@@ -792,10 +792,10 @@ struct AddExerciseToSessionSheet: View {
 
         var color: Color {
             switch rpe {
-            case 1...3:  return Color(hex: "059669")
-            case 4...6:  return Color(hex: "B45309")
+            case 1...3:  return Pulse.positive
+            case 4...6:  return Pulse.warning
             case 7...8:  return Color(hex: "C2410C")
-            default:     return Color(hex: "DC2626")
+            default:     return Pulse.critical
             }
         }
 
@@ -849,9 +849,9 @@ struct AddExerciseToSessionSheet: View {
 
         var color: Color {
             switch energy {
-            case 1: return Color(hex: "DC2626")
-            case 2: return Color(hex: "B45309")
-            default: return Color(hex: "059669")
+            case 1: return Pulse.critical
+            case 2: return Pulse.warning
+            default: return Pulse.positive
             }
         }
 

@@ -14,13 +14,13 @@ struct RestTimeAnalyticsCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "timer")
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("Rest Time Analytics")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("Avg \(overallAvg)s")
                             .font(.system(size: 10, weight: .bold, design: .rounded))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                     }
 
                     Chart(exerciseRests.prefix(8)) { item in
@@ -29,15 +29,15 @@ struct RestTimeAnalyticsCard: View {
                             y: .value("Exercise", item.name)
                         )
                         .foregroundStyle(
-                            item.avgRestSeconds > 180 ? Color(hex: "DC2626") :
-                            item.avgRestSeconds > 120 ? Color(hex: "F59E0B") :
-                            Color(hex: "2563EB")
+                            item.avgRestSeconds > 180 ? Pulse.critical :
+                            item.avgRestSeconds > 120 ? Pulse.nutrition :
+                            Pulse.hydration
                         )
                         .cornerRadius(4)
                         .annotation(position: .trailing, spacing: 4) {
                             Text("\(item.avgRestSeconds)s")
                                 .font(.system(size: 8, weight: .bold, design: .rounded))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     .frame(height: CGFloat(min(exerciseRests.count, 8)) * 28 + 10)
@@ -55,14 +55,14 @@ struct RestTimeAnalyticsCard: View {
                     }
 
                     HStack(spacing: 12) {
-                        restLegend(color: Color(hex: "2563EB"), label: "< 2 min")
-                        restLegend(color: Color(hex: "F59E0B"), label: "2-3 min")
-                        restLegend(color: Color(hex: "DC2626"), label: "> 3 min")
+                        restLegend(color: Pulse.hydration, label: "< 2 min")
+                        restLegend(color: Pulse.nutrition, label: "2-3 min")
+                        restLegend(color: Pulse.critical, label: "> 3 min")
                     }
 
                     Text("Average rest between sets per exercise over your last 10 sessions. Compounds typically need 2-3 min, isolations 60-90s.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
@@ -75,7 +75,7 @@ struct RestTimeAnalyticsCard: View {
             Circle().fill(color).frame(width: 5, height: 5)
             Text(label)
                 .font(.system(size: 8))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 

@@ -19,27 +19,27 @@ struct MedicationsCard: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "DC2626").opacity(0.15))
+                        .fill(Pulse.critical.opacity(0.15))
                         .frame(width: 40, height: 40)
                     Image(systemName: "pills.fill")
-                        .foregroundColor(Color(hex: "DC2626"))
+                        .foregroundColor(Pulse.critical)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Medications")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     if medications.isEmpty {
                         Text("Track treatment schedule & adherence")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     } else if dueCount > 0 {
                         Text("\(dueCount) due today")
                             .font(.caption2)
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                     } else {
                         Text("\(medications.count) tracked — all caught up")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 Spacer()
@@ -48,16 +48,16 @@ struct MedicationsCard: View {
                         .font(.caption.weight(.bold))
                         .foregroundColor(.white)
                         .frame(width: 20, height: 20)
-                        .background(Color(hex: "DC2626"))
+                        .background(Pulse.critical)
                         .clipShape(Circle())
                 }
                 Image(systemName: "chevron.right")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .onAppear { medications = MedicationStore.active(context: modelContext) }
         .sheet(isPresented: $showFullView, onDismiss: {
             medications = MedicationStore.active(context: modelContext)
@@ -87,10 +87,10 @@ struct MedicationsView: View {
                                 .foregroundColor(.secondary.opacity(0.4))
                             Text("No medications tracked yet")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text("Add a biologic, DMARD, or any other treatment on a schedule — Paya will remind you when it's due and let you check whether it correlates with your flares.")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -160,11 +160,11 @@ private struct MedicationRow: View {
                     .font(.subheadline.weight(.semibold))
                 Text("\(medication.dose) · \(medication.frequency.displayName)")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 if let nextDue, medication.frequency != .asNeeded {
                     Text(takenToday ? "Taken today" : (isDue ? "Due now" : "Next due \(nextDue.formatted(.relative(presentation: .named)))"))
                         .font(.caption2)
-                        .foregroundColor(takenToday ? Color(hex: "059669") : (isDue ? Color(hex: "DC2626") : .secondary))
+                        .foregroundColor(takenToday ? Pulse.positive : (isDue ? Pulse.critical : .secondary))
                 }
             }
             Spacer()
@@ -175,7 +175,7 @@ private struct MedicationRow: View {
             } label: {
                 Image(systemName: takenToday ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundColor(takenToday ? Color(hex: "059669") : .secondary)
+                    .foregroundColor(takenToday ? Pulse.positive : .secondary)
                     .frame(width: 44, height: 44)
             }
             .disabled(takenToday)

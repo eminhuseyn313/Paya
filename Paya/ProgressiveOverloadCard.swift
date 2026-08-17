@@ -15,7 +15,7 @@ struct ProgressiveOverloadCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "arrow.up.forward.circle.fill")
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                         Text("Progressive Overload")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -23,17 +23,17 @@ struct ProgressiveOverloadCard: View {
 
                     Text("Exercises where you've increased weight or reps over the last 4 sessions.")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     ForEach(exercises) { item in
                         HStack(spacing: 10) {
                             ZStack {
                                 Circle()
-                                    .fill(item.isProgressing ? Color(hex: "059669").opacity(0.12) : Color(hex: "F59E0B").opacity(0.12))
+                                    .fill(item.isProgressing ? Pulse.positive.opacity(0.12) : Pulse.nutrition.opacity(0.12))
                                     .frame(width: 28, height: 28)
                                 Image(systemName: item.isProgressing ? "arrow.up" : "minus")
                                     .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(item.isProgressing ? Color(hex: "059669") : Color(hex: "F59E0B"))
+                                    .foregroundColor(item.isProgressing ? Pulse.positive : Pulse.nutrition)
                             }
 
                             VStack(alignment: .leading, spacing: 2) {
@@ -45,11 +45,11 @@ struct ProgressiveOverloadCard: View {
                                     let endW = useLbs ? item.endWeight * 2.20462 : item.endWeight
                                     Text(String(format: "%.0f→%.0f %@", startW, endW, useLbs ? "lbs" : "kg"))
                                         .font(.system(size: 10, design: .rounded))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                     if item.repsChange != 0 {
                                         Text(item.repsChange > 0 ? "+\(item.repsChange) reps" : "\(item.repsChange) reps")
                                             .font(.system(size: 9, weight: .bold))
-                                            .foregroundColor(item.repsChange > 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                                            .foregroundColor(item.repsChange > 0 ? Pulse.positive : Pulse.critical)
                                     }
                                 }
                             }
@@ -59,11 +59,11 @@ struct ProgressiveOverloadCard: View {
                             if item.isProgressing {
                                 Text(String(format: "+%.0f%%", item.changePercent))
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             } else {
                                 Text("Plateau")
                                     .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(Color(hex: "F59E0B"))
+                                    .foregroundColor(Pulse.nutrition)
                             }
                         }
                         .padding(.vertical, 4)

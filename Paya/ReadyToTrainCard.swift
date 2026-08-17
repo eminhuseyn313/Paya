@@ -8,9 +8,9 @@ struct ReadyToTrainCard: View {
 
     private var readinessColor: Color {
         guard let score = readinessScore else { return .secondary }
-        if score >= 70 { return Color(hex: "059669") }
-        if score >= 40 { return Color(hex: "F59E0B") }
-        return Color(hex: "DC2626")
+        if score >= 70 { return Pulse.positive }
+        if score >= 40 { return Pulse.nutrition }
+        return Pulse.critical
     }
 
     private var readinessLabel: String {
@@ -44,7 +44,7 @@ struct ReadyToTrainCard: View {
                             .foregroundColor(readinessColor)
                         Text("/100")
                             .font(.system(size: 11))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
             }
@@ -63,12 +63,12 @@ struct ReadyToTrainCard: View {
                         HStack(spacing: 3) {
                             ForEach(0..<3, id: \.self) { i in
                                 Circle()
-                                    .fill(i < soreness ? Color(hex: "F59E0B") : Color.secondary.opacity(0.2))
+                                    .fill(i < soreness ? Pulse.nutrition : Color.secondary.opacity(0.2))
                                     .frame(width: 6, height: 6)
                             }
                             Text("soreness")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
@@ -78,21 +78,21 @@ struct ReadyToTrainCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("FULLY RECOVERED")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     HStack(spacing: 6) {
                         ForEach(freshMuscles.prefix(5), id: \.self) { muscle in
                             Text(muscle)
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(Color(hex: "059669"))
+                                .foregroundColor(Pulse.positive)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(Color(hex: "059669").opacity(0.08))
+                                .background(Pulse.positive.opacity(0.08))
                                 .clipShape(Capsule())
                         }
                         if freshMuscles.count > 5 {
                             Text("+\(freshMuscles.count - 5)")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }

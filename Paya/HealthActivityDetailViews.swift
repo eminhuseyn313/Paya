@@ -37,7 +37,7 @@ struct EyeCareDetailView: View {
                             ForEach(todaySlots, id: \.hour) { slot in
                                 HStack(spacing: 10) {
                                     Image(systemName: slot.isPast ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(slot.isPast ? Color(hex: "059669") : .secondary.opacity(0.4))
+                                        .foregroundColor(slot.isPast ? Pulse.positive : .secondary.opacity(0.4))
                                         .font(.body)
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text(slot.label)
@@ -45,7 +45,7 @@ struct EyeCareDetailView: View {
                                             .foregroundColor(slot.isPast ? .secondary : .primary)
                                         Text(slot.isDropSlot ? "Lubricating drops" : "20-20-20 break")
                                             .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
                                     Spacer()
                                     if slot.isNext {
@@ -66,7 +66,7 @@ struct EyeCareDetailView: View {
                                     .font(.caption)
                                 Text("Reminders are off — turn them on below.")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
@@ -103,7 +103,7 @@ struct EyeCareDetailView: View {
 
                     // MARK: - Schedule
                     VStack(alignment: .leading, spacing: 14) {
-                        Text("ACTIVE WINDOW").font(.caption2.weight(.bold)).foregroundColor(.secondary)
+                        Text("ACTIVE WINDOW").font(.caption2.weight(.bold)).foregroundColor(Pulse.textTertiary)
 
                         VStack(spacing: 6) {
                             HStack {
@@ -187,7 +187,7 @@ struct EyeCareDetailView: View {
                 .padding(.top, 2)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.caption.weight(.semibold))
-                Text(detail).font(.caption2).foregroundColor(.secondary)
+                Text(detail).font(.caption2).foregroundColor(Pulse.textTertiary)
             }
         }
     }
@@ -217,7 +217,7 @@ struct MorningLightDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     Text("Bright light soon after waking is the strongest daily anchor for your circadian rhythm (Czeisler et al. on light's role in resetting the human circadian pacemaker). A single well-timed reminder beats a vague intention.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .payaCard(padding: 14)
 
                     Toggle(isOn: Binding(
@@ -230,7 +230,7 @@ struct MorningLightDetailView: View {
                     .tint(Color(hex: "D97706"))
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("REMINDER TIME").font(.caption2.weight(.bold)).foregroundColor(.secondary)
+                        Text("REMINDER TIME").font(.caption2.weight(.bold)).foregroundColor(Pulse.textTertiary)
                         DatePicker("", selection: $reminderTime, displayedComponents: .hourAndMinute)
                             .labelsHidden()
                             .datePickerStyle(.wheel)
@@ -274,7 +274,7 @@ struct HydrationDetailView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     Text("A nudge fires once, if you're still under 40% of your daily target by the check time you set below.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .payaCard(padding: 14)
 
                     Toggle(isOn: Binding(
@@ -284,10 +284,10 @@ struct HydrationDetailView: View {
                         Text("Enable hydration reminder").font(.subheadline.weight(.semibold))
                     }
                     .payaCard(padding: 14)
-                    .tint(Color(hex: "0891B2"))
+                    .tint(Pulse.recovery)
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("DAILY TARGET").font(.caption2.weight(.bold)).foregroundColor(.secondary)
+                        Text("DAILY TARGET").font(.caption2.weight(.bold)).foregroundColor(Pulse.textTertiary)
                         HStack {
                             Text(String(format: "%.1f L", targetMl / 1000))
                                 .font(.title3.bold())
@@ -303,7 +303,7 @@ struct HydrationDetailView: View {
                     .payaCard(padding: 14)
 
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("CHECK TIME").font(.caption2.weight(.bold)).foregroundColor(.secondary)
+                        Text("CHECK TIME").font(.caption2.weight(.bold)).foregroundColor(Pulse.textTertiary)
                         DatePicker("", selection: $checkTime, displayedComponents: .hourAndMinute)
                             .labelsHidden()
                             .datePickerStyle(.wheel)

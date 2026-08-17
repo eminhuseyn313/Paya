@@ -53,10 +53,10 @@ class BLEHeartRateManager: NSObject {
             case excellent, good, fair, poor
             var color: Color {
                 switch self {
-                case .excellent: return Color(hex: "059669")
+                case .excellent: return Pulse.positive
                 case .good:      return Color(hex: "4D7C0F")
-                case .fair:      return Color(hex: "B45309")
-                case .poor:      return Color(hex: "DC2626")
+                case .fair:      return Pulse.warning
+                case .poor:      return Pulse.critical
                 }
             }
             var displayName: String {

@@ -63,7 +63,7 @@ struct WeeklyVolumeTrendCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "chart.bar.fill")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Weekly Trends")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -74,10 +74,10 @@ struct WeeklyVolumeTrendCard: View {
                         Text(String(format: "%+.0f%%", trend))
                             .font(.system(size: 11, weight: .bold))
                     }
-                    .foregroundColor(trend >= 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                    .foregroundColor(trend >= 0 ? Pulse.positive : Pulse.critical)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background((trend >= 0 ? Color(hex: "059669") : Color(hex: "DC2626")).opacity(0.1))
+                    .background((trend >= 0 ? Pulse.positive : Pulse.critical).opacity(0.1))
                     .clipShape(Capsule())
                 }
             }
@@ -96,8 +96,8 @@ struct WeeklyVolumeTrendCard: View {
                 )
                 .foregroundStyle(
                     point.weeksAgo == 0
-                        ? Color(hex: "2563EB")
-                        : Color(hex: "2563EB").opacity(0.35)
+                        ? Pulse.hydration
+                        : Pulse.hydration.opacity(0.35)
                 )
                 .cornerRadius(4)
             }
@@ -107,7 +107,7 @@ struct WeeklyVolumeTrendCard: View {
                         if let v = value.as(Double.self) {
                             Text(formatAxisValue(v))
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
@@ -124,11 +124,11 @@ struct WeeklyVolumeTrendCard: View {
                 HStack {
                     Text("Total: \(formatVolume(weeklyData.last?.value ?? 0))")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     Text("8-week avg: \(formatVolume(weeklyData.map(\.value).reduce(0, +) / max(1, Double(weeklyData.filter { $0.value > 0 }.count))))")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }

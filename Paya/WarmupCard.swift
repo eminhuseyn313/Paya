@@ -40,7 +40,7 @@ struct WarmupCard: View {
                         if isComplete {
                             Image(systemName: "checkmark")
                                 .font(.subheadline.weight(.bold))
-                                .foregroundColor(Color(hex: "059669"))
+                                .foregroundColor(Pulse.positive)
                         } else {
                             Image(systemName: "figure.flexibility")
                                 .font(.title3)
@@ -52,10 +52,10 @@ struct WarmupCard: View {
                         HStack(spacing: 6) {
                             Text("Warm-up")
                                 .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text("· \(routine.totalMinutes) min")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Text(isComplete
                              ? "Complete — ready to lift"
@@ -63,7 +63,7 @@ struct WarmupCard: View {
                                 ? routine.subtitle
                                 : "\(completedMoves.count) of \(routine.moves.count) done"))
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .lineLimit(1)
                     }
 
@@ -72,16 +72,16 @@ struct WarmupCard: View {
                     if isComplete {
                         Text("✓")
                             .font(.headline.weight(.bold))
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                     }
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(14)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
 
             // Progress bar
             if completedMoves.count > 0 && !isComplete {
@@ -135,8 +135,8 @@ struct WarmupCard: View {
                                 .font(.caption.weight(.semibold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 10)
-                                .background(Color(.tertiarySystemBackground))
-                                .foregroundColor(.secondary)
+                                .background(Pulse.surfaceElevatedFallback)
+                                .foregroundColor(Pulse.textTertiary)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
 
@@ -165,7 +165,7 @@ struct WarmupCard: View {
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(
-                    isComplete ? Color(hex: "059669").opacity(0.4) : Color.clear,
+                    isComplete ? Pulse.positive.opacity(0.4) : Color.clear,
                     lineWidth: 1.5
                 )
         )
@@ -192,14 +192,14 @@ struct WarmupMoveRow: View {
                         Circle()
                             .fill(isCompleted
                                 ? sessionColor
-                                : Color(.tertiarySystemBackground))
+                                : Pulse.surfaceElevatedFallback)
                             .frame(width: 32, height: 32)
                         Image(systemName: isCompleted ? "checkmark" : "circle")
                             .font(.caption.weight(.bold))
                             .foregroundColor(isCompleted ? .white : .secondary)
                     }
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
                 .accessibilityLabel(move.name)
                 .accessibilityAddTraits(isCompleted ? .isSelected : [])
                 .accessibilityValue(isCompleted ? "Done" : "Not done")
@@ -224,15 +224,15 @@ struct WarmupMoveRow: View {
                         }
                         Text(move.duration)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
 
                 Image(systemName: showDetail ? "chevron.up" : "info.circle")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if showDetail {
@@ -242,11 +242,11 @@ struct WarmupMoveRow: View {
                     HStack(alignment: .top, spacing: 8) {
                         Image(systemName: "text.alignleft")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .frame(width: 16)
                         Text(move.instructions)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
@@ -265,11 +265,11 @@ struct WarmupMoveRow: View {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.caption2)
-                                .foregroundColor(Color(hex: "B45309"))
+                                .foregroundColor(Pulse.warning)
                                 .frame(width: 16)
                             Text("Move slowly through pain-free range only")
                                 .font(.caption2)
-                                .foregroundColor(Color(hex: "B45309"))
+                                .foregroundColor(Pulse.warning)
                         }
                     }
                 }
@@ -278,7 +278,7 @@ struct WarmupMoveRow: View {
             }
         }
         .padding(10)
-        .background(Color(.tertiarySystemBackground).opacity(0.5))
+        .background(Pulse.surfaceElevatedFallback.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }

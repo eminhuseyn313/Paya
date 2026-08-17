@@ -15,7 +15,7 @@ struct SessionDurationTrendCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "clock.arrow.trianglehead.counterclockwise.rotate.90")
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                         Text("Session Duration")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -26,7 +26,7 @@ struct SessionDurationTrendCard: View {
                                 Text(String(format: "%+.0f%%", t))
                                     .font(.system(size: 10, weight: .bold))
                             }
-                            .foregroundColor(abs(t) < 15 ? Color(hex: "059669") : Color(hex: "F59E0B"))
+                            .foregroundColor(abs(t) < 15 ? Pulse.positive : Pulse.nutrition)
                         }
                     }
 
@@ -35,7 +35,7 @@ struct SessionDurationTrendCard: View {
                             x: .value("Date", point.date),
                             y: .value("Minutes", point.minutes)
                         )
-                        .foregroundStyle(Color(hex: "0891B2"))
+                        .foregroundStyle(Pulse.recovery)
                         .interpolationMethod(.catmullRom)
 
                         AreaMark(
@@ -44,7 +44,7 @@ struct SessionDurationTrendCard: View {
                         )
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [Color(hex: "0891B2").opacity(0.2), .clear],
+                                colors: [Pulse.recovery.opacity(0.2), .clear],
                                 startPoint: .top, endPoint: .bottom
                             )
                         )
@@ -54,7 +54,7 @@ struct SessionDurationTrendCard: View {
                             x: .value("Date", point.date),
                             y: .value("Minutes", point.minutes)
                         )
-                        .foregroundStyle(Color(hex: "0891B2"))
+                        .foregroundStyle(Pulse.recovery)
                         .symbolSize(14)
 
                         RuleMark(y: .value("Avg", avgDuration))
@@ -78,10 +78,10 @@ struct SessionDurationTrendCard: View {
 
                     HStack(spacing: 16) {
                         HStack(spacing: 4) {
-                            Circle().fill(Color(hex: "0891B2")).frame(width: 5, height: 5)
+                            Circle().fill(Pulse.recovery).frame(width: 5, height: 5)
                             Text("Avg: \(avgDuration) min")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 4) {
                             Rectangle()
@@ -89,7 +89,7 @@ struct SessionDurationTrendCard: View {
                                 .frame(width: 12, height: 1)
                             Text("Average line")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }

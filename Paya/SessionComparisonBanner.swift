@@ -52,29 +52,29 @@ struct SessionComparisonBanner: View {
                     ZStack {
                         Circle()
                             .fill(volumeDelta >= 0
-                                  ? Color(hex: "059669").opacity(0.12)
-                                  : Color(hex: "F59E0B").opacity(0.12))
+                                  ? Pulse.positive.opacity(0.12)
+                                  : Pulse.nutrition.opacity(0.12))
                             .frame(width: 36, height: 36)
                         Image(systemName: volumeDelta >= 0 ? "arrow.up.right" : "arrow.down.right")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(volumeDelta >= 0 ? Color(hex: "059669") : Color(hex: "F59E0B"))
+                            .foregroundColor(volumeDelta >= 0 ? Pulse.positive : Pulse.nutrition)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("vs last session")
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         HStack(spacing: 6) {
                             Text(volumeDelta >= 0 ? "+\(displayVol(abs(volumeDelta)))" : "-\(displayVol(abs(volumeDelta)))")
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(volumeDelta >= 0 ? Color(hex: "059669") : Color(hex: "F59E0B"))
+                                .foregroundColor(volumeDelta >= 0 ? Pulse.positive : Pulse.nutrition)
                             if abs(volumePercent) >= 1 {
                                 Text(String(format: "%+.0f%%", volumePercent))
                                     .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .padding(.horizontal, 5)
                                     .padding(.vertical, 2)
-                                    .background(Color(.tertiarySystemBackground))
+                                    .background(Pulse.surfaceElevatedFallback)
                                     .clipShape(Capsule())
                             }
                         }
@@ -85,10 +85,10 @@ struct SessionComparisonBanner: View {
                     VStack(alignment: .trailing, spacing: 2) {
                         Text("\(completedExerciseCount)/\(totalExerciseCount)")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         Text("exercises")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 .padding(.horizontal, 14)

@@ -56,13 +56,13 @@ struct NumberPadSheet: View {
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .frame(width: 44, height: 44)
                     }
                     Spacer()
                     Text("Set \(setNumber) of \(totalSets)")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     if measurement.showsWeightField {
                         Button {
@@ -85,7 +85,7 @@ struct NumberPadSheet: View {
                     .lineLimit(1)
                     .padding(.bottom, 8)
             }
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
 
             // MARK: Active field display
             HStack(spacing: 12) {
@@ -115,7 +115,7 @@ struct NumberPadSheet: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
 
             // MARK: Quick-adjust chips
             ScrollView(.horizontal, showsIndicators: false) {
@@ -156,7 +156,7 @@ struct NumberPadSheet: View {
                 .padding(.horizontal, 16)
             }
             .padding(.vertical, 10)
-            .background(Color(.tertiarySystemBackground))
+            .background(Pulse.surfaceElevatedFallback)
 
             // MARK: Numeric keypad
             VStack(spacing: 8) {
@@ -197,7 +197,7 @@ struct NumberPadSheet: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 12)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
 
             // MARK: Action buttons
             HStack(spacing: 10) {
@@ -227,8 +227,8 @@ struct NumberPadSheet: View {
                                 .font(.headline)
                                 .frame(width: 60)
                                 .padding(.vertical, 16)
-                                .background(Color(.tertiarySystemBackground))
-                                .foregroundColor(.primary)
+                                .background(Pulse.surfaceElevatedFallback)
+                                .foregroundColor(Pulse.textPrimary)
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                     }
@@ -243,7 +243,7 @@ struct NumberPadSheet: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color(hex: "059669"))
+                        .background(Pulse.positive)
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
@@ -251,9 +251,9 @@ struct NumberPadSheet: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
         }
-        .background(Color(.secondarySystemBackground))
+        .background(Pulse.surfaceFallback)
         .presentationDetents([.height(560)])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(24)
@@ -359,29 +359,29 @@ struct ValueDisplay: View {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(value.isEmpty ? "0" : value)
                         .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                     if !unit.isEmpty {
                         Text(unit)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 Text(previousText ?? " ")
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
-            .background(Color(.tertiarySystemBackground))
+            .background(Pulse.surfaceElevatedFallback)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isActive ? sessionColor : Color.clear, lineWidth: 2)
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -406,7 +406,7 @@ struct QuickChip: View {
                 .background(color.opacity(0.12))
                 .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -426,7 +426,7 @@ struct KeypadButton: View {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(isPrimary
                         ? sessionColor
-                        : Color(.tertiarySystemBackground))
+                        : Pulse.surfaceElevatedFallback)
                     .frame(height: 54)
                 if let img = systemImage {
                     Image(systemName: img)
@@ -440,6 +440,6 @@ struct KeypadButton: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }

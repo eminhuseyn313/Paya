@@ -48,15 +48,15 @@ struct TrainingProfileView: View {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(level.displayName.capitalized)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                     Text(level == .beginner ? "0–1 year" : level == .intermediate ? "1–3 years" : "3+ years")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 Spacer()
                                 if experience == level {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(Color(hex: "2563EB"))
+                                        .foregroundColor(Pulse.hydration)
                                 }
                             }
                         }
@@ -87,18 +87,18 @@ struct TrainingProfileView: View {
                             equipment = access
                         } label: {
                             HStack(spacing: 12) {
-                                SettingsIcon(icon: access.icon, color: Color(hex: "059669"))
+                                SettingsIcon(icon: access.icon, color: Pulse.positive)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(access.displayName)
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                     Text(access.subtitle)
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 Spacer()
                                 if equipment == access {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(Color(hex: "059669"))
+                                        .foregroundColor(Pulse.positive)
                                 }
                             }
                         }
@@ -131,12 +131,12 @@ struct TrainingProfileView: View {
                         } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(pref.displayName).foregroundColor(.primary)
-                                    Text(pref.subtitle).font(.caption).foregroundColor(.secondary)
+                                    Text(pref.displayName).foregroundColor(Pulse.textPrimary)
+                                    Text(pref.subtitle).font(.caption).foregroundColor(Pulse.textTertiary)
                                 }
                                 Spacer()
                                 if dietPreference == pref {
-                                    Image(systemName: "checkmark.circle.fill").foregroundColor(Color(hex: "059669"))
+                                    Image(systemName: "checkmark.circle.fill").foregroundColor(Pulse.positive)
                                 }
                             }
                         }
@@ -145,7 +145,7 @@ struct TrainingProfileView: View {
                         HStack {
                             Text("Sleep target")
                             Spacer()
-                            Text("\(sleepTargetHours, specifier: "%.1f")h").foregroundColor(.secondary)
+                            Text("\(sleepTargetHours, specifier: "%.1f")h").foregroundColor(Pulse.textTertiary)
                         }
                         Slider(value: $sleepTargetHours, in: 5...10, step: 0.5)
                     }

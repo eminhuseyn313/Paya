@@ -30,7 +30,7 @@ struct HRRecoveryCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "arrow.down.heart.fill")
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                 Text("HR Recovery")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -53,7 +53,7 @@ struct HRRecoveryCard: View {
                                 .frame(height: max(6, CGFloat(point.hrr) * 1.6))
                             Text(point.date.formatted(.dateTime.day()))
                                 .font(.system(size: 8))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -62,7 +62,7 @@ struct HRRecoveryCard: View {
 
                 Text("How fast your heart rate falls in the minute after your last effort — a direct read on cardiovascular fitness. Higher is better.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -81,9 +81,9 @@ struct TrimpTimelineCard: View {
 
     func color(for type: String) -> Color {
         switch type {
-        case "A": return Color(hex: "2563EB")
-        case "B": return Color(hex: "059669")
-        case "C": return Color(hex: "B45309")
+        case "A": return Pulse.hydration
+        case "B": return Pulse.positive
+        case "C": return Pulse.warning
         default:  return .secondary
         }
     }
@@ -92,7 +92,7 @@ struct TrimpTimelineCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("30-day Load")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -102,7 +102,7 @@ struct TrimpTimelineCard: View {
                 Spacer()
                 Text("\(points.count) sessions")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if points.isEmpty {
@@ -145,9 +145,9 @@ struct TrimpTimelineCard: View {
                 }
 
                 HStack(spacing: 12) {
-                    LegendDot(color: Color(hex: "2563EB"), label: "A")
-                    LegendDot(color: Color(hex: "059669"), label: "B")
-                    LegendDot(color: Color(hex: "B45309"), label: "C")
+                    LegendDot(color: Pulse.hydration, label: "A")
+                    LegendDot(color: Pulse.positive, label: "B")
+                    LegendDot(color: Pulse.warning, label: "C")
                     Spacer()
                 }
             }
@@ -190,7 +190,7 @@ struct WeeklyLoadCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "calendar.day.timeline.left")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Weekly Rhythm")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -205,11 +205,11 @@ struct WeeklyLoadCard: View {
                         Text("\(abs(trend))% vs last week")
                             .font(.caption.weight(.bold))
                     }
-                    .foregroundColor(trend >= 0 ? Color(hex: "059669") : Color(hex: "B45309"))
+                    .foregroundColor(trend >= 0 ? Pulse.positive : Pulse.warning)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(
-                        (trend >= 0 ? Color(hex: "059669") : Color(hex: "B45309")).opacity(0.12)
+                        (trend >= 0 ? Pulse.positive : Pulse.warning).opacity(0.12)
                     )
                     .clipShape(Capsule())
                 }
@@ -224,13 +224,13 @@ struct WeeklyLoadCard: View {
                             x: .value("Week", week.label),
                             y: .value("TRIMP", week.totalTrimp)
                         )
-                        .foregroundStyle(Color(hex: "059669"))
+                        .foregroundStyle(Pulse.positive)
                         .cornerRadius(4)
                         .annotation(position: .top) {
                             if week.sessionCount > 0 {
                                 Text("\(week.sessionCount)x")
                                     .font(.system(size: 9, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
@@ -298,7 +298,7 @@ struct SessionBaselinesCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "gauge.medium")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Session Baselines")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -325,21 +325,21 @@ struct SessionBaselinesCard: View {
                             if baseline.count == 0 {
                                 Text("No data yet")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             } else {
                                 HStack(spacing: 6) {
                                     Text("Avg TRIMP \(Int(baseline.avgTrimp))")
                                         .font(.caption2)
                                     Text("·")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                     Text("\(Int(baseline.avgDurationMin))m")
                                         .font(.caption2)
                                     Text("·")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                     Text("\(baseline.count)x")
                                         .font(.caption2)
                                 }
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             }
                         }
                         Spacer()
@@ -348,21 +348,21 @@ struct SessionBaselinesCard: View {
                             VStack(alignment: .trailing, spacing: 1) {
                                 Text("Last")
                                     .font(.system(size: 8, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Text("\(Int(last))")
                                     .font(.caption.weight(.bold))
                                 if abs(delta) >= 5 {
                                     Text(delta > 0 ? "+\(Int(delta))" : "\(Int(delta))")
                                         .font(.system(size: 9, weight: .bold))
                                         .foregroundColor(delta > 0
-                                            ? Color(hex: "B45309")
-                                            : Color(hex: "059669"))
+                                            ? Pulse.warning
+                                            : Pulse.positive)
                                 }
                             }
                         }
                     }
                     .padding(8)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
@@ -388,9 +388,9 @@ struct FeltVsMeasuredCard: View {
 
     func color(for type: String) -> Color {
         switch type {
-        case "A": return Color(hex: "2563EB")
-        case "B": return Color(hex: "059669")
-        case "C": return Color(hex: "B45309")
+        case "A": return Pulse.hydration
+        case "B": return Pulse.positive
+        case "C": return Pulse.warning
         default:  return .secondary
         }
     }
@@ -410,7 +410,7 @@ struct FeltVsMeasuredCard: View {
                 if report.sessionCount >= 3 {
                     Text("\(report.sessionCount) sessions")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -420,42 +420,42 @@ struct FeltVsMeasuredCard: View {
                     VStack(spacing: 2) {
                         Text(String(format: "%.1f", subj))
                             .font(.title3.bold())
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                             .monospacedDigit()
                         Text("Felt")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("Your RPE")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
-                    .background(Color(hex: "8B5CF6").opacity(0.08))
+                    .background(Pulse.ai.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                     VStack(spacing: 2) {
                         Text(String(format: "%.1f", obj))
                             .font(.title3.bold())
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                             .monospacedDigit()
                         Text("Measured")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("HR-derived")
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
-                    .background(Color(hex: "DC2626").opacity(0.08))
+                    .background(Pulse.critical.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
 
             Text(report.calibrationHint.message)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if !perSession.isEmpty {
@@ -469,16 +469,16 @@ struct FeltVsMeasuredCard: View {
                                 .frame(width: 16)
                             Text(comparison.date.formatted(.dateTime.day().month(.abbreviated)))
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Spacer()
                             Text("Felt \(comparison.subjectiveRPE)")
                                 .font(.caption2.weight(.semibold))
-                                .foregroundColor(Color(hex: "8B5CF6"))
+                                .foregroundColor(Pulse.ai)
                             Text("·")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text(String(format: "Measured %.1f", comparison.objectiveIntensity))
                                 .font(.caption2.weight(.semibold))
-                                .foregroundColor(Color(hex: "DC2626"))
+                                .foregroundColor(Pulse.critical)
                         }
                     }
                 }
@@ -501,7 +501,7 @@ struct LegendDot: View {
                 .frame(width: 7, height: 7)
             Text(label)
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }
@@ -512,10 +512,10 @@ struct EmptyChartHint: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "info.circle")
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             Text(message)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }

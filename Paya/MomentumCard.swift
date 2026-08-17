@@ -17,7 +17,7 @@ struct MomentumCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "flame.fill")
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                     .font(.system(size: 12))
                 Text("Momentum")
                     .font(.subheadline.weight(.semibold))
@@ -27,10 +27,10 @@ struct MomentumCard: View {
                 if activeCount > 0 {
                     Text("\(activeCount) active")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
-                        .background(Color(hex: "059669").opacity(0.1))
+                        .background(Pulse.positive.opacity(0.1))
                         .clipShape(Capsule())
                 }
             }
@@ -52,7 +52,7 @@ struct MomentumCard: View {
                 Text("66-day threshold from Lally et al. (2010), European Journal of Social Psychology")
                     .font(.system(size: 9))
             }
-            .foregroundColor(.secondary)
+            .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
         .onAppear {
@@ -77,7 +77,7 @@ struct MomentumCard: View {
                 if streak.todayDone {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 11))
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                         .background(Circle().fill(.background).frame(width: 13, height: 13))
                         .offset(x: 2, y: 2)
                 }
@@ -90,11 +90,11 @@ struct MomentumCard: View {
                     if streak.hasPermanentBadge {
                         Image(systemName: "star.circle.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                     } else if streak.hasFormedHabit {
                         Image(systemName: "checkmark.seal.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                     }
                 }
 
@@ -106,7 +106,7 @@ struct MomentumCard: View {
                 } else {
                     Text(streak.todayDone ? "Started today" : "Not active")
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -134,7 +134,7 @@ struct MomentumCard: View {
                 }
                 Text("/\(target)d")
                     .font(.system(size: 8))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .padding(.vertical, 2)
@@ -148,7 +148,7 @@ struct MomentumCard: View {
                 .foregroundColor(Color(hex: color))
             Text(label)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }

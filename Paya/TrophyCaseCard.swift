@@ -16,23 +16,24 @@ struct TrophyCaseCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: "trophy.fill")
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                 Text("Achievements")
                     .font(.subheadline.weight(.semibold))
+                    .foregroundColor(Pulse.textPrimary)
                 Spacer()
                 Text("\(achievements.count)/\(AchievementEngine.allBadges.count)")
                     .font(.caption2.weight(.bold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(Capsule())
             }
 
             if achievements.isEmpty {
                 Text("Complete sessions, hit targets, and stay consistent to earn badges.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textSecondary)
             } else {
                 let display = showAll ? achievements : Array(achievements.prefix(6))
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 10)], spacing: 12) {
@@ -47,9 +48,10 @@ struct TrophyCaseCard: View {
                     } label: {
                         Text(showAll ? "Show less" : "See all \(achievements.count) badges")
                             .font(.caption.weight(.semibold))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                             .frame(maxWidth: .infinity)
                     }
+                    .buttonStyle(PulsePress())
                 }
             }
 
@@ -58,18 +60,19 @@ struct TrophyCaseCard: View {
                 HStack(spacing: 8) {
                     Image(systemName: next.icon)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Next: \(next.title)")
                             .font(.caption2.weight(.semibold))
+                            .foregroundColor(Pulse.textPrimary)
                         Text(next.subtitle)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                 }
                 .padding(10)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
@@ -98,10 +101,10 @@ private struct BadgeCell: View {
             Text(badge.title)
                 .font(.system(size: 9, weight: .semibold))
                 .lineLimit(1)
-                .foregroundColor(.primary)
+                .foregroundColor(Pulse.textPrimary)
             Text(badge.earnedAt.formatted(date: .abbreviated, time: .omitted))
                 .font(.system(size: 7))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }

@@ -128,16 +128,17 @@ struct StrengthStandardsCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "chart.bar.xaxis.ascending")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("Strength Standards")
                     .font(.subheadline.weight(.semibold))
+                    .foregroundColor(Pulse.textPrimary)
                 Spacer()
             }
 
             if standards.isEmpty {
                 Text("Log compound lifts (bench, squat, deadlift, OHP, rows) to see your strength level")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
             } else {
@@ -148,14 +149,14 @@ struct StrengthStandardsCard: View {
                 HStack(spacing: 4) {
                     Text("Based on bodyweight ratios")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     ForEach(StrengthLevel.allCases, id: \.self) { level in
                         HStack(spacing: 2) {
                             Circle().fill(level.color).frame(width: 4, height: 4)
                             Text(level.short)
                                 .font(.system(size: 7, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
@@ -174,15 +175,16 @@ private struct StandardRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(standard.name)
                     .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Pulse.textPrimary)
                 HStack(spacing: 4) {
                     Text(standard.level.rawValue)
                         .font(.system(size: 9, weight: .bold))
                         .foregroundColor(standard.level.color)
                     Text("·")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text(String(format: "%.1f× BW", standard.bwRatio))
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -192,13 +194,14 @@ private struct StandardRow: View {
                 let display = useLbs ? standard.e1rm * 2.20462 : standard.e1rm
                 Text(String(format: "%.0f %@", display, useLbs ? "lbs" : "kg"))
                     .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(Pulse.textPrimary)
                     .monospacedDigit()
                 if let next = standard.nextThreshold {
                     let nextDisplay = useLbs ? next * 2.20462 : next
                     let gap = nextDisplay - display
                     Text(String(format: "+%.0f to next", gap))
                         .font(.system(size: 8, weight: .medium))
-                        .foregroundColor(Color(hex: "F59E0B"))
+                        .foregroundColor(Pulse.nutrition)
                 }
             }
 
@@ -220,10 +223,10 @@ private enum StrengthLevel: String, CaseIterable {
     var color: Color {
         switch self {
         case .beginner: return Color(hex: "94A3B8")
-        case .novice: return Color(hex: "059669")
-        case .intermediate: return Color(hex: "2563EB")
-        case .advanced: return Color(hex: "8B5CF6")
-        case .elite: return Color(hex: "F59E0B")
+        case .novice: return Pulse.positive
+        case .intermediate: return Pulse.hydration
+        case .advanced: return Pulse.ai
+        case .elite: return Pulse.nutrition
         }
     }
 

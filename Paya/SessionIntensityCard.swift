@@ -17,7 +17,7 @@ struct SessionIntensityCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "chart.bar.fill")
-                    .foregroundColor(Color(hex: "DC2626"))
+                    .foregroundColor(Pulse.critical)
                 Text("Effort Map")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -53,26 +53,26 @@ struct SessionIntensityCard: View {
                     HStack(spacing: 10) {
                         Image(systemName: "heart.text.square")
                             .font(.title3)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("No heart rate data for this session")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text("Connect a Bluetooth heart rate monitor before your next session to see which exercises actually pushed you.")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         Spacer()
                         Image(systemName: "chevron.right")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     .padding(10)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
             }
         }
         .payaCard(padding: 14)
@@ -88,7 +88,7 @@ struct SessionIntensityCard: View {
                 .frame(width: 6, height: 6)
             Text(zone.rawValue)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }
@@ -106,7 +106,7 @@ private struct IntensityRow: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 5)
-                        .fill(Color(.tertiarySystemBackground))
+                        .fill(Pulse.surfaceElevatedFallback)
                     if let pct = intensity.percentMaxHR {
                         RoundedRectangle(cornerRadius: 5)
                             .fill(Color(hex: intensity.zone.colorHex))

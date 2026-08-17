@@ -22,14 +22,14 @@ struct SessionReflectionCard: View {
                     Image(systemName: hasReflection
                           ? "text.bubble.fill"
                           : "text.bubble")
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                     Text(hasReflection ? "Your reflection" : "Add reflection")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: hasReflection ? "pencil" : "chevron.right")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 if hasReflection {
@@ -50,8 +50,8 @@ struct SessionReflectionCard: View {
                                     .font(.caption2.weight(.semibold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(Color(hex: "8B5CF6").opacity(0.12))
-                                    .foregroundColor(Color(hex: "8B5CF6"))
+                                    .background(Pulse.ai.opacity(0.12))
+                                    .foregroundColor(Pulse.ai)
                                     .clipShape(Capsule())
                             }
                         }
@@ -60,19 +60,19 @@ struct SessionReflectionCard: View {
                     if let notes = session.reflectionNotes, !notes.isEmpty {
                         Text(notes)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 } else {
                     Text("How did this session feel? Tap to add.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .sheet(isPresented: $showReflectionSheet) {
             ReflectionSheet(session: session)
         }
@@ -118,10 +118,10 @@ struct RPEBadge: View {
 
     var color: Color {
         switch rpe {
-        case 1...3:  return Color(hex: "059669")
-        case 4...6:  return Color(hex: "B45309")
+        case 1...3:  return Pulse.positive
+        case 4...6:  return Pulse.warning
         case 7...8:  return Color(hex: "C2410C")
-        default:     return Color(hex: "DC2626")
+        default:     return Pulse.critical
         }
     }
 
@@ -175,9 +175,9 @@ struct EnergyBadge: View {
 
     var color: Color {
         switch energy {
-        case 1: return Color(hex: "DC2626")
-        case 2: return Color(hex: "B45309")
-        default: return Color(hex: "059669")
+        case 1: return Pulse.critical
+        case 2: return Pulse.warning
+        default: return Pulse.positive
         }
     }
 

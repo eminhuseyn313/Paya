@@ -33,9 +33,9 @@ enum SessionType: String, CaseIterable {
 
     var color: Color {
         switch self {
-        case .a: return Color(hex: "2563EB")
-        case .b: return Color(hex: "059669")
-        case .c: return Color(hex: "B45309")
+        case .a: return Pulse.hydration
+        case .b: return Pulse.positive
+        case .c: return Pulse.warning
         }
     }
 }

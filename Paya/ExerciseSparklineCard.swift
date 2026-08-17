@@ -17,7 +17,7 @@ struct ExerciseSparklineCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "chart.xyaxis.line")
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("Exercise Trends")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -38,12 +38,12 @@ struct ExerciseSparklineCard: View {
                                         .padding(.vertical, 5)
                                         .background(
                                             selectedExercise == data.name
-                                                ? Color(hex: "2563EB")
-                                                : Color(.tertiarySystemBackground)
+                                                ? Pulse.hydration
+                                                : Pulse.surfaceElevatedFallback
                                         )
                                         .clipShape(Capsule())
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(PulsePress())
                             }
                         }
                     }
@@ -61,7 +61,7 @@ struct ExerciseSparklineCard: View {
                                         Text(String(format: "%+.0f%%", trend))
                                             .font(.system(size: 11, weight: .bold))
                                     }
-                                    .foregroundColor(trend >= 0 ? Color(hex: "059669") : Color(hex: "DC2626"))
+                                    .foregroundColor(trend >= 0 ? Pulse.positive : Pulse.critical)
                                 }
                             }
 
@@ -70,7 +70,7 @@ struct ExerciseSparklineCard: View {
                                     x: .value("Date", point.date),
                                     y: .value("Weight", useLbs ? point.weightKg * 2.20462 : point.weightKg)
                                 )
-                                .foregroundStyle(Color(hex: "2563EB"))
+                                .foregroundStyle(Pulse.hydration)
                                 .interpolationMethod(.catmullRom)
 
                                 AreaMark(
@@ -79,7 +79,7 @@ struct ExerciseSparklineCard: View {
                                 )
                                 .foregroundStyle(
                                     LinearGradient(
-                                        colors: [Color(hex: "2563EB").opacity(0.2), .clear],
+                                        colors: [Pulse.hydration.opacity(0.2), .clear],
                                         startPoint: .top, endPoint: .bottom
                                     )
                                 )
@@ -89,7 +89,7 @@ struct ExerciseSparklineCard: View {
                                     x: .value("Date", point.date),
                                     y: .value("Weight", useLbs ? point.weightKg * 2.20462 : point.weightKg)
                                 )
-                                .foregroundStyle(Color(hex: "2563EB"))
+                                .foregroundStyle(Pulse.hydration)
                                 .symbolSize(12)
                             }
                             .frame(height: 70)
@@ -140,7 +140,7 @@ struct ExerciseSparklineCard: View {
                 .font(.system(size: 12, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 8))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 

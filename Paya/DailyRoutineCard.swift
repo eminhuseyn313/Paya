@@ -242,7 +242,7 @@ struct DailyRoutineCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Image(systemName: "checklist.checked")
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                     Text("Daily routines")
                         .font(.subheadline.weight(.semibold))
                     Spacer()
@@ -255,10 +255,10 @@ struct DailyRoutineCard: View {
                             Text("UV \(uv)")
                                 .font(.system(size: 9, weight: .bold))
                         }
-                        .foregroundColor(uv >= 6 ? Color(hex: "DC2626") : Color(hex: "F59E0B"))
+                        .foregroundColor(uv >= 6 ? Pulse.critical : Pulse.nutrition)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
-                        .background((uv >= 6 ? Color(hex: "DC2626") : Color(hex: "F59E0B")).opacity(0.1))
+                        .background((uv >= 6 ? Pulse.critical : Pulse.nutrition).opacity(0.1))
                         .clipShape(Capsule())
                     }
 
@@ -267,7 +267,7 @@ struct DailyRoutineCard: View {
                     } label: {
                         Image(systemName: "gearshape")
                             .font(.system(size: 12))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
 
@@ -286,7 +286,7 @@ struct DailyRoutineCard: View {
                             if routine.intervalMinutes > 0 {
                                 Text("Every \(routine.intervalMinutes / 60)h")
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
 
@@ -296,7 +296,7 @@ struct DailyRoutineCard: View {
                         if routine.category == "sun", let uv = store.uvIndex {
                             Text("UV \(uv)")
                                 .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(uv >= 6 ? Color(hex: "DC2626") : Color(hex: "F59E0B"))
+                                .foregroundColor(uv >= 6 ? Pulse.critical : Pulse.nutrition)
                         }
 
                         Button {
@@ -307,7 +307,7 @@ struct DailyRoutineCard: View {
                         } label: {
                             Image(systemName: "checkmark.circle")
                                 .font(.system(size: 22))
-                                .foregroundColor(Color(hex: "059669"))
+                                .foregroundColor(Pulse.positive)
                         }
                     }
                     .padding(.vertical, 2)
@@ -318,10 +318,10 @@ struct DailyRoutineCard: View {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                         Text("UV index is \(uv) — reapply SPF 30+ every 2 hours outdoors (WHO 2024).")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -341,12 +341,12 @@ struct DailyRoutineCard: View {
 
     private func colorForCategory(_ category: String) -> Color {
         switch category {
-        case "sun": return Color(hex: "F59E0B")
-        case "hydration": return Color(hex: "0891B2")
-        case "eye": return Color(hex: "2563EB")
-        case "mobility": return Color(hex: "8B5CF6")
-        case "supplement": return Color(hex: "059669")
-        default: return Color(hex: "059669")
+        case "sun": return Pulse.nutrition
+        case "hydration": return Pulse.recovery
+        case "eye": return Pulse.hydration
+        case "mobility": return Pulse.ai
+        case "supplement": return Pulse.positive
+        default: return Pulse.positive
         }
     }
 }
@@ -365,7 +365,7 @@ struct RoutineSettingsSheet: View {
                     ForEach(store.routines.filter(\.isBuiltIn)) { routine in
                         HStack {
                             Image(systemName: routine.icon)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .frame(width: 24)
                             Text(routine.name)
                                 .font(.subheadline)
@@ -385,7 +385,7 @@ struct RoutineSettingsSheet: View {
                         ForEach(custom) { routine in
                             HStack {
                                 Image(systemName: routine.icon)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .frame(width: 24)
                                 Text(routine.name)
                                     .font(.subheadline)
@@ -458,7 +458,7 @@ struct AddRoutineSheet: View {
                                         .font(.title3)
                                         .foregroundColor(icon == opt ? .white : .secondary)
                                         .frame(width: 40, height: 40)
-                                        .background(icon == opt ? Color(hex: "059669") : Color(.tertiarySystemBackground))
+                                        .background(icon == opt ? Pulse.positive : Pulse.surfaceElevatedFallback)
                                         .clipShape(Circle())
                                 }
                             }

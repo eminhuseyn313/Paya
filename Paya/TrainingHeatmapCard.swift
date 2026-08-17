@@ -13,13 +13,13 @@ struct TrainingHeatmapCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "square.grid.3x3.fill")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Training Activity")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("Last 13 weeks")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             VStack(spacing: 2) {
@@ -42,7 +42,7 @@ struct TrainingHeatmapCard: View {
                     Spacer()
                     Text("Less")
                         .font(.system(size: 8))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     ForEach([0, 1, 2, 3], id: \.self) { level in
                         RoundedRectangle(cornerRadius: 2)
                             .fill(levelColor(level))
@@ -50,7 +50,7 @@ struct TrainingHeatmapCard: View {
                     }
                     Text("More")
                         .font(.system(size: 8))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.top, 4)
             }
@@ -86,7 +86,7 @@ struct TrainingHeatmapCard: View {
             ForEach(["M","T","W","T","F","S","S"], id: \.self) { label in
                 Text(label)
                     .font(.system(size: 7))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(width: 12, height: cellSize)
             }
         }
@@ -110,10 +110,10 @@ struct TrainingHeatmapCard: View {
 
     private func levelColor(_ level: Int) -> Color {
         switch level {
-        case 0: return Color(hex: "059669").opacity(0.08)
-        case 1: return Color(hex: "059669").opacity(0.3)
-        case 2: return Color(hex: "059669").opacity(0.6)
-        default: return Color(hex: "059669")
+        case 0: return Pulse.positive.opacity(0.08)
+        case 1: return Pulse.positive.opacity(0.3)
+        case 2: return Pulse.positive.opacity(0.6)
+        default: return Pulse.positive
         }
     }
 
@@ -122,7 +122,7 @@ struct TrainingHeatmapCard: View {
             Text(value)
                 .font(.caption.weight(.bold))
             Text(label)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 

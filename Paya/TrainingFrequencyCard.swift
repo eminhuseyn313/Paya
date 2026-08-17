@@ -16,7 +16,7 @@ struct TrainingFrequencyCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "clock.badge.checkmark.fill")
-                    .foregroundColor(Color(hex: "2563EB"))
+                    .foregroundColor(Pulse.hydration)
                 Text("When You Train")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -25,7 +25,7 @@ struct TrainingFrequencyCard: View {
             if totalSessions < 3 {
                 Text("Complete a few more sessions to see your training patterns.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
             } else {
@@ -33,7 +33,7 @@ struct TrainingFrequencyCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("BY DAY")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     HStack(spacing: 4) {
                         ForEach(0..<7, id: \.self) { i in
@@ -41,7 +41,7 @@ struct TrainingFrequencyCard: View {
                             let intensity = maxCount > 0 ? Double(dayOfWeekCounts[i]) / Double(maxCount) : 0
                             VStack(spacing: 3) {
                                 RoundedRectangle(cornerRadius: 3)
-                                    .fill(Color(hex: "2563EB").opacity(max(0.08, intensity)))
+                                    .fill(Pulse.hydration.opacity(max(0.08, intensity)))
                                     .frame(height: max(4, 30 * intensity))
                                 Text(dayNames[i])
                                     .font(.system(size: 8, weight: dayOfWeekCounts[i] == dayOfWeekCounts.max() ? .bold : .regular))
@@ -57,7 +57,7 @@ struct TrainingFrequencyCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("BY TIME")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
 
                     let timeBlocks = groupedHours
                     HStack(spacing: 4) {
@@ -66,11 +66,11 @@ struct TrainingFrequencyCard: View {
                             let intensity = maxBlock > 0 ? Double(block.count) / Double(maxBlock) : 0
                             VStack(spacing: 3) {
                                 RoundedRectangle(cornerRadius: 3)
-                                    .fill(Color(hex: "8B5CF6").opacity(max(0.08, intensity)))
+                                    .fill(Pulse.ai.opacity(max(0.08, intensity)))
                                     .frame(height: max(4, 24 * intensity))
                                 Text(block.label)
                                     .font(.system(size: 7))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             .frame(maxWidth: .infinity)
                         }
@@ -82,14 +82,14 @@ struct TrainingFrequencyCard: View {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
                             .font(.system(size: 9))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("Favorite: \(favoriteDay)")
                             .font(.system(size: 10, weight: .semibold))
                     }
                     HStack(spacing: 4) {
                         Image(systemName: "clock")
                             .font(.system(size: 9))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Peak: \(favoriteTime)")
                             .font(.system(size: 10, weight: .semibold))
                     }

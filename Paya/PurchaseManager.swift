@@ -232,10 +232,10 @@ struct ProGateModifier: ViewModifier {
                     VStack(spacing: 6) {
                         Image(systemName: "lock.fill")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Pro feature")
                             .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Button {
                             showPaywall = true
                         } label: {
@@ -244,7 +244,7 @@ struct ProGateModifier: ViewModifier {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 5)
-                                .background(Color(hex: "8B5CF6"))
+                                .background(Pulse.ai)
                                 .clipShape(Capsule())
                         }
                     }
@@ -284,16 +284,16 @@ struct ProGate<Content: View>: View {
                 HStack(spacing: 8) {
                     Image(systemName: "lock.fill")
                         .font(.system(size: 12))
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                     Text(featureName)
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Text("PRO")
                         .font(.system(size: 9, weight: .black))
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color(hex: "8B5CF6"))
+                        .background(Pulse.ai)
                         .clipShape(Capsule())
                 }
             }

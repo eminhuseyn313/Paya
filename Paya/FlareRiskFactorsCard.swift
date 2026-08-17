@@ -94,7 +94,7 @@ struct FlareRiskFactorsCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: "exclamationmark.triangle")
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Pulse.warning)
                 Text("Today's Flare Risk Factors")
                     .font(.subheadline.weight(.semibold))
                 CardInfoButton(
@@ -109,18 +109,18 @@ struct FlareRiskFactorsCard: View {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: factor.icon)
                             .font(.caption)
-                            .foregroundColor(factor.elevated ? Color(hex: "B45309") : Color(hex: "059669"))
+                            .foregroundColor(factor.elevated ? Pulse.warning : Pulse.positive)
                             .frame(width: 18)
                         VStack(alignment: .leading, spacing: 2) {
                             HStack {
                                 Text(factor.label).font(.caption.weight(.semibold))
                                 Spacer()
                                 Text(factor.value).font(.caption.weight(.bold)).monospacedDigit()
-                                    .foregroundColor(factor.elevated ? Color(hex: "B45309") : .primary)
+                                    .foregroundColor(factor.elevated ? Pulse.warning : .primary)
                             }
                             Text(factor.note)
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }

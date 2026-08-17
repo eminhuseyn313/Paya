@@ -55,9 +55,10 @@ struct WeeklyBodyMapCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 6) {
                     Image(systemName: "figure.strengthtraining.traditional")
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                     Text("Weekly Body Map")
                         .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Pulse.textPrimary)
                     CardInfoButton(
                         title: "Weekly Body Map",
                         explanation: "Each region colored by hard sets this week against published volume landmarks (MEV/MAV/MRV — Israetel/RP framework): gray = under minimum, green = growing zone, orange = high, red = excessive. Small warning dots mark regions flagged by your latest mobility check-in or today's joint pain log — a reason to look closer, not a diagnosis."
@@ -70,16 +71,18 @@ struct WeeklyBodyMapCard: View {
                     VStack(spacing: 4) {
                         ZStack {
                             BodyFigureView(isFront: true, regionColors: regionColors)
+                                .frame(maxWidth: 140)
                             warningOverlay(isFront: true)
                         }
-                        Text("Front").font(.caption2).foregroundColor(.secondary)
+                        Text("Front").font(.caption2).foregroundColor(Pulse.textTertiary)
                     }
                     VStack(spacing: 4) {
                         ZStack {
                             BodyFigureView(isFront: false, regionColors: regionColors)
+                                .frame(maxWidth: 140)
                             warningOverlay(isFront: false)
                         }
-                        Text("Back").font(.caption2).foregroundColor(.secondary)
+                        Text("Back").font(.caption2).foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                 }
@@ -95,10 +98,10 @@ struct WeeklyBodyMapCard: View {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption2)
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                         Text("Flagged by your mobility check-in or today's joint pain log — worth an easier day for that area.")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -121,7 +124,7 @@ struct WeeklyBodyMapCard: View {
             ForEach(Array(positions.enumerated()), id: \.offset) { _, pair in
                 if flaggedRegions.contains(pair.0) {
                     Circle()
-                        .fill(Color(hex: "B45309"))
+                        .fill(Pulse.warning)
                         .frame(width: 8, height: 8)
                         .overlay(Circle().stroke(.white, lineWidth: 1))
                         .position(x: pair.1.x * sx, y: pair.1.y * sy)
@@ -133,7 +136,7 @@ struct WeeklyBodyMapCard: View {
     private func legendDot(_ hex: String, _ label: String) -> some View {
         HStack(spacing: 4) {
             Circle().fill(Color(hex: hex)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 9)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
         }
     }
 

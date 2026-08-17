@@ -9,81 +9,124 @@ struct FatigueIndexCard: View {
     @State private var factors: [FatigueFactor] = []
 
     var body: some View {
-        Group {
+        VStack(alignment: .leading, spacing: 10) {
             if fatigueScore > 0 {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Image(systemName: "battery.75percent")
-                            .foregroundColor(fatigueColor)
-                        Text("Fatigue Index")
-                            .font(.subheadline.weight(.semibold))
-                        Spacer()
-                        Text(fatigueLabel)
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 2)
-                            .background(fatigueColor)
-                            .clipShape(Capsule())
-                    }
-
-                    HStack(spacing: 16) {
-                        ZStack {
-                            Circle()
-                                .stroke(Color(.tertiarySystemBackground), lineWidth: 6)
-                                .frame(width: 56, height: 56)
-                            Circle()
-                                .trim(from: 0, to: CGFloat(fatigueScore) / 100)
-                                .stroke(fatigueColor, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                                .frame(width: 56, height: 56)
-                                .rotationEffect(.degrees(-90))
-                            VStack(spacing: 0) {
-                                Text("\(fatigueScore)")
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                                Text("/100")
-                                    .font(.system(size: 8))
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-
-                        VStack(alignment: .leading, spacing: 6) {
-                            ForEach(factors) { factor in
-                                HStack(spacing: 6) {
-                                    Image(systemName: factor.icon)
-                                        .font(.system(size: 10))
-                                        .foregroundColor(factor.color)
-                                        .frame(width: 14)
-                                    Text(factor.text)
-                                        .font(.system(size: 10))
-                                        .foregroundColor(.primary)
-                                        .lineLimit(1)
-                                }
-                            }
-                        }
-                    }
-
-                    HStack(spacing: 6) {
-                        Image(systemName: trend.icon)
-                            .font(.system(size: 9, weight: .bold))
-                        Text(trend.message)
-                            .font(.system(size: 10))
-                    }
-                    .foregroundColor(trend.color)
-
-                    Text("Accumulated training stress from volume, frequency, and RPE over the past 7 days. Above 70 suggests a deload may help.")
-                        .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                HStack {
+                    Image(systemName: "battery.75percent")
+                        .foregroundColor(fatigueColor)
+                    Text("Fatigue Index")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Pulse.textPrimary)
+                    Spacer()
+                    Text(fatigueLabel)
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(fatigueColor)
+                        .clipShape(Capsule())
                 }
-                .payaCard(padding: 14)
+
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .stroke(Pulse.surfaceFallback, lineWidth: 6)
+                            .frame(width: 56, height: 56)
+                        Circle()
+                            .trim(from: 0, to: CGFloat(fatigueScore) / 100)
+                            .stroke(fatigueColor, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                            .frame(width: 56, height: 56)
+                            .rotationEffect(.degrees(-90))
+                        VStack(spacing: 0) {
+                            Text("\(fatigueScore)")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(Pulse.textPrimary)
+                            Text("/100")
+                                .font(.system(size: 8))
+                                .foregroundColor(Pulse.textTertiary)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(factors) { factor in
+                            HStack(spacing: 6) {
+                                Image(systemName: factor.icon)
+                                    .font(.system(size: 10))
+                                    .foregroundColor(factor.color)
+                                    .frame(width: 14)
+                                Text(factor.text)
+                                    .font(.system(size: 10))
+                                    .foregroundColor(Pulse.textPrimary)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                }
+
+                HStack(spacing: 6) {
+                    Image(systemName: trend.icon)
+                        .font(.system(size: 9, weight: .bold))
+                    Text(trend.message)
+                        .font(.system(size: 10))
+                }
+                .foregroundColor(trend.color)
+
+                Text("Accumulated training stress from volume, frequency, and RPE over the past 7 days. Above 70 suggests a deload may help.")
+                    .font(.system(size: 9))
+                    .foregroundColor(Pulse.textTertiary)
+            } else {
+                // Empty state — no recent sessions
+                HStack {
+                    Image(systemName: "battery.75percent")
+                        .foregroundColor(Pulse.positive)
+                    Text("Fatigue Index")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Pulse.textPrimary)
+                    Spacer()
+                    Text("Fresh")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 2)
+                        .background(Pulse.positive)
+                        .clipShape(Capsule())
+                }
+
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .stroke(Pulse.surfaceFallback, lineWidth: 6)
+                            .frame(width: 56, height: 56)
+                        VStack(spacing: 0) {
+                            Text("0")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(Pulse.positive)
+                            Text("/100")
+                                .font(.system(size: 8))
+                                .foregroundColor(Pulse.textTertiary)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("No accumulated fatigue")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(Pulse.textPrimary)
+                        Text("Complete training sessions this week to start tracking fatigue accumulation, recovery needs, and deload timing.")
+                            .font(.system(size: 10))
+                            .foregroundColor(Pulse.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
             }
         }
+        .payaCard(padding: 14)
         .onAppear { compute() }
     }
 
     private var fatigueColor: Color {
-        if fatigueScore >= 70 { return Color(hex: "DC2626") }
-        if fatigueScore >= 45 { return Color(hex: "F59E0B") }
-        return Color(hex: "059669")
+        if fatigueScore >= 70 { return Pulse.critical }
+        if fatigueScore >= 45 { return Pulse.nutrition }
+        return Pulse.positive
     }
 
     private var fatigueLabel: String {
@@ -109,9 +152,9 @@ struct FatigueIndexCard: View {
         let frequencyScore = min(30, Double(sessionCount) * 6)
         score += frequencyScore
         if sessionCount >= 5 {
-            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Color(hex: "DC2626")))
+            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Pulse.critical))
         } else if sessionCount >= 3 {
-            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Color(hex: "F59E0B")))
+            factorList.append(FatigueFactor(icon: "calendar", text: "\(sessionCount) sessions this week", color: Pulse.nutrition))
         }
 
         let totalVolume = thisWeek.reduce(0.0) { total, session in
@@ -122,7 +165,7 @@ struct FatigueIndexCard: View {
         let volumeScore = min(30, totalVolume / 1000)
         score += volumeScore
         if totalVolume > 10000 {
-            factorList.append(FatigueFactor(icon: "scalemass.fill", text: String(format: "%.0f kg total volume", totalVolume), color: Color(hex: "F59E0B")))
+            factorList.append(FatigueFactor(icon: "scalemass.fill", text: String(format: "%.0f kg total volume", totalVolume), color: Pulse.nutrition))
         }
 
         let rpes = thisWeek.compactMap(\.subjectiveRPE)
@@ -131,16 +174,16 @@ struct FatigueIndexCard: View {
             let rpeScore = max(0, (avgRPE - 6) * 10)
             score += rpeScore
             if avgRPE >= 8.5 {
-                factorList.append(FatigueFactor(icon: "flame.fill", text: String(format: "Avg RPE %.1f (high)", avgRPE), color: Color(hex: "DC2626")))
+                factorList.append(FatigueFactor(icon: "flame.fill", text: String(format: "Avg RPE %.1f (high)", avgRPE), color: Pulse.critical))
             } else if avgRPE >= 7 {
-                factorList.append(FatigueFactor(icon: "flame", text: String(format: "Avg RPE %.1f", avgRPE), color: Color(hex: "F59E0B")))
+                factorList.append(FatigueFactor(icon: "flame", text: String(format: "Avg RPE %.1f", avgRPE), color: Pulse.nutrition))
             }
         }
 
         let consecutiveDays = countConsecutiveTrainingDays(sessions: thisWeek)
         if consecutiveDays >= 3 {
             score += Double(consecutiveDays) * 3
-            factorList.append(FatigueFactor(icon: "arrow.right.arrow.left", text: "\(consecutiveDays) consecutive training days", color: Color(hex: "DC2626")))
+            factorList.append(FatigueFactor(icon: "arrow.right.arrow.left", text: "\(consecutiveDays) consecutive training days", color: Pulse.critical))
         }
 
         fatigueScore = min(100, Int(score))
@@ -212,9 +255,9 @@ private enum FatigueTrend {
 
     var color: Color {
         switch self {
-        case .rising: return Color(hex: "DC2626")
-        case .stable: return Color(hex: "F59E0B")
-        case .dropping: return Color(hex: "059669")
+        case .rising: return Pulse.critical
+        case .stable: return Pulse.nutrition
+        case .dropping: return Pulse.positive
         }
     }
 }

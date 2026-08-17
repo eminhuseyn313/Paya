@@ -18,14 +18,14 @@ struct MuscleFreshnessMap: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "figure.stand")
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                         Text("Muscle Freshness")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         let fresh = muscles.filter { $0.status == .fresh }.count
                         Text("\(fresh)/\(muscles.count) ready")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "059669"))
+                            .foregroundColor(Pulse.positive)
                     }
 
                     // Body map grid - 2 columns
@@ -46,10 +46,10 @@ struct MuscleFreshnessMap: View {
                     }
 
                     HStack(spacing: 12) {
-                        statusLegend(color: Color(hex: "059669"), label: "Fresh")
-                        statusLegend(color: Color(hex: "F59E0B"), label: "Recovering")
-                        statusLegend(color: Color(hex: "DC2626"), label: "Fatigued")
-                        statusLegend(color: Color(.tertiarySystemBackground), label: "Unknown")
+                        statusLegend(color: Pulse.positive, label: "Fresh")
+                        statusLegend(color: Pulse.nutrition, label: "Recovering")
+                        statusLegend(color: Pulse.critical, label: "Fatigued")
+                        statusLegend(color: Pulse.surfaceElevatedFallback, label: "Unknown")
                     }
 
                     Text("Recovery estimates: large muscles 72h, medium 56h, small 48h. Adjusted by volume.")
@@ -77,7 +77,7 @@ struct MuscleFreshnessMap: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color(.tertiarySystemBackground))
+                        .fill(Pulse.surfaceElevatedFallback)
                     RoundedRectangle(cornerRadius: 2)
                         .fill(muscle.statusColor.opacity(0.6))
                         .frame(width: geo.size.width * CGFloat(muscle.recoveryPercent))
@@ -87,7 +87,7 @@ struct MuscleFreshnessMap: View {
 
             Text(muscle.hoursLabel)
                 .font(.system(size: 8, weight: .bold, design: .rounded))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .frame(width: 28, alignment: .trailing)
         }
     }
@@ -95,7 +95,7 @@ struct MuscleFreshnessMap: View {
     private func statusLegend(color: Color, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).font(.system(size: 7)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
         }
     }
 
@@ -195,10 +195,10 @@ private enum MuscleStatus {
     case fresh, recovering, fatigued, unknown
     var color: Color {
         switch self {
-        case .fresh: return Color(hex: "059669")
-        case .recovering: return Color(hex: "F59E0B")
-        case .fatigued: return Color(hex: "DC2626")
-        case .unknown: return Color(.tertiarySystemBackground)
+        case .fresh: return Pulse.positive
+        case .recovering: return Pulse.nutrition
+        case .fatigued: return Pulse.critical
+        case .unknown: return Pulse.surfaceElevatedFallback
         }
     }
 }

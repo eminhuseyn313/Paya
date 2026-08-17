@@ -126,6 +126,40 @@ enum WaterStore {
         return (try? context.fetch(descriptor)) ?? []
     }
 
+    /// Returns the most frequently logged ml amounts for a drink type over
+    /// the last 14 days. Falls back to sensible defaults if no history exists.
+    /// This drives the quick-add buttons so they adapt to the user's actual
+    /// drinking habits instead of showing static [100, 250, 500].
+    @MainActor
+    static func frequentAmounts(for drinkType: DrinkType, context: ModelContext, count: Int = 3) -> [Int] {
+        let defaults: [Int] = drinkType == .espresso ? [30, 60, 90] : [100, 250, 500]
+
+        let pid = ActiveProfile.id
+        let twoWeeksAgo = Calendar.current.date(byAdding: .day, value: -14, to: .now) ?? .now
+        let typeRaw = drinkType.rawValue
+        let descriptor = FetchDescriptor<WaterEventLog>(
+            predicate: #Predicate<WaterEventLog> {
+                $0.profileId == pid && $0.date >= twoWeeksAgo && $0.drinkTypeRaw == typeRaw
+            }
+        )
+        let events = (try? context.fetch(descriptor)) ?? []
+        guard events.count >= 3 else { return defaults }
+
+        // Count frequency of each ml amount
+        var freq: [Int: Int] = [:]
+        for e in events { freq[e.ml, default: 0] += 1 }
+
+        // Sort by frequency (descending), then by amount (ascending) for ties
+        let sorted = freq.sorted { lhs, rhs in
+            if lhs.value != rhs.value { return lhs.value > rhs.value }
+            return lhs.key < rhs.key
+        }
+
+        let top = Array(sorted.prefix(count).map { $0.key })
+        guard top.count >= 2 else { return defaults }
+        return top.sorted()   // present in ascending ml order
+    }
+
     @MainActor
     private static func todaysLog(context: ModelContext, createIfMissing: Bool) -> HealthLog? {
         let pid = ActiveProfile.id

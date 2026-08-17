@@ -32,25 +32,25 @@ struct RecoveryBanner: View {
                         HStack(spacing: 6) {
                             Text(adjustment.multiplier > 1.0 ? "Primed" : adjustment.severity.label)
                                 .font(.subheadline.weight(.bold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text("· \(adjustment.signedPercentLabel)")
                                 .font(.subheadline.weight(.bold))
                                 .foregroundColor(adjustment.severity.color)
                         }
                         Text("\(adjustment.reasons.count) signal\(adjustment.reasons.count == 1 ? "" : "s") · tap to see why")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     Spacer()
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(14)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
 
             if isExpanded {
                 Divider().padding(.horizontal, 14)
@@ -64,7 +64,7 @@ struct RecoveryBanner: View {
                                 .frame(width: 22)
                             Text(reason.text)
                                 .font(.caption)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Spacer()
                         }
                     }
@@ -74,10 +74,10 @@ struct RecoveryBanner: View {
                     HStack(spacing: 6) {
                         Image(systemName: "info.circle")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("You can still override any weight manually.")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Spacer()
                     }
                 }
@@ -107,18 +107,18 @@ struct QuickSessionBanner: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color(hex: "8B5CF6").opacity(0.15))
+                    .fill(Pulse.ai.opacity(0.15))
                     .frame(width: 36, height: 36)
                 Image(systemName: "bolt.fill")
                     .font(.subheadline)
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text("Shorter workout available")
                     .font(.caption.weight(.semibold))
                 Text("Your recovery is low — switch to a 20-min session with only the key compound lifts, 2 sets each. Still counts toward your weekly volume.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
@@ -127,13 +127,13 @@ struct QuickSessionBanner: View {
                 .foregroundColor(.white)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color(hex: "8B5CF6"))
+                .background(Pulse.ai)
                 .clipShape(Capsule())
         }
         .padding(12)
-        .background(Color(hex: "8B5CF6").opacity(0.06))
+        .background(Pulse.ai.opacity(0.06))
         .clipShape(RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color(hex: "8B5CF6").opacity(0.2), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Pulse.ai.opacity(0.2), lineWidth: 1))
     }
 }//
 //  RecoveryBanner.swift

@@ -49,13 +49,13 @@ struct TrainingTimeAnalysisCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "clock.arrow.2.circlepath")
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                         Text("Best training time")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(totalSessions) sessions analyzed")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     // Bar chart comparison
@@ -65,8 +65,8 @@ struct TrainingTimeAnalysisCard: View {
                             y: .value("Volume", appState.profile.prefersLbs ? bracket.avgVolume * 2.20462 : bracket.avgVolume)
                         )
                         .foregroundStyle(bracket.name == bestBracket
-                            ? Color(hex: "059669")
-                            : Color(.tertiarySystemBackground)
+                            ? Pulse.positive
+                            : Pulse.surfaceElevatedFallback
                         )
                         .cornerRadius(6)
                         .annotation(position: .top) {
@@ -75,7 +75,7 @@ struct TrainingTimeAnalysisCard: View {
                                     .font(.system(size: 9, weight: .bold, design: .rounded))
                                 Text(appState.profile.prefersLbs ? "lbs" : "kg")
                                     .font(.system(size: 7))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
@@ -97,11 +97,11 @@ struct TrainingTimeAnalysisCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(insight)
                                 .font(.system(size: 10))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -133,13 +133,13 @@ struct TrainingTimeAnalysisCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
-                            .background(Color(hex: "059669"))
+                            .background(Pulse.positive)
                             .clipShape(Capsule())
                     }
                 }
                 Text(bracket.timeRange)
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer()
@@ -147,18 +147,18 @@ struct TrainingTimeAnalysisCard: View {
             VStack(alignment: .trailing, spacing: 1) {
                 Text("\(bracket.sessionCount) sessions")
                     .font(.system(size: 9, weight: .semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 if let rpe = bracket.avgRPE {
                     Text(String(format: "RPE %.1f", rpe))
                         .font(.system(size: 8))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }
         .padding(6)
         .background(bracket.name == bestBracket
-            ? Color(hex: "059669").opacity(0.06)
-            : Color(.tertiarySystemBackground).opacity(0.5))
+            ? Pulse.positive.opacity(0.06)
+            : Pulse.surfaceElevatedFallback.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -218,9 +218,9 @@ struct TrainingTimeAnalysisCard: View {
         }
 
         let brackets: [(String, String, Color, String, BracketAccumulator)] = [
-            ("Morning", "sunrise.fill", Color(hex: "F59E0B"), "Before 12pm", morning),
-            ("Afternoon", "sun.max.fill", Color(hex: "059669"), "12pm – 5pm", afternoon),
-            ("Evening", "moon.fill", Color(hex: "8B5CF6"), "After 5pm", evening),
+            ("Morning", "sunrise.fill", Pulse.nutrition, "Before 12pm", morning),
+            ("Afternoon", "sun.max.fill", Pulse.positive, "12pm – 5pm", afternoon),
+            ("Evening", "moon.fill", Pulse.ai, "After 5pm", evening),
         ]
 
         // Filter out brackets with no sessions

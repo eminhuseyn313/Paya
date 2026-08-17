@@ -108,9 +108,9 @@ enum RecoveryAdjuster {
 
         var color: Color {
             switch self {
-            case .normal:  return Color(hex: "059669")
-            case .caution: return Color(hex: "B45309")
-            case .deload:  return Color(hex: "DC2626")
+            case .normal:  return Pulse.positive
+            case .caution: return Pulse.warning
+            case .deload:  return Pulse.critical
             }
         }
 

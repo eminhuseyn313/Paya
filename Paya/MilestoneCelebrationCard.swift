@@ -30,16 +30,17 @@ struct MilestoneCelebrationCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "trophy.fill")
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.nutrition)
                         Text("Recent wins")
-                            .font(.subheadline.weight(.semibold))
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Text("\(recentAchievements.count) new")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.nutrition)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "B45309").opacity(0.1))
+                            .background(Pulse.nutrition.opacity(0.1))
                             .clipShape(Capsule())
                     }
 
@@ -58,10 +59,10 @@ struct MilestoneCelebrationCard: View {
                             Text("Share your wins")
                                 .font(.system(size: 11, weight: .bold))
                         }
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.nutrition)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
-                        .background(Color(hex: "B45309").opacity(0.1))
+                        .background(Pulse.nutrition.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
@@ -97,20 +98,20 @@ struct MilestoneCelebrationCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
-                            .background(Color(hex: "DC2626"))
+                            .background(Pulse.critical)
                             .clipShape(Capsule())
                     }
                 }
                 Text(achievement.subtitle)
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer(minLength: 0)
 
             Text(daysSince(achievement.earnedAt))
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .padding(8)
         .background(Color(hex: achievement.colorHex).opacity(0.04))
@@ -154,12 +155,12 @@ struct MilestoneCelebrationCard: View {
                         .font(.system(size: 24, weight: .black))
                     Text("\(recentAchievements.count) achievements unlocked")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Image(systemName: "trophy.fill")
                     .font(.system(size: 30))
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Pulse.warning)
             }
             .padding(20)
 
@@ -176,7 +177,7 @@ struct MilestoneCelebrationCard: View {
                                 .font(.system(size: 13, weight: .bold))
                             Text(a.subtitle)
                                 .font(.system(size: 10))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                     }
@@ -186,7 +187,7 @@ struct MilestoneCelebrationCard: View {
             .padding(.bottom, 20)
         }
         .frame(width: width)
-        .background(Color(.systemBackground))
+        .background(Pulse.canvasFallback)
         .clipShape(RoundedRectangle(cornerRadius: 16))
 
         let renderer = ImageRenderer(content: view)

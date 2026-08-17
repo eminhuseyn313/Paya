@@ -20,7 +20,7 @@ struct WeeklyReportCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "doc.text.fill")
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("Weekly Report")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -40,11 +40,11 @@ struct WeeklyReportCard: View {
                                 HStack(alignment: .top, spacing: 6) {
                                     Image(systemName: "checkmark.circle.fill")
                                         .font(.system(size: 10))
-                                        .foregroundColor(Color(hex: "059669"))
+                                        .foregroundColor(Pulse.positive)
                                         .padding(.top, 1)
                                     Text(highlight)
                                         .font(.system(size: 10))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
@@ -54,11 +54,11 @@ struct WeeklyReportCard: View {
                                     HStack(alignment: .top, spacing: 6) {
                                         Image(systemName: "arrow.up.circle")
                                             .font(.system(size: 10))
-                                            .foregroundColor(Color(hex: "F59E0B"))
+                                            .foregroundColor(Pulse.nutrition)
                                             .padding(.top, 1)
                                         Text(improvement)
                                             .font(.system(size: 10))
-                                            .foregroundColor(.primary)
+                                            .foregroundColor(Pulse.textPrimary)
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
                                 }
@@ -71,10 +71,10 @@ struct WeeklyReportCard: View {
                     } label: {
                         Text(expanded ? "Show less" : "See details")
                             .font(.system(size: 10, weight: .semibold))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
                 .payaCard(padding: 14)
             }
@@ -101,7 +101,7 @@ struct WeeklyReportCard: View {
                 .foregroundColor(colorForGrade(grade))
             Text(title)
                 .font(.system(size: 8, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
@@ -111,10 +111,10 @@ struct WeeklyReportCard: View {
 
     private func colorForGrade(_ grade: String) -> Color {
         switch grade {
-        case "A+", "A": return Color(hex: "059669")
-        case "A-", "B+", "B": return Color(hex: "2563EB")
-        case "B-", "C+", "C": return Color(hex: "F59E0B")
-        case "C-", "D+", "D": return Color(hex: "DC2626")
+        case "A+", "A": return Pulse.positive
+        case "A-", "B+", "B": return Pulse.hydration
+        case "B-", "C+", "C": return Pulse.nutrition
+        case "C-", "D+", "D": return Pulse.critical
         default: return .secondary
         }
     }

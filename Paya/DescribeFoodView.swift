@@ -17,40 +17,40 @@ struct DescribeFoodCard: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "8B5CF6").opacity(0.15))
+                        .fill(Pulse.ai.opacity(0.15))
                         .frame(width: 44, height: 44)
                         .scaleEffect(pulse ? 1.06 : 1.0)
                     Image(systemName: "mic.fill")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                 }
                 .frame(width: 44, height: 44)
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Voice log")
                         .font(.subheadline.weight(.bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Text("\"I had two eggs and toast\" — we estimate the rest")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .lineLimit(2)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(Color(hex: "8B5CF6").opacity(0.6))
+                    .foregroundColor(Pulse.ai.opacity(0.6))
             }
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(hex: "8B5CF6").opacity(0.06))
+                    .fill(Pulse.ai.opacity(0.06))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color(hex: "8B5CF6").opacity(0.12), lineWidth: 1)
+                            .stroke(Pulse.ai.opacity(0.12), lineWidth: 1)
                     )
             )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .onAppear {
             withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                 pulse = true
@@ -82,14 +82,14 @@ struct DescribeFoodView: View {
                     VStack(spacing: 10) {
                         Image(systemName: "key.slash")
                             .font(.system(size: 32))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("Add a free Gemini API key in Settings to use this.")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .multilineTextAlignment(.center)
                         Text("Google AI Studio gives free API keys with a generous daily limit — no card required.")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 40)
@@ -116,17 +116,17 @@ struct DescribeFoodView: View {
                             } label: {
                                 HStack(spacing: 4) {
                                     if isTranscribing {
-                                        SwiftUI.ProgressView().tint(Color(hex: "8B5CF6"))
+                                        SwiftUI.ProgressView().tint(Pulse.ai)
                                     } else {
                                         Image(systemName: recorder.isRecording ? "waveform" : "mic")
                                     }
                                     Text(isTranscribing ? "Processing…" : (recorder.isRecording ? "Tap to stop" : "Speak"))
                                 }
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(recorder.isRecording ? .white : Color(hex: "8B5CF6"))
+                                .foregroundColor(recorder.isRecording ? .white : Pulse.ai)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
-                                .background(recorder.isRecording ? Color(hex: "8B5CF6") : Color(hex: "8B5CF6").opacity(0.12))
+                                .background(recorder.isRecording ? Pulse.ai : Pulse.ai.opacity(0.12))
                                 .clipShape(Capsule())
                                 .scaleEffect(recorder.isRecording && micPulse ? 1.05 : 1.0)
                             }
@@ -138,16 +138,16 @@ struct DescribeFoodView: View {
                             .payaCard(padding: 8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(recorder.isRecording ? Color(hex: "8B5CF6") : .clear, lineWidth: 2)
+                                    .stroke(recorder.isRecording ? Pulse.ai : .clear, lineWidth: 2)
                             )
                             .focused($isFocused)
                         Text("Tap Speak and talk in any language, or type directly.")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         if let recorderError = recorder.errorText {
                             Text(recorderError)
                                 .font(.caption2)
-                                .foregroundColor(Color(hex: "DC2626"))
+                                .foregroundColor(Pulse.critical)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -166,7 +166,7 @@ struct DescribeFoodView: View {
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
-                                .background(Color(hex: "8B5CF6"))
+                                .background(Pulse.ai)
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                     }
@@ -176,7 +176,7 @@ struct DescribeFoodView: View {
                     if let errorText {
                         Text(errorText)
                             .font(.caption)
-                            .foregroundColor(Color(hex: "DC2626"))
+                            .foregroundColor(Pulse.critical)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 16)
                     }
@@ -189,18 +189,18 @@ struct DescribeFoodView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("\(Int(estimate.proteinG))g")
                                         .font(.title3.bold())
-                                        .foregroundColor(Color(hex: "2563EB"))
+                                        .foregroundColor(Pulse.hydration)
                                     Text("protein")
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("\(Int(estimate.calories))")
                                         .font(.title3.bold())
-                                        .foregroundColor(Color(hex: "B45309"))
+                                        .foregroundColor(Pulse.warning)
                                     Text("kcal")
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                             }
                             MicronutrientChips(estimate: estimate)
@@ -208,7 +208,7 @@ struct DescribeFoodView: View {
                             if !estimate.confidence.isEmpty {
                                 Text(estimate.confidence)
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
 
@@ -228,7 +228,7 @@ struct DescribeFoodView: View {
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(Color(hex: "059669"))
+                                    .background(Pulse.positive)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }

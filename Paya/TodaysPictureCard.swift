@@ -15,32 +15,32 @@ struct TodaysPictureCard: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Image(systemName: "sun.max.fill")
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.warning)
                     Text("Today's Picture")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 if let overview {
                     HStack(spacing: 12) {
-                        PictureStat(icon: "sun.max.fill", value: "\(overview.sunnyHoursWalked)h", label: "sunny + walked", color: Color(hex: "B45309"))
+                        PictureStat(icon: "sun.max.fill", value: "\(overview.sunnyHoursWalked)h", label: "sunny + walked", color: Pulse.warning)
                         // Real ambient-light-sensor reading (Watch), not
                         // inferred from weather + steps like the stat above —
                         // a different, more direct measurement of the same
                         // underlying "did I get outside" question.
-                        PictureStat(icon: "sun.horizon.fill", value: "\(overview.timeInDaylightMin)m", label: "in daylight", color: Color(hex: "B45309"))
-                        PictureStat(icon: "calendar", value: "\(overview.meetingMinutes)m", label: "in meetings", color: Color(hex: "2563EB"))
-                        PictureStat(icon: "drop.fill", value: "\(overview.totalWaterMl)ml", label: "water", color: Color(hex: "0891B2"))
+                        PictureStat(icon: "sun.horizon.fill", value: "\(overview.timeInDaylightMin)m", label: "in daylight", color: Pulse.warning)
+                        PictureStat(icon: "calendar", value: "\(overview.meetingMinutes)m", label: "in meetings", color: Pulse.hydration)
+                        PictureStat(icon: "drop.fill", value: "\(overview.totalWaterMl)ml", label: "water", color: Pulse.recovery)
                     }
 
                     if let nudge = overview.insights.first {
                         Text(nudge)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.top, 2)
                     }
@@ -49,14 +49,14 @@ struct TodaysPictureCard: View {
                         SwiftUI.ProgressView()
                         Text("Building today's picture…")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     .padding(.vertical, 4)
                 }
             }
             .payaCard(padding: 14)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -77,7 +77,7 @@ private struct PictureStat: View {
             }
             Text(label)
                 .font(.system(size: 9))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 }

@@ -28,13 +28,13 @@ struct PerformanceNutritionCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "link.circle.fill")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("What's driving your gains?")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(pairs.count) sessions analyzed")
                             .font(.system(size: 8))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     // Correlation rows
@@ -43,7 +43,7 @@ struct PerformanceNutritionCard: View {
                             icon: "p.circle.fill",
                             label: "Protein hit → session volume",
                             correlation: protein,
-                            color: Color(hex: "2563EB")
+                            color: Pulse.hydration
                         )
                     }
 
@@ -52,7 +52,7 @@ struct PerformanceNutritionCard: View {
                             icon: "c.circle.fill",
                             label: "Calorie hit → session volume",
                             correlation: cal,
-                            color: Color(hex: "F59E0B")
+                            color: Pulse.nutrition
                         )
                     }
 
@@ -61,7 +61,7 @@ struct PerformanceNutritionCard: View {
                             icon: "moon.fill",
                             label: "Sleep 7h+ → session volume",
                             correlation: sleep,
-                            color: Color(hex: "8B5CF6")
+                            color: Pulse.ai
                         )
                     }
 
@@ -70,11 +70,11 @@ struct PerformanceNutritionCard: View {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
                                 .font(.system(size: 10))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(best)
                                 .font(.system(size: 10))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -105,7 +105,7 @@ struct PerformanceNutritionCard: View {
                         .foregroundColor(correlation.directionColor)
                     Text(String(format: "%.0f%% more volume on good days", correlation.percentDiff))
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -237,7 +237,7 @@ struct PerformanceNutritionCard: View {
         return CorrelationResult(
             percentDiff: abs(diff),
             direction: diff > 3 ? "Positive" : diff < -3 ? "Negative" : "Neutral",
-            directionColor: diff > 3 ? Color(hex: "059669") : diff < -3 ? Color(hex: "DC2626") : .secondary
+            directionColor: diff > 3 ? Pulse.positive : diff < -3 ? Pulse.critical : .secondary
         )
     }
 }

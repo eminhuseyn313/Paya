@@ -13,7 +13,7 @@ struct WorkoutMilestonesCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "star.circle.fill")
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                         Text("Milestones")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -24,8 +24,8 @@ struct WorkoutMilestonesCard: View {
                             ZStack {
                                 Circle()
                                     .fill(ms.isAchieved
-                                        ? Color(hex: "F59E0B").opacity(0.15)
-                                        : Color(.tertiarySystemBackground))
+                                        ? Pulse.nutrition.opacity(0.15)
+                                        : Pulse.surfaceElevatedFallback)
                                     .frame(width: 32, height: 32)
                                 Text(ms.emoji)
                                     .font(.system(size: 16))
@@ -37,19 +37,19 @@ struct WorkoutMilestonesCard: View {
                                     .foregroundColor(ms.isAchieved ? .primary : .secondary)
                                 Text(ms.subtitle)
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
 
                             Spacer()
 
                             if ms.isAchieved {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                                     .font(.system(size: 16))
                             } else {
                                 Text(ms.progressLabel)
                                     .font(.system(size: 10, weight: .bold, design: .rounded))
-                                    .foregroundColor(Color(hex: "F59E0B"))
+                                    .foregroundColor(Pulse.nutrition)
                             }
                         }
                         .padding(.vertical, 2)
@@ -60,16 +60,16 @@ struct WorkoutMilestonesCard: View {
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
                                     RoundedRectangle(cornerRadius: 3)
-                                        .fill(Color(.tertiarySystemBackground))
+                                        .fill(Pulse.surfaceElevatedFallback)
                                     RoundedRectangle(cornerRadius: 3)
-                                        .fill(Color(hex: "F59E0B"))
+                                        .fill(Pulse.nutrition)
                                         .frame(width: geo.size.width * next.progress)
                                 }
                             }
                             .frame(height: 6)
                             Text(String(format: "%.0f%%", next.progress * 100))
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                                 .frame(width: 30)
                         }
                     }

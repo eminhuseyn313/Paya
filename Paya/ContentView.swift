@@ -20,6 +20,7 @@ struct ContentView: View {
                 mainTabs(state: state)
             }
         }
+        .preferredColorScheme(.dark)
         .onAppear {
             bootstrapProfiles()
             WatchSessionManager.shared.activate()
@@ -67,38 +68,42 @@ struct ContentView: View {
         ZStack(alignment: .top) {
 
             TabView(selection: $selectedTab) {
-                DashboardView(selectedTab: $selectedTab)
+                PulseDashboardView(selectedTab: $selectedTab)
                     .tabItem {
                         Label("Home", systemImage: "house.fill")
                     }
                     .tag(0)
 
-                TrainView()
+                PulseTrainView()
                     .tabItem {
                         Label("Train", systemImage: "dumbbell.fill")
                     }
                     .tag(1)
 
-                NutritionView()
+                PulseNutritionView()
                     .tabItem {
-                        Label("Nutrition", systemImage: "fork.knife")
+                        Label("Nutrition", systemImage: "leaf.fill")
                     }
                     .tag(2)
 
-                HealthView()
+                PulseHealthView()
                     .tabItem {
                         Label("Health", systemImage: "heart.fill")
                     }
                     .tag(3)
 
-                ProgressTabView()
+                PulseProgressView()
                     .tabItem {
-                        Label("Progress", systemImage: "chart.line.uptrend.xyaxis")
+                        Label("Progress", systemImage: "chart.bar.fill")
                     }
                     .tag(4)
             }
-            .tint(Color(hex: "2563EB"))
-            .onChange(of: selectedTab) { _, _ in
+            .tint(Pulse.hydration)
+            .toolbarBackground(Pulse.surfaceElevatedFallback, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
+            .onChange(of: selectedTab) { old, new in
+                guard old != new else { return }
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 appState.dataRefreshTrigger = UUID()
             }
 

@@ -25,16 +25,16 @@ struct SmartProgramCard: View {
                     // Header
                     HStack {
                         Image(systemName: "brain.head.profile")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Smart program")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("AI-free, on-device")
                             .font(.system(size: 8, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(Capsule())
                     }
 
@@ -55,13 +55,13 @@ struct SmartProgramCard: View {
                                     ? "Show less"
                                     : "\(recommendations.count - 1) more recommendation\(recommendations.count - 1 > 1 ? "s" : "")")
                                     .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(Color(hex: "8B5CF6"))
+                                    .foregroundColor(Pulse.ai)
                                 Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                                     .font(.system(size: 9, weight: .bold))
-                                    .foregroundColor(Color(hex: "8B5CF6"))
+                                    .foregroundColor(Pulse.ai)
                             }
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
 
                         if isExpanded {
                             ForEach(recommendations.dropFirst()) { rec in
@@ -81,7 +81,7 @@ struct SmartProgramCard: View {
                         .scaleEffect(0.7)
                     Text("Analyzing training data…")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
                 .payaCard(padding: 14)
@@ -100,10 +100,10 @@ struct SmartProgramCard: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(rec.title)
                     .font(.system(size: isTop ? 13 : 12, weight: .bold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                 Text(rec.detail)
                     .font(.system(size: isTop ? 11 : 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

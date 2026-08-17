@@ -64,7 +64,7 @@ struct QuickSavedMealTemplatesCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "bolt.circle.fill")
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                 Text("Quick meals")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -77,22 +77,22 @@ struct QuickSavedMealTemplatesCard: View {
                         Text("Save meal")
                             .font(.system(size: 10, weight: .semibold))
                     }
-                    .foregroundColor(Color(hex: "F59E0B"))
+                    .foregroundColor(Pulse.nutrition)
                 }
             }
 
             if templates.isEmpty {
                 VStack(spacing: 8) {
                     Text("No saved meals yet")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("Save your common meals to log them with one tap. Most people eat the same 10-15 meals — templates eliminate repeat typing.")
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(Pulse.textSecondary)
+                    Text("Save your common meals to log them with one tap. Most people eat the same 10–15 meals — templates eliminate repeat typing.")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+                .padding(.vertical, 12)
             } else {
                 // Show top 4 most-used templates as quick-tap chips
                 let sorted = templates.sorted { ($0.useCount, $0.lastUsed ?? .distantPast) > ($1.useCount, $1.lastUsed ?? .distantPast) }
@@ -110,36 +110,36 @@ struct QuickSavedMealTemplatesCard: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(template.name)
                                         .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                         .lineLimit(1)
                                     HStack(spacing: 4) {
                                         Text("\(Int(template.protein))g P")
                                             .font(.system(size: 9, weight: .bold))
-                                            .foregroundColor(Color(hex: "2563EB"))
+                                            .foregroundColor(Pulse.hydration)
                                         Text("·")
                                             .foregroundColor(.secondary.opacity(0.4))
                                         Text("\(Int(template.calories)) cal")
                                             .font(.system(size: 9))
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
                                 }
                                 Spacer(minLength: 0)
                                 Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 16))
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             }
                             .padding(8)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
 
                 if templates.count > 4 {
                     Text("\(templates.count - 4) more saved meals")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
         }
@@ -274,7 +274,7 @@ struct CreateSavedMealTemplateSheet: View {
                 Section {
                     Text("Save meals you eat often. Log them with one tap — no retyping. Most people eat the same 10-15 meals regularly.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
             .navigationTitle("Save meal template")

@@ -19,27 +19,27 @@ struct SmartWarmUpCard: View {
                 HStack {
                     ZStack {
                         Circle()
-                            .fill(Color(hex: "F59E0B").opacity(0.12))
+                            .fill(Pulse.nutrition.opacity(0.12))
                             .frame(width: 32, height: 32)
                         Image(systemName: "figure.flexibility")
                             .font(.system(size: 14))
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                     }
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Smart Warm-Up")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                         Text("\(warmupSets.count) sets · ~\(estimatedMinutes) min")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
 
             if isExpanded {
                 VStack(spacing: 0) {
@@ -47,7 +47,7 @@ struct SmartWarmUpCard: View {
                         HStack(spacing: 10) {
                             Text(set.label)
                                 .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(Color(hex: "F59E0B"))
+                                .foregroundColor(Pulse.nutrition)
                                 .frame(width: 52, alignment: .leading)
 
                             Text(set.exercise)
@@ -59,16 +59,16 @@ struct SmartWarmUpCard: View {
                                 let w = useLbs ? set.weightKg * 2.20462 : set.weightKg
                                 Text(String(format: "%.0f %@", w, useLbs ? "lbs" : "kg"))
                                     .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                             } else {
                                 Text("BW")
                                     .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
 
                             Text("×\(set.reps)")
                                 .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(.vertical, 6)
                         .padding(.horizontal, 10)
@@ -78,12 +78,12 @@ struct SmartWarmUpCard: View {
                         }
                     }
                 }
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Text("Based on your working weights. Lighter sets prime the nervous system without fatiguing muscles.")
                     .font(.system(size: 9))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.top, 2)
             }
         }

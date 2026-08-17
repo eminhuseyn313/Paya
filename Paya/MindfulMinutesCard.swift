@@ -14,7 +14,7 @@ struct MindfulMinutesCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "brain.head.profile")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Mindful Minutes")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -29,12 +29,12 @@ struct MindfulMinutesCard: View {
                         .font(.title2.bold())
                     Text("min this week")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             } else {
                 Text("No mindfulness sessions logged this week — Breathe/Mindfulness on your Watch, or any app that writes to Health, will show up here.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .payaCard(padding: 14)

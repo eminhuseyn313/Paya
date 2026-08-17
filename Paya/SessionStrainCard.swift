@@ -30,14 +30,14 @@ struct SessionStrainCard: View {
                     StatMini(
                         label: "PEAK HR",
                         value: "\(peak)",
-                        color: Color(hex: "DC2626")
+                        color: Pulse.critical
                     )
                 }
                 if let avg = report.avgHR {
                     StatMini(
                         label: "AVG HR",
                         value: "\(avg)",
-                        color: Color(hex: "B45309")
+                        color: Pulse.warning
                     )
                 }
             }
@@ -46,7 +46,7 @@ struct SessionStrainCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Time in zones")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     ZoneBar(zoneSeconds: report.timeInZoneSeconds)
                     ZoneLegend(zoneSeconds: report.timeInZoneSeconds)
                 }
@@ -70,7 +70,7 @@ struct StatMini: View {
                 .monospacedDigit()
             Text(label)
                 .font(.system(size: 9, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -83,11 +83,11 @@ struct ZoneBar: View {
     var zoneSeconds: [Int]
 
     let colors: [Color] = [
-        Color(hex: "2563EB"),
-        Color(hex: "059669"),
-        Color(hex: "B45309"),
+        Pulse.hydration,
+        Pulse.positive,
+        Pulse.warning,
         Color(hex: "C2410C"),
-        Color(hex: "DC2626")
+        Pulse.critical
     ]
 
     var total: Int {
@@ -114,11 +114,11 @@ struct ZoneLegend: View {
     var zoneSeconds: [Int]
 
     let colors: [Color] = [
-        Color(hex: "2563EB"),
-        Color(hex: "059669"),
-        Color(hex: "B45309"),
+        Pulse.hydration,
+        Pulse.positive,
+        Pulse.warning,
         Color(hex: "C2410C"),
-        Color(hex: "DC2626")
+        Pulse.critical
     ]
 
     var body: some View {
@@ -131,10 +131,10 @@ struct ZoneLegend: View {
                             .frame(width: 6, height: 6)
                         Text("Z\(i + 1)")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text(SessionStrainCalculator.formatDuration(zoneSeconds[i]))
                             .font(.system(size: 9))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                 }
             }

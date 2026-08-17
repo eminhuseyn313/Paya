@@ -56,7 +56,7 @@ struct NutritionView: View {
                             ProgressView()
                             Text("Looking up product…")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -67,10 +67,10 @@ struct NutritionView: View {
                     if let error = vm.lookupError {
                         Text(error)
                             .font(.caption)
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                             .padding(10)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(hex: "B45309").opacity(0.1))
+                            .background(Pulse.warning.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
 
@@ -253,7 +253,7 @@ struct NutritionProgressCard: View {
                 .foregroundColor(Color(hex: hex))
             Text(label)
                 .font(.system(size: 9, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -262,20 +262,20 @@ struct NutritionProgressCard: View {
         VStack(spacing: 12) {
             Text(appState.calorieTargetLabel())
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
 
             if let tdee = vm.tdeeToday {
                 HStack(spacing: 4) {
                     Image(systemName: "flame.fill")
                         .font(.caption2)
-                        .foregroundColor(Color(hex: "B45309"))
+                        .foregroundColor(Pulse.warning)
                     Text("Calories out ~\(Int(tdee.total)) kcal (BMR \(Int(tdee.bmr)) + \(Int(tdee.activityKcal)) activity)")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     if let delta = tdeeDelta, abs(delta) >= 50 {
                         Text(delta > 0 ? "+\(Int(delta))" : "\(Int(delta))")
                             .font(.caption2.weight(.bold))
-                            .foregroundColor(delta > 0 ? Color(hex: "059669") : Color(hex: "B45309"))
+                            .foregroundColor(delta > 0 ? Pulse.positive : Pulse.warning)
                     }
                 }
             }
@@ -284,14 +284,14 @@ struct NutritionProgressCard: View {
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "arrow.triangle.2.circlepath")
                         .font(.caption2)
-                        .foregroundColor(Color(hex: "2563EB"))
+                        .foregroundColor(Pulse.hydration)
                     Text("Target adjusted \(kcal > 0 ? "+" : "")\(Int(kcal)) kcal — \(reason)")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.leading)
                 }
                 .padding(8)
-                .background(Color(hex: "2563EB").opacity(0.08))
+                .background(Pulse.hydration.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -299,14 +299,14 @@ struct NutritionProgressCard: View {
                 HStack(alignment: .top, spacing: 6) {
                     Image(systemName: "moon.zzz.fill")
                         .font(.caption2)
-                        .foregroundColor(Color(hex: "8B5CF6"))
+                        .foregroundColor(Pulse.ai)
                     Text(nudge)
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.leading)
                 }
                 .padding(8)
-                .background(Color(hex: "8B5CF6").opacity(0.08))
+                .background(Pulse.ai.opacity(0.08))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -315,7 +315,7 @@ struct NutritionProgressCard: View {
                 // Protein ring
                 MacroRing(
                     progress: proteinProgress,
-                    color: Color(hex: "2563EB"),
+                    color: Pulse.hydration,
                     label: "Protein",
                     value: "\(Int(vm.todaysLog?.totalProtein ?? 0))g",
                     target: "\(Int(vm.todaysLog?.proteinTarget ?? 170))g"
@@ -324,7 +324,7 @@ struct NutritionProgressCard: View {
                 // Calorie ring
                 MacroRing(
                     progress: calorieProgress,
-                    color: Color(hex: "059669"),
+                    color: Pulse.positive,
                     label: "Calories",
                     value: "\(Int(vm.todaysLog?.totalCalories ?? 0))",
                     target: "\(Int(vm.todaysLog?.calorieTarget ?? 2200))"
@@ -368,12 +368,12 @@ struct MacroRing: View {
                         .font(.headline.bold())
                     Text("/ \(target)")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
             Text(label)
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .ignore)
@@ -394,12 +394,12 @@ struct QuickActionBar: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                QuickActionChip(icon: "camera.viewfinder", label: "Photo", color: Color(hex: "DC2626"), action: onPhoto)
-                QuickActionChip(icon: "barcode.viewfinder", label: "Scan", color: Color(hex: "2563EB"), action: onScan)
-                QuickActionChip(icon: "doc.text.viewfinder", label: "Label", color: Color(hex: "8B5CF6"), action: onLabel)
-                QuickActionChip(icon: "magnifyingglass", label: "Search", color: Color(hex: "059669"), action: onSearch)
-                QuickActionChip(icon: "plus.circle.fill", label: "Manual", color: Color(hex: "B45309"), action: onManual)
-                QuickActionChip(emoji: "🇦🇿", label: "Local", color: Color(hex: "059669"), action: onAze)
+                QuickActionChip(icon: "camera.viewfinder", label: "Photo", color: Pulse.critical, action: onPhoto)
+                QuickActionChip(icon: "barcode.viewfinder", label: "Scan", color: Pulse.hydration, action: onScan)
+                QuickActionChip(icon: "doc.text.viewfinder", label: "Label", color: Pulse.ai, action: onLabel)
+                QuickActionChip(icon: "magnifyingglass", label: "Search", color: Pulse.positive, action: onSearch)
+                QuickActionChip(icon: "plus.circle.fill", label: "Manual", color: Pulse.warning, action: onManual)
+                QuickActionChip(emoji: "🇦🇿", label: "Local", color: Pulse.positive, action: onAze)
             }
             .padding(.horizontal, 2)
         }
@@ -425,14 +425,14 @@ struct QuickActionChip: View {
                 }
                 Text(label)
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .background(Color(.secondarySystemBackground))
             .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
     }
 }
 
@@ -449,13 +449,13 @@ struct LoggedMealsCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "checklist")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("Today's meals")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(vm.meals.count)")
                     .font(.caption.weight(.bold))
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
             }
 
             VStack(spacing: 6) {
@@ -465,23 +465,23 @@ struct LoggedMealsCard: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(meal.food)
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                     .multilineTextAlignment(.leading)
                                 HStack(spacing: 6) {
                                     Text(meal.name)
                                         .font(.caption2.weight(.semibold))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(Color(hex: "059669").opacity(0.12))
-                                        .foregroundColor(Color(hex: "059669"))
+                                        .background(Pulse.positive.opacity(0.12))
+                                        .foregroundColor(Pulse.positive)
                                         .clipShape(Capsule())
                                     Text("\(Int(meal.protein))g P · \(Int(meal.calories)) kcal")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                     if meal.fatG > 0 || meal.carbsG > 0 {
                                         Text("· \(Int(meal.fatG))g F · \(Int(meal.carbsG))g C")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(Pulse.textTertiary)
                                     }
                                 }
                             }
@@ -499,16 +499,16 @@ struct LoggedMealsCard: View {
                                 }
                             } label: {
                                 Image(systemName: "ellipsis")
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                     .frame(width: 44, height: 44)
                             }
                             .accessibilityLabel("Meal options")
                         }
                         .padding(10)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
             }
         }
@@ -557,12 +557,12 @@ struct MealNutrientDetailView: View {
                                 .font(.caption.weight(.semibold))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .background(Color(hex: "059669").opacity(0.12))
-                                .foregroundColor(Color(hex: "059669"))
+                                .background(Pulse.positive.opacity(0.12))
+                                .foregroundColor(Pulse.positive)
                                 .clipShape(Capsule())
                             Text(meal.loggedAt.formatted(.dateTime.hour().minute()))
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
@@ -571,13 +571,13 @@ struct MealNutrientDetailView: View {
                             HStack {
                                 Text(item.label)
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Spacer()
                                 Text("\(formatted(item.value)) \(item.unit)")
                                     .font(.subheadline.weight(.semibold))
                             }
                             .padding(10)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                     }
@@ -586,10 +586,10 @@ struct MealNutrientDetailView: View {
                         VStack(spacing: 8) {
                             Image(systemName: "info.circle")
                                 .font(.title3)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Text("Detailed nutrients are available when food is logged via \"Describe a Food\" or photo scan. Manual entries only have protein and calories.")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .multilineTextAlignment(.center)
                         }
                         .frame(maxWidth: .infinity)
@@ -638,23 +638,23 @@ struct MealSuggestionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "fork.knife.circle.fill")
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("What to Eat Next")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(Int(remainingProtein))g protein left")
                     .font(.caption2.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if remainingProtein <= 0 {
                 Text("Protein target hit for today — nice work.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else if suggestions.isEmpty {
                 Text("No matching options for your diet preference right now.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             } else {
                 VStack(spacing: 6) {
                     ForEach(suggestions) { option in
@@ -664,7 +664,7 @@ struct MealSuggestionCard: View {
                                     .font(.caption.weight(.semibold))
                                 Text("\(option.servingNote) · \(Int(option.proteinG))g protein · \(Int(option.calories)) kcal")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             Spacer()
                             Button {
@@ -673,12 +673,12 @@ struct MealSuggestionCard: View {
                             } label: {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.title3)
-                                    .foregroundColor(Color(hex: "059669"))
+                                    .foregroundColor(Pulse.positive)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PulsePress())
                         }
                         .padding(8)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
@@ -699,28 +699,28 @@ struct AISuggestionCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: AIService.shared.providerIcon)
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("AI Suggestion")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text(AIService.shared.providerName)
                     .font(.caption2.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(Capsule())
             }
 
             if let suggestion = vm.aiSuggestion {
                 Text(suggestion)
                     .font(.subheadline)
-                    .foregroundColor(.primary)
+                    .foregroundColor(Pulse.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 Text("Ask AI what to eat next based on your remaining protein and calorie goals.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Button {
@@ -741,7 +741,7 @@ struct AISuggestionCard: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(Color(hex: "8B5CF6"))
+                .background(Pulse.ai)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .disabled(vm.isFetchingAI)
@@ -773,7 +773,7 @@ struct FoodSearchSheet: View {
             VStack(spacing: 0) {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     TextField("Search food (e.g. Greek yogurt)", text: $vm.searchQuery)
                         .onSubmit {
                             Task {
@@ -786,13 +786,13 @@ struct FoodSearchSheet: View {
                             db.clearResults()
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .accessibilityLabel("Clear search")
                     }
                 }
                 .padding(10)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
@@ -808,7 +808,7 @@ struct FoodSearchSheet: View {
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text("Recent")
                                         .font(.caption.weight(.bold))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                     VStack(spacing: 8) {
                                         ForEach(vm.recentMeals.prefix(5)) { meal in
                                             Button {
@@ -818,10 +818,10 @@ struct FoodSearchSheet: View {
                                                 VStack(alignment: .leading, spacing: 4) {
                                                     Text(meal.name)
                                                         .font(.subheadline.weight(.semibold))
-                                                        .foregroundColor(.primary)
+                                                        .foregroundColor(Pulse.textPrimary)
                                                     Text("\(Int(meal.protein))g P · \(Int(meal.calories)) kcal")
                                                         .font(.caption)
-                                                        .foregroundColor(.secondary)
+                                                        .foregroundColor(Pulse.textTertiary)
                                                 }
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                                 .payaCard(padding: 10)
@@ -835,7 +835,7 @@ struct FoodSearchSheet: View {
                                 HStack {
                                     Text("AZE Shortcuts")
                                         .font(.caption.weight(.bold))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                     Spacer()
                                     Button("Browse all") { showAzeQuickAdd = true }
                                         .font(.caption.weight(.semibold))
@@ -855,19 +855,19 @@ struct FoodSearchSheet: View {
                                         } label: {
                                             HStack(spacing: 10) {
                                                 Image(systemName: food.category.icon)
-                                                    .foregroundColor(Color(hex: "059669"))
+                                                    .foregroundColor(Pulse.positive)
                                                     .frame(width: 20)
                                                 VStack(alignment: .leading, spacing: 2) {
                                                     Text(food.name)
                                                         .font(.subheadline.weight(.semibold))
-                                                        .foregroundColor(.primary)
+                                                        .foregroundColor(Pulse.textPrimary)
                                                     Text("\(food.portionLabel) · \(Int(food.nutrition(grams: food.typicalPortionG).protein))g P")
                                                         .font(.caption)
-                                                        .foregroundColor(.secondary)
+                                                        .foregroundColor(Pulse.textTertiary)
                                                 }
                                                 Spacer()
                                                 Image(systemName: "plus.circle.fill")
-                                                    .foregroundColor(Color(hex: "059669"))
+                                                    .foregroundColor(Pulse.positive)
                                             }
                                             .payaCard(padding: 10)
                                         }
@@ -891,12 +891,12 @@ struct FoodSearchSheet: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(product.displayName)
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                         .lineLimit(2)
                                         .multilineTextAlignment(.leading)
                                     Text("\(Int(product.proteinPer100g))g P · \(Int(product.caloriesPer100g)) kcal per 100g")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .payaCard(padding: 10)
@@ -942,13 +942,13 @@ struct ServingSizeSheet: View {
                         .multilineTextAlignment(.center)
                     Text("Serving size (grams)")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     TextField("Grams", value: $vm.servingSizeGrams, format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.center)
                         .font(.title2.bold())
                         .padding()
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     let (protein, calories) = product.nutritionFor(grams: vm.servingSizeGrams)
@@ -956,14 +956,14 @@ struct ServingSizeSheet: View {
                         VStack {
                             Text("\(Int(protein))g")
                                 .font(.title3.bold())
-                                .foregroundColor(Color(hex: "2563EB"))
-                            Text("Protein").font(.caption).foregroundColor(.secondary)
+                                .foregroundColor(Pulse.hydration)
+                            Text("Protein").font(.caption).foregroundColor(Pulse.textTertiary)
                         }
                         VStack {
                             Text("\(Int(calories))")
                                 .font(.title3.bold())
-                                .foregroundColor(Color(hex: "059669"))
-                            Text("kcal").font(.caption).foregroundColor(.secondary)
+                                .foregroundColor(Pulse.positive)
+                            Text("kcal").font(.caption).foregroundColor(Pulse.textTertiary)
                         }
                     }
 
@@ -976,7 +976,7 @@ struct ServingSizeSheet: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color(hex: "059669"))
+                            .background(Pulse.positive)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 }
@@ -1021,7 +1021,7 @@ struct ManualLogSheet: View {
                             .padding(.vertical, 14)
                             .background(vm.mealFood.isEmpty
                                 ? Color.secondary.opacity(0.5)
-                                : Color(hex: "059669"))
+                                : Pulse.positive)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                     .disabled(vm.mealFood.isEmpty)
@@ -1049,11 +1049,11 @@ struct LabeledField: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
             TextField(label, text: $text)
                 .keyboardType(keyboard)
                 .padding(10)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -1068,7 +1068,7 @@ struct RecentMealsCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Text("Log again")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -1082,15 +1082,15 @@ struct RecentMealsCard: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(meal.food)
                                     .font(.caption.weight(.semibold))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(Pulse.textPrimary)
                                     .lineLimit(2)
                                 Text("\(Int(meal.protein))g P · \(Int(meal.calories)) kcal")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                             .frame(width: 130, alignment: .leading)
                             .padding(10)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
                     }
@@ -1112,7 +1112,7 @@ struct CustomTemplatesCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "star.fill")
-                    .foregroundColor(Color(hex: "B45309"))
+                    .foregroundColor(Pulse.warning)
                 Text("Your saved meals")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -1126,19 +1126,19 @@ struct CustomTemplatesCard: View {
                         } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: "plus.circle.fill")
-                                    .foregroundColor(Color(hex: "B45309"))
+                                    .foregroundColor(Pulse.warning)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(template.name)
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
                                     Text("\(Int(template.protein))g P · \(Int(template.calories)) kcal")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                                 Spacer()
                             }
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
 
                         Button {
                             templatePendingDelete = template
@@ -1151,7 +1151,7 @@ struct CustomTemplatesCard: View {
                         .accessibilityLabel("Delete \(template.name)")
                     }
                     .padding(8)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
@@ -1186,7 +1186,7 @@ struct MealTemplatesCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "square.grid.2x2")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Text("Quick add")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -1200,14 +1200,14 @@ struct MealTemplatesCard: View {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(template.name)
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text("\(Int(template.protein))g P · \(Int(template.calories)) kcal")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(10)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
@@ -1235,35 +1235,35 @@ struct DrinkQuickCard: View {
             HStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .stroke(Color(hex: "0891B2").opacity(0.12), lineWidth: 5)
+                        .stroke(Pulse.recovery.opacity(0.12), lineWidth: 5)
                         .frame(width: 40, height: 40)
                     Circle()
                         .trim(from: 0, to: progress)
-                        .stroke(Color(hex: "0891B2"), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                        .stroke(Pulse.recovery, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                         .frame(width: 40, height: 40)
                         .rotationEffect(.degrees(-90))
                     Image(systemName: "drop.fill")
                         .font(.system(size: 12))
-                        .foregroundColor(Color(hex: "0891B2"))
+                        .foregroundColor(Pulse.recovery)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Drinks")
                         .font(.subheadline.weight(.semibold))
                     Text(String(format: "%.1fL / %.1fL", Double(waterMl) / 1000.0, Double(WaterStore.dailyTargetMl) / 1000.0))
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Button { onOpenFull() } label: {
                     Text("Details")
                         .font(.caption.weight(.semibold))
-                        .foregroundColor(Color(hex: "0891B2"))
+                        .foregroundColor(Pulse.recovery)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(Color(hex: "0891B2").opacity(0.1))
+                        .background(Pulse.recovery.opacity(0.1))
                         .clipShape(Capsule())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
             }
 
             HStack(spacing: 6) {
@@ -1273,12 +1273,12 @@ struct DrinkQuickCard: View {
                             Button { selectedDrink = type } label: {
                                 Image(systemName: type.icon)
                                     .font(.system(size: 11))
-                                    .foregroundColor(selectedDrink == type ? Color(hex: "0891B2") : .secondary)
+                                    .foregroundColor(selectedDrink == type ? Pulse.recovery : .secondary)
                                     .frame(width: 28, height: 28)
-                                    .background(selectedDrink == type ? Color(hex: "0891B2").opacity(0.12) : Color(.tertiarySystemBackground))
+                                    .background(selectedDrink == type ? Pulse.recovery.opacity(0.12) : Pulse.surfaceElevatedFallback)
                                     .clipShape(Circle())
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PulsePress())
                         }
                     }
                 }
@@ -1286,13 +1286,13 @@ struct DrinkQuickCard: View {
                     Button { add(amount) } label: {
                         Text("+\(amount)ml")
                             .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(Color(hex: "0891B2"))
+                            .foregroundColor(Pulse.recovery)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 5)
-                            .background(Color(hex: "0891B2").opacity(0.08))
+                            .background(Pulse.recovery.opacity(0.08))
                             .clipShape(Capsule())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                 }
             }
         }

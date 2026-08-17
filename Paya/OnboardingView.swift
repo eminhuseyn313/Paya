@@ -822,7 +822,7 @@ struct OnboardingView: View {
             name: name.trimmingCharacters(in: .whitespaces),
             context: modelContext
         )
-        profile.age = age
+        profile.setAge(age)
         profile.sexRaw = sexRaw
         profile.heightCm = heightCm
         profile.currentWeightKg = weightKg

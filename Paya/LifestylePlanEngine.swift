@@ -57,7 +57,7 @@ enum LifestylePlanEngine {
 
     private static func buildUserMessage(profile: PersonProfile, context: ModelContext) -> String {
         var lines: [String] = []
-        lines.append("Age \(profile.age), sex \(profile.sexRaw), height \(Int(profile.heightCm))cm, weight \(Int(profile.currentWeightKg))kg.")
+        lines.append("Age \(profile.currentAge), sex \(profile.sexRaw), height \(Int(profile.heightCm))cm, weight \(Int(profile.currentWeightKg))kg.")
         lines.append("Goal: \(profile.goal.displayName). Experience: \(profile.experienceLevel.displayName). Trains \(profile.preferredTrainingDaysPerWeek)x/week with \(profile.equipmentAccess.displayName.lowercased()).")
         if !profile.injuryFlags.isEmpty {
             lines.append("Areas to go easy on: \(profile.injuryFlags.map { $0.displayName.lowercased() }.joined(separator: ", ")).")

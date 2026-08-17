@@ -42,9 +42,9 @@ struct TrainingCalendarV2: View {
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.caption.weight(.bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .frame(width: 28, height: 28)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Circle())
                 }
                 Text(monthTitle)
@@ -60,7 +60,7 @@ struct TrainingCalendarV2: View {
                         .font(.caption.weight(.bold))
                         .foregroundColor(monthOffset < 0 ? .secondary : .secondary.opacity(0.3))
                         .frame(width: 28, height: 28)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(Circle())
                 }
                 .disabled(monthOffset >= 0)
@@ -71,7 +71,7 @@ struct TrainingCalendarV2: View {
                 ForEach(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"], id: \.self) { day in
                     Text(day)
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -122,11 +122,11 @@ struct TrainingCalendarV2: View {
                                 .font(.caption.weight(.bold))
                             Text("\(session.durationMinutes) min")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                             Spacer()
                             Text(selected.formatted(.dateTime.day().month()))
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
@@ -137,10 +137,10 @@ struct TrainingCalendarV2: View {
                 let count = sessionsInDisplayedMonth()
                 Image(systemName: "checkmark.circle.fill")
                     .font(.caption)
-                    .foregroundColor(Color(hex: "059669"))
+                    .foregroundColor(Pulse.positive)
                 Text("\(count) session\(count == 1 ? "" : "s") this month")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                 Spacer()
             }
         }
@@ -221,7 +221,7 @@ struct CalendarDayCell: View {
 
     private var cellColor: Color {
         guard let first = sessions.first else {
-            return Color(.tertiarySystemBackground)
+            return Pulse.surfaceElevatedFallback
         }
         return Color(hex: dayColors[first.sessionType] ?? "2563EB")
     }
@@ -230,7 +230,7 @@ struct CalendarDayCell: View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(sessions.isEmpty
-                      ? Color(.tertiarySystemBackground)
+                      ? Pulse.surfaceElevatedFallback
                       : cellColor.opacity(isSelected ? 1.0 : 0.85))
             Text(dayNumber)
                 .font(.system(size: 12, weight: sessions.isEmpty ? .regular : .bold))
@@ -243,7 +243,7 @@ struct CalendarDayCell: View {
         .frame(height: 38)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isToday ? Color(hex: "B45309") : .clear, lineWidth: 2)
+                .stroke(isToday ? Pulse.warning : .clear, lineWidth: 2)
         )
     }
 }
@@ -268,7 +268,7 @@ struct SessionHistoryCardV2: View {
                 Spacer()
                 Text("Tap to edit")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             if sessions.isEmpty {
@@ -277,10 +277,10 @@ struct SessionHistoryCardV2: View {
                     VStack(spacing: 6) {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.title2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                         Text("No sessions completed yet")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                 }
@@ -296,7 +296,7 @@ struct SessionHistoryCardV2: View {
                         )
                         .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PulsePress())
                     .contextMenu {
                         Button(role: .destructive) {
                             delete(session)
@@ -382,20 +382,20 @@ struct HistoryRowV2: View {
                 HStack(spacing: 6) {
                     Text(displayName)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     if session.sourceRaw == "appleFitness" {
                         Text("Apple Fitness")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color(.tertiarySystemBackground))
+                            .background(Pulse.surfaceElevatedFallback)
                             .clipShape(Capsule())
                     }
                 }
                 Text(session.date.formatted(.dateTime.weekday(.abbreviated).day().month()))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer()
@@ -409,11 +409,11 @@ struct HistoryRowV2: View {
                     if session.isFlareDay {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.system(size: 9))
-                            .foregroundColor(Color(hex: "B45309"))
+                            .foregroundColor(Pulse.warning)
                     }
                     Text("\(session.durationMinutes) min")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .monospacedDigit()
                 }
             }

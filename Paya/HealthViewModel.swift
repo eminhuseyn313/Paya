@@ -19,7 +19,10 @@ class HealthViewModel {
     var applHealthEnergyBurned: Double? = nil
     var applHealthSteps: Int? = nil
     var applHealthAvgNoiseDb: Double? = nil
+    var applHealthBloodOxygen: Double? = nil
+    var applHealthRespiratoryRate: Double? = nil
     var healthKitAuthorized: Bool = false
+    var hasWearableData: Bool = false
     var recoveryScore: Int? = nil
 
     // AI supplement advice
@@ -72,8 +75,10 @@ class HealthViewModel {
         async let energy = manager.fetchTodayActiveEnergy()
         async let steps = HealthMetricsProvider.shared.fetchStepsRobust()
         async let noise = manager.fetchHourlyEnvironmentalNoise(for: .now)
+        async let spo2 = manager.fetchBloodOxygen()
+        async let resp = manager.fetchRespiratoryRate()
 
-        let (sleepVal, hrVal, hrvVal, energyVal, stepsVal, noiseBuckets) = await (sleep, hr, hrv, energy, steps, noise)
+        let (sleepVal, hrVal, hrvVal, energyVal, stepsVal, noiseBuckets, spo2Val, respVal) = await (sleep, hr, hrv, energy, steps, noise, spo2, resp)
 
         applHealthSleepHours = sleepVal
         applHealthRestingHR = hrVal
@@ -81,6 +86,11 @@ class HealthViewModel {
         applHealthEnergyBurned = energyVal
         applHealthSteps = stepsVal
         applHealthAvgNoiseDb = noiseBuckets.isEmpty ? nil : noiseBuckets.values.reduce(0, +) / Double(noiseBuckets.count)
+        applHealthBloodOxygen = spo2Val
+        applHealthRespiratoryRate = respVal
+
+        // Detect wearable presence: if we have HR or HRV or sleep, a wearable contributed data
+        hasWearableData = hrVal != nil || hrvVal != nil || (sleepVal != nil && sleepVal! > 0)
 
         recoveryScore = manager.computeRecoveryScore(
             sleepHours: sleepVal,

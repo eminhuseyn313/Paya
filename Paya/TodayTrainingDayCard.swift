@@ -27,13 +27,13 @@ struct TodayTrainingDayCard: View {
                         VStack(alignment: .leading, spacing: 3) {
                             Text(day.name)
                                 .font(.headline)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text(day.focus)
                                 .font(.caption.weight(.semibold))
                                 .foregroundColor(day.color)
                             Text("Today")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                         Image(systemName: "arrow.right.circle.fill")
@@ -42,19 +42,19 @@ struct TodayTrainingDayCard: View {
                     } else {
                         ZStack {
                             RoundedRectangle(cornerRadius: 14)
-                                .fill(Color(hex: "059669").opacity(0.15))
+                                .fill(Pulse.positive.opacity(0.15))
                                 .frame(width: 60, height: 60)
                             Image(systemName: "moon.zzz.fill")
                                 .font(.title2)
-                                .foregroundColor(Color(hex: "059669"))
+                                .foregroundColor(Pulse.positive)
                         }
                         VStack(alignment: .leading, spacing: 3) {
                             Text("Rest day")
                                 .font(.headline)
-                                .foregroundColor(.primary)
+                                .foregroundColor(Pulse.textPrimary)
                             Text("Recovery + nutrition focus")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
                     }
@@ -76,10 +76,10 @@ struct TodayTrainingDayCard: View {
                         if exercises.count > 4 {
                             Text("+\(exercises.count - 4)")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 3)
-                                .background(Color(.tertiarySystemBackground))
+                                .background(Pulse.surfaceElevatedFallback)
                                 .clipShape(Capsule())
                         }
                     }
@@ -87,7 +87,7 @@ struct TodayTrainingDayCard: View {
             }
             .payaCard()
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PulsePress())
         .onAppear {
             TrainingDayStore.seedIfNeeded(context: modelContext)
             todayDay = TrainingDayStore.today(context: modelContext)

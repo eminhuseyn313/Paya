@@ -38,8 +38,8 @@ struct AzeQuickAddView: View {
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(selectedCategory == cat
-                                    ? Color(hex: "059669")
-                                    : Color(.secondarySystemBackground))
+                                    ? Pulse.positive
+                                    : Pulse.surfaceFallback)
                                 .clipShape(Capsule())
                             }
                         }
@@ -50,7 +50,7 @@ struct AzeQuickAddView: View {
 
                 Text("Tap the star to pin a food as a quick-add shortcut in search.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
 
@@ -116,36 +116,36 @@ struct AzeFoodRow: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(food.name)
                             .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
+                            .foregroundColor(Pulse.textPrimary)
                             .multilineTextAlignment(.leading)
                         Text("\(food.nameAz) · \(food.portionLabel) (\(Int(food.typicalPortionG))g)")
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 2) {
                         Text(String(format: "%.0fg protein", portionNutrition.protein))
                             .font(.caption.weight(.bold))
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                             .monospacedDigit()
                         Text(String(format: "%.0f kcal", portionNutrition.calories))
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                             .monospacedDigit()
                     }
                     Image(systemName: "plus.circle.fill")
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                 }
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PulsePress())
 
             if let onToggleFavorite {
                 Button(action: onToggleFavorite) {
                     Image(systemName: isFavorite ? "star.fill" : "star")
                         .font(.subheadline)
-                        .foregroundColor(isFavorite ? Color(hex: "B45309") : .secondary.opacity(0.5))
+                        .foregroundColor(isFavorite ? Pulse.warning : .secondary.opacity(0.5))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PulsePress())
             }
         }
         .payaCard(padding: 12)
@@ -176,7 +176,7 @@ struct PortionSheet: View {
                         .font(.headline)
                     Text(food.nameAz)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.top, 14)
 
@@ -196,7 +196,7 @@ struct PortionSheet: View {
                         .monospacedDigit()
 
                     Slider(value: $grams, in: 20...500, step: 10)
-                        .tint(Color(hex: "059669"))
+                        .tint(Pulse.positive)
                         .padding(.horizontal, 20)
 
                     HStack(spacing: 8) {
@@ -215,7 +215,7 @@ struct PortionSheet: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
-                        .background(Color(hex: "059669"))
+                        .background(Pulse.positive)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .padding(.horizontal, 16)
@@ -249,7 +249,7 @@ struct MacroPill: View {
                 .monospacedDigit()
             Text(label)
                 .font(.system(size: 8, weight: .bold))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
@@ -276,8 +276,8 @@ struct PortionPresetButton: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 7)
                 .background(abs(current - grams) < 1
-                    ? Color(hex: "059669")
-                    : Color(.secondarySystemBackground))
+                    ? Pulse.positive
+                    : Pulse.surfaceFallback)
                 .clipShape(Capsule())
         }
     }

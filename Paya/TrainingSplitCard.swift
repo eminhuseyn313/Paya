@@ -14,7 +14,7 @@ struct TrainingSplitCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "calendar.badge.clock")
-                            .foregroundColor(Color(hex: "8B5CF6"))
+                            .foregroundColor(Pulse.ai)
                         Text("Training Split")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
@@ -23,7 +23,7 @@ struct TrainingSplitCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(hex: "8B5CF6"))
+                            .background(Pulse.ai)
                             .clipShape(Capsule())
                     }
 
@@ -32,7 +32,7 @@ struct TrainingSplitCard: View {
                             VStack(spacing: 4) {
                                 Text(day.dayLabel)
                                     .font(.system(size: 8, weight: .bold))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
 
                                 RoundedRectangle(cornerRadius: 4)
                                     .fill(day.color.opacity(0.2))
@@ -58,7 +58,7 @@ struct TrainingSplitCard: View {
 
                     Text("Based on your last 4 weeks of training. The split is detected from the primary muscle groups trained each session day.")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
             }
@@ -72,7 +72,7 @@ struct TrainingSplitCard: View {
                 .font(.system(size: 11, weight: .bold, design: .rounded))
             Text(label)
                 .font(.system(size: 8))
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
         }
     }
 
@@ -139,13 +139,13 @@ struct TrainingSplitCard: View {
 
     private func colorForMuscle(_ muscle: String) -> Color {
         let m = muscle.lowercased()
-        if m.contains("chest") || m.contains("tricep") { return Color(hex: "DC2626") }
-        if m.contains("back") || m.contains("bicep") { return Color(hex: "2563EB") }
-        if m.contains("shoulder") || m.contains("delt") { return Color(hex: "F59E0B") }
-        if m.contains("quad") || m.contains("glute") || m.contains("leg") { return Color(hex: "059669") }
-        if m.contains("ham") || m.contains("calv") { return Color(hex: "0891B2") }
-        if m.contains("core") || m.contains("ab") { return Color(hex: "8B5CF6") }
-        return Color(hex: "B45309")
+        if m.contains("chest") || m.contains("tricep") { return Pulse.critical }
+        if m.contains("back") || m.contains("bicep") { return Pulse.hydration }
+        if m.contains("shoulder") || m.contains("delt") { return Pulse.nutrition }
+        if m.contains("quad") || m.contains("glute") || m.contains("leg") { return Pulse.positive }
+        if m.contains("ham") || m.contains("calv") { return Pulse.recovery }
+        if m.contains("core") || m.contains("ab") { return Pulse.ai }
+        return Pulse.warning
     }
 }
 

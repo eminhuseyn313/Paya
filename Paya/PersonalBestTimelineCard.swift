@@ -28,13 +28,13 @@ struct PersonalBestTimelineCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "trophy.fill")
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                         Text("PR timeline")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(prs.count) records")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                     }
 
                     let displayPRs = showAll ? prs : Array(prs.prefix(5))
@@ -45,11 +45,11 @@ struct PersonalBestTimelineCard: View {
                             // Timeline line + dot
                             VStack(spacing: 0) {
                                 Circle()
-                                    .fill(pr.isRecent ? Color(hex: "F59E0B") : Color(hex: "F59E0B").opacity(0.4))
+                                    .fill(pr.isRecent ? Pulse.nutrition : Pulse.nutrition.opacity(0.4))
                                     .frame(width: 10, height: 10)
                                 if index < displayPRs.count - 1 {
                                     Rectangle()
-                                        .fill(Color(hex: "F59E0B").opacity(0.2))
+                                        .fill(Pulse.nutrition.opacity(0.2))
                                         .frame(width: 2)
                                         .frame(maxHeight: .infinity)
                                 }
@@ -67,7 +67,7 @@ struct PersonalBestTimelineCard: View {
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 4)
                                             .padding(.vertical, 1)
-                                            .background(Color(hex: "F59E0B"))
+                                            .background(Pulse.nutrition)
                                             .clipShape(Capsule())
                                     }
                                 }
@@ -75,17 +75,17 @@ struct PersonalBestTimelineCard: View {
                                 HStack(spacing: 8) {
                                     Text(String(format: "%.0f %@ × %d", convert(pr.weightKg), unit, pr.reps))
                                         .font(.system(size: 11, weight: .semibold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(Pulse.textPrimary)
 
                                     Text("e1RM \(String(format: "%.0f", convert(pr.e1rm)))")
                                         .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(Color(hex: "2563EB"))
+                                        .foregroundColor(Pulse.hydration)
 
                                     Spacer()
 
                                     Text(pr.dateLabel)
                                         .font(.system(size: 9))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(Pulse.textTertiary)
                                 }
                             }
                         }
@@ -104,9 +104,9 @@ struct PersonalBestTimelineCard: View {
                                 Image(systemName: showAll ? "chevron.up" : "chevron.down")
                                     .font(.system(size: 9, weight: .bold))
                             }
-                            .foregroundColor(Color(hex: "F59E0B"))
+                            .foregroundColor(Pulse.nutrition)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
                 .payaCard(padding: 14)

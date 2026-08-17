@@ -7,7 +7,7 @@ import SwiftUI
 struct FormGuideButton: View {
 
     let exerciseName: String
-    var tint: Color = Color(hex: "2563EB")
+    var tint: Color = Pulse.hydration
 
     var db: ExerciseDatabase = .shared
 

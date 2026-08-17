@@ -119,7 +119,7 @@ struct AppleHealthCard: View {
                 Spacer()
                 if vm.healthKitAuthorized {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color(hex: "059669"))
+                        .foregroundColor(Pulse.positive)
                         .font(.caption)
                 }
             }
@@ -127,7 +127,7 @@ struct AppleHealthCard: View {
             if !vm.healthKitAuthorized {
                 Text("Enable Apple Health to see your sleep, HR, HRV, and steps here.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.vertical, 10)
             } else {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
@@ -135,31 +135,31 @@ struct AppleHealthCard: View {
                         icon: "moon.fill",
                         label: "Sleep",
                         value: vm.applHealthSleepHours.map { String(format: "%.1fh", $0) } ?? "—",
-                        color: Color(hex: "8B5CF6")
+                        color: Pulse.ai
                     )
                     HealthMetricCard(
                         icon: "heart.fill",
                         label: "Resting HR",
                         value: vm.applHealthRestingHR.map { "\($0)" } ?? "—",
-                        color: Color(hex: "DC2626")
+                        color: Pulse.critical
                     )
                     HealthMetricCard(
                         icon: "waveform.path.ecg",
                         label: "HRV",
                         value: vm.applHealthHRV.map { String(format: "%.0f ms", $0) } ?? "—",
-                        color: Color(hex: "2563EB")
+                        color: Pulse.hydration
                     )
                     HealthMetricCard(
                         icon: "figure.walk",
                         label: "Steps",
                         value: vm.applHealthSteps.map { "\($0)" } ?? "—",
-                        color: Color(hex: "059669")
+                        color: Pulse.positive
                     )
                     HealthMetricCard(
                         icon: "speaker.wave.2.fill",
                         label: "Avg Noise",
                         value: vm.applHealthAvgNoiseDb.map { "\(Int($0))dB" } ?? "—",
-                        color: (vm.applHealthAvgNoiseDb ?? 0) >= 70 ? Color(hex: "DC2626") : Color(hex: "6B7280")
+                        color: (vm.applHealthAvgNoiseDb ?? 0) >= 70 ? Pulse.critical : Color(hex: "6B7280")
                     )
                 }
             }
@@ -184,7 +184,7 @@ struct HealthMetricCard: View {
                     .font(.subheadline.weight(.bold))
                 Text(label)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             Spacer()
         }
@@ -213,23 +213,23 @@ struct FlareDayToggle: View {
                       : "checkmark.shield.fill")
                     .font(.title3)
                     .foregroundColor(appState.isFlareDay
-                        ? Color(hex: "B45309")
-                        : Color(hex: "059669"))
+                        ? Pulse.warning
+                        : Pulse.positive)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(appState.isFlareDay ? "Flare day" : "No flare")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Pulse.textPrimary)
                     Text(appState.isFlareDay
                          ? "Weights reduced 25% · Tap to clear"
                          : "Tap if you feel a flare coming on")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
             }
             .padding(14)
             .background(appState.isFlareDay
-                ? Color(hex: "B45309").opacity(0.1)
+                ? Pulse.warning.opacity(0.1)
                 : Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
@@ -264,7 +264,7 @@ struct JointPainCard: View {
             if painLevel >= 4 {
                 Text("Factored into today's flare risk — check Home for the updated assessment.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .payaCard(padding: 14)
@@ -275,9 +275,9 @@ struct JointPainCard: View {
 
     var painColor: Color {
         switch painLevel {
-        case 0...3:  return Color(hex: "059669")
-        case 4...6:  return Color(hex: "B45309")
-        default:     return Color(hex: "DC2626")
+        case 0...3:  return Pulse.positive
+        case 4...6:  return Pulse.warning
+        default:     return Pulse.critical
         }
     }
 }
@@ -295,20 +295,20 @@ struct SleepTrackerCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: "moon.zzz.fill")
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Sleep last night")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text(String(format: "%.1fh", sleepHours))
                     .font(.subheadline.weight(.bold))
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
             }
             Slider(value: $sleepHours, in: 3...10, step: 0.5) { editing in
                 if !editing {
                     vm.updateSleepHours(sleepHours, context: modelContext, appState: appState)
                 }
             }
-            .tint(Color(hex: "8B5CF6"))
+            .tint(Pulse.ai)
         }
         .payaCard(padding: 14)
         .onAppear {
@@ -338,20 +338,20 @@ struct WaterIntakeCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "drop.fill")
-                    .foregroundColor(Color(hex: "0891B2"))
+                    .foregroundColor(Pulse.recovery)
                 Text("Liquid")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(liters) / \(String(format: "%.1fL", Double(WaterStore.dailyTargetMl) / 1000.0))")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color(hex: "0891B2").opacity(0.15))
+                    Capsule().fill(Pulse.recovery.opacity(0.15))
                     Capsule()
-                        .fill(Color(hex: "0891B2"))
+                        .fill(Pulse.recovery)
                         .frame(width: geo.size.width * progress)
                         .animation(.spring(response: 0.4), value: progress)
                 }
@@ -369,7 +369,7 @@ struct WaterIntakeCard: View {
                                     Circle()
                                         .fill(selectedDrink == type
                                               ? Color(hex: type.colorHex).opacity(0.18)
-                                              : Color(.tertiarySystemBackground))
+                                              : Pulse.surfaceElevatedFallback)
                                         .frame(width: 36, height: 36)
                                     Image(systemName: type.icon)
                                         .font(.system(size: 12))
@@ -382,7 +382,7 @@ struct WaterIntakeCard: View {
                             }
                             .frame(width: 48)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PulsePress())
                     }
                 }
             }
@@ -402,7 +402,7 @@ struct WaterIntakeCard: View {
                     Spacer()
                     Text("per 250ml")
                         .font(.system(size: 8))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
             }
 
@@ -431,7 +431,7 @@ struct WaterIntakeCard: View {
             if caffeineMg >= 50 {
                 Text("~\(Int(caffeineMg))mg caffeine today from logged coffee/tea — worth noting if sleep or HRV looks off tonight.")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
         }
         .payaCard(padding: 14)
@@ -472,7 +472,7 @@ struct EnergyLevelCard: View {
                             .padding(.vertical, 10)
                             .background(vm.todaysLog?.energyLevel == level
                                 ? appState.energyColor(level)
-                                : Color(.tertiarySystemBackground))
+                                : Pulse.surfaceElevatedFallback)
                             .foregroundColor(vm.todaysLog?.energyLevel == level
                                 ? .white
                                 : .primary)
@@ -499,7 +499,7 @@ struct NotesCard: View {
             TextField("Symptoms, thoughts, observations", text: $notesText, axis: .vertical)
                 .lineLimit(3...6)
                 .padding(10)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .onChange(of: notesText) { _, val in
                     vm.updateNotes(val, context: modelContext)
@@ -520,16 +520,16 @@ struct SupplementAdviceCard: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: AIService.shared.providerIcon)
-                    .foregroundColor(Color(hex: "8B5CF6"))
+                    .foregroundColor(Pulse.ai)
                 Text("Health advice")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text(AIService.shared.providerName)
                     .font(.caption2.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(Capsule())
             }
             if let advice = vm.supplementAdvice {
@@ -539,7 +539,7 @@ struct SupplementAdviceCard: View {
             } else {
                 Text("Get AI advice based on today's pain, sleep, and energy.")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
             }
             Button {
                 Task {
@@ -558,14 +558,14 @@ struct SupplementAdviceCard: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(Color(hex: "8B5CF6"))
+                .background(Pulse.ai)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .disabled(vm.isFetchingAI)
 
             Text("Not medical advice. Consult your doctor.")
                 .font(.caption2)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .payaCard(padding: 14)

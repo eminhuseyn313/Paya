@@ -34,11 +34,11 @@ struct EffortBudgetBar: View {
     }
 
     private var barColor: Color {
-        guard let fraction else { return Color(hex: "2563EB") }
+        guard let fraction else { return Pulse.hydration }
         switch fraction {
-        case ..<0.8: return Color(hex: "059669")
-        case 0.8..<1.1: return Color(hex: "B45309")
-        default: return Color(hex: "DC2626")
+        case ..<0.8: return Pulse.positive
+        case 0.8..<1.1: return Pulse.warning
+        default: return Pulse.critical
         }
     }
 
@@ -55,7 +55,7 @@ struct EffortBudgetBar: View {
                     Spacer()
                     Text("\(Int(fraction * 100))% of your typical \(vm.selectedDay.name)")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                 }
 
                 GeometryReader { geo in
@@ -72,7 +72,7 @@ struct EffortBudgetBar: View {
                 if fraction > 1.15 {
                     Text("You're well past your usual load — extra sets now cost more recovery than they build.")
                         .font(.caption2)
-                        .foregroundColor(Color(hex: "DC2626"))
+                        .foregroundColor(Pulse.critical)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }

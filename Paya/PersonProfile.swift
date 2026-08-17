@@ -10,6 +10,9 @@ class PersonProfile {
 
     var id: UUID
     var name: String
+    /// Birth year — new column added for dynamic age computation.
+    /// When nil (legacy profiles), falls back to `age` as a static value.
+    var birthYear: Int? = nil
     var age: Int = 30
     var sexRaw: String = "male"
     var heightCm: Double = 178
@@ -58,6 +61,22 @@ class PersonProfile {
     init(name: String) {
         self.id = UUID()
         self.name = name
+    }
+
+    /// Current age — computed from `birthYear` if available (new profiles),
+    /// falls back to the stored `age` int for legacy profiles.
+    var currentAge: Int {
+        if let by = birthYear {
+            return Calendar.current.component(.year, from: Date()) - by
+        }
+        return age
+    }
+
+    /// Sets both `age` (legacy column) and `birthYear` (new column)
+    /// so the value is always fresh going forward.
+    func setAge(_ newAge: Int) {
+        age = newAge
+        birthYear = Calendar.current.component(.year, from: Date()) - newAge
     }
 
     var goal: TrainingGoal {
@@ -123,7 +142,7 @@ enum ProfileStore {
     static func migrateIfNeeded(context: ModelContext, legacy: UserProfile) {
         guard all(context: context).isEmpty else { return }
         let profile = PersonProfile(name: legacy.name)
-        profile.age = legacy.age
+        profile.setAge(legacy.age)   // sets birthYear via computed setter
         profile.currentWeightKg = legacy.currentWeightKg
         profile.bodyWeightGoalKg = legacy.bodyWeightGoalKg
         profile.goalRaw = legacy.goalRaw

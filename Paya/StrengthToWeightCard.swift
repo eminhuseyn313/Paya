@@ -33,14 +33,14 @@ struct StrengthToWeightCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "person.fill.badge.plus")
-                            .foregroundColor(Color(hex: "2563EB"))
+                            .foregroundColor(Pulse.hydration)
                         Text("Strength : Bodyweight")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         let bwDisplay = useLbs ? bw * 2.20462 : bw
                         Text(String(format: "@ %.0f %@", bwDisplay, useLbs ? "lbs" : "kg"))
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     ForEach(ratios) { ratio in
@@ -58,7 +58,7 @@ struct StrengthToWeightCard: View {
                                 ZStack(alignment: .leading) {
                                     // Background track
                                     RoundedRectangle(cornerRadius: 3)
-                                        .fill(Color(.tertiarySystemBackground))
+                                        .fill(Pulse.surfaceElevatedFallback)
 
                                     // Progress fill
                                     RoundedRectangle(cornerRadius: 3)
@@ -85,7 +85,7 @@ struct StrengthToWeightCard: View {
                                 let e1rmDisplay = useLbs ? ratio.e1rm * 2.20462 : ratio.e1rm
                                 Text(String(format: "e1RM: %.0f %@", e1rmDisplay, useLbs ? "lbs" : "kg"))
                                     .font(.system(size: 8))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Pulse.textTertiary)
                                 Spacer()
                                 Text(ratio.levelLabel)
                                     .font(.system(size: 8, weight: .bold))
@@ -96,9 +96,9 @@ struct StrengthToWeightCard: View {
                     }
 
                     HStack(spacing: 12) {
-                        levelLegend(color: Color(hex: "059669"), label: "Intermediate")
-                        levelLegend(color: Color(hex: "2563EB"), label: "Advanced")
-                        levelLegend(color: Color(hex: "8B5CF6"), label: "Elite")
+                        levelLegend(color: Pulse.positive, label: "Intermediate")
+                        levelLegend(color: Pulse.hydration, label: "Advanced")
+                        levelLegend(color: Pulse.ai, label: "Elite")
                     }
 
                     Text("Ratios based on population-normed strength standards. e1RM via Epley formula.")
@@ -114,7 +114,7 @@ struct StrengthToWeightCard: View {
     private func levelLegend(color: Color, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).font(.system(size: 8)).foregroundColor(.secondary)
+            Text(label).font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
         }
     }
 
@@ -148,16 +148,16 @@ struct StrengthToWeightCard: View {
             let levelColor: Color
             if ratio >= lift.elite {
                 levelLabel = "Elite"
-                levelColor = Color(hex: "8B5CF6")
+                levelColor = Pulse.ai
             } else if ratio >= lift.advanced {
                 levelLabel = "Advanced"
-                levelColor = Color(hex: "2563EB")
+                levelColor = Pulse.hydration
             } else if ratio >= lift.intermediate {
                 levelLabel = "Intermediate"
-                levelColor = Color(hex: "059669")
+                levelColor = Pulse.positive
             } else {
                 levelLabel = "Beginner"
-                levelColor = Color(hex: "F59E0B")
+                levelColor = Pulse.nutrition
             }
 
             return LiftRatio(
