@@ -46,6 +46,7 @@ struct PulseDashboardView: View {
     @State private var showCheckIn = false
     @State private var showFlareRiskDetail = false
     @State private var showReadinessDetail = false
+    @State private var showAdHocPicker = false
     @State private var todaysPicture: DayOverview? = nil
     @Query private var notificationRecords: [NotificationRecord]
     @Binding var selectedTab: Int
@@ -558,28 +559,50 @@ struct PulseDashboardView: View {
                 }
                 .buttonStyle(PulsePress())
             } else {
-                HStack(spacing: 16) {
-                    ZStack {
-                        Circle()
-                            .fill(Pulse.recovery.opacity(0.15))
-                            .frame(width: 52, height: 52)
-                        Image(systemName: "leaf.fill")
-                            .font(.system(size: 22))
-                            .foregroundColor(Pulse.recovery)
-                    }
+                VStack(spacing: 0) {
+                    HStack(spacing: 16) {
+                        ZStack {
+                            Circle()
+                                .fill(Pulse.recovery.opacity(0.15))
+                                .frame(width: 52, height: 52)
+                            Image(systemName: "leaf.fill")
+                                .font(.system(size: 22))
+                                .foregroundColor(Pulse.recovery)
+                        }
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Rest day")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundColor(Pulse.textPrimary)
-                        Text("Recovery + nutrition focus")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(Pulse.textSecondary)
-                    }
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Rest day")
+                                .font(.system(size: 17, weight: .bold, design: .rounded))
+                                .foregroundColor(Pulse.textPrimary)
+                            Text("Recovery + nutrition focus")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(Pulse.textSecondary)
+                        }
 
-                    Spacer()
+                        Spacer()
+
+                        Button {
+                            showAdHocPicker = true
+                        } label: {
+                            Text("Train anyway")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(Pulse.energy)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Pulse.energy.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
                 }
                 .pulseSurfaceGlow(color: Pulse.recovery, padding: 16)
+                .confirmationDialog("Pick a session", isPresented: $showAdHocPicker) {
+                    let days = TrainingDayStore.allSnapshots(context: modelContext)
+                    ForEach(days, id: \.code) { day in
+                        Button("\(day.name) — \(day.focus)") {
+                            selectedTab = 1
+                        }
+                    }
+                }
             }
         }
     }
