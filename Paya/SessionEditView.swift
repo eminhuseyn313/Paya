@@ -300,9 +300,21 @@ struct EditableExerciseCard: View {
                                 .font(.subheadline.weight(.semibold))
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(2)
-                            Text("\(exerciseLog.sets.count) sets")
-                                .font(.caption)
-                                .foregroundColor(Pulse.textTertiary)
+                            HStack(spacing: 4) {
+                                Text("\(exerciseLog.sets.count) sets")
+                                    .font(.caption)
+                                    .foregroundColor(Pulse.textTertiary)
+                                if let att = exerciseLog.cableAttachment.flatMap({ CableAttachment(rawValue: $0) }) {
+                                    Text("· \(att.displayName)")
+                                        .font(.caption)
+                                        .foregroundColor(sessionColor.opacity(0.8))
+                                }
+                                if let pos = exerciseLog.cablePosition.flatMap({ CablePosition(rawValue: $0) }) {
+                                    Text("· \(pos.displayName)")
+                                        .font(.caption)
+                                        .foregroundColor(sessionColor.opacity(0.8))
+                                }
+                            }
                         }
                         Spacer()
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")

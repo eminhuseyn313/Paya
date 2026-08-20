@@ -437,8 +437,9 @@ struct MetricOrb: View {
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
+            .contentShape(Rectangle())
         }
-        .buttonStyle(PulsePress())
+        .buttonStyle(.plain)
         .disabled(action == nil)
     }
 }
@@ -628,8 +629,9 @@ struct PulseChip: View {
                 Capsule()
                     .stroke(color.opacity(0.2), lineWidth: 0.5)
             )
+            .contentShape(Capsule())
         }
-        .buttonStyle(PulsePress())
+        .buttonStyle(.plain)
     }
 }
 
@@ -641,6 +643,7 @@ struct PulsePress: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .contentShape(Rectangle())
             .scaleEffect(configuration.isPressed ? scale : 1.0)
             .opacity(configuration.isPressed ? 0.85 : 1.0)
             .animation(.spring(response: 0.2, dampingFraction: 0.7), value: configuration.isPressed)

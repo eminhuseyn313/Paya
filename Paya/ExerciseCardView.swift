@@ -552,15 +552,48 @@ struct ExerciseCardView: View {
                         .padding(.top, 8)
                     }
 
-                    if let prev = vm.previousSessionData[exercise.id], !prev.note.isEmpty {
-                        HStack(spacing: 6) {
-                            Image(systemName: "note.text")
-                                .font(.system(size: 9))
-                            Text("Last: \(prev.note)")
-                                .font(.system(size: 11))
-                                .lineLimit(2)
+                    if let prev = vm.previousSessionData[exercise.id] {
+                        // Previous cable variant
+                        if prev.cableAttachment != nil || prev.cablePosition != nil {
+                            HStack(spacing: 6) {
+                                Image(systemName: "cable.connector")
+                                    .font(.system(size: 9))
+                                let parts = [
+                                    prev.cableAttachment?.displayName,
+                                    prev.cablePosition.map { "\($0.displayName) cable" }
+                                ].compactMap { $0 }
+                                Text("Last: \(parts.joined(separator: " · "))")
+                                    .font(.system(size: 11))
+                            }
+                            .foregroundColor(vm.selectedDayColor.opacity(0.7))
+                            .padding(.horizontal, 14)
+                            .padding(.top, 6)
                         }
-                        .foregroundColor(Pulse.textTertiary)
+                        // Previous note
+                        if !prev.note.isEmpty {
+                            HStack(spacing: 6) {
+                                Image(systemName: "note.text")
+                                    .font(.system(size: 9))
+                                Text("Last: \(prev.note)")
+                                    .font(.system(size: 11))
+                                    .lineLimit(2)
+                            }
+                            .foregroundColor(Pulse.textTertiary)
+                            .padding(.horizontal, 14)
+                            .padding(.top, prev.cableAttachment != nil || prev.cablePosition != nil ? 2 : 6)
+                        }
+                    }
+
+                    // Cable variant picker (attachment + position)
+                    if CableExerciseDetector.isCableExercise(name: exercise.name) {
+                        CableVariantPicker(
+                            exerciseId: exercise.id,
+                            attachment: state.cableAttachment,
+                            position: state.cablePosition,
+                            accentColor: vm.selectedDayColor,
+                            onAttachmentChanged: { vm.updateCableAttachment(exerciseId: exercise.id, attachment: $0) },
+                            onPositionChanged: { vm.updateCablePosition(exerciseId: exercise.id, position: $0) }
+                        )
                         .padding(.horizontal, 14)
                         .padding(.top, 6)
                     }
@@ -1160,5 +1193,96 @@ struct RPEChipSelector: View {
         case 10: return Pulse.critical
         default: return .secondary
         }
+    }
+}
+
+// MARK: - Cable Variant Picker
+//
+// Compact inline picker for cable attachment and pulley position.
+// Shows only for cable exercises (detected by CableExerciseDetector).
+
+struct CableVariantPicker: View {
+    let exerciseId: String
+    let attachment: CableAttachment?
+    let position: CablePosition?
+    let accentColor: Color
+    let onAttachmentChanged: (CableAttachment?) -> Void
+    let onPositionChanged: (CablePosition?) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Attachment row
+            HStack(spacing: 6) {
+                Image(systemName: "wrench.and.screwdriver")
+                    .font(.system(size: 9))
+                    .foregroundColor(Pulse.textTertiary)
+                Text("ATTACH")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(Pulse.textTertiary)
+                    .tracking(0.5)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        ForEach(CableAttachment.allCases) { att in
+                            cableChip(
+                                label: att.displayName,
+                                icon: att.icon,
+                                isSelected: attachment == att,
+                                color: accentColor
+                            ) {
+                                onAttachmentChanged(attachment == att ? nil : att)
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Position row
+            HStack(spacing: 6) {
+                Image(systemName: "slider.vertical.3")
+                    .font(.system(size: 9))
+                    .foregroundColor(Pulse.textTertiary)
+                Text("HEIGHT")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundColor(Pulse.textTertiary)
+                    .tracking(0.5)
+
+                HStack(spacing: 4) {
+                    ForEach(CablePosition.allCases) { pos in
+                        cableChip(
+                            label: pos.displayName,
+                            icon: pos.icon,
+                            isSelected: position == pos,
+                            color: accentColor
+                        ) {
+                            onPositionChanged(position == pos ? nil : pos)
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        }
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .background(accentColor.opacity(0.04))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func cableChip(label: String, icon: String, isSelected: Bool, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 8))
+                Text(label)
+                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
+            }
+            .foregroundColor(isSelected ? .white : Pulse.textSecondary)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(isSelected ? color : Pulse.surfaceFallback)
+            .clipShape(Capsule())
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }

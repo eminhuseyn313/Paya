@@ -43,6 +43,7 @@ struct PulseTrainView: View {
     @State private var showMobilityCheckIn = false
     @State private var hasTodaysMobilityCheckIn = false
     @State private var hasAppeared = false
+    @State private var showRetroactiveLog = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -178,6 +179,11 @@ struct PulseTrainView: View {
                         Button { showLibrary = true } label: {
                             Label("Exercise Library", systemImage: "books.vertical")
                         }
+                        Divider()
+                        Button { showRetroactiveLog = true } label: {
+                            Label("Log Past Workout", systemImage: "clock.arrow.circlepath")
+                        }
+                        .disabled(vm?.isSessionActive == true)
                     } label: {
                         Image(systemName: "ellipsis.circle")
                             .font(.system(size: 16))
@@ -260,6 +266,9 @@ struct PulseTrainView: View {
             }
             .sheet(isPresented: $showAddExerciseForToday) {
                 LibraryPickerSheet { picked in vm?.addExerciseForToday(picked) }
+            }
+            .sheet(isPresented: $showRetroactiveLog) {
+                RetroactiveWorkoutView()
             }
             .confirmationDialog("Flare day", isPresented: $showFlareToggle, titleVisibility: .visible) {
                 Button(appState.isFlareDay ? "Turn off flare day" : "Turn on flare day") {

@@ -54,6 +54,11 @@ class PersonProfile {
     var cachedLifestylePlan: String? = nil
     var lifestylePlanGeneratedAt: Date? = nil
 
+    // Cached AI symptom-driven diet plan — anti-inflammatory food guidance
+    // personalized from actual symptom logs, flare history, and nutrition data.
+    var cachedSymptomDietPlan: String? = nil
+    var symptomDietPlanGeneratedAt: Date? = nil
+
     // Cached AI training-coach recommendation — same regenerate-on-demand pattern.
     var cachedCoachRecommendation: String? = nil
     var coachRecommendationGeneratedAt: Date? = nil

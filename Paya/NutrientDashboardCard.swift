@@ -174,7 +174,7 @@ struct NutrientDetailView: View {
                 .foregroundColor(Pulse.textTertiary)
 
             ForEach(report.nutrients) { nutrient in
-                NutrientRow(nutrient: nutrient)
+                NutrientRow(nutrient: nutrient, todaysMeals: report.todaysMeals)
             }
         }
     }
@@ -298,65 +298,189 @@ struct NutrientDetailView: View {
 
 struct NutrientRow: View {
     let nutrient: NutrientDeficitEngine.NutrientStatus
+    var todaysMeals: [MealLog] = []
+    @State private var isExpanded = false
+
+    private var contributions: [NutrientDeficitEngine.FoodContribution] {
+        NutrientDeficitEngine.contributions(for: nutrient.target, from: todaysMeals)
+    }
+
+    private var hasFoodData: Bool { !contributions.isEmpty }
 
     var body: some View {
-        VStack(spacing: 6) {
-            HStack {
-                Image(systemName: nutrient.level.icon)
-                    .font(.system(size: 11))
-                    .foregroundColor(Color(hex: nutrient.level.color))
-                Text(nutrient.target.name)
-                    .font(.subheadline.weight(.semibold))
-
-                if nutrient.isSupplemented {
-                    Image(systemName: "pills.fill")
-                        .font(.system(size: 9))
-                        .foregroundColor(Pulse.ai)
+        VStack(spacing: 0) {
+            // Main row — tappable when food contributions exist
+            Button {
+                guard hasFoodData else { return }
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                    isExpanded.toggle()
                 }
+            } label: {
+                VStack(spacing: 6) {
+                    HStack {
+                        Image(systemName: nutrient.level.icon)
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: nutrient.level.color))
+                        Text(nutrient.target.name)
+                            .font(.subheadline.weight(.semibold))
 
-                Spacer()
+                        if nutrient.isSupplemented {
+                            Image(systemName: "pills.fill")
+                                .font(.system(size: 9))
+                                .foregroundColor(Pulse.ai)
+                        }
 
-                VStack(alignment: .trailing, spacing: 1) {
-                    Text("\(formatted(nutrient.todayIntake))/\(formatted(nutrient.target.rda))\(nutrient.target.unit)")
-                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                    Text("\(Int(nutrient.percentRDA))% of RDA")
-                        .font(.system(size: 9))
-                        .foregroundColor(Color(hex: nutrient.level.color))
-                }
-            }
+                        Spacer()
 
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Pulse.surfaceElevatedFallback)
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(hex: nutrient.level.color))
-                        .frame(width: min(geo.size.width, geo.size.width * CGFloat(nutrient.percentRDA / 100)))
+                        if hasFoodData {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundColor(Pulse.textTertiary)
+                                .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        }
 
-                    // 100% marker
-                    if nutrient.percentRDA < 150 {
-                        Rectangle()
-                            .fill(Color.primary.opacity(0.3))
-                            .frame(width: 1)
-                            .offset(x: geo.size.width * 1.0 - 0.5)
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text("\(formatted(nutrient.todayIntake))/\(formatted(nutrient.target.rda))\(nutrient.target.unit)")
+                                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            Text("\(Int(nutrient.percentRDA))% of RDA")
+                                .font(.system(size: 9))
+                                .foregroundColor(Color(hex: nutrient.level.color))
+                        }
+                    }
+
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Pulse.surfaceElevatedFallback)
+
+                            // Stacked segments showing each food's contribution
+                            if isExpanded && contributions.count > 1 {
+                                stackedBar(in: geo.size.width)
+                            } else {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color(hex: nutrient.level.color))
+                                    .frame(width: min(geo.size.width, geo.size.width * CGFloat(nutrient.percentRDA / 100)))
+                            }
+
+                            // 100% marker
+                            if nutrient.percentRDA < 150 {
+                                Rectangle()
+                                    .fill(Color.primary.opacity(0.3))
+                                    .frame(width: 1)
+                                    .offset(x: geo.size.width * 1.0 - 0.5)
+                            }
+                        }
+                    }
+                    .frame(height: 8)
+
+                    if nutrient.weekPercentRDA > 0 && nutrient.weekPercentRDA != nutrient.percentRDA {
+                        HStack(spacing: 4) {
+                            Text("7-day avg:")
+                                .font(.system(size: 9))
+                                .foregroundColor(Pulse.textTertiary)
+                            Text("\(formatted(nutrient.weekAvgIntake))\(nutrient.target.unit) (\(Int(nutrient.weekPercentRDA))%)")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundColor(Color(hex: nutrient.level.color))
+                            Spacer()
+                        }
                     }
                 }
+                .padding(10)
             }
-            .frame(height: 8)
+            .buttonStyle(.plain)
 
-            if nutrient.weekPercentRDA > 0 && nutrient.weekPercentRDA != nutrient.percentRDA {
-                HStack(spacing: 4) {
-                    Text("7-day avg:")
-                        .font(.system(size: 9))
-                        .foregroundColor(Pulse.textTertiary)
-                    Text("\(formatted(nutrient.weekAvgIntake))\(nutrient.target.unit) (\(Int(nutrient.weekPercentRDA))%)")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(Color(hex: nutrient.level.color))
-                    Spacer()
+            // Expanded food breakdown
+            if isExpanded && hasFoodData {
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Pulse.surfaceElevatedFallback)
+                        .frame(height: 1)
+                        .padding(.horizontal, 10)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("FROM YOUR FOOD LOG")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(Pulse.textTertiary)
+                            .padding(.top, 4)
+
+                        ForEach(Array(contributions.enumerated()), id: \.element.id) { idx, item in
+                            HStack(spacing: 10) {
+                                // Segment color dot
+                                Circle()
+                                    .fill(segmentColor(at: idx))
+                                    .frame(width: 8, height: 8)
+
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(item.foodDescription)
+                                        .font(.caption.weight(.medium))
+                                        .foregroundColor(Pulse.textPrimary)
+                                        .lineLimit(2)
+                                    Text(item.mealName)
+                                        .font(.system(size: 9))
+                                        .foregroundColor(Pulse.textTertiary)
+                                }
+
+                                Spacer()
+
+                                VStack(alignment: .trailing, spacing: 1) {
+                                    Text("\(formatted(item.amount))\(item.unit)")
+                                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                                        .foregroundColor(Pulse.textPrimary)
+                                    let pct = nutrient.target.rda > 0 ? (item.amount / nutrient.target.rda) * 100 : 0
+                                    Text("\(Int(pct))%")
+                                        .font(.system(size: 9, weight: .medium))
+                                        .foregroundColor(Color(hex: nutrient.level.color))
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 10)
                 }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .payaCard(padding: 10)
+        .background(Pulse.surfaceFallback)
+        .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: PayaRadius.card)
+                .strokeBorder(Color.white.opacity(0.04), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Stacked Progress Bar
+
+    @ViewBuilder
+    private func stackedBar(in totalWidth: CGFloat) -> some View {
+        let barWidth = min(totalWidth, totalWidth * CGFloat(nutrient.percentRDA / 100))
+        let total = nutrient.todayIntake
+        HStack(spacing: 0) {
+            ForEach(Array(contributions.enumerated()), id: \.element.id) { idx, item in
+                let fraction = total > 0 ? item.amount / total : 0
+                RoundedRectangle(cornerRadius: idx == 0 ? 4 : 0)
+                    .fill(segmentColor(at: idx))
+                    .frame(width: max(1, barWidth * CGFloat(fraction)))
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .frame(width: barWidth)
+    }
+
+    // MARK: - Helpers
+
+    private static let segmentPalette: [Color] = [
+        Color(hex: "22C55E"),  // green
+        Color(hex: "3B82F6"),  // blue
+        Color(hex: "F59E0B"),  // amber
+        Color(hex: "8B5CF6"),  // violet
+        Color(hex: "EC4899"),  // pink
+        Color(hex: "14B8A6"),  // teal
+        Color(hex: "F97316"),  // orange
+        Color(hex: "6366F1"),  // indigo
+    ]
+
+    private func segmentColor(at index: Int) -> Color {
+        Self.segmentPalette[index % Self.segmentPalette.count]
     }
 
     private func formatted(_ value: Double) -> String {
