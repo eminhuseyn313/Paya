@@ -239,6 +239,15 @@ struct SettingsView: View {
                         .font(.caption)
                 }
 
+                // MARK: - Cloud Sync
+                Section {
+                    CloudSyncSettingsRow()
+                } header: {
+                    SectionHeader(title: "Cloud Backup", icon: "icloud.fill")
+                } footer: {
+                    Text("Sync all your data to the cloud so you never lose it. Your data is encrypted and only accessible with your account.")
+                }
+
                 // MARK: - Data
                 Section {
                     ProGate(featureName: "Doctor Report (PDF)") {
