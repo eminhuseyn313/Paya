@@ -103,11 +103,35 @@ enum NutrientDeficitEngine {
         }
     }
 
+    struct FoodContribution: Identifiable {
+        let id = UUID()
+        let mealName: String    // e.g. "Breakfast"
+        let foodDescription: String // e.g. "3 eggs + 80g oats"
+        let amount: Double
+        let unit: String
+    }
+
     struct Report {
         let nutrients: [NutrientStatus]
         let deficits: [NutrientStatus]
         let supplementRecommendations: [SupplementRec]
         let supplementStopSuggestions: [SupplementStop]
+        let todaysMeals: [MealLog]
+    }
+
+    /// Break down which meals contributed to a specific nutrient's intake today.
+    static func contributions(for target: NutrientTarget, from meals: [MealLog]) -> [FoodContribution] {
+        meals
+            .map { meal in
+                FoodContribution(
+                    mealName: meal.name,
+                    foodDescription: meal.food,
+                    amount: target.keyPath(meal),
+                    unit: target.unit
+                )
+            }
+            .filter { $0.amount > 0 }
+            .sorted { $0.amount > $1.amount }
     }
 
     struct SupplementRec {
@@ -201,7 +225,8 @@ enum NutrientDeficitEngine {
             nutrients: nutrients,
             deficits: deficits,
             supplementRecommendations: recommendations,
-            supplementStopSuggestions: stopSuggestions
+            supplementStopSuggestions: stopSuggestions,
+            todaysMeals: todaysMeals
         )
     }
 }
