@@ -33,6 +33,7 @@ struct PulseHealthView: View {
     @State private var notesText: String = ""
     @State private var section: PulseHealthSection = .today
     @State private var showHealthActivities = false
+    @State private var showSymptomDiet = false
     @State private var hasAppeared = false
 
     // Wellness "score" — simple composite for hero visualization
@@ -126,6 +127,11 @@ struct PulseHealthView: View {
             Task { await vm.loadHealthKitData() }
         }
         .sheet(isPresented: $showHealthActivities) { HealthActivitiesView() }
+        .sheet(isPresented: $showSymptomDiet) {
+            if let profile = ProfileStore.current(context: modelContext) {
+                SymptomDietPlanView(profile: profile)
+            }
+        }
     }
 
     // MARK: - Background
@@ -394,6 +400,11 @@ struct PulseHealthView: View {
 
     @ViewBuilder
     private var insightsSection: some View {
+        // AI diet plan — symptom-driven anti-inflammatory guidance
+        if let profile = ProfileStore.current(context: modelContext) {
+            SymptomDietCard(profile: profile, onOpen: { showSymptomDiet = true })
+        }
+
         AppleHealthCard(vm: vm)
         SleepStagesCard()
         MindfulMinutesCard()

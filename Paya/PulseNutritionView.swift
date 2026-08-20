@@ -36,6 +36,7 @@ struct PulseNutritionView: View {
     @State private var showLabelScanner = false
     @State private var scannedLabel: ParsedNutritionLabel? = nil
     @State private var showLifestylePlan = false
+    @State private var showSymptomDiet = false
     @State private var lifestyleProfile: PersonProfile? = nil
     @State private var showDescribeFood = false
     @State private var showPhotoEstimate = false
@@ -110,6 +111,9 @@ struct PulseNutritionView: View {
         }
         .sheet(isPresented: $showLifestylePlan) {
             if let profile = lifestyleProfile { LifestylePlanView(profile: profile) }
+        }
+        .sheet(isPresented: $showSymptomDiet) {
+            if let profile = lifestyleProfile { SymptomDietPlanView(profile: profile) }
         }
         .sheet(isPresented: $showDescribeFood) { DescribeFoodView(vm: vm) }
         .sheet(isPresented: $showDrinkManagement) { DrinkManagementView() }
@@ -392,6 +396,7 @@ struct PulseNutritionView: View {
         if let profile = lifestyleProfile {
             LifestylePlanCard(profile: profile, onOpen: { showLifestylePlan = true })
                 .requiresPro()
+            SymptomDietCard(profile: profile, onOpen: { showSymptomDiet = true })
         }
         MealSuggestionCard(vm: vm, dietPreference: lifestyleProfile?.dietPreference ?? .omnivore, modelContext: modelContext)
         AISuggestionCard(vm: vm, apiKey: appState.anthropicAPIKey, profile: appState.profile)
