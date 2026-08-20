@@ -17,6 +17,14 @@ struct PayaApp: App {
                         to: nil, from: nil, for: nil
                     )
                 }
+                .onOpenURL { url in
+                    // Supabase auth callback: paya://auth/callback#access_token=...
+                    if url.scheme == "paya" && url.host == "auth" {
+                        Task {
+                            await SupabaseClient.shared.handleAuthCallback(url: url)
+                        }
+                    }
+                }
                 .task {
                     UNUserNotificationCenter.current().delegate = PayaNotificationDelegate.shared
                     PayaNotificationDelegate.registerActionCategories()

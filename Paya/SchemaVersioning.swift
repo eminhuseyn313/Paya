@@ -50,6 +50,7 @@ enum PayaSchemaV1: VersionedSchema {
             Achievement.self,
             SavedMealTemplate.self,
             BehaviorLog.self,
+            BathroomLog.self,
         ]
     }
 }

@@ -18,6 +18,8 @@ final class SupabaseClient {
     var isSyncing = false
     var lastSyncDate: Date?
     var syncError: String?
+    /// Set after signUp when email confirmation is required.
+    var pendingConfirmationEmail: String? = nil
 
     private var accessToken: String? {
         didSet { UserDefaults.standard.set(accessToken, forKey: "supabase_access_token") }
@@ -86,7 +88,13 @@ final class SupabaseClient {
         var message: String { errorDescription ?? msg ?? error ?? "Unknown auth error" }
     }
 
-    func signUp(email: String, password: String) async throws {
+    /// Sign up with email + password. When Supabase has email confirmation
+    /// enabled (the default), the response contains a user object but NO
+    /// access/refresh tokens — the user must click the email link first.
+    /// Returns true if the user is immediately signed in (confirmation
+    /// disabled), false if a confirmation email was sent.
+    @discardableResult
+    func signUp(email: String, password: String) async throws -> Bool {
         let url = URL(string: "\(baseURL)/auth/v1/signup")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -94,8 +102,11 @@ final class SupabaseClient {
         request.setValue(anonKey, forHTTPHeaderField: "apikey")
         request.httpBody = try JSONSerialization.data(withJSONObject: [
             "email": email,
-            "password": password
-        ])
+            "password": password,
+            // Tell Supabase to redirect to our custom URL scheme after
+            // the user clicks the confirmation link in their email.
+            "options": ["redirectTo": "paya://auth/callback"]
+        ] as [String: Any])
 
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw SyncError.networkError }
@@ -105,8 +116,18 @@ final class SupabaseClient {
             throw SyncError.auth(authErr?.message ?? "Sign up failed (\(http.statusCode))")
         }
 
-        let auth = try decoder.decode(AuthResponse.self, from: data)
-        applySession(auth)
+        // When email confirmation is enabled, Supabase returns a user
+        // object without tokens. Try to decode as AuthResponse first;
+        // if that fails, the user needs to confirm their email.
+        if let auth = try? decoder.decode(AuthResponse.self, from: data) {
+            applySession(auth)
+            return true  // immediately signed in
+        }
+
+        // Confirmation required — store the email so we can show it in
+        // the "check your inbox" state.
+        pendingConfirmationEmail = email
+        return false  // confirmation email sent
     }
 
     func signIn(email: String, password: String) async throws {
@@ -138,8 +159,84 @@ final class SupabaseClient {
         isSignedIn = false
         userId = nil
         userEmail = nil
+        pendingConfirmationEmail = nil
         UserDefaults.standard.removeObject(forKey: "supabase_access_token")
         UserDefaults.standard.removeObject(forKey: "supabase_refresh_token")
+    }
+
+    /// Handle the deep link callback from Supabase email confirmation.
+    /// Supabase redirects to: paya://auth/callback#access_token=...&refresh_token=...
+    /// The tokens are in the URL fragment (after #), not query parameters.
+    func handleAuthCallback(url: URL) async {
+        // Supabase puts tokens in the fragment: #access_token=...&refresh_token=...&...
+        // URL.fragment gives us everything after #
+        guard let fragment = url.fragment else {
+            // No fragment — might be an error callback or a different format.
+            // Try query params as fallback.
+            if let code = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first(where: { $0.name == "code" })?.value {
+                await exchangeCodeForSession(code: code)
+            }
+            return
+        }
+
+        // Parse fragment as query parameters
+        let params = parseFragment(fragment)
+
+        if let access = params["access_token"],
+           let refresh = params["refresh_token"] {
+            accessToken = access
+            refreshToken = refresh
+            pendingConfirmationEmail = nil
+
+            // Decode user from JWT
+            let parts = access.split(separator: ".")
+            if parts.count == 3,
+               let payload = base64Decode(String(parts[1])),
+               let json = try? JSONSerialization.jsonObject(with: payload) as? [String: Any] {
+                if let sub = json["sub"] as? String, let uid = UUID(uuidString: sub) {
+                    userId = uid
+                }
+                if let email = json["email"] as? String {
+                    userEmail = email
+                }
+            }
+            isSignedIn = true
+        } else if let errorDesc = params["error_description"] {
+            syncError = errorDesc.removingPercentEncoding ?? errorDesc
+        }
+    }
+
+    /// Exchange an auth code (PKCE flow) for a session.
+    private func exchangeCodeForSession(code: String) async {
+        let url = URL(string: "\(baseURL)/auth/v1/token?grant_type=authorization_code")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "auth_code": code
+        ])
+
+        guard let (data, response) = try? await session.data(for: request),
+              let http = response as? HTTPURLResponse, http.statusCode < 400,
+              let auth = try? decoder.decode(AuthResponse.self, from: data) else {
+            syncError = "Failed to verify email confirmation"
+            return
+        }
+        applySession(auth)
+        pendingConfirmationEmail = nil
+    }
+
+    private func parseFragment(_ fragment: String) -> [String: String] {
+        var result: [String: String] = [:]
+        let pairs = fragment.split(separator: "&")
+        for pair in pairs {
+            let kv = pair.split(separator: "=", maxSplits: 1)
+            guard kv.count == 2 else { continue }
+            result[String(kv[0])] = String(kv[1])
+        }
+        return result
     }
 
     private func applySession(_ auth: AuthResponse) {
