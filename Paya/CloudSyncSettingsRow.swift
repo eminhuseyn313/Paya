@@ -38,7 +38,9 @@ struct CloudSyncSettingsRow: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
         .sheet(isPresented: $showAuthSheet) {
             CloudAuthView()
         }
