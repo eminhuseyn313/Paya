@@ -373,6 +373,7 @@ struct PulseHealthView: View {
 
         // Health tracking — grouped
         PulseCollapsible(title: "Health tracking", icon: "list.clipboard.fill", color: Pulse.hydration) {
+            BathroomTrackingCard()
             SymptomLogCard()
             MedicationsCard()
             BloodPressureCard()

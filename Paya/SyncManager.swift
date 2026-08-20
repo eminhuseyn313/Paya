@@ -62,7 +62,10 @@ final class SyncManager {
             try await syncTrainingDayConfigs(context: context, userId: uid)
             try await syncCustomMealTemplates(context: context, userId: uid)
 
-            // 7. Misc
+            // 7. Bathroom
+            try await syncBathroomLogs(context: context, userId: uid)
+
+            // 8. Misc
             try await syncAchievements(context: context, userId: uid)
             try await syncEnvironmentalReadings(context: context, userId: uid)
             try await syncWellnessInsightRecords(context: context, userId: uid)
@@ -560,6 +563,30 @@ final class SyncManager {
             ]
         }
         try await upsertJSON(table: "wellness_insight_records", rows: rows)
+    }
+
+    // MARK: - Bathroom Logs
+
+    private func syncBathroomLogs(context: ModelContext, userId: UUID) async throws {
+        let pid = ActiveProfile.id
+        let descriptor = FetchDescriptor<BathroomLog>(
+            predicate: #Predicate { $0.profileId == pid }
+        )
+        let logs = (try? context.fetch(descriptor)) ?? []
+        let rows: [[String: Any]] = logs.map { log in
+            var row: [String: Any] = [
+                "id": log.id.uuidString,
+                "user_id": userId.uuidString,
+                "profile_id": (log.profileId ?? UUID()).uuidString,
+                "date": iso(log.date),
+                "type": log.type
+            ]
+            if let bs = log.bristolScale { row["bristol_scale"] = bs }
+            if let c = log.color { row["color"] = c }
+            if let n = log.note { row["note"] = n }
+            return row
+        }
+        try await upsertJSON(table: "bathroom_logs", rows: rows)
     }
 
     // MARK: - Helpers
