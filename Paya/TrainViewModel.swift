@@ -57,6 +57,8 @@ class TrainViewModel {
         var sets: [SetState]
         var isExpanded: Bool = false
         var note: String = ""
+        var cableAttachment: CableAttachment? = nil
+        var cablePosition: CablePosition? = nil
 
         var completedSetsCount: Int {
             sets.filter { $0.isCompleted }.count
@@ -97,6 +99,8 @@ class TrainViewModel {
         var incrementKg: Double = 0
         var sessionDate: Date = .now
         var note: String = ""
+        var cableAttachment: CableAttachment? = nil
+        var cablePosition: CablePosition? = nil
     }
 
     // MARK: - Computed
@@ -219,7 +223,9 @@ class TrainViewModel {
             exerciseStates[exercise.id] = ExerciseState(
                 id: exercise.id,
                 definition: exercise,
-                sets: sets
+                sets: sets,
+                cableAttachment: CableAttachment.infer(from: exercise.name),
+                cablePosition: CablePosition.infer(from: exercise.name)
             )
         }
     }
@@ -290,7 +296,14 @@ class TrainViewModel {
         let sets = (1...definition.sets).map { i in
             SetState(setNumber: i, weightKg: resolvedStartWeight, reps: definition.repRange.min)
         }
-        exerciseStates[newId] = ExerciseState(id: newId, definition: definition, sets: sets, isExpanded: true)
+        exerciseStates[newId] = ExerciseState(
+            id: newId,
+            definition: definition,
+            sets: sets,
+            isExpanded: true,
+            cableAttachment: CableAttachment.infer(from: definition.name),
+            cablePosition: CablePosition.infer(from: definition.name)
+        )
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
@@ -336,7 +349,13 @@ class TrainViewModel {
         let sets = (1...updated.sets).map { i in
             SetState(setNumber: i, weightKg: newStartWeight, reps: updated.repRange.min)
         }
-        exerciseStates[exerciseId] = ExerciseState(id: exerciseId, definition: updated, sets: sets)
+        exerciseStates[exerciseId] = ExerciseState(
+            id: exerciseId,
+            definition: updated,
+            sets: sets,
+            cableAttachment: CableAttachment.infer(from: updated.name),
+            cablePosition: CablePosition.infer(from: updated.name)
+        )
         previousSessionData[exerciseId] = nil
     }
 
@@ -487,7 +506,9 @@ class TrainViewModel {
                 allSetsHitTarget: allHit,
                 incrementKg: allHit ? (nextWeight - avgWeight) : 0,
                 sessionDate: lastSession.date,
-                note: exerciseLog.note
+                note: exerciseLog.note,
+                cableAttachment: exerciseLog.cableAttachment.flatMap { CableAttachment(rawValue: $0) },
+                cablePosition: exerciseLog.cablePosition.flatMap { CablePosition(rawValue: $0) }
             )
             previousSessionVolume += totalVolume
         }
@@ -573,6 +594,18 @@ class TrainViewModel {
     func updateNote(exerciseId: String, note: String) {
         guard var state = exerciseStates[exerciseId] else { return }
         state.note = note
+        exerciseStates[exerciseId] = state
+    }
+
+    func updateCableAttachment(exerciseId: String, attachment: CableAttachment?) {
+        guard var state = exerciseStates[exerciseId] else { return }
+        state.cableAttachment = attachment
+        exerciseStates[exerciseId] = state
+    }
+
+    func updateCablePosition(exerciseId: String, position: CablePosition?) {
+        guard var state = exerciseStates[exerciseId] else { return }
+        state.cablePosition = position
         exerciseStates[exerciseId] = state
     }
 
@@ -959,6 +992,8 @@ class TrainViewModel {
                 muscleGroup: exercise.muscleGroup
             )
             exerciseLog.note = state.note
+            exerciseLog.cableAttachment = state.cableAttachment?.rawValue
+            exerciseLog.cablePosition = state.cablePosition?.rawValue
             context.insert(exerciseLog)
             exerciseLog.session = session
 

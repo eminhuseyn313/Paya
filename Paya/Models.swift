@@ -95,6 +95,11 @@ class ExerciseLog {
     var muscleGroup: String = ""
     var note: String = ""
 
+    /// Cable machine variant metadata — only meaningful for cable exercises.
+    /// Stored as raw strings so SwiftData can persist them without enums.
+    var cableAttachment: String? = nil   // e.g. "rope", "straight_bar"
+    var cablePosition: String? = nil     // e.g. "high", "mid", "low"
+
     @Relationship(deleteRule: .cascade)
     var sets: [SetLog] = []
 
