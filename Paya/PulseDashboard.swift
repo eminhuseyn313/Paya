@@ -176,7 +176,8 @@ struct PulseDashboardView: View {
                 )
             }
             .sheet(isPresented: $showWaterSheet) {
-                DrinkManagementView()
+                WaterQuickSheet()
+                    .presentationDetents([.medium, .large])
             }
         }
         .onAppear {
