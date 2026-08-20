@@ -52,6 +52,7 @@ struct PulseDashboardView: View {
     @State private var lastLoadTime: Date = .distantPast
     @State private var hasAppeared = false
     @State private var todayTrainingDay: DaySnapshot? = nil
+    @State private var showWaterSheet = false
 
     private var readinessScore: Int {
         viewModel.readiness?.score ?? viewModel.recoveryScore ?? 0
@@ -172,6 +173,9 @@ struct PulseDashboardView: View {
                         showWeightEntry = false
                     }
                 )
+            }
+            .sheet(isPresented: $showWaterSheet) {
+                DrinkManagementView()
             }
         }
         .onAppear {
@@ -395,7 +399,7 @@ struct PulseDashboardView: View {
                     label: "Water",
                     color: Pulse.hydration,
                     progress: waterTarget > 0 ? Double(waterMl) / waterTarget : 0,
-                    action: { selectedTab = 2 }
+                    action: { showWaterSheet = true }
                 )
 
                 MetricOrb(
@@ -637,7 +641,7 @@ struct PulseDashboardView: View {
                     selectedTab = 2
                 }
                 PulseChip(icon: "drop.fill", label: "Water", color: Pulse.hydration) {
-                    selectedTab = 2
+                    showWaterSheet = true
                 }
                 if appState.morningCheckInEnabled && !viewModel.hasCheckedInToday {
                     PulseChip(icon: "sun.max.fill", label: "Check in", color: Pulse.nutrition) {
