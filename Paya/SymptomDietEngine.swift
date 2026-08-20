@@ -211,8 +211,8 @@ enum SymptomDietEngine {
 
         let avgProtein = logs.reduce(0.0) { $0 + $1.totalProtein } / Double(logs.count)
         let avgCalories = logs.reduce(0.0) { $0 + $1.totalCalories } / Double(logs.count)
-        let avgFat = logs.reduce(0.0) { $0 + $1.totalFatG } / Double(logs.count)
-        let avgCarbs = logs.reduce(0.0) { $0 + $1.totalCarbsG } / Double(logs.count)
+        let avgFat = logs.reduce(into: 0.0) { $0 + $1.totalFatG } / Double(logs.count)
+        let avgCarbs = logs.reduce(into: 0.0) { $0 + $1.totalCarbsG } / Double(logs.count)
 
         return "Recent nutrition (7d avg, \(logs.count) days logged): \(Int(avgCalories)) kcal, \(Int(avgProtein))g protein, \(Int(avgFat))g fat, \(Int(avgCarbs))g carbs."
     }

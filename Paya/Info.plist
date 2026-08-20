@@ -33,5 +33,19 @@
 	     use encryption?" question on every TestFlight / App Store upload. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- Deep link URL scheme for Supabase auth callbacks (email
+	     confirmation, magic links, password reset). The scheme must
+	     match the redirect_to parameter sent with auth requests. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>paya</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.paya.auth</string>
+		</dict>
+	</array>
 </dict>
 </plist>
