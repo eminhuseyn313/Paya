@@ -521,6 +521,10 @@ struct PulseHealthView: View {
         JointPainCard(vm: vm, appState: appState, modelContext: modelContext)
         SleepTrackerCard(vm: vm, appState: appState, modelContext: modelContext)
 
+        // Sleep debt — accumulated deficit with decay model
+        // (Van Dongen 2003), grounded in NSF 7-9h recommendation
+        SleepDebtCard()
+
         // Health tracking — grouped
         PulseCollapsible(title: "Health tracking", icon: "list.clipboard.fill", color: Pulse.hydration) {
             BathroomTrackingCard()

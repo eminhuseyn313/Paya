@@ -94,6 +94,9 @@ struct PulseDashboardView: View {
                         // ━━━ 4. Hero Insight ━━━
                         heroInsightCard
 
+                        // ━━━ 4.25 Daily Actions ━━━
+                        DailyActionCard()
+
                         // ━━━ 4.5 Health Journey prompt ━━━
                         if let profile = ProfileStore.current(context: modelContext),
                            !profile.healthJourneyCompleted {

@@ -1301,6 +1301,12 @@ struct PreSessionContextSection: View {
                     ),
                     sessionColor: vm.selectedDay.color
                 )
+
+                // Percentage-based ramp-up sets for today's working weights
+                SmartWarmUpCard(
+                    exercises: vm.orderedExercises,
+                    previousData: vm.previousSessionData
+                )
             }
         }
     }
