@@ -109,6 +109,12 @@ enum SymptomDietEngine {
             lines.append("No symptom data logged in the last 14 days — provide general anti-inflammatory nutrition advice tailored to their profile and diet preference.")
         }
 
+        // Health Journey contraindication context
+        if profile.healthJourneyCompleted {
+            let ctx = HealthContraindicationEngine.promptContext(for: profile)
+            if !ctx.isEmpty { lines.append(ctx) }
+        }
+
         return lines.joined(separator: " ")
     }
 

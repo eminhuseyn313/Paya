@@ -76,6 +76,13 @@ enum LifestylePlanEngine {
             lines.append(checkInSummary)
         }
 
+        // Health Journey contraindication context — enriches AI with
+        // condition-specific constraints so recommendations are safe.
+        if profile.healthJourneyCompleted {
+            let ctx = HealthContraindicationEngine.promptContext(for: profile)
+            if !ctx.isEmpty { lines.append(ctx) }
+        }
+
         return lines.joined(separator: " ")
     }
 

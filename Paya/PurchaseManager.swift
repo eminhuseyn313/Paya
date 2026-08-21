@@ -97,6 +97,14 @@ final class PurchaseManager {
         }
     }
 
+    /// Check developer access using an explicit email — avoids circular
+    /// access to SupabaseClient.shared during its own initialization.
+    func checkDeveloperAccess(email: String?) {
+        guard let email, Self.developerEmails.contains(email.lowercased()) else { return }
+        isPro = true
+        UserDefaults.standard.set(true, forKey: "paya_is_pro")
+    }
+
     // MARK: - Load Product
 
     func loadProduct() async {

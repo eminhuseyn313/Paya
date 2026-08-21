@@ -63,6 +63,60 @@ class PersonProfile {
     var cachedCoachRecommendation: String? = nil
     var coachRecommendationGeneratedAt: Date? = nil
 
+    // ── Health Journey ──────────────────────────────────────────────
+    // Populated by HealthJourneyView — the guided multi-screen profiling
+    // flow that builds a complete health picture for the contraindication engine.
+    var healthJourneyCompleted: Bool = false
+    var healthJourneyCompletedAt: Date? = nil
+
+    // Blood type (A+, B+, AB−, O+, etc.)
+    var bloodTypeRaw: String = ""
+
+    // Multiple chronic conditions (replaces the single chronicConditionRaw
+    // for the journey; the original field stays for backward-compat with
+    // flare detection which only needs one).
+    var chronicConditionsRaw: [String] = []
+
+    // Genetic disorders / family history
+    var geneticDisordersRaw: [String] = []
+
+    // Allergies & intolerances
+    var allergiesRaw: [String] = []
+
+    // Current medications (free-text entries)
+    var medicationsRaw: [String] = []
+
+    // Current supplements (free-text entries, separate from meds)
+    var currentSupplementsRaw: [String] = []
+
+    // Lifestyle extras
+    var occupationTypeRaw: String = "sedentary"   // sedentary / active / veryActive / shiftWork
+    var smokingStatusRaw: String = "never"          // never / former / current
+    var alcoholFrequencyRaw: String = "none"        // none / occasional / moderate / heavy
+    var dailyScreenTimeHours: Double = 6
+
+    // Sleep disorders
+    var sleepDisordersRaw: [String] = []
+
+    // Mental health
+    var mentalHealthConditionsRaw: [String] = []
+
+    // Urinary & digestive baseline
+    var digestiveIssuesRaw: [String] = []
+    var averageDailyUrinations: Int = 6
+    var averageDailyBowelMovements: Int = 1
+
+    // Exercise history extras
+    var pastSurgeriesRaw: [String] = []
+    var mobilityLimitationsRaw: [String] = []
+
+    // Goals from health journey (multiple selections)
+    var healthGoalsRaw: [String] = []
+
+    // Cached AI contraindication report
+    var cachedContraindicationReport: String? = nil
+    var contraindicationReportGeneratedAt: Date? = nil
+
     init(name: String) {
         self.id = UUID()
         self.name = name

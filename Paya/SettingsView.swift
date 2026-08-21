@@ -37,6 +37,7 @@ struct SettingsView: View {
     @State private var showChangePassword = false
     @State private var newPassword = ""
     @State private var passwordChanged = false
+    @State private var showHealthJourney = false
 
     var body: some View {
         NavigationStack {
@@ -89,6 +90,37 @@ struct SettingsView: View {
                     }
                 } header: {
                     SectionHeader(title: "Profile", icon: "person.fill")
+                }
+
+                // MARK: - Health Journey
+                Section {
+                    Button {
+                        showHealthJourney = true
+                    } label: {
+                        HStack {
+                            SettingsIcon(icon: "heart.text.clipboard.fill", color: Pulse.ai)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Health Journey")
+                                    .foregroundColor(.primary)
+                                if let profile = ProfileStore.current(context: modelContext),
+                                   profile.healthJourneyCompleted {
+                                    Text("Completed — tap to update")
+                                        .font(.caption)
+                                        .foregroundColor(Pulse.positive)
+                                } else {
+                                    Text("Set up your health profile")
+                                        .font(.caption)
+                                        .foregroundColor(Pulse.ai)
+                                }
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                } header: {
+                    SectionHeader(title: "Health Profile", icon: "stethoscope")
                 }
 
                 // MARK: - Training
@@ -557,6 +589,11 @@ struct SettingsView: View {
                         }
                         .sheet(isPresented: $showTermsOfService) {
                             TermsOfServiceView()
+                        }
+                        .fullScreenCover(isPresented: $showHealthJourney) {
+                            if let profile = ProfileStore.current(context: modelContext) {
+                                HealthJourneyView(profile: profile)
+                            }
                         }
                         .alert("Sign Out", isPresented: $showSignOutConfirm) {
                             Button("Cancel", role: .cancel) {}

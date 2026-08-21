@@ -173,7 +173,7 @@ struct CircadianCard: View {
         // Apple Watch gives us sleepHours but not explicit bed/wake times
         // We estimate: wake = ~7:00 AM adjusted by HRV timing patterns
         // bed = wake - sleepHours
-        let calendar = Calendar.current
+        _ = Calendar.current
         var bedtimeMinutes: [Double] = []   // minutes from midnight
         var wakeMinutes: [Double] = []
         var midpointMinutes: [Double] = []

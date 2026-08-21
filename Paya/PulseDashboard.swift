@@ -54,6 +54,7 @@ struct PulseDashboardView: View {
     @State private var hasAppeared = false
     @State private var todayTrainingDay: DaySnapshot? = nil
     @State private var showWaterSheet = false
+    @State private var showHealthJourney = false
 
     private var readinessScore: Int {
         viewModel.readiness?.score ?? viewModel.recoveryScore ?? 0
@@ -91,6 +92,18 @@ struct PulseDashboardView: View {
 
                         // ━━━ 4. Hero Insight ━━━
                         heroInsightCard
+
+                        // ━━━ 4.5 Health Journey prompt ━━━
+                        if let profile = ProfileStore.current(context: modelContext),
+                           !profile.healthJourneyCompleted {
+                            healthJourneyBanner(profile: profile)
+                        }
+
+                        // ━━━ 4.7 Health Nudges ━━━
+                        if let profile = ProfileStore.current(context: modelContext),
+                           profile.healthJourneyCompleted {
+                            healthNudgeCards(profile: profile)
+                        }
 
                         // ━━━ 5. Flare Alert (conditional) ━━━
                         if appState.flareEngineEnabled,
@@ -178,6 +191,11 @@ struct PulseDashboardView: View {
             .sheet(isPresented: $showWaterSheet) {
                 WaterQuickSheet()
                     .presentationDetents([.medium, .large])
+            }
+            .fullScreenCover(isPresented: $showHealthJourney) {
+                if let profile = ProfileStore.current(context: modelContext) {
+                    HealthJourneyView(profile: profile)
+                }
             }
         }
         .onAppear {
@@ -706,6 +724,146 @@ struct PulseDashboardView: View {
     private var unreadNotificationCount: Int {
         guard let profileId = appState.currentProfileId else { return 0 }
         return notificationRecords.filter { $0.profileId == profileId && $0.readAt == nil }.count
+    }
+
+    // MARK: - Health Journey Banner
+
+    private func healthJourneyBanner(profile: PersonProfile) -> some View {
+        Button {
+            showHealthJourney = true
+        } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(Pulse.ai.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "heart.text.clipboard.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(Pulse.ai)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Complete your Health Journey")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundColor(Pulse.textPrimary)
+                    Text("Personalize nutrition, exercise & supplement safety")
+                        .font(.caption2)
+                        .foregroundColor(Pulse.textSecondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(Pulse.ai)
+            }
+            .pulseSurfaceGlow(color: Pulse.ai, radius: 16, padding: 14)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Health Nudge Cards
+
+    @ViewBuilder
+    private func healthNudgeCards(profile: PersonProfile) -> some View {
+        let nudges = HealthNudgeEngine.generate(profile: profile, context: modelContext)
+        if !nudges.isEmpty {
+            VStack(spacing: 8) {
+                HStack(spacing: 6) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 11))
+                        .foregroundColor(Pulse.ai)
+                    Text("Health Insights")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(Pulse.textPrimary)
+                    Spacer()
+                    Text("\(nudges.count)")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
+                        .foregroundColor(Pulse.ai)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Pulse.ai.opacity(0.12))
+                        .clipShape(Capsule())
+                }
+
+                ForEach(nudges) { nudge in
+                    nudgeCard(nudge)
+                }
+            }
+        }
+    }
+
+    private func nudgeCard(_ nudge: HealthNudgeEngine.Nudge) -> some View {
+        let accentColor = nudgeColor(nudge.priority)
+
+        return HStack(alignment: .top, spacing: 12) {
+            // Icon
+            Image(systemName: nudge.icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(accentColor)
+                .frame(width: 30, height: 30)
+                .background(accentColor.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(nudge.title)
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(Pulse.textPrimary)
+
+                Text(nudge.detail)
+                    .font(.system(size: 11.5))
+                    .foregroundColor(Pulse.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if let actionLabel = nudge.actionLabel {
+                    Button {
+                        handleNudgeAction(nudge.action)
+                    } label: {
+                        Text(actionLabel)
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(accentColor)
+                    }
+                    .padding(.top, 2)
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Pulse.surfaceFallback)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(accentColor.opacity(0.15), lineWidth: 0.5)
+                )
+        )
+    }
+
+    private func handleNudgeAction(_ action: HealthNudgeEngine.Nudge.Action) {
+        switch action {
+        case .none:
+            break
+        case .switchTab(let tab):
+            selectedTab = tab
+        case .openSheet(let sheet):
+            switch sheet {
+            case .water:    showWaterSheet = true
+            case .food:     selectedTab = 2  // Nutrition tab has inline meal logging
+            case .training: selectedTab = 1
+            case .checkIn:  showCheckIn = true
+            }
+        }
+    }
+
+    private func nudgeColor(_ priority: HealthNudgeEngine.Nudge.Priority) -> Color {
+        switch priority {
+        case .urgent: return Pulse.critical
+        case .high:   return Pulse.warning
+        case .medium: return Pulse.ai
+        case .low:    return Pulse.recovery
+        }
     }
 
     private func loadData() {

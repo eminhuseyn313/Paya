@@ -327,7 +327,7 @@ final class SupabaseClient {
         // Re-check developer Pro access now that we know the email.
         // configure() runs at app launch before sign-in, so isDeveloper
         // was false then — this catches the post-auth case.
-        PurchaseManager.shared.checkDeveloperAccess()
+        PurchaseManager.shared.checkDeveloperAccess(email: auth.user.email)
     }
 
     private func restoreSession() {
@@ -354,7 +354,7 @@ final class SupabaseClient {
             userEmail = email
         }
         isSignedIn = true
-        PurchaseManager.shared.checkDeveloperAccess()
+        PurchaseManager.shared.checkDeveloperAccess(email: userEmail)
     }
 
     private func refreshAccessToken() async {
