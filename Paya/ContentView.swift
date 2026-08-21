@@ -23,7 +23,9 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
         .onAppear {
             bootstrapProfiles()
+            #if DEBUG
             YesterdayWorkoutSeeder.seedIfNeeded(context: modelContext)
+            #endif
             WatchSessionManager.shared.activate()
             WatchSessionManager.shared.onWaterAdded = { ml in
                 let total = WaterStore.addWater(ml, context: modelContext)
