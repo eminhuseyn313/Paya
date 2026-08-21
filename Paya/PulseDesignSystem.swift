@@ -388,20 +388,27 @@ struct MetricOrb: View {
     var size: CGFloat = 72
     var progress: CGFloat? = nil
     var action: (() -> Void)? = nil
+    /// Optional freshness label shown below the metric label (e.g. "2h ago")
+    var freshness: String? = nil
+    /// Whether this reading is fresh — drives a subtle breathing animation on the ring
+    var isFresh: Bool = true
+
+    @State private var breathe = false
 
     var body: some View {
         Button(action: { action?() }) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 ZStack {
-                    // Ambient glow
+                    // Ambient glow — pulses gently when fresh
                     Circle()
-                        .fill(color.opacity(0.08))
+                        .fill(color.opacity(isFresh ? 0.08 : 0.04))
                         .frame(width: size + 8, height: size + 8)
                         .blur(radius: 8)
+                        .scaleEffect(isFresh && breathe ? 1.08 : 1.0)
 
                     // Background circle
                     Circle()
-                        .fill(color.opacity(0.1))
+                        .fill(color.opacity(isFresh ? 0.1 : 0.05))
                         .frame(width: size, height: size)
 
                     // Progress ring (optional)
@@ -411,7 +418,7 @@ struct MetricOrb: View {
                             .frame(width: size, height: size)
                         Circle()
                             .trim(from: 0, to: min(progress, 1.0))
-                            .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                            .stroke(color.opacity(isFresh ? 1.0 : 0.4), style: StrokeStyle(lineWidth: 3, lineCap: .round))
                             .frame(width: size, height: size)
                             .rotationEffect(.degrees(-90))
                             .animation(Pulse.Motion.standard, value: progress)
@@ -421,13 +428,13 @@ struct MetricOrb: View {
                     VStack(spacing: 0) {
                         Text(value)
                             .font(.system(size: size * 0.28, weight: .bold, design: .rounded))
-                            .foregroundColor(Pulse.textPrimary)
+                            .foregroundColor(isFresh ? Pulse.textPrimary : Pulse.textTertiary)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                         if !unit.isEmpty {
                             Text(unit)
                                 .font(.system(size: size * 0.14, weight: .medium))
-                                .foregroundColor(color)
+                                .foregroundColor(color.opacity(isFresh ? 1.0 : 0.5))
                         }
                     }
                 }
@@ -436,11 +443,24 @@ struct MetricOrb: View {
                 Text(label)
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
+
+                // Freshness timestamp
+                if let freshness = freshness {
+                    Text(freshness)
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundColor(isFresh ? color.opacity(0.6) : Pulse.warning.opacity(0.7))
+                }
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(action == nil)
+        .onAppear {
+            guard isFresh else { return }
+            withAnimation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true)) {
+                breathe = true
+            }
+        }
     }
 }
 

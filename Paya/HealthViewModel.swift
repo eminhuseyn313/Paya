@@ -25,6 +25,31 @@ class HealthViewModel {
     var hasWearableData: Bool = false
     var recoveryScore: Int? = nil
 
+    // Sample timestamps for freshness display (Phase 3)
+    var restingHRTimestamp: Date? = nil
+    var hrvTimestamp: Date? = nil
+    var bloodOxygenTimestamp: Date? = nil
+    var respiratoryRateTimestamp: Date? = nil
+
+    /// Returns a freshness label for a given metric timestamp (e.g. "2h ago").
+    func freshnessLabel(for timestamp: Date?) -> String? {
+        guard let ts = timestamp else { return nil }
+        let interval = Date().timeIntervalSince(ts)
+        let minutes = Int(interval / 60)
+        if minutes < 1 { return "just now" }
+        if minutes < 60 { return "\(minutes)m ago" }
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)h ago" }
+        let days = hours / 24
+        return "\(days)d ago"
+    }
+
+    /// Whether a reading is fresh enough to be considered current (< 4h).
+    func isFresh(_ timestamp: Date?) -> Bool {
+        guard let ts = timestamp else { return false }
+        return Date().timeIntervalSince(ts) < 4 * 3600
+    }
+
     // AI supplement advice
     var supplementAdvice: String? = nil
     var isFetchingAI: Bool = false
@@ -70,26 +95,34 @@ class HealthViewModel {
         healthKitAuthorized = manager.isAuthorized
 
         async let sleep = HealthMetricsProvider.shared.fetchSleepRobust()
-        async let hr = manager.fetchRestingHR()
-        async let hrv = manager.fetchHRV()
+        async let hrTs = manager.fetchRestingHRTimestamped()
+        async let hrvTs = manager.fetchHRVTimestamped()
         async let energy = manager.fetchTodayActiveEnergy()
         async let steps = HealthMetricsProvider.shared.fetchStepsRobust()
         async let noise = manager.fetchHourlyEnvironmentalNoise(for: .now)
-        async let spo2 = manager.fetchBloodOxygen()
-        async let resp = manager.fetchRespiratoryRate()
+        async let spo2Ts = manager.fetchBloodOxygenTimestamped()
+        async let respTs = manager.fetchRespiratoryRateTimestamped()
 
-        let (sleepVal, hrVal, hrvVal, energyVal, stepsVal, noiseBuckets, spo2Val, respVal) = await (sleep, hr, hrv, energy, steps, noise, spo2, resp)
+        let (sleepVal, hrResult, hrvResult, energyVal, stepsVal, noiseBuckets, spo2Result, respResult) = await (sleep, hrTs, hrvTs, energy, steps, noise, spo2Ts, respTs)
 
         applHealthSleepHours = sleepVal
-        applHealthRestingHR = hrVal
-        applHealthHRV = hrvVal
+        applHealthRestingHR = hrResult?.value
+        applHealthHRV = hrvResult?.value
         applHealthEnergyBurned = energyVal
         applHealthSteps = stepsVal
         applHealthAvgNoiseDb = noiseBuckets.isEmpty ? nil : noiseBuckets.values.reduce(0, +) / Double(noiseBuckets.count)
-        applHealthBloodOxygen = spo2Val
-        applHealthRespiratoryRate = respVal
+        applHealthBloodOxygen = spo2Result?.value
+        applHealthRespiratoryRate = respResult?.value
+
+        // Store sample timestamps for freshness display
+        restingHRTimestamp = hrResult?.sampleDate
+        hrvTimestamp = hrvResult?.sampleDate
+        bloodOxygenTimestamp = spo2Result?.sampleDate
+        respiratoryRateTimestamp = respResult?.sampleDate
 
         // Detect wearable presence: if we have HR or HRV or sleep, a wearable contributed data
+        let hrVal = hrResult?.value
+        let hrvVal = hrvResult?.value
         hasWearableData = hrVal != nil || hrvVal != nil || (sleepVal != nil && sleepVal! > 0)
 
         recoveryScore = manager.computeRecoveryScore(

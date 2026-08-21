@@ -248,7 +248,9 @@ struct PulseHealthView: View {
                             value: "\(hr)",
                             unit: "bpm",
                             label: "Rest HR",
-                            color: Pulse.vitals
+                            color: Pulse.vitals,
+                            freshness: vm.freshnessLabel(for: vm.restingHRTimestamp),
+                            isFresh: vm.isFresh(vm.restingHRTimestamp)
                         )
                     }
                     if let hrv = vm.applHealthHRV {
@@ -256,7 +258,9 @@ struct PulseHealthView: View {
                             value: String(format: "%.0f", hrv),
                             unit: "ms",
                             label: "HRV",
-                            color: Pulse.recovery
+                            color: Pulse.recovery,
+                            freshness: vm.freshnessLabel(for: vm.hrvTimestamp),
+                            isFresh: vm.isFresh(vm.hrvTimestamp)
                         )
                     }
                     if let spo2 = vm.applHealthBloodOxygen {
@@ -265,7 +269,9 @@ struct PulseHealthView: View {
                             unit: "%",
                             label: "SpO₂",
                             color: Pulse.hydration,
-                            progress: min(spo2 / 100.0, 1.0)
+                            progress: min(spo2 / 100.0, 1.0),
+                            freshness: vm.freshnessLabel(for: vm.bloodOxygenTimestamp),
+                            isFresh: vm.isFresh(vm.bloodOxygenTimestamp)
                         )
                     }
                     if let steps = vm.applHealthSteps {
@@ -282,7 +288,9 @@ struct PulseHealthView: View {
                             value: String(format: "%.0f", resp),
                             unit: "/min",
                             label: "Resp",
-                            color: Pulse.positive
+                            color: Pulse.positive,
+                            freshness: vm.freshnessLabel(for: vm.respiratoryRateTimestamp),
+                            isFresh: vm.isFresh(vm.respiratoryRateTimestamp)
                         )
                     }
                     if let burned = vm.applHealthEnergyBurned {
@@ -341,7 +349,9 @@ struct PulseHealthView: View {
             value: "—",
             unit: unit,
             label: label,
-            color: color.opacity(0.4)
+            color: color.opacity(0.4),
+            freshness: "no data",
+            isFresh: false
         )
     }
 

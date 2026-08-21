@@ -2,6 +2,36 @@ import Foundation
 import HealthKit
 import SwiftUI
 
+// MARK: - Timestamped HealthKit Value
+/// Pairs a metric value with the sample's end date so the UI can show freshness ("2h ago").
+struct TimestampedValue<T> {
+    let value: T
+    let sampleDate: Date
+
+    /// Human-readable freshness label.
+    /// Research reference: Oura and WHOOP both surface "last reading" timestamps
+    /// alongside HRV/HR values to help users distinguish fresh vs stale data —
+    /// a stale reading (e.g. watch removed 8h ago) should NOT be treated as
+    /// representative of current autonomic state (Plews et al., 2013).
+    var freshnessLabel: String {
+        let interval = Date().timeIntervalSince(sampleDate)
+        let minutes = Int(interval / 60)
+        if minutes < 1 { return "just now" }
+        if minutes < 60 { return "\(minutes)m ago" }
+        let hours = minutes / 60
+        if hours < 24 { return "\(hours)h ago" }
+        let days = hours / 24
+        return "\(days)d ago"
+    }
+
+    /// Whether this reading is fresh enough to be considered "current".
+    /// HRV/HR readings older than 4 hours are stale for recovery assessment
+    /// (Buchheit, 2014 — morning HRV window is ideally ≤5 min post-wake).
+    var isFresh: Bool {
+        Date().timeIntervalSince(sampleDate) < 4 * 3600
+    }
+}
+
 @MainActor
 @Observable
 class HealthKitManager {
@@ -465,6 +495,51 @@ class HealthKitManager {
                 }
                 let bpm = sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
                 continuation.resume(returning: bpm)
+            }
+            healthStore.execute(query)
+        }
+    }
+
+    // MARK: - Timestamped Fetches (value + sample date for freshness display)
+
+    func fetchRestingHRTimestamped() async -> TimestampedValue<Int>? {
+        guard let hrType = HKObjectType.quantityType(forIdentifier: .restingHeartRate) else { return nil }
+        return await fetchLatestTimestamped(type: hrType, unit: HKUnit.count().unitDivided(by: .minute()))
+            .map { TimestampedValue(value: Int($0.value.rounded()), sampleDate: $0.sampleDate) }
+    }
+
+    func fetchHRVTimestamped() async -> TimestampedValue<Double>? {
+        guard let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else { return nil }
+        return await fetchLatestTimestamped(type: hrvType, unit: .secondUnit(with: .milli))
+    }
+
+    func fetchBloodOxygenTimestamped() async -> TimestampedValue<Double>? {
+        guard let spo2Type = HKObjectType.quantityType(forIdentifier: .oxygenSaturation) else { return nil }
+        return await fetchLatestTimestamped(type: spo2Type, unit: .percent())
+            .map { TimestampedValue(value: $0.value * 100, sampleDate: $0.sampleDate) }
+    }
+
+    func fetchRespiratoryRateTimestamped() async -> TimestampedValue<Double>? {
+        guard let respType = HKObjectType.quantityType(forIdentifier: .respiratoryRate) else { return nil }
+        return await fetchLatestTimestamped(type: respType, unit: HKUnit.count().unitDivided(by: .minute()))
+    }
+
+    /// Generic single-sample fetch that returns value + sample end date.
+    private func fetchLatestTimestamped(type: HKQuantityType, unit: HKUnit) async -> TimestampedValue<Double>? {
+        let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: type,
+                predicate: nil,
+                limit: 1,
+                sortDescriptors: [sort]
+            ) { _, samples, _ in
+                guard let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let value = sample.quantity.doubleValue(for: unit)
+                continuation.resume(returning: TimestampedValue(value: value, sampleDate: sample.endDate))
             }
             healthStore.execute(query)
         }

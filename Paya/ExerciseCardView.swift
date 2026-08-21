@@ -357,6 +357,11 @@ struct ExerciseCardView: View {
                     Text("\(exercise.sets) sets")
                         .font(.caption)
                         .foregroundColor(Pulse.textTertiary)
+
+                    // Progressive overload in simple mode too
+                    if let prev = vm.previousSessionData[exercise.id] {
+                        progressiveOverloadBadge(prev: prev)
+                    }
                 }
             }
 
@@ -469,6 +474,11 @@ struct ExerciseCardView: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(state.allSetsCompleted ? Pulse.positive : vm.selectedDayColor)
                         }
+                    }
+
+                    // Progressive overload indicator (visible in collapsed state)
+                    if let prev = vm.previousSessionData[exercise.id] {
+                        progressiveOverloadBadge(prev: prev)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -766,6 +776,56 @@ struct ExerciseCardView: View {
                 sessionColor: vm.selectedDay.color
             )
         }
+    }
+
+    // MARK: - Progressive Overload Badge
+    /// Shows last session weight × reps and progression direction in the collapsed card header.
+    /// Benchmarked against Strong (shows "Previous" column) and Hevy (shows PR badges).
+    /// Making this visible without expanding solves the user complaint that progressive
+    /// overload data is buried too deep.
+    @ViewBuilder
+    private func progressiveOverloadBadge(prev: TrainViewModel.PreviousExerciseData) -> some View {
+        let useLbs = appState.profile.prefersLbs
+        let displayWeight = useLbs ? prev.rawWeightKg * 2.20462 : prev.rawWeightKg
+        let weightUnit = useLbs ? "lbs" : "kg"
+        let hasProgression = prev.incrementKg > 0
+
+        HStack(spacing: 4) {
+            Image(systemName: hasProgression ? "arrow.up.right" : "arrow.right")
+                .font(.system(size: 7, weight: .black))
+                .foregroundColor(hasProgression ? Pulse.positive : Pulse.textTertiary)
+
+            if prev.rawWeightKg > 0 {
+                Text("\(formatWeight(displayWeight))\(weightUnit) × \(prev.reps)")
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .foregroundColor(hasProgression ? Pulse.positive : Pulse.textSecondary)
+                    .monospacedDigit()
+            } else {
+                // Bodyweight / timed exercises — show reps only
+                Text("\(prev.reps) reps")
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .foregroundColor(hasProgression ? Pulse.positive : Pulse.textSecondary)
+            }
+
+            if hasProgression {
+                Text("↑")
+                    .font(.system(size: 8, weight: .black))
+                    .foregroundColor(Pulse.positive)
+            }
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(
+            (hasProgression ? Pulse.positive : Pulse.textTertiary)
+                .opacity(0.08)
+        )
+        .clipShape(Capsule())
+    }
+
+    private func formatWeight(_ w: Double) -> String {
+        w.truncatingRemainder(dividingBy: 1) == 0
+            ? String(format: "%.0f", w)
+            : String(format: "%.1f", w)
     }
 }
 
