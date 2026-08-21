@@ -51,8 +51,27 @@ final class PurchaseManager {
         isPro = UserDefaults.standard.bool(forKey: "paya_is_pro")
     }
 
+    // Developer emails that always get Pro access.
+    // These accounts see the full app exactly as a paying user would —
+    // the paywall still shows for non-developer accounts.
+    private static let developerEmails: Set<String> = [
+        "eminhuseyn313@gmail.com"
+    ]
+
+    /// Returns true if the currently signed-in user is a developer.
+    var isDeveloper: Bool {
+        guard let email = SupabaseClient.shared.userEmail else { return false }
+        return Self.developerEmails.contains(email.lowercased())
+    }
+
     /// Call once at app launch (e.g. in App.init or .task)
     func configure() async {
+        // Developer override — always Pro, no purchase needed
+        if isDeveloper {
+            isPro = true
+            UserDefaults.standard.set(true, forKey: "paya_is_pro")
+        }
+
         // Load product
         await loadProduct()
 
@@ -132,6 +151,19 @@ final class PurchaseManager {
     // MARK: - Entitlements
 
     private func refreshEntitlements() async {
+        // Developer accounts always keep Pro regardless of StoreKit state
+        if isDeveloper {
+            isPro = true
+            UserDefaults.standard.set(true, forKey: "paya_is_pro")
+            return
+        }
+
+        // Promo codes are also immune to StoreKit entitlement checks
+        if wasPromoRedeemed {
+            isPro = true
+            return
+        }
+
         var foundPro = false
 
         for await result in StoreKit.Transaction.currentEntitlements {

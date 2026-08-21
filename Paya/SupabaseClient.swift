@@ -100,12 +100,13 @@ final class SupabaseClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        // GoTrue REST API uses top-level "email_redirect_to" (not nested
+        // inside "options" — that's the JS SDK wrapper format).
+        // This URL must also be on the Supabase Auth → Redirect URLs allowlist.
         request.httpBody = try JSONSerialization.data(withJSONObject: [
             "email": email,
             "password": password,
-            // Tell Supabase to redirect to our custom URL scheme after
-            // the user clicks the confirmation link in their email.
-            "options": ["redirectTo": "paya://auth/callback"]
+            "email_redirect_to": "paya://auth/callback"
         ] as [String: Any])
 
         let (data, response) = try await session.data(for: request)
