@@ -14,13 +14,16 @@ struct AuthGateView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showCheckEmail = false
+    @State private var showResetSent = false
 
     var body: some View {
         ZStack {
             // Background
             Color.black.ignoresSafeArea()
 
-            if showCheckEmail {
+            if showResetSent {
+                resetSentView
+            } else if showCheckEmail {
                 checkEmailView
             } else {
                 formView
@@ -130,6 +133,18 @@ struct AuthGateView: View {
                         .foregroundColor(.secondary)
                 }
 
+                // Forgot password
+                if !isSignUp {
+                    Button {
+                        Task { await sendPasswordReset() }
+                    } label: {
+                        Text("Forgot password?")
+                            .font(.subheadline)
+                            .foregroundColor(Pulse.hydration)
+                    }
+                    .disabled(email.isEmpty || isLoading)
+                }
+
                 Spacer()
 
                 // Legal links
@@ -237,6 +252,84 @@ struct AuthGateView: View {
         }
     }
 
+    // MARK: - Password Reset Sent View
+
+    private var resetSentView: some View {
+        VStack(spacing: 28) {
+            Spacer()
+
+            VStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(Pulse.hydration.opacity(0.15))
+                        .frame(width: 80, height: 80)
+                    Image(systemName: "key.fill")
+                        .font(.system(size: 34))
+                        .foregroundColor(Pulse.hydration)
+                }
+
+                Text("Reset Link Sent")
+                    .font(.title.weight(.bold))
+                    .foregroundColor(.white)
+
+                Text("We sent a password reset link to\n**\(email)**\n\nTap the link to set a new password,\nthen come back and sign in.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+
+            VStack(spacing: 12) {
+                Text("Didn't get it? Check your spam folder.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Button {
+                    Task { await sendPasswordReset() }
+                } label: {
+                    HStack(spacing: 6) {
+                        if isLoading {
+                            ProgressView()
+                                .tint(Pulse.hydration)
+                        }
+                        Text("Resend Link")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .foregroundColor(Pulse.hydration)
+                }
+                .disabled(isLoading)
+            }
+
+            if let error = errorMessage {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(Pulse.warning)
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(Pulse.warning)
+                }
+                .padding(.horizontal, 32)
+            }
+
+            VStack(spacing: 8) {
+                Text("Remember your password?")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Button {
+                    showResetSent = false
+                    errorMessage = nil
+                } label: {
+                    Text("Back to sign in")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(Pulse.hydration)
+                }
+            }
+            .padding(.top, 8)
+
+            Spacer()
+        }
+    }
+
     // MARK: - Logic
 
     private var canSubmit: Bool {
@@ -260,6 +353,23 @@ struct AuthGateView: View {
                 try await client.signIn(email: email, password: password)
                 // client.isSignedIn flips → ContentView navigates away.
             }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func sendPasswordReset() async {
+        guard !email.isEmpty else {
+            errorMessage = "Enter your email address first"
+            return
+        }
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            try await client.resetPassword(email: email)
+            withAnimation { showResetSent = true }
         } catch {
             errorMessage = error.localizedDescription
         }
