@@ -279,10 +279,17 @@ struct PulseTrainView: View {
                 Button("Cancel", role: .cancel) {}
             } message: { Text("Flare day reduces suggested weights by 25%.") }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .payaWillBackground)) { _ in
+            vm?.persistSession()
+        }
         .onAppear {
             if vm == nil {
                 let newVM = TrainViewModel(appState: appState)
                 newVM.configure(context: modelContext)
+                // Restore an active session if one was persisted (app was killed mid-workout)
+                if ActiveSessionStore.hasPendingSession {
+                    newVM.restoreSession(appState: appState, context: modelContext)
+                }
                 vm = newVM
             }
             if coachProfile == nil { coachProfile = ProfileStore.current(context: modelContext) }

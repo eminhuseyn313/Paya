@@ -305,6 +305,7 @@ class TrainViewModel {
             cablePosition: CablePosition.infer(from: definition.name)
         )
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+        persistSession()
     }
 
     // MARK: - Swap Exercise (today only)
@@ -546,6 +547,7 @@ class TrainViewModel {
         }
 
         pushProgressToAppState()
+        persistSession()
     }
 
     var allExercisesComplete: Bool {
@@ -613,18 +615,34 @@ class TrainViewModel {
         guard var state = exerciseStates[exerciseId] else { return }
         state.sets[setIndex].weightKg = weight
         exerciseStates[exerciseId] = state
+        schedulePersist()
     }
 
     func updateReps(exerciseId: String, setIndex: Int, reps: Int) {
         guard var state = exerciseStates[exerciseId] else { return }
         state.sets[setIndex].reps = reps
         exerciseStates[exerciseId] = state
+        schedulePersist()
     }
 
     func updateRPE(exerciseId: String, setIndex: Int, rpe: Int) {
         guard var state = exerciseStates[exerciseId] else { return }
         state.sets[setIndex].rpe = rpe
         exerciseStates[exerciseId] = state
+        schedulePersist()
+    }
+
+    /// Debounced persist — waits 1s after the last edit to avoid writing
+    /// on every keystroke. Set toggles bypass this and persist immediately.
+    private var persistDebounceTask: Task<Void, Never>?
+
+    private func schedulePersist() {
+        persistDebounceTask?.cancel()
+        persistDebounceTask = Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            persistSession()
+        }
     }
 
     func copyWeightToRemainingSets(from setIndex: Int, exerciseId: String) {
@@ -830,6 +848,8 @@ class TrainViewModel {
         if let firstId = effectiveExercises.first?.id {
             exerciseStates[firstId]?.isExpanded = true
         }
+
+        persistSession()
     }
 
     func pauseSession() {
@@ -839,6 +859,7 @@ class TrainViewModel {
         appStateRef?.isSessionPaused = true
         HRSampleBuffer.shared.stopSampling()
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        persistSession()
     }
 
     func resumeSession() {
@@ -849,9 +870,11 @@ class TrainViewModel {
         appStateRef?.isSessionPaused = false
         HRSampleBuffer.shared.startSampling()
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        persistSession()
     }
 
     func discardSession(appState: AppState) {
+        ActiveSessionStore.clear()
         isSessionActive = false
         isSessionPaused = false
         isSimpleMode = false
@@ -1016,6 +1039,7 @@ class TrainViewModel {
         }
 
         try? context.save()
+        ActiveSessionStore.clear()
 
         completedSession = session
         showCompletionSheet = true
@@ -1030,5 +1054,197 @@ class TrainViewModel {
         WatchSessionManager.shared.pushSessionSnapshot(nil)
         LiveActivityManager.shared.end()
         FocusModeManager.shared.disableShield()
+    }
+
+    // MARK: - Session Persistence
+
+    /// Creates a snapshot of the current session state for persistence.
+    func createSessionSnapshot() -> ActiveSessionSnapshot? {
+        guard isSessionActive, let start = sessionStartTime else { return nil }
+
+        let exerciseSnapshots: [ActiveSessionSnapshot.ExerciseSnapshot] = effectiveExercises.compactMap { exercise in
+            guard let state = exerciseStates[exercise.id] else { return nil }
+            let setSnapshots = state.sets.map { s in
+                ActiveSessionSnapshot.SetSnapshot(
+                    setNumber: s.setNumber,
+                    weightKg: s.weightKg,
+                    reps: s.reps,
+                    isCompleted: s.isCompleted,
+                    isWarmup: s.isWarmup,
+                    setTypeRaw: s.setType.rawValue,
+                    rpe: s.rpe,
+                    peakHR: s.peakHR,
+                    avgHR: s.avgHR,
+                    endHR: s.endHR
+                )
+            }
+            return ActiveSessionSnapshot.ExerciseSnapshot(
+                id: exercise.id,
+                name: exercise.name,
+                muscleGroup: exercise.muscleGroup,
+                note: state.note,
+                cableAttachment: state.cableAttachment?.rawValue,
+                cablePosition: state.cablePosition?.rawValue,
+                isExpanded: state.isExpanded,
+                sets: setSnapshots
+            )
+        }
+
+        return ActiveSessionSnapshot(
+            sessionTypeCode: selectedDay.code,
+            sessionLabel: selectedDay.name,
+            startTime: start,
+            pausedElapsed: pausedElapsed,
+            isPaused: isSessionPaused,
+            isSimpleMode: isSimpleMode,
+            isFlareDay: isFlareDay,
+            exercises: exerciseSnapshots
+        )
+    }
+
+    /// Persists current session state to disk. Call on every meaningful
+    /// change (set toggle, weight edit, rep edit, background).
+    func persistSession() {
+        guard let snapshot = createSessionSnapshot() else { return }
+        ActiveSessionStore.save(snapshot)
+    }
+
+    /// Restores an active session from a persisted snapshot.
+    /// Returns true if a session was restored.
+    @discardableResult
+    func restoreSession(appState: AppState, context: ModelContext) -> Bool {
+        guard let snapshot = ActiveSessionStore.load() else { return false }
+
+        // Verify the snapshot isn't stale (> 6 hours old)
+        guard Date().timeIntervalSince(snapshot.startTime) < 6 * 3600 else {
+            ActiveSessionStore.clear()
+            return false
+        }
+
+        // Select the matching day
+        if let matchingDay = availableDays.first(where: { $0.code == snapshot.sessionTypeCode }) {
+            selectedDay = matchingDay
+        }
+
+        // Rebuild exercise list for this day
+        effectiveExercises = CustomSessionStore.effectiveExercises(
+            forCode: snapshot.sessionTypeCode,
+            context: context
+        )
+
+        // Restore session state
+        isSessionActive = true
+        isSessionPaused = snapshot.isPaused
+        isSimpleMode = snapshot.isSimpleMode
+        sessionStartTime = snapshot.startTime
+        pausedElapsed = snapshot.pausedElapsed
+        isFlareDay = snapshot.isFlareDay
+        appStateRef = appState
+
+        // Rebuild exercise states from snapshot, matching by exercise ID
+        exerciseStates = [:]
+        let snapshotMap = Dictionary(uniqueKeysWithValues: snapshot.exercises.map { ($0.id, $0) })
+
+        for exercise in effectiveExercises {
+            if let saved = snapshotMap[exercise.id] {
+                // Restore user-entered data from snapshot
+                let sets = saved.sets.map { s in
+                    SetState(
+                        setNumber: s.setNumber,
+                        weightKg: s.weightKg,
+                        reps: s.reps,
+                        isCompleted: s.isCompleted,
+                        isWarmup: s.isWarmup,
+                        setType: SetType(rawValue: s.setTypeRaw) ?? .working,
+                        rpe: s.rpe,
+                        peakHR: s.peakHR,
+                        avgHR: s.avgHR,
+                        endHR: s.endHR
+                    )
+                }
+                exerciseStates[exercise.id] = ExerciseState(
+                    id: exercise.id,
+                    definition: exercise,
+                    sets: sets,
+                    isExpanded: saved.isExpanded,
+                    note: saved.note,
+                    cableAttachment: saved.cableAttachment.flatMap { CableAttachment(rawValue: $0) },
+                    cablePosition: saved.cablePosition.flatMap { CablePosition(rawValue: $0) }
+                )
+            } else {
+                // Exercise wasn't in the snapshot (program changed?) — use fresh state
+                let suggested = suggestedWeight(for: exercise)
+                let sets = (1...exercise.sets).map { i in
+                    SetState(setNumber: i, weightKg: suggested, reps: exercise.repRange.max)
+                }
+                exerciseStates[exercise.id] = ExerciseState(
+                    id: exercise.id,
+                    definition: exercise,
+                    sets: sets,
+                    cableAttachment: CableAttachment.infer(from: exercise.name),
+                    cablePosition: CablePosition.infer(from: exercise.name)
+                )
+            }
+        }
+
+        // Also restore exercises from snapshot that aren't in the program
+        // (mid-session additions via addExerciseForToday)
+        for saved in snapshot.exercises {
+            guard !effectiveExercises.contains(where: { $0.id == saved.id }) else { continue }
+            // Re-create the definition for mid-session additions
+            let definition = ExerciseDefinition(
+                id: saved.id,
+                name: saved.name,
+                type: .isolation,
+                sets: saved.sets.count,
+                repRange: .tenToTwelve,
+                startWeightKg: saved.sets.first?.weightKg ?? 0,
+                progressionNote: "Restored from saved session",
+                isJointSensitive: false,
+                specialProgressionRule: nil,
+                alternativeExercise: nil,
+                muscleGroup: saved.muscleGroup,
+                gifURL: nil,
+                alternativeGifURL: nil
+            )
+            effectiveExercises.append(definition)
+            let sets = saved.sets.map { s in
+                SetState(
+                    setNumber: s.setNumber,
+                    weightKg: s.weightKg,
+                    reps: s.reps,
+                    isCompleted: s.isCompleted,
+                    isWarmup: s.isWarmup,
+                    setType: SetType(rawValue: s.setTypeRaw) ?? .working,
+                    rpe: s.rpe,
+                    peakHR: s.peakHR,
+                    avgHR: s.avgHR,
+                    endHR: s.endHR
+                )
+            }
+            exerciseStates[saved.id] = ExerciseState(
+                id: saved.id,
+                definition: definition,
+                sets: sets,
+                isExpanded: saved.isExpanded,
+                note: saved.note,
+                cableAttachment: saved.cableAttachment.flatMap { CableAttachment(rawValue: $0) },
+                cablePosition: saved.cablePosition.flatMap { CablePosition(rawValue: $0) }
+            )
+        }
+
+        // Sync AppState
+        appState.startSession()
+        appState.sessionStartTime = snapshot.startTime
+        appState.isSessionPaused = snapshot.isPaused
+        pushProgressToAppState()
+
+        // Reconnect peripherals
+        BLEHeartRateManager.shared.attemptAutoReconnect()
+        if !snapshot.isPaused {
+            HRSampleBuffer.shared.startSampling()
+        }
+
+        return true
     }
 }
