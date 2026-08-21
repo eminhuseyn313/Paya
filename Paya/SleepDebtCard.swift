@@ -106,7 +106,7 @@ struct SleepDebtCard: View {
             return
         }
 
-        let calendar = Calendar.current
+        _ = Calendar.current
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE"
 

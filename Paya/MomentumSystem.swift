@@ -158,7 +158,6 @@ enum MomentumEngine {
         return HabitRegistry.all.map { habit in
             var streak = 0
             var longest = 0
-            var day = today
 
             // Walk backwards from today
             let todayDone = habit.check(today, context)

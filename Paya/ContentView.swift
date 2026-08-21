@@ -9,10 +9,17 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var needsOnboarding = false
 
+    private var client = SupabaseClient.shared
+
     var body: some View {
         @Bindable var state = appState
         return Group {
-            if needsOnboarding {
+            if !client.isSignedIn {
+                // Auth gate: user must sign in before using the app.
+                // Data stays local-first — the account is for cloud backup
+                // and identity, not a prerequisite for local storage.
+                AuthGateView()
+            } else if needsOnboarding {
                 OnboardingView(onComplete: {
                     needsOnboarding = false
                 })
@@ -23,7 +30,9 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
         .onAppear {
             bootstrapProfiles()
+            #if DEBUG
             YesterdayWorkoutSeeder.seedIfNeeded(context: modelContext)
+            #endif
             WatchSessionManager.shared.activate()
             WatchSessionManager.shared.onWaterAdded = { ml in
                 let total = WaterStore.addWater(ml, context: modelContext)

@@ -119,6 +119,23 @@ struct FocusModeSettingsView: View {
                         .foregroundColor(.secondary)
                 }
 
+            case .approvedWithDataAccess:
+                Toggle("Block during sessions", isOn: Binding(
+                    get: { manager.isEnabled },
+                    set: { manager.isEnabled = $0 }
+                ))
+
+                Button {
+                    showPicker = true
+                } label: {
+                    HStack {
+                        Text("Choose apps to block")
+                        Spacer()
+                        Text(selectedCount > 0 ? "\(selectedCount) selected" : "None")
+                            .foregroundColor(.secondary)
+                    }
+                }
+
             @unknown default:
                 EmptyView()
             }

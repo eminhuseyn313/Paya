@@ -389,7 +389,8 @@ struct NutrientRow: View {
             }
             .buttonStyle(.plain)
 
-            // Expanded food breakdown
+            // Expanded food breakdown — shows which foods/drinks provided
+            // this nutrient and what else they contributed.
             if isExpanded && hasFoodData {
                 VStack(spacing: 0) {
                     Rectangle()
@@ -397,39 +398,62 @@ struct NutrientRow: View {
                         .frame(height: 1)
                         .padding(.horizontal, 10)
 
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 10) {
                         Text("FROM YOUR FOOD LOG")
                             .font(.system(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.top, 4)
 
                         ForEach(Array(contributions.enumerated()), id: \.element.id) { idx, item in
-                            HStack(spacing: 10) {
-                                // Segment color dot
-                                Circle()
-                                    .fill(segmentColor(at: idx))
-                                    .frame(width: 8, height: 8)
+                            VStack(alignment: .leading, spacing: 6) {
+                                // Food name + primary nutrient amount
+                                HStack(spacing: 10) {
+                                    Circle()
+                                        .fill(segmentColor(at: idx))
+                                        .frame(width: 8, height: 8)
 
-                                VStack(alignment: .leading, spacing: 1) {
-                                    Text(item.foodDescription)
-                                        .font(.caption.weight(.medium))
-                                        .foregroundColor(Pulse.textPrimary)
-                                        .lineLimit(2)
-                                    Text(item.mealName)
-                                        .font(.system(size: 9))
-                                        .foregroundColor(Pulse.textTertiary)
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text(item.foodDescription)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundColor(Pulse.textPrimary)
+                                            .lineLimit(2)
+                                        Text(item.mealName)
+                                            .font(.system(size: 9))
+                                            .foregroundColor(Pulse.textTertiary)
+                                    }
+
+                                    Spacer()
+
+                                    VStack(alignment: .trailing, spacing: 1) {
+                                        Text("\(formatted(item.amount))\(item.unit)")
+                                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                                            .foregroundColor(Pulse.textPrimary)
+                                        let pct = nutrient.target.rda > 0 ? (item.amount / nutrient.target.rda) * 100 : 0
+                                        Text("\(Int(pct))% of RDA")
+                                            .font(.system(size: 9, weight: .medium))
+                                            .foregroundColor(Color(hex: nutrient.level.color))
+                                    }
                                 }
 
-                                Spacer()
-
-                                VStack(alignment: .trailing, spacing: 1) {
-                                    Text("\(formatted(item.amount))\(item.unit)")
-                                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                                        .foregroundColor(Pulse.textPrimary)
-                                    let pct = nutrient.target.rda > 0 ? (item.amount / nutrient.target.rda) * 100 : 0
-                                    Text("\(Int(pct))%")
-                                        .font(.system(size: 9, weight: .medium))
-                                        .foregroundColor(Color(hex: nutrient.level.color))
+                                // Other nutrients this food also provides
+                                if let meal = matchingMeal(for: item) {
+                                    let extras = otherNutrients(from: meal)
+                                    if !extras.isEmpty {
+                                        ScrollView(.horizontal, showsIndicators: false) {
+                                            HStack(spacing: 6) {
+                                                ForEach(extras, id: \.label) { extra in
+                                                    Text("\(extra.label) \(extra.value)")
+                                                        .font(.system(size: 9, weight: .medium))
+                                                        .foregroundColor(Pulse.textTertiary)
+                                                        .padding(.horizontal, 7)
+                                                        .padding(.vertical, 3)
+                                                        .background(Pulse.surfaceElevatedFallback)
+                                                        .clipShape(Capsule())
+                                                }
+                                            }
+                                        }
+                                        .padding(.leading, 18)
+                                    }
                                 }
                             }
                         }
@@ -485,5 +509,59 @@ struct NutrientRow: View {
 
     private func formatted(_ value: Double) -> String {
         value < 10 ? String(format: "%.1f", value) : String(format: "%.0f", value)
+    }
+
+    // MARK: - Food Nutrient Details
+
+    /// Find the MealLog that matches this FoodContribution by name.
+    private func matchingMeal(for item: NutrientDeficitEngine.FoodContribution) -> MealLog? {
+        todaysMeals.first { $0.food == item.foodDescription && $0.name == item.mealName }
+    }
+
+    /// List other notable nutrients this meal provides (excluding the
+    /// currently selected one, which is already shown as the primary value).
+    private func otherNutrients(from meal: MealLog) -> [(label: String, value: String)] {
+        let currentId = nutrient.target.id
+        var extras: [(String, String, Double)] = []
+
+        if currentId != "protein" && meal.protein > 0 {
+            extras.append(("Protein", "\(Int(meal.protein))g", meal.protein))
+        }
+        if currentId != "fat" && meal.fatG > 0 {
+            extras.append(("Fat", "\(Int(meal.fatG))g", meal.fatG))
+        }
+        if currentId != "carbs" && meal.carbsG > 0 {
+            extras.append(("Carbs", "\(Int(meal.carbsG))g", meal.carbsG))
+        }
+        if currentId != "fiber" && meal.fiberG > 1 {
+            extras.append(("Fiber", String(format: "%.1fg", meal.fiberG), meal.fiberG))
+        }
+        if currentId != "iron" && meal.ironMg > 0.5 {
+            extras.append(("Iron", String(format: "%.1fmg", meal.ironMg), meal.ironMg))
+        }
+        if currentId != "calcium" && meal.calciumMg > 10 {
+            extras.append(("Calcium", "\(Int(meal.calciumMg))mg", meal.calciumMg))
+        }
+        if currentId != "magnesium" && meal.magnesiumMg > 5 {
+            extras.append(("Mg", "\(Int(meal.magnesiumMg))mg", meal.magnesiumMg))
+        }
+        if currentId != "zinc" && meal.zincMg > 0.3 {
+            extras.append(("Zinc", String(format: "%.1fmg", meal.zincMg), meal.zincMg))
+        }
+        if currentId != "vitaminD" && meal.vitaminDMcg > 0.5 {
+            extras.append(("Vit D", String(format: "%.1fmcg", meal.vitaminDMcg), meal.vitaminDMcg))
+        }
+        if currentId != "potassium" && meal.potassiumMg > 20 {
+            extras.append(("K", "\(Int(meal.potassiumMg))mg", meal.potassiumMg))
+        }
+        if currentId != "vitaminC" && meal.vitaminCMg > 2 {
+            extras.append(("Vit C", "\(Int(meal.vitaminCMg))mg", meal.vitaminCMg))
+        }
+
+        // Show top 5 most notable, sorted by relative significance
+        return extras
+            .sorted { $0.2 > $1.2 }
+            .prefix(5)
+            .map { (label: $0.0, value: $0.1) }
     }
 }

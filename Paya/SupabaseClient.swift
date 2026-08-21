@@ -100,12 +100,13 @@ final class SupabaseClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        // GoTrue REST API uses top-level "email_redirect_to" (not nested
+        // inside "options" — that's the JS SDK wrapper format).
+        // This URL must also be on the Supabase Auth → Redirect URLs allowlist.
         request.httpBody = try JSONSerialization.data(withJSONObject: [
             "email": email,
             "password": password,
-            // Tell Supabase to redirect to our custom URL scheme after
-            // the user clicks the confirmation link in their email.
-            "options": ["redirectTo": "paya://auth/callback"]
+            "email_redirect_to": "paya://auth/callback"
         ] as [String: Any])
 
         let (data, response) = try await session.data(for: request)
@@ -151,6 +152,83 @@ final class SupabaseClient {
 
         let auth = try decoder.decode(AuthResponse.self, from: data)
         applySession(auth)
+    }
+
+    /// Send a password reset email via GoTrue.
+    /// The email contains a link that opens the app via the redirect URL.
+    func resetPassword(email: String) async throws {
+        let url = URL(string: "\(baseURL)/auth/v1/recover")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "email": email,
+            "redirect_to": "paya://auth/callback"
+        ] as [String: Any])
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw SyncError.networkError }
+
+        if http.statusCode >= 400 {
+            let authErr = try? decoder.decode(AuthError.self, from: data)
+            throw SyncError.auth(authErr?.message ?? "Password reset failed (\(http.statusCode))")
+        }
+        // Success — Supabase sends the email. No token in response.
+    }
+
+    /// Update the user's password (requires a valid access token — e.g.
+    /// after clicking the reset link which logs the user in automatically).
+    func updatePassword(newPassword: String) async throws {
+        guard let token = accessToken else { throw SyncError.auth("Not signed in") }
+        let url = URL(string: "\(baseURL)/auth/v1/user")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "password": newPassword
+        ])
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw SyncError.networkError }
+
+        if http.statusCode >= 400 {
+            let authErr = try? decoder.decode(AuthError.self, from: data)
+            throw SyncError.auth(authErr?.message ?? "Password update failed (\(http.statusCode))")
+        }
+    }
+
+    /// Delete the current user's account. Requires the service_role key on the
+    /// backend, so we use the GoTrue admin endpoint through a Supabase Edge
+    /// Function or RLS policy. For now, we sign out locally and mark for
+    /// manual deletion — or use the user-facing delete if the project's
+    /// GoTrue config allows it.
+    ///
+    /// Apple requires apps with account creation to offer account deletion.
+    func deleteAccount() async throws {
+        // GoTrue v2.60+ supports user self-deletion when enabled in the
+        // project settings (Authentication → User Management → Allow users to
+        // delete their own account). This calls DELETE /auth/v1/user.
+        guard let token = accessToken else { throw SyncError.auth("Not signed in") }
+        let url = URL(string: "\(baseURL)/auth/v1/user")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw SyncError.networkError }
+
+        if http.statusCode >= 400 {
+            let authErr = try? decoder.decode(AuthError.self, from: data)
+            throw SyncError.auth(authErr?.message ?? "Account deletion failed (\(http.statusCode))")
+        }
+
+        // Clear local session
+        signOut()
     }
 
     func signOut() {
@@ -245,6 +323,11 @@ final class SupabaseClient {
         userId = auth.user.id
         userEmail = auth.user.email
         isSignedIn = true
+
+        // Re-check developer Pro access now that we know the email.
+        // configure() runs at app launch before sign-in, so isDeveloper
+        // was false then — this catches the post-auth case.
+        PurchaseManager.shared.checkDeveloperAccess(email: auth.user.email)
     }
 
     private func restoreSession() {
@@ -271,6 +354,7 @@ final class SupabaseClient {
             userEmail = email
         }
         isSignedIn = true
+        PurchaseManager.shared.checkDeveloperAccess(email: userEmail)
     }
 
     private func refreshAccessToken() async {

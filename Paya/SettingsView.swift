@@ -30,6 +30,14 @@ struct SettingsView: View {
     @State private var showPaywall = false
     @State private var showPrivacyPolicy = false
     @State private var showTermsOfService = false
+    @State private var showDeleteAccountConfirm = false
+    @State private var showSignOutConfirm = false
+    @State private var accountActionError: String? = nil
+    @State private var showAccountError = false
+    @State private var showChangePassword = false
+    @State private var newPassword = ""
+    @State private var passwordChanged = false
+    @State private var showHealthJourney = false
 
     var body: some View {
         NavigationStack {
@@ -82,6 +90,37 @@ struct SettingsView: View {
                     }
                 } header: {
                     SectionHeader(title: "Profile", icon: "person.fill")
+                }
+
+                // MARK: - Health Journey
+                Section {
+                    Button {
+                        showHealthJourney = true
+                    } label: {
+                        HStack {
+                            SettingsIcon(icon: "heart.text.clipboard.fill", color: Pulse.ai)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Health Journey")
+                                    .foregroundColor(.primary)
+                                if let profile = ProfileStore.current(context: modelContext),
+                                   profile.healthJourneyCompleted {
+                                    Text("Completed — tap to update")
+                                        .font(.caption)
+                                        .foregroundColor(Pulse.positive)
+                                } else {
+                                    Text("Set up your health profile")
+                                        .font(.caption)
+                                        .foregroundColor(Pulse.ai)
+                                }
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                } header: {
+                    SectionHeader(title: "Health Profile", icon: "stethoscope")
                 }
 
                 // MARK: - Training
@@ -362,6 +401,58 @@ struct SettingsView: View {
                     SectionHeader(title: "Paya Pro", icon: "star.fill")
                 }
 
+                // MARK: - Account
+                Section {
+                    // Signed-in email
+                    if let email = SupabaseClient.shared.userEmail {
+                        HStack {
+                            SettingsIcon(icon: "person.crop.circle.fill", color: Color(hex: "2563EB"))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Signed in as")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text(email)
+                                    .font(.subheadline)
+                            }
+                        }
+                    }
+
+                    // Change password
+                    Button {
+                        showChangePassword = true
+                    } label: {
+                        HStack {
+                            SettingsIcon(icon: "key.fill", color: Color(hex: "F59E0B"))
+                            Text("Change Password")
+                                .foregroundColor(.primary)
+                        }
+                    }
+
+                    // Sign out
+                    Button {
+                        showSignOutConfirm = true
+                    } label: {
+                        HStack {
+                            SettingsIcon(icon: "rectangle.portrait.and.arrow.right", color: .secondary)
+                            Text("Sign Out")
+                                .foregroundColor(.primary)
+                        }
+                    }
+
+                    // Delete account — Apple requires this for apps with account creation
+                    Button(role: .destructive) {
+                        showDeleteAccountConfirm = true
+                    } label: {
+                        HStack {
+                            SettingsIcon(icon: "person.crop.circle.badge.minus", color: .red)
+                            Text("Delete Account")
+                                .foregroundColor(.red)
+                        }
+                    }
+                } header: {
+                    SectionHeader(title: "Account", icon: "person.crop.circle")
+                }
+
                 // MARK: - About
                 Section {
                     HStack {
@@ -498,6 +589,66 @@ struct SettingsView: View {
                         }
                         .sheet(isPresented: $showTermsOfService) {
                             TermsOfServiceView()
+                        }
+                        .fullScreenCover(isPresented: $showHealthJourney) {
+                            if let profile = ProfileStore.current(context: modelContext) {
+                                HealthJourneyView(profile: profile)
+                            }
+                        }
+                        .alert("Sign Out", isPresented: $showSignOutConfirm) {
+                            Button("Cancel", role: .cancel) {}
+                            Button("Sign Out", role: .destructive) {
+                                SupabaseClient.shared.signOut()
+                            }
+                        } message: {
+                            Text("Your local data stays on this device. You can sign back in anytime.")
+                        }
+                        .alert("Delete Account", isPresented: $showDeleteAccountConfirm) {
+                            Button("Cancel", role: .cancel) {}
+                            Button("Delete Forever", role: .destructive) {
+                                Task {
+                                    do {
+                                        try await SupabaseClient.shared.deleteAccount()
+                                    } catch {
+                                        accountActionError = error.localizedDescription
+                                        showAccountError = true
+                                    }
+                                }
+                            }
+                        } message: {
+                            Text("This permanently deletes your account and all cloud data. Your local data on this device will remain. This cannot be undone.")
+                        }
+                        .alert("Account Error", isPresented: $showAccountError) {
+                            Button("OK", role: .cancel) {}
+                        } message: {
+                            Text(accountActionError ?? "Something went wrong.")
+                        }
+                        .alert("Change Password", isPresented: $showChangePassword) {
+                            SecureField("New password (min 6 chars)", text: $newPassword)
+                            Button("Cancel", role: .cancel) {
+                                newPassword = ""
+                            }
+                            Button("Update") {
+                                let pw = newPassword
+                                newPassword = ""
+                                Task {
+                                    do {
+                                        try await SupabaseClient.shared.updatePassword(newPassword: pw)
+                                        passwordChanged = true
+                                    } catch {
+                                        accountActionError = error.localizedDescription
+                                        showAccountError = true
+                                    }
+                                }
+                            }
+                            .disabled(newPassword.count < 6)
+                        } message: {
+                            Text("Enter a new password for your account.")
+                        }
+                        .alert("Password Updated", isPresented: $passwordChanged) {
+                            Button("OK", role: .cancel) {}
+                        } message: {
+                            Text("Your password has been changed successfully.")
                         }
                     }
         .onAppear {
