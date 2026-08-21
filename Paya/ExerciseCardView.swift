@@ -1,13 +1,19 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Exercise Info Sheet
 
 struct ExerciseInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     var exercise: ExerciseDefinition
     var sessionColor: Color
 
     @State private var hasAppeared = false
+    @State private var prWeight: Double? = nil
+    @State private var prReps: Int? = nil
+    @State private var prDate: Date? = nil
+    @State private var sessionCount: Int = 0
 
     var body: some View {
         NavigationStack {
@@ -74,6 +80,42 @@ struct ExerciseInfoSheet: View {
                             InfoRow(label: "Rest", value: "\(RestTimerManager.defaultRest(for: exercise))s")
                         }
                         .payaCard(padding: 12)
+                    }
+
+                    // Personal record (loaded from session history)
+                    if let prW = prWeight, let prR = prReps, let prD = prDate {
+                        InfoSection(title: "Your Record") {
+                            HStack(spacing: 12) {
+                                Image(systemName: "trophy.fill")
+                                    .font(.title2)
+                                    .foregroundColor(Pulse.warning)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("\(prW.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", prW) : String(format: "%.1f", prW))kg × \(prR) reps")
+                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .foregroundColor(Pulse.textPrimary)
+                                        .monospacedDigit()
+                                    HStack(spacing: 4) {
+                                        Text("Personal best")
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(Pulse.warning)
+                                        Text("·")
+                                            .foregroundColor(Pulse.textTertiary)
+                                        Text(prD.formatted(.dateTime.month(.abbreviated).day()))
+                                            .font(.system(size: 11))
+                                            .foregroundColor(Pulse.textTertiary)
+                                        Text("·")
+                                            .foregroundColor(Pulse.textTertiary)
+                                        Text("\(sessionCount) session\(sessionCount == 1 ? "" : "s") total")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(Pulse.textTertiary)
+                                    }
+                                }
+                                Spacer()
+                            }
+                            .padding(12)
+                            .background(Pulse.warning.opacity(0.07))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
                     }
 
                     InfoSection(title: "Progression Rule") {
@@ -209,7 +251,44 @@ struct ExerciseInfoSheet: View {
             }
         }
         .presentationDetents([.large])
-        .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { hasAppeared = true } }
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.5).delay(0.1)) { hasAppeared = true }
+            loadExercisePR()
+        }
+    }
+
+    private func loadExercisePR() {
+        let name = exercise.name
+        let descriptor = FetchDescriptor<TrainingSession>(
+            predicate: #Predicate<TrainingSession> { $0.isCompleted },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        guard let sessions = try? modelContext.fetch(descriptor) else { return }
+
+        var bestWeight = 0.0
+        var bestReps = 0
+        var bestDate = Date.distantPast
+        var count = 0
+
+        for session in sessions {
+            for log in session.exercises where log.exerciseName == name {
+                count += 1
+                for set in log.sets where set.isCompleted {
+                    if set.weightKg > bestWeight || (set.weightKg == bestWeight && set.reps > bestReps) {
+                        bestWeight = set.weightKg
+                        bestReps = set.reps
+                        bestDate = session.date
+                    }
+                }
+            }
+        }
+
+        sessionCount = count
+        if bestWeight > 0 || bestReps > 0 {
+            prWeight = bestWeight
+            prReps = bestReps
+            prDate = bestDate
+        }
     }
 
     /// isJointSensitive is a broad flag used across ~80 exercises spanning

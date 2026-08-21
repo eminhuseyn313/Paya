@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Exercise Detail View
 // Shows the two exercise images (usually start/end position), full instructions,
@@ -7,10 +8,21 @@ import SwiftUI
 struct ExerciseDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     let exercise: Exercise
 
     @State private var currentImageIndex: Int = 0
     @State private var hasAppeared = false
+    @State private var exerciseHistory: [ExerciseHistoryEntry] = []
+
+    struct ExerciseHistoryEntry: Identifiable {
+        let id = UUID()
+        let date: Date
+        let bestWeight: Double
+        let bestReps: Int
+        let totalVolume: Double
+        let isPersonalBest: Bool
+    }
 
     var body: some View {
         NavigationStack {
@@ -136,6 +148,11 @@ struct ExerciseDetailView: View {
                         .padding(.horizontal, 16)
                     }
 
+                    // Personal history — shows progression for this exercise
+                    if !exerciseHistory.isEmpty {
+                        personalHistorySection
+                    }
+
                     // Instructions
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Instructions")
@@ -174,7 +191,133 @@ struct ExerciseDetailView: View {
             }
         }
         .presentationDetents([.large])
-        .onAppear { withAnimation(.easeOut(duration: 0.5).delay(0.1)) { hasAppeared = true } }
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.5).delay(0.1)) { hasAppeared = true }
+            loadHistory()
+        }
+    }
+
+    // MARK: - Personal History Section
+
+    private var personalHistorySection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.system(size: 13))
+                    .foregroundColor(Pulse.positive)
+                Text("Your history")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(Pulse.textPrimary)
+                Spacer()
+                Text("\(exerciseHistory.count) session\(exerciseHistory.count == 1 ? "" : "s")")
+                    .font(.caption)
+                    .foregroundColor(Pulse.textTertiary)
+            }
+            .padding(.horizontal, 16)
+
+            // PR highlight
+            if let pr = exerciseHistory.first(where: { $0.isPersonalBest }) ?? exerciseHistory.max(by: { $0.bestWeight < $1.bestWeight }) {
+                HStack(spacing: 10) {
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(Pulse.warning)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Personal best")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(Pulse.warning)
+                        Text("\(formatWeight(pr.bestWeight))kg × \(pr.bestReps) reps")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
+                            .monospacedDigit()
+                    }
+                    Spacer()
+                    Text(pr.date.formatted(.dateTime.month(.abbreviated).day()))
+                        .font(.caption)
+                        .foregroundColor(Pulse.textTertiary)
+                }
+                .padding(12)
+                .background(Pulse.warning.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Pulse.warning.opacity(0.15), lineWidth: 0.5)
+                )
+                .padding(.horizontal, 16)
+            }
+
+            // Recent sessions
+            VStack(spacing: 6) {
+                ForEach(exerciseHistory.prefix(6)) { entry in
+                    HStack(spacing: 10) {
+                        Text(entry.date.formatted(.dateTime.month(.abbreviated).day()))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(Pulse.textTertiary)
+                            .frame(width: 50, alignment: .leading)
+
+                        Text("\(formatWeight(entry.bestWeight))kg")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundColor(Pulse.textPrimary)
+                            .monospacedDigit()
+                            .frame(width: 55, alignment: .trailing)
+
+                        Text("×\(entry.bestReps)")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(Pulse.textSecondary)
+                            .frame(width: 30, alignment: .leading)
+
+                        // Volume bar
+                        let maxVol = exerciseHistory.map(\.totalVolume).max() ?? 1
+                        GeometryReader { geo in
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(Pulse.positive.opacity(0.3))
+                                .frame(width: geo.size.width * min(entry.totalVolume / maxVol, 1.0))
+                        }
+                        .frame(height: 6)
+
+                        if entry.isPersonalBest {
+                            Image(systemName: "trophy.fill")
+                                .font(.system(size: 9))
+                                .foregroundColor(Pulse.warning)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+            }
+        }
+        .padding(.vertical, 8)
+    }
+
+    private func formatWeight(_ w: Double) -> String {
+        w.truncatingRemainder(dividingBy: 1) == 0
+            ? String(format: "%.0f", w)
+            : String(format: "%.1f", w)
+    }
+
+    private func loadHistory() {
+        let exerciseName = exercise.name
+        let descriptor = FetchDescriptor<TrainingSession>(
+            predicate: #Predicate<TrainingSession> { $0.isCompleted },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        guard let sessions = try? modelContext.fetch(descriptor) else { return }
+
+        var entries: [ExerciseHistoryEntry] = []
+        for session in sessions {
+            for exerciseLog in session.exercises where exerciseLog.exerciseName == exerciseName {
+                let completedSets = exerciseLog.sets.filter { $0.isCompleted }
+                guard !completedSets.isEmpty else { continue }
+                let best = completedSets.max(by: { $0.weightKg < $1.weightKg })!
+                let volume = completedSets.reduce(0.0) { $0 + $1.weightKg * Double($1.reps) }
+                entries.append(ExerciseHistoryEntry(
+                    date: session.date,
+                    bestWeight: best.weightKg,
+                    bestReps: best.reps,
+                    totalVolume: volume,
+                    isPersonalBest: exerciseLog.isPersonalBest
+                ))
+            }
+        }
+        exerciseHistory = entries
     }
 }
 

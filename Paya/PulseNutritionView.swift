@@ -362,6 +362,9 @@ struct PulseNutritionView: View {
         // Drinks
         DrinkQuickCard(modelContext: modelContext, onOpenFull: { showDrinkManagement = true })
 
+        // Supplements — surfaced here so users don't need to navigate to Templates
+        NutritionSupplementsCard()
+
         // Logged meals
         if !vm.meals.isEmpty {
             LoggedMealsCard(vm: vm, modelContext: modelContext)

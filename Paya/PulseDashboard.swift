@@ -875,33 +875,65 @@ struct PulseDashboardView: View {
     @ViewBuilder
     private func healthJourneyInsightBadge(profile: PersonProfile) -> some View {
         let report = HealthContraindicationEngine.generate(for: profile)
+        let topWarning = report.allWarnings
+            .sorted(by: { $0.severity > $1.severity })
+            .first
+        let accentColor: Color = {
+            switch topWarning?.severity {
+            case .critical: return Pulse.critical
+            case .warning:  return Pulse.warning
+            case .caution:  return Pulse.warning
+            default:        return Pulse.ai
+            }
+        }()
+
         if !report.isEmpty {
             Button {
                 showHealthJourney = true
             } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "heart.text.clipboard")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(Pulse.ai)
-                        .frame(width: 32, height: 32)
-                        .background(Pulse.ai.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                VStack(spacing: 0) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "heart.text.clipboard")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(accentColor)
+                            .frame(width: 32, height: 32)
+                            .background(accentColor.opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Health profile active")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundColor(Pulse.textPrimary)
-                        Text("\(report.totalCount) personalized rules guiding your nutrition, training & supplements")
-                            .font(.system(size: 10))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Health profile active")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(Pulse.textPrimary)
+                            Text("\(report.totalCount) personalized rules guiding your nutrition, training & supplements")
+                                .font(.system(size: 10))
+                                .foregroundColor(Pulse.textTertiary)
+                                .lineLimit(2)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
-                            .lineLimit(2)
                     }
 
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(Pulse.textTertiary)
+                    // Surface the top-priority warning so it's not just a badge count
+                    if let warning = topWarning,
+                       warning.severity >= .caution {
+                        Divider().padding(.vertical, 6)
+                        HStack(spacing: 8) {
+                            Image(systemName: warning.severity >= .warning
+                                  ? "exclamationmark.triangle.fill"
+                                  : "info.circle.fill")
+                                .font(.system(size: 11))
+                                .foregroundColor(accentColor)
+                            Text(warning.title)
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(Pulse.textPrimary)
+                                .lineLimit(1)
+                            Spacer()
+                        }
+                    }
                 }
                 .padding(12)
                 .background(
@@ -909,7 +941,7 @@ struct PulseDashboardView: View {
                         .fill(Pulse.surfaceFallback)
                         .overlay(
                             RoundedRectangle(cornerRadius: 14)
-                                .stroke(Pulse.ai.opacity(0.1), lineWidth: 1)
+                                .stroke(accentColor.opacity(0.1), lineWidth: 1)
                         )
                 )
             }
