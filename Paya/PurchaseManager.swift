@@ -67,10 +67,7 @@ final class PurchaseManager {
     /// Call once at app launch (e.g. in App.init or .task)
     func configure() async {
         // Developer override — always Pro, no purchase needed
-        if isDeveloper {
-            isPro = true
-            UserDefaults.standard.set(true, forKey: "paya_is_pro")
-        }
+        checkDeveloperAccess()
 
         // Load product
         await loadProduct()
@@ -86,6 +83,17 @@ final class PurchaseManager {
                     await self.handleVerified(transaction)
                 }
             }
+        }
+    }
+
+    /// Re-check developer access after sign-in. Call this whenever
+    /// the user's auth state changes (sign-in, sign-up, token refresh).
+    /// At app launch, configure() runs before sign-in completes, so
+    /// isDeveloper is false — this method catches the post-auth case.
+    func checkDeveloperAccess() {
+        if isDeveloper {
+            isPro = true
+            UserDefaults.standard.set(true, forKey: "paya_is_pro")
         }
     }
 
