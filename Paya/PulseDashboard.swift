@@ -55,6 +55,7 @@ struct PulseDashboardView: View {
     @State private var todayTrainingDay: DaySnapshot? = nil
     @State private var showWaterSheet = false
     @State private var showHealthJourney = false
+    @State private var showFoodQuickPicker = false
 
     private var readinessScore: Int {
         viewModel.readiness?.score ?? viewModel.recoveryScore ?? 0
@@ -103,6 +104,7 @@ struct PulseDashboardView: View {
                         if let profile = ProfileStore.current(context: modelContext),
                            profile.healthJourneyCompleted {
                             healthNudgeCards(profile: profile)
+                            healthJourneyInsightBadge(profile: profile)
                         }
 
                         // ━━━ 5. Flare Alert (conditional) ━━━
@@ -191,6 +193,17 @@ struct PulseDashboardView: View {
             .sheet(isPresented: $showWaterSheet) {
                 WaterQuickSheet()
                     .presentationDetents([.medium, .large])
+            }
+            .sheet(isPresented: $showFoodQuickPicker) {
+                FoodQuickPickerSheet { action in
+                    showFoodQuickPicker = false
+                    appState.pendingNutritionAction = action
+                    // Small delay so the sheet dismiss animation completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        selectedTab = 2
+                    }
+                }
+                .presentationDetents([.medium])
             }
             .fullScreenCover(isPresented: $showHealthJourney) {
                 if let profile = ProfileStore.current(context: modelContext) {
@@ -401,7 +414,7 @@ struct PulseDashboardView: View {
                     label: "Protein",
                     color: Pulse.nutrition,
                     progress: proteinTarget > 0 ? protein / proteinTarget : 0,
-                    action: { selectedTab = 2 }
+                    action: { showFoodQuickPicker = true }
                 )
 
                 MetricOrb(
@@ -410,7 +423,7 @@ struct PulseDashboardView: View {
                     label: "Calories",
                     color: Pulse.energy,
                     progress: calorieTarget > 0 ? calories / calorieTarget : 0,
-                    action: { selectedTab = 2 }
+                    action: { showFoodQuickPicker = true }
                 )
 
                 MetricOrb(
@@ -680,7 +693,7 @@ struct PulseDashboardView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 PulseChip(icon: "fork.knife", label: "Log food", color: Pulse.nutrition) {
-                    selectedTab = 2
+                    showFoodQuickPicker = true
                 }
                 PulseChip(icon: "drop.fill", label: "Water", color: Pulse.hydration) {
                     showWaterSheet = true
@@ -850,10 +863,57 @@ struct PulseDashboardView: View {
         case .openSheet(let sheet):
             switch sheet {
             case .water:    showWaterSheet = true
-            case .food:     selectedTab = 2  // Nutrition tab has inline meal logging
+            case .food:     showFoodQuickPicker = true
             case .training: selectedTab = 1
             case .checkIn:  showCheckIn = true
             }
+        }
+    }
+
+    // MARK: - Health Journey Insight Badge
+
+    @ViewBuilder
+    private func healthJourneyInsightBadge(profile: PersonProfile) -> some View {
+        let report = HealthContraindicationEngine.generate(for: profile)
+        if !report.isEmpty {
+            Button {
+                showHealthJourney = true
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "heart.text.clipboard")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Pulse.ai)
+                        .frame(width: 32, height: 32)
+                        .background(Pulse.ai.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Health profile active")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(Pulse.textPrimary)
+                        Text("\(report.totalCount) personalized rules guiding your nutrition, training & supplements")
+                            .font(.system(size: 10))
+                            .foregroundColor(Pulse.textTertiary)
+                            .lineLimit(2)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(Pulse.textTertiary)
+                }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Pulse.surfaceFallback)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Pulse.ai.opacity(0.1), lineWidth: 1)
+                        )
+                )
+            }
+            .buttonStyle(.plain)
         }
     }
 
