@@ -91,6 +91,19 @@ final class WatchSessionManager: NSObject {
         try? WCSession.default.updateApplicationContext(context)
     }
 
+    /// Push the phone's baseline-relative readiness score to the watch so it
+    /// doesn't have to fall back on absolute-threshold guesswork (population
+    /// averages for HRV/RHR miss personal baselines by a wide margin).
+    func pushReadiness(score: Int, band: String, recommendation: String?) {
+        guard WCSession.default.activationState == .activated, WCSession.default.isWatchAppInstalled else { return }
+        var context: [String: Any] = currentApplicationContext()
+        context["readinessScore"] = score
+        context["readinessBand"] = band
+        context["readinessRecommendation"] = recommendation ?? ""
+        context["readinessTimestamp"] = Date()
+        try? WCSession.default.updateApplicationContext(context)
+    }
+
     private func currentApplicationContext() -> [String: Any] {
         WCSession.default.activationState == .activated
             ? WCSession.default.applicationContext

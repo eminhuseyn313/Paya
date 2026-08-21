@@ -15,12 +15,16 @@ import WatchKit
 
 struct ReadinessGlanceView: View {
 
+    @State private var wc = WatchConnectivityManager.shared
     @State private var score: Int?
     @State private var band: String = ""
     @State private var hrv: Double?
     @State private var rhr: Double?
     @State private var sleepHours: Double?
     @State private var isLoading = true
+    /// True when the score came from the phone's baseline-relative engine
+    /// rather than the local absolute-threshold fallback.
+    @State private var isPhoneScore = false
 
     private let green = Color(hex: "059669")
     private let lime = Color(hex: "84CC16")
@@ -72,6 +76,16 @@ struct ReadinessGlanceView: View {
                 }
             }
             .frame(width: 90, height: 90)
+
+            // Recommendation (from phone's ReadinessEngine)
+            if isPhoneScore, let rec = wc.phoneReadinessRecommendation, !rec.isEmpty {
+                Text(rec.components(separatedBy: ".").first ?? rec)
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .padding(.horizontal, 4)
+            }
 
             // Driver badges
             VStack(spacing: 4) {
@@ -134,6 +148,31 @@ struct ReadinessGlanceView: View {
     // MARK: - Fetch
 
     private func fetchData() {
+        // Prefer the phone's baseline-relative ReadinessEngine score when
+        // available and recent (< 6 hours). The phone computes z-scores
+        // against a 30-day personal baseline; the local fallback uses
+        // population-average HRV/RHR thresholds which can be wildly off
+        // for individuals.
+        if let phoneScore = wc.phoneReadinessScore,
+           let phoneBand = wc.phoneReadinessBand,
+           let ts = wc.phoneReadinessTimestamp,
+           Date().timeIntervalSince(ts) < 6 * 3600 {
+            score = phoneScore
+            band = phoneBand
+            isPhoneScore = true
+            // Still fetch local vitals to show the driver badges
+            fetchLocalVitals { isLoading = false }
+            return
+        }
+
+        // Fallback: compute locally from HealthKit with absolute thresholds
+        fetchLocalVitals {
+            computeScore()
+            isLoading = false
+        }
+    }
+
+    private func fetchLocalVitals(completion: @escaping () -> Void) {
         let store = HKHealthStore()
         let types: Set<HKQuantityType> = [
             .quantityType(forIdentifier: .heartRateVariabilitySDNN)!,
@@ -175,9 +214,7 @@ struct ReadinessGlanceView: View {
                 hrv = fetchedHRV
                 rhr = fetchedRHR
                 sleepHours = fetchedSleep
-
-                computeScore()
-                isLoading = false
+                completion()
             }
         }
     }

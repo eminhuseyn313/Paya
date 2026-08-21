@@ -985,6 +985,13 @@ struct PulseDashboardView: View {
                     context: modelContext,
                     profile: appState.profile
                 )
+                // Push the phone's baseline-relative score to the watch so
+                // it doesn't have to guess from population-average thresholds
+                WatchSessionManager.shared.pushReadiness(
+                    score: readiness.score,
+                    band: readiness.band.rawValue,
+                    recommendation: readiness.recommendation
+                )
             }
             if appState.isTrainingDay {
                 let day = Calendar.current.startOfDay(for: Date()).timeIntervalSince1970
