@@ -244,7 +244,6 @@ struct PulseHealthView: View {
                 }
             }
             .buttonStyle(.plain)
-            .disabled(readinessReport == nil)
 
             // Quick context stats
             HStack(spacing: 16) {
@@ -329,13 +328,34 @@ struct PulseHealthView: View {
 
     private var biometricsStrip: some View {
         VStack(spacing: 12) {
-            // No-wearable notice when no biometric data detected
-            if !vm.hasWearableData && vm.healthKitAuthorized {
-                noWearableNotice
-            }
+            // Connection status — always visible so the user knows their
+            // watch/BLE state at a glance (not just when data is missing)
+            watchConnectionBar
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
+                    // Live HR first — highest visual priority when streaming.
+                    // Read directly from source @Observable singletons.
+                    if let liveBPM = BLEHeartRateManager.shared.currentBPM {
+                        MetricOrb(
+                            value: "\(liveBPM)",
+                            unit: "bpm",
+                            label: "♥ Live",
+                            color: LiveHRManager.shared.zone(for: liveBPM)?.color ?? Pulse.vitals,
+                            isFresh: true
+                        )
+                    } else if let watchBPM = WatchSessionManager.shared.watchHeartRate,
+                              let ts = WatchSessionManager.shared.watchHeartRateTimestamp,
+                              Date().timeIntervalSince(ts) < 30 {
+                        MetricOrb(
+                            value: "\(watchBPM)",
+                            unit: "bpm",
+                            label: "♥ Watch",
+                            color: LiveHRManager.shared.zone(for: watchBPM)?.color ?? Pulse.vitals,
+                            isFresh: true
+                        )
+                    }
+
                     if let sleep = vm.applHealthSleepHours {
                         MetricOrb(
                             value: String(format: "%.1f", sleep),
@@ -416,31 +436,74 @@ struct PulseHealthView: View {
         }
     }
 
-    // MARK: - No Wearable Notice
+    // MARK: - Watch Connection Bar
 
-    private var noWearableNotice: some View {
+    /// Always-visible connection indicator — shows watch pairing state,
+    /// live HR source, and BLE monitor status so the user always knows
+    /// whether real-time data is flowing. Whoop-style: connection state
+    /// is never hidden behind "no data" conditionals.
+    @ViewBuilder
+    private var watchConnectionBar: some View {
+        // Read directly from each @Observable singleton — computed properties
+        // on LiveHRManager that delegate to BLEHeartRateManager won't trigger
+        // SwiftUI updates because @Observable only tracks stored properties.
+        let watch = WatchSessionManager.shared
+        let ble = BLEHeartRateManager.shared
+        let hasBLE = ble.currentBPM != nil
+        let watchHR = watch.watchHeartRate
+        let watchHRTs = watch.watchHeartRateTimestamp
+        let hasWatchHR = watchHR != nil && watchHRTs != nil && Date().timeIntervalSince(watchHRTs!) < 30
+        let isLive = hasBLE || hasWatchHR
+        let sourceLabel = hasBLE ? "BLE" : (hasWatchHR ? "Watch" : "—")
+
+        let statusColor = isLive ? Pulse.positive : (watch.isWatchReachable ? Pulse.hydration : (watch.isConnected ? Pulse.warning : Pulse.textTertiary))
+
         HStack(spacing: 10) {
-            Image(systemName: "applewatch.slash")
-                .font(.system(size: 14))
-                .foregroundColor(Pulse.warning)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("No wearable detected")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(Pulse.textPrimary)
-                Text("Connect an Apple Watch or any wearable via Apple Health to unlock heart rate, HRV, SpO₂, and readiness tracking.")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(Pulse.textTertiary)
-                    .fixedSize(horizontal: false, vertical: true)
+            // Status dot — green=streaming, teal=connected, amber=paired, grey=none
+            Circle()
+                .fill(statusColor)
+                .frame(width: 8, height: 8)
+
+            Image(systemName: isLive ? "waveform.path.ecg" : (watch.isConnected ? "applewatch" : "applewatch.slash"))
+                .font(.system(size: 13))
+                .foregroundColor(isLive ? Pulse.positive : (watch.isConnected ? Pulse.hydration : Pulse.warning))
+
+            VStack(alignment: .leading, spacing: 1) {
+                if isLive {
+                    Text("Live HR · \(sourceLabel)")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Pulse.positive)
+                } else {
+                    Text(watch.hasActivated ? watch.connectionLabel : "Checking…")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(Pulse.textPrimary)
+                }
+
+                if !watch.isConnected && !isLive {
+                    Text("Connect Apple Watch or BLE HR monitor for real-time data")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(Pulse.textTertiary)
+                } else if watch.isConnected && !watch.isWatchReachable && !isLive {
+                    Text("Paired · not on wrist — wear your watch for live readings")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(Pulse.textTertiary)
+                }
             }
+
             Spacer(minLength: 0)
+
+            // Live HR pill when streaming
+            if isLive {
+                LiveHRPill()
+            }
         }
-        .padding(12)
+        .padding(10)
         .background(
             RoundedRectangle(cornerRadius: Pulse.Radius.sm)
-                .fill(Pulse.warning.opacity(0.08))
+                .fill(statusColor.opacity(0.06))
                 .overlay(
                     RoundedRectangle(cornerRadius: Pulse.Radius.sm)
-                        .stroke(Pulse.warning.opacity(0.15), lineWidth: 0.5)
+                        .stroke(statusColor.opacity(0.12), lineWidth: 0.5)
                 )
         )
     }

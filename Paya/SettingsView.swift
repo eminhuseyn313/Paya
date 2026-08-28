@@ -153,9 +153,19 @@ struct SettingsView: View {
                                     } label: {
                                         HStack {
                                             SettingsIcon(icon: "applewatch.watchface", color: Color(hex: "2563EB"))
-                                            Text("Connect Wearable")
-                                                .foregroundColor(.primary)
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text("Connect Wearable")
+                                                    .foregroundColor(.primary)
+                                                Text(WatchSessionManager.shared.connectionLabel)
+                                                    .font(.caption)
+                                                    .foregroundColor(WatchSessionManager.shared.isConnected ? Color(hex: "059669") : .secondary)
+                                            }
                                             Spacer()
+                                            if WatchSessionManager.shared.isConnected {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .font(.caption)
+                                                    .foregroundColor(Color(hex: "059669"))
+                                            }
                                             Image(systemName: "chevron.right")
                                                 .font(.caption)
                                                 .foregroundColor(.secondary)
@@ -195,37 +205,23 @@ struct SettingsView: View {
                                         .font(.caption)
                                 }
 
-                // MARK: - AI
+                // MARK: - AI & Privacy
                 Section {
                     Toggle(isOn: Bindable(appState).hasConsentedToExternalAI) {
                         VStack(alignment: .leading, spacing: 2) {
                             Label("Allow External AI", systemImage: "arrow.up.right.square")
-                            Text("When enabled, food descriptions and fitness data may be sent to Claude or Gemini APIs for analysis. Apple Intelligence (on-device) works without this.")
+                            Text("Send data to Claude/Gemini APIs for coaching. On-device AI works without this.")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
                     }
                     .tint(Color(hex: "059669"))
-                } header: {
-                    SectionHeader(title: "AI Data Sharing", icon: "hand.raised.fill")
-                } footer: {
-                    Text("Required by GDPR. Your data is never stored by these services beyond processing your request. You can revoke this at any time.")
-                        .font(.caption)
-                }
 
-                Section {
                     APIKeyRow(
                         showAPIKeyField: $showAPIKeyField,
                         apiKeyInput: $apiKeyInput
                     )
-                } header: {
-                    SectionHeader(title: "AI — Claude API", icon: "sparkles")
-                } footer: {
-                    Text("Your API key is stored securely in the iOS Keychain. Get yours at console.anthropic.com")
-                        .font(.caption)
-                }
 
-                Section {
                     APIKeyRow(
                         title: "Gemini API Key",
                         placeholder: "AIza...",
@@ -237,13 +233,13 @@ struct SettingsView: View {
                         apiKeyInput: $geminiAPIKeyInput
                     )
                 } header: {
-                    SectionHeader(title: "AI — Gemini (free tier)", icon: "mic.and.signal.meter.fill")
+                    SectionHeader(title: "AI & Privacy", icon: "sparkles")
                 } footer: {
-                    Text("Used for \"Describe a food\" in Nutrition. Free API keys are available at aistudio.google.com — no card required.")
+                    Text("API keys stored in iOS Keychain. Claude: console.anthropic.com · Gemini (free): aistudio.google.com")
                         .font(.caption)
                 }
 
-                // MARK: - Notifications
+                // MARK: - Notifications & Focus
                                 Section {
                                     NotificationRow()
                                     HStack {
@@ -256,39 +252,29 @@ struct SettingsView: View {
                                         ))
                                         .labelsHidden()
                                     }
-                                } header: {
-                                    SectionHeader(title: "Reminders", icon: "bell.fill")
-                                }
 
-                // MARK: - Focus
-                Section {
                     Button {
                         showFocusModeSettings = true
                     } label: {
                         HStack {
                             SettingsIcon(icon: "hand.raised.slash.fill", color: Color(hex: "DC2626"))
-                            Text("Block Distractions")
-                                .foregroundColor(.primary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Block Distractions")
+                                    .foregroundColor(.primary)
+                                Text("Block apps during training sessions")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
-                } header: {
-                    SectionHeader(title: "Focus", icon: "hand.raised.slash.fill")
-                } footer: {
-                    Text("Blocks apps you choose (Instagram, etc.) for the duration of an active training session.")
-                        .font(.caption)
-                }
+                                } header: {
+                                    SectionHeader(title: "Notifications", icon: "bell.fill")
+                                }
 
-                // MARK: - Cloud Sync
+                // MARK: - Data & Backup
                 Section {
                     CloudSyncSettingsRow()
-                } header: {
-                    SectionHeader(title: "Cloud Backup", icon: "icloud.fill")
-                } footer: {
-                    Text("Sync all your data to the cloud so you never lose it. Your data is encrypted and only accessible with your account.")
-                }
 
-                // MARK: - Data
-                Section {
                     ProGate(featureName: "Doctor Report (PDF)") {
                         Button {
                             showDoctorReport = true
@@ -322,7 +308,7 @@ struct SettingsView: View {
                     } label: {
                         HStack {
                             SettingsIcon(icon: "arrow.down.doc.fill", color: Color(hex: "8B5CF6"))
-                            Text("Backup Data (restorable file)")
+                            Text("Backup Data")
                                 .foregroundColor(.primary)
                         }
                     }
@@ -347,9 +333,7 @@ struct SettingsView: View {
                         }
                     }
                 } header: {
-                    SectionHeader(title: "Data", icon: "externaldrive.fill")
-                } footer: {
-                    Text("Backup exports training history, body weight, measurements, and nutrition logs to one file you can save anywhere (Files, iCloud Drive, email) and restore from on any device — CSV export above is read-only, this isn't. Progress photos aren't included; those rely on your device's own iCloud Backup.")
+                    SectionHeader(title: "Data & Backup", icon: "externaldrive.fill")
                 }
 
                 // MARK: - Paya Pro
@@ -453,20 +437,14 @@ struct SettingsView: View {
                     SectionHeader(title: "Account", icon: "person.crop.circle")
                 }
 
-                // MARK: - About
+                // MARK: - About & Legal
                 Section {
                     HStack {
-                        SettingsIcon(icon: "app.fill", color: Color(hex: "2563EB"))
-                        Text("App Name")
-                        Spacer()
                         Text("Paya")
-                            .foregroundColor(.secondary)
-                    }
-                    HStack {
-                        SettingsIcon(icon: "number", color: .secondary)
-                        Text("Version")
+                            .foregroundColor(.primary)
                         Spacer()
-                        Text("1.0.0")
+                        Text("v1.0.0")
+                            .font(.caption)
                             .foregroundColor(.secondary)
                     }
 
@@ -474,8 +452,7 @@ struct SettingsView: View {
                         showPrivacyPolicy = true
                     } label: {
                         HStack {
-                            SettingsIcon(icon: "hand.raised.fill", color: Color(hex: "2563EB"))
-                            Text("Privacy policy")
+                            Text("Privacy Policy")
                                 .foregroundColor(.primary)
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -488,8 +465,7 @@ struct SettingsView: View {
                         showTermsOfService = true
                     } label: {
                         HStack {
-                            SettingsIcon(icon: "doc.text.fill", color: .secondary)
-                            Text("Terms of service")
+                            Text("Terms of Service")
                                 .foregroundColor(.primary)
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -499,24 +475,10 @@ struct SettingsView: View {
                     }
                 } header: {
                     SectionHeader(title: "About", icon: "info.circle.fill")
-                }
-
-                // Health disclaimer — Apple Review Guideline 5.3.3
-                Section {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "heart.text.clipboard")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color(hex: "DC2626"))
-                            Text("Health disclaimer")
-                                .font(.caption.weight(.semibold))
-                        }
-                        Text("Paya is a fitness tracking tool, not a medical device. The readiness scores, sleep analysis, recovery suggestions, and other insights provided are for informational and educational purposes only. They do not constitute medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making changes to your exercise, nutrition, or health routine.")
-                            .font(.system(size: 11))
-                            .foregroundColor(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.vertical, 4)
+                } footer: {
+                    // Health disclaimer — Apple Review Guideline 5.3.3
+                    Text("Paya is a fitness tracking tool, not a medical device. Readiness scores, sleep analysis, and recovery suggestions are for informational purposes only — not medical advice. Consult a healthcare professional before making changes to your routine.")
+                        .font(.caption)
                 }
             }
             .navigationTitle("Settings")

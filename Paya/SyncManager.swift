@@ -573,18 +573,22 @@ final class SyncManager {
             predicate: #Predicate { $0.profileId == pid }
         )
         let logs = (try? context.fetch(descriptor)) ?? []
+        // PostgREST requires every row in a batch to have the same set
+        // of keys ("all object keys must match"). Always include optional
+        // columns with NSNull when nil, and let upsertJSON's compactMapValues
+        // strip them uniformly — or better, always send the key with a
+        // Supabase-friendly JSON null so the column set is consistent.
         let rows: [[String: Any]] = logs.map { log in
-            var row: [String: Any] = [
+            [
                 "id": log.id.uuidString,
                 "user_id": userId.uuidString,
                 "profile_id": (log.profileId ?? UUID()).uuidString,
                 "date": iso(log.date),
-                "type": log.type
+                "type": log.type,
+                "bristol_scale": log.bristolScale as Any,
+                "color": log.color as Any,
+                "note": log.note as Any,
             ]
-            if let bs = log.bristolScale { row["bristol_scale"] = bs }
-            if let c = log.color { row["color"] = c }
-            if let n = log.note { row["note"] = n }
-            return row
         }
         try await upsertJSON(table: "bathroom_logs", rows: rows)
     }
@@ -602,19 +606,53 @@ final class SyncManager {
     }
 
     /// Upsert rows as raw JSON dictionaries (avoids needing Codable DTOs for every table).
+    ///
+    /// PostgREST requires every object in a batch to have the **same set of keys**
+    /// ("all object keys must match" 400 error). Two things can cause mismatches:
+    ///
+    /// 1. Conditionally-added keys (`if let x { row["x"] = x }`) — some rows
+    ///    have the key, others don't. Fix: always include the key; use NSNull
+    ///    for nil values so they serialize as JSON `null`.
+    ///
+    /// 2. `compactMapValues` stripping nil — this was the old behavior, and it
+    ///    broke bathroom_logs where bristol_scale/color/note were conditionally set.
+    ///
+    /// New approach: collect the union of all keys across the batch, then ensure
+    /// every row has every key (defaulting to NSNull). This is resilient to any
+    /// sync method that forgets to include an optional column.
     private func upsertJSON(table: String, rows: [[String: Any]]) async throws {
         guard !rows.isEmpty else { return }
 
-        // Filter out NSNull / nil values from the dictionaries
-        let cleaned = rows.map { dict -> [String: Any] in
-            dict.compactMapValues { value in
-                if value is NSNull { return nil }
-                if case Optional<Any>.none = value { return nil }
-                return value
+        // 1. Collect the union of all keys across the batch
+        var allKeys = Set<String>()
+        for row in rows { allKeys.formUnion(row.keys) }
+
+        // 2. Normalize: every row gets every key; nil / Optional.none → NSNull
+        let normalized = rows.map { dict -> [String: Any] in
+            var result = [String: Any]()
+            for key in allKeys {
+                if let value = dict[key] {
+                    // Unwrap Optional<Any> — if the inner value is nil, use NSNull
+                    let mirror = Mirror(reflecting: value)
+                    if mirror.displayStyle == .optional {
+                        if mirror.children.isEmpty {
+                            result[key] = NSNull()
+                        } else {
+                            result[key] = mirror.children.first!.value
+                        }
+                    } else if value is NSNull {
+                        result[key] = NSNull()
+                    } else {
+                        result[key] = value
+                    }
+                } else {
+                    result[key] = NSNull()
+                }
             }
+            return result
         }
 
-        let data = try JSONSerialization.data(withJSONObject: cleaned)
+        let data = try JSONSerialization.data(withJSONObject: normalized)
         try await client.upsertRaw(table: table, jsonData: data)
     }
 }

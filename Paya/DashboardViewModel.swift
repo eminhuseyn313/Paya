@@ -182,14 +182,18 @@ class DashboardViewModel {
         async let hrv = manager.fetchHRV()
         async let appleWeight = manager.fetchLatestBodyWeight()
         async let steps = HealthMetricsProvider.shared.fetchStepsRobust()
+        async let latestHR = manager.fetchLatestHR()
 
-        let (sleepVal, hrVal, hrvVal, weightData, stepsVal) = await (sleep, hr, hrv, appleWeight, steps)
+        let (sleepVal, hrVal, hrvVal, weightData, stepsVal, latestHRVal) = await (sleep, hr, hrv, appleWeight, steps, latestHR)
 
         appleHealthSleep = sleepVal
-        appleHealthHR = hrVal
+        // Prefer resting HR (clinically meaningful) but fall back to the
+        // most recent heart-rate sample so the dashboard shows *something*
+        // when the watch hasn't computed a resting value yet.
+        appleHealthHR = hrVal ?? latestHRVal
         appleHealthHRV = hrvVal
         appleHealthSteps = stepsVal
-        hasWearableData = hrVal != nil || hrvVal != nil || (sleepVal != nil && sleepVal! > 0)
+        hasWearableData = hrVal != nil || latestHRVal != nil || hrvVal != nil || (sleepVal != nil && sleepVal! > 0)
         tdeeToday = TDEEEngine.computeToday(profile: profile, steps: stepsVal ?? 0, context: context)
 
         // Weight resolution: Apple Health wins if newer than manual

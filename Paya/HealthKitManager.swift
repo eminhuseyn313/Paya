@@ -245,6 +245,41 @@ class HealthKitManager {
         }
     }
 
+    // MARK: - Latest Heart Rate (any sample, not just resting)
+    // Resting HR is computed by Apple once per day and may be nil until
+    // the watch has enough data. This fetches the single most recent
+    // .heartRate sample — which Apple Watch writes every few seconds —
+    // so the dashboard has something to show even when resting HR isn't
+    // available yet.
+
+    func fetchLatestHR() async -> Int? {
+        guard let hrType = HKObjectType.quantityType(forIdentifier: .heartRate) else {
+            return nil
+        }
+
+        let sortDescriptor = NSSortDescriptor(
+            key: HKSampleSortIdentifierEndDate,
+            ascending: false
+        )
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: hrType,
+                predicate: nil,
+                limit: 1,
+                sortDescriptors: [sortDescriptor]
+            ) { _, samples, _ in
+                guard let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let bpm = sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+                continuation.resume(returning: Int(bpm.rounded()))
+            }
+            healthStore.execute(query)
+        }
+    }
+
     // MARK: - Intraday heart rate samples
     // Time-stamped series (not just the latest value) — needed to correlate
     // heart-rate behavior against when meals/water were actually logged.

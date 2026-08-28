@@ -115,11 +115,31 @@ struct FoodPhotoEstimateView: View {
                         portionSelector
                         estimateCard(estimate)
                     } else if let errorText {
-                        Text(errorText)
-                            .font(.caption)
-                            .foregroundColor(Pulse.critical)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 16)
+                        VStack(spacing: 12) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(Pulse.warning)
+                            Text(errorText)
+                                .font(.caption)
+                                .foregroundColor(Pulse.critical)
+                                .multilineTextAlignment(.center)
+
+                            Button {
+                                Task { await runEstimate(on: capturedImage) }
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.clockwise")
+                                    Text("Retry with this photo")
+                                }
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Pulse.positive)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                        }
+                        .padding(.horizontal, 16)
                     }
 
                     Button {
@@ -130,7 +150,7 @@ struct FoodPhotoEstimateView: View {
                         self.photoComment = ""
                         self.showCamera = true
                     } label: {
-                        Text("Retake Photo")
+                        Text(errorText != nil ? "Take a new photo" : "Retake Photo")
                             .font(.subheadline.weight(.semibold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)

@@ -26,7 +26,6 @@ struct TrainView: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geo in
             ScrollViewReader { scrollProxy in
             ScrollView {
                 if let vm = vm {
@@ -135,7 +134,7 @@ struct TrainView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
-                    .frame(width: geo.size.width)
+                    .frame(maxWidth: .infinity)
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity)
@@ -148,7 +147,6 @@ struct TrainView: View {
                         scrollProxy.scrollTo("restTimer", anchor: .top)
                     }
                 }
-            }
             }
             }
             .navigationTitle("Train")
@@ -305,7 +303,7 @@ struct TrainView: View {
             }
             .sheet(isPresented: $showAddExerciseForToday) {
                 LibraryPickerSheet { picked in
-                    vm?.addExerciseForToday(picked)
+                    vm?.addExerciseForToday(picked, context: modelContext)
                 }
             }
             .confirmationDialog(

@@ -117,7 +117,8 @@ enum ExercisePool {
         PoolExercise("Incline DB Press", .horizontalPush, "Chest", jointSensitive: true, startWeightKg: 12, note: "30° incline", alternatives: ["Machine Incline Press"]),
         PoolExercise("Machine Incline Press", .horizontalPush, "Chest", jointSensitive: true, startWeightKg: 22, alternatives: ["Incline DB Press"]),
         PoolExercise("Cable Fly", .horizontalPush, "Chest", minLevel: .intermediate, jointSensitive: true, startWeightKg: 12, note: "Stretch focus, isolation", alternatives: ["Pec Deck"]),
-        PoolExercise("Pec Deck", .horizontalPush, "Chest", jointSensitive: true, startWeightKg: 20, note: "Fixed path keeps tension on the chest without needing stabilizer strength — a good low-fatigue isolation finisher", alternatives: ["Cable Fly"]),
+        PoolExercise("Pec Deck", .horizontalPush, "Chest", jointSensitive: true, startWeightKg: 20, note: "Fixed path keeps tension on the chest without needing stabilizer strength — a good low-fatigue isolation finisher", alternatives: ["Cable Fly", "Butterfly Machine"]),
+        PoolExercise("Butterfly Machine", .horizontalPush, "Chest", jointSensitive: true, startWeightKg: 20, note: "Same as Pec Deck — arms squeeze together in a hugging arc, constant chest tension throughout", alternatives: ["Pec Deck", "Cable Fly"]),
         PoolExercise("Barbell Bench Press", .horizontalPush, "Chest", minLevel: .advanced, jointSensitive: true, startWeightKg: 30, alternatives: ["DB Bench Press"]),
 
         // MARK: Vertical push (shoulders)
@@ -143,6 +144,14 @@ enum ExercisePool {
         PoolExercise("Neutral-Grip Pulldown", .verticalPull, "Back", startWeightKg: 35, alternatives: ["Lat Pulldown"]),
         PoolExercise("Pull-Up", .verticalPull, "Back", minLevel: .advanced, startWeightKg: 0, alternatives: ["Lat Pulldown", "Assisted Pull-Up"]),
         PoolExercise("Negative Pull-Up", .verticalPull, "Back", startWeightKg: 0, note: "Jump to top, lower slowly — builds toward a full rep", alternatives: ["Lat Pulldown", "Assisted Pull-Up"]),
+
+        // MARK: Front delts (anterior delt isolation)
+        // Front raises are shoulder isolation accessories — Schoenfeld &
+        // Contreras (2014) note front delt is heavily recruited during presses,
+        // so direct work is lower-priority but useful for bodybuilding splits.
+        PoolExercise("Cable Rope Front Raise", .verticalPush, "Shoulders", jointSensitive: true, startWeightKg: 8, note: "Rope attachment, raise to eye level with slight outward split at the top for peak contraction", alternatives: ["DB Front Raise", "Plate Front Raise"]),
+        PoolExercise("DB Front Raise", .verticalPush, "Shoulders", jointSensitive: true, startWeightKg: 6, alternatives: ["Cable Rope Front Raise", "Plate Front Raise"]),
+        PoolExercise("Plate Front Raise", .verticalPush, "Shoulders", jointSensitive: true, startWeightKg: 10, note: "Hold plate by edges, raise to shoulder height — constant grip challenge", alternatives: ["DB Front Raise", "Cable Rope Front Raise"]),
 
         // MARK: Side delts
         PoolExercise("DB Lateral Raise", .sideDelt, "Side Delts", jointSensitive: true, startWeightKg: 5, note: "Thumbs level or slightly down, not rotated up — an externally-rotated grip shifts the work toward the front delt instead", alternatives: ["Cable Lateral Raise", "Band Lateral Raise"]),

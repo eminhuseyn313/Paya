@@ -31,12 +31,23 @@ class TrainViewModel {
     var completedSession: TrainingSession? = nil
     var isFlareDay: Bool
     var previousSessionData: [String: PreviousExerciseData] = [:]
+    /// Secondary index: exercise name → previous data, used when exercise IDs
+    /// don't match (e.g., after a program rebuild that changes ID format from
+    /// "mon_a6_goblet_squat" to "ppl_hypertrophy_4x_A_5"). Without this,
+    /// every rebuild loses all previous weight history and the user sees
+    /// template start weights instead of their actual last-used weights.
+    private var previousSessionDataByName: [String: PreviousExerciseData] = [:]
     var previousSessionVolume: Double = 0
     var appStateRef: AppState?
     var recoveryContext: RecoveryContext = .empty
     var currentAdjustment: RecoveryAdjuster.Adjustment? = nil
     private(set) var effectiveExercises: [ExerciseDefinition] = []
     private(set) var fullExerciseCountBeforeQuickMode: Int? = nil
+
+    /// Maps exercise name (lowercased) → average position from recent
+    /// sessions, used to dynamically reorder exercises to match how the
+    /// user actually performs them (not the static program order).
+    private var recentCompletionOrder: [String: Double] = [:]
 
     /// True when the exercise immediately after this one shares the same
     /// superset group — meaning the rest timer should NOT auto-start after
@@ -59,6 +70,12 @@ class TrainViewModel {
         var note: String = ""
         var cableAttachment: CableAttachment? = nil
         var cablePosition: CablePosition? = nil
+
+        /// Timestamp of the first completed set — used to order exercises
+        /// by actual completion time (how the user really does them) rather
+        /// than static program order, so the next session reflects their
+        /// natural exercise sequence.
+        var firstCompletedAt: Date? = nil
 
         var completedSetsCount: Int {
             sets.filter { $0.isCompleted }.count
@@ -119,7 +136,27 @@ class TrainViewModel {
     }
 
     var orderedExercises: [ExerciseDefinition] {
-        effectiveExercises
+        guard !recentCompletionOrder.isEmpty else { return effectiveExercises }
+        // Sort exercises by the user's actual completion order from recent
+        // sessions. Exercises without history keep their program position
+        // (appended after known ones in original order).
+        return effectiveExercises.sorted { a, b in
+            let posA = recentCompletionOrder[a.name.lowercased()]
+            let posB = recentCompletionOrder[b.name.lowercased()]
+            switch (posA, posB) {
+            case let (.some(pa), .some(pb)):
+                return pa < pb
+            case (.some, .none):
+                return true
+            case (.none, .some):
+                return false
+            case (.none, .none):
+                // Both unknown — keep original program order
+                let idxA = effectiveExercises.firstIndex(where: { $0.id == a.id }) ?? 0
+                let idxB = effectiveExercises.firstIndex(where: { $0.id == b.id }) ?? 0
+                return idxA < idxB
+            }
+        }
     }
 
     var activeElapsed: TimeInterval {
@@ -213,11 +250,17 @@ class TrainViewModel {
         exerciseStates = [:]
         for exercise in effectiveExercises {
             let suggested = suggestedWeight(for: exercise)
+            // Use previous session reps when available — the user's actual
+            // rep count from last time is more relevant than the template's
+            // repRange.max. Without this, a user who consistently does 12
+            // reps on a 8-10 range exercise sees their reps reset to 10
+            // every session.
+            let prevReps = suggestedReps(for: exercise)
             let sets = (1...exercise.sets).map { i in
                 SetState(
                     setNumber: i,
                     weightKg: suggested,
-                    reps: exercise.repRange.max
+                    reps: prevReps
                 )
             }
             exerciseStates[exercise.id] = ExerciseState(
@@ -268,7 +311,7 @@ class TrainViewModel {
     /// deliberately disabled while a session is active, and the exercise
     /// library is read-only, so "add one more exercise mid-workout" had no
     /// path at all.
-    func addExerciseForToday(_ libraryExercise: Exercise) {
+    func addExerciseForToday(_ libraryExercise: Exercise, context: ModelContext? = nil) {
         let poolMatch = ExercisePool.all.first { $0.name == libraryExercise.name }
         let startWeight = poolMatch?.startWeightKg ?? 20
         let measurement = ExerciseMeasurement.infer(name: libraryExercise.name, startWeightKg: startWeight)
@@ -285,7 +328,7 @@ class TrainViewModel {
             startWeightKg: resolvedStartWeight,
             progressionNote: "Added for today",
             isJointSensitive: poolMatch?.jointSensitive ?? false,
-            specialProgressionRule: "Added mid-session — not part of the saved program",
+            specialProgressionRule: nil,
             alternativeExercise: nil,
             muscleGroup: muscleGroup,
             gifURL: nil,
@@ -304,6 +347,34 @@ class TrainViewModel {
             cableAttachment: CableAttachment.infer(from: definition.name),
             cablePosition: CablePosition.infer(from: definition.name)
         )
+
+        // Persist to the day's program so the exercise survives across
+        // sessions — the user explicitly chose to add it, so it belongs
+        // in the program, not just today's snapshot.
+        if let context {
+            let code = selectedDay.code
+            let custom = CustomSessionStore.fetch(code: code, context: context)
+                ?? CustomSessionStore.createSeeded(code: code, context: context)
+            let nextOrder = (custom.exercises.map(\.orderIndex).max() ?? -1) + 1
+            let cse = CustomSessionExercise(
+                exerciseId: newId,
+                exerciseName: libraryExercise.name,
+                orderIndex: nextOrder,
+                sets: 3,
+                repMin: definition.repRange.min,
+                repMax: definition.repRange.max,
+                startWeightKg: resolvedStartWeight,
+                restSeconds: 90,
+                isJointSensitive: poolMatch?.jointSensitive ?? false,
+                notes: "",
+                muscleGroup: muscleGroup,
+                sourceRaw: CustomSessionExercise.Source.library.rawValue
+            )
+            context.insert(cse)
+            cse.session = custom
+            try? context.save()
+        }
+
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         persistSession()
     }
@@ -365,6 +436,17 @@ class TrainViewModel {
     func suggestedWeight(for exercise: ExerciseDefinition) -> Double {
         var baseWeight: Double
         if let prev = previousSessionData[exercise.id] {
+            // Best case: exact ID match from previous session
+            baseWeight = prev.weightKg
+        } else if let prev = previousSessionDataByName[exercise.name.lowercased()] {
+            // Fallback: exercise name match — catches cases where IDs changed
+            // (program rebuild, template migration, alternative swap) but the
+            // exercise itself is the same movement. Without this, every program
+            // rebuild loses all weight history and users see template start
+            // weights (e.g. 6.25kg instead of their actual 25kg).
+            baseWeight = prev.weightKg
+        } else if let prev = previousSessionDataByName[Self.normalizeExerciseName(exercise.name)] {
+            // Normalized match: "DB Bench Press" ↔ "Dumbbell Bench Press"
             baseWeight = prev.weightKg
         } else {
             baseWeight = exercise.startWeightKg
@@ -374,6 +456,23 @@ class TrainViewModel {
             context: recoveryContext
         )
         return adjustment.adjustedWeight
+    }
+
+    /// Previous session reps for this exercise — mirrors `suggestedWeight`
+    /// lookup priority (ID → exact name → normalized name → template default).
+    /// Without this, reps always reset to repRange.max and the user's actual
+    /// rep count from last session is lost.
+    func suggestedReps(for exercise: ExerciseDefinition) -> Int {
+        if let prev = previousSessionData[exercise.id] {
+            return prev.reps
+        }
+        if let prev = previousSessionDataByName[exercise.name.lowercased()] {
+            return prev.reps
+        }
+        if let prev = previousSessionDataByName[Self.normalizeExerciseName(exercise.name)] {
+            return prev.reps
+        }
+        return exercise.repRange.max
     }
 
     // MARK: - Recovery Context
@@ -471,6 +570,7 @@ class TrainViewModel {
               let lastSession = sessions.first else { return }
 
         previousSessionData = [:]
+        previousSessionDataByName = [:]
         previousSessionVolume = 0
 
         for exerciseLog in lastSession.exercises {
@@ -481,7 +581,14 @@ class TrainViewModel {
             let avgReps = completedSets.map { $0.reps }.reduce(0, +) / completedSets.count
             let totalVolume = completedSets.reduce(0.0) { $0 + ($1.weightKg * Double($1.reps)) }
 
+            // Try matching by ID first, then by exact name, then by
+            // normalized name — covers cases where the program was rebuilt
+            // and IDs changed, or the exercise name has minor variations
+            // (e.g. "Dumbbell Bench Press" vs "DB Bench Press", or
+            // "Lat Pulldown (Wide)" vs "Lat Pulldown - Wide").
             let definition = effectiveExercises.first { $0.id == exerciseLog.exerciseId }
+                ?? effectiveExercises.first { $0.name.lowercased() == exerciseLog.exerciseName.lowercased() }
+                ?? effectiveExercises.first { Self.normalizeExerciseName($0.name) == Self.normalizeExerciseName(exerciseLog.exerciseName) }
             var nextWeight = avgWeight
             var allHit = false
             if let def = definition {
@@ -499,7 +606,7 @@ class TrainViewModel {
                 }
             }
 
-            previousSessionData[exerciseLog.exerciseId] = PreviousExerciseData(
+            let data = PreviousExerciseData(
                 weightKg: nextWeight,
                 rawWeightKg: avgWeight,
                 reps: avgReps,
@@ -511,10 +618,192 @@ class TrainViewModel {
                 cableAttachment: exerciseLog.cableAttachment.flatMap { CableAttachment(rawValue: $0) },
                 cablePosition: exerciseLog.cablePosition.flatMap { CablePosition(rawValue: $0) }
             )
+            previousSessionData[exerciseLog.exerciseId] = data
+            // Also index by name (lowercased) for cross-ID-format lookups
+            previousSessionDataByName[exerciseLog.exerciseName.lowercased()] = data
             previousSessionVolume += totalVolume
         }
 
+        // For any current exercises that have no match by ID or name from the
+        // same-day-type session, search across ALL recent completed sessions.
+        // This catches exercises that moved between training days, or programs
+        // that were rebuilt with different day codes.
+        let unmatchedNames = effectiveExercises
+            .filter {
+                previousSessionData[$0.id] == nil
+                && previousSessionDataByName[$0.name.lowercased()] == nil
+                && previousSessionDataByName[Self.normalizeExerciseName($0.name)] == nil
+            }
+            .map { $0.name }
+        if !unmatchedNames.isEmpty {
+            fillFromRecentSessions(
+                exerciseNames: unmatchedNames,
+                pid: pid,
+                context: context
+            )
+        }
+
         buildExerciseStates()
+
+        // Build dynamic exercise order from the user's actual completion
+        // pattern across their last 5 sessions of this same day type.
+        loadRecentCompletionOrder(code: code, pid: pid, context: context)
+    }
+
+    /// Builds `recentCompletionOrder` from the last ≤5 completed sessions of
+    /// the same day type. For each exercise, records its average position
+    /// across those sessions. The user's habitual execution order naturally
+    /// rises to the top — if they always do Bench Press first and Incline
+    /// second, the app mirrors that.
+    ///
+    /// Research basis: Simão et al. (2012) showed that exercise order affects
+    /// volume and RPE; athletes intuitively front-load movements they prioritize.
+    /// Reflecting their actual pattern reduces friction and respects preference.
+    private func loadRecentCompletionOrder(code: String, pid: UUID?, context: ModelContext) {
+        guard let pid else { return }
+        let descriptor = FetchDescriptor<TrainingSession>(
+            predicate: #Predicate { $0.sessionType == code && $0.isCompleted == true && $0.profileId == pid },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        guard let sessions = try? context.fetch(descriptor) else { return }
+
+        // Take up to 5 most recent sessions
+        let recent = Array(sessions.prefix(5))
+        guard !recent.isEmpty else { return }
+
+        // Accumulate position data: name → [positions across sessions]
+        var positionAccum: [String: [Double]] = [:]
+
+        for session in recent {
+            // Sort by orderIndex — which now reflects the actual completion
+            // order (exercises are saved sorted by firstCompletedAt timestamp
+            // in completeSession).
+            let sorted = session.exercises.sorted { $0.orderIndex < $1.orderIndex }
+            for (index, exerciseLog) in sorted.enumerated() {
+                let key = exerciseLog.exerciseName.lowercased()
+                positionAccum[key, default: []].append(Double(index))
+            }
+        }
+
+        // Average the positions
+        var order: [String: Double] = [:]
+        for (name, positions) in positionAccum {
+            order[name] = positions.reduce(0, +) / Double(positions.count)
+        }
+        recentCompletionOrder = order
+    }
+
+    /// Searches the last 30 days of completed sessions for exercises matching
+    /// the given names, populating `previousSessionDataByName` for any found.
+    /// Only called for exercises that had NO match from the primary same-day
+    /// lookup — this is the "nuclear fallback" that ensures a user's actual
+    /// last-used weight is NEVER lost, regardless of program rebuilds, day
+    /// reshuffles, or ID format changes.
+    private func fillFromRecentSessions(
+        exerciseNames: [String],
+        pid: UUID?,
+        context: ModelContext
+    ) {
+        guard let pid else { return }
+        let cutoff = Calendar.current.date(byAdding: .day, value: -60, to: .now) ?? .now
+        let descriptor = FetchDescriptor<TrainingSession>(
+            predicate: #Predicate { $0.isCompleted == true && $0.profileId == pid && $0.date >= cutoff },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        guard let sessions = try? context.fetch(descriptor) else { return }
+
+        let needSetExact = Set(exerciseNames.map { $0.lowercased() })
+        let needSetNormalized = Set(exerciseNames.map { Self.normalizeExerciseName($0) })
+        var found = Set<String>()
+
+        for session in sessions {
+            for exerciseLog in session.exercises {
+                let key = exerciseLog.exerciseName.lowercased()
+                let normalized = Self.normalizeExerciseName(exerciseLog.exerciseName)
+                // Match by exact name OR normalized name (handles DB/Dumbbell, parentheses, etc.)
+                let matchedName = needSetExact.contains(key) ? key
+                    : needSetNormalized.contains(normalized) ? normalized
+                    : nil
+                guard matchedName != nil, !found.contains(key), !found.contains(normalized) else { continue }
+
+                let completedSets = exerciseLog.sets.filter { $0.isCompleted }
+                guard !completedSets.isEmpty else { continue }
+
+                let avgWeight = completedSets.map { $0.weightKg }.reduce(0, +) / Double(completedSets.count)
+                let avgReps = completedSets.map { $0.reps }.reduce(0, +) / completedSets.count
+                let totalVolume = completedSets.reduce(0.0) { $0 + ($1.weightKg * Double($1.reps)) }
+
+                // Don't try to compute progression here — just use the last-used weight.
+                // Better to suggest 25kg (actual last weight) than 6.25kg (template fallback).
+                let data = PreviousExerciseData(
+                    weightKg: avgWeight,
+                    rawWeightKg: avgWeight,
+                    reps: avgReps,
+                    volume: totalVolume,
+                    allSetsHitTarget: false,
+                    incrementKg: 0,
+                    sessionDate: session.date,
+                    note: exerciseLog.note,
+                    cableAttachment: exerciseLog.cableAttachment.flatMap { CableAttachment(rawValue: $0) },
+                    cablePosition: exerciseLog.cablePosition.flatMap { CablePosition(rawValue: $0) }
+                )
+                previousSessionData[exerciseLog.exerciseId] = data
+                previousSessionDataByName[key] = data
+                // Also store under normalized key for cross-program matching
+                previousSessionDataByName[normalized] = data
+                found.insert(key)
+                found.insert(normalized)
+            }
+            if found.count >= needSetExact.count { break } // all found
+        }
+    }
+
+    // MARK: - Name Normalization
+
+    /// Strips common abbreviation/format differences so "DB Bench Press",
+    /// "Dumbbell Bench Press", "Lat Pulldown (Wide)", and "Lat Pulldown -
+    /// Wide" all resolve to the same key. This catches the most frequent
+    /// reasons progressive overload data goes "missing" after a program
+    /// rebuild or exercise rename.
+    static func normalizeExerciseName(_ name: String) -> String {
+        var n = name.lowercased()
+        // Expand common abbreviations
+        let abbreviations: [(String, String)] = [
+            ("db ", "dumbbell "),
+            ("bb ", "barbell "),
+            ("ez ", "ez bar "),
+            ("ohp", "overhead press"),
+            ("rdl", "romanian deadlift"),
+            (" w/ ", " with "),
+        ]
+        for (abbr, full) in abbreviations {
+            n = n.replacingOccurrences(of: abbr, with: full)
+        }
+        // Canonical synonyms — users call the same exercise by different
+        // names and progressive overload data must carry across all of them.
+        let synonyms: [(String, String)] = [
+            ("butterfly", "pec deck"),
+            ("machine fly", "pec deck"),
+            ("chest fly machine", "pec deck"),
+            ("reverse fly", "reverse pec deck"),
+            ("rear delt fly", "reverse pec deck"),
+            ("skull crusher", "lying tricep extension"),
+            ("skullcrusher", "lying tricep extension"),
+        ]
+        for (alias, canonical) in synonyms {
+            if n.contains(alias) {
+                n = n.replacingOccurrences(of: alias, with: canonical)
+            }
+        }
+        // Remove parenthetical and dash-separated qualifiers for core match
+        // "Lat Pulldown (Wide Grip)" → "lat pulldown wide grip"
+        n = n.replacingOccurrences(of: "(", with: " ")
+            .replacingOccurrences(of: ")", with: " ")
+            .replacingOccurrences(of: " - ", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+        // Collapse whitespace
+        n = n.split(separator: " ").joined(separator: " ")
+        return n
     }
 
     // MARK: - Day Switching
@@ -537,6 +826,12 @@ class TrainViewModel {
             state.sets[setIndex].peakHR = hr.peak
             state.sets[setIndex].avgHR = hr.avg
             state.sets[setIndex].endHR = hr.current
+
+            // Record when the user first completed a set for this exercise
+            // — drives dynamic exercise ordering in future sessions
+            if state.firstCompletedAt == nil {
+                state.firstCompletedAt = Date()
+            }
         }
 
         exerciseStates[exerciseId] = state
@@ -745,6 +1040,10 @@ class TrainViewModel {
         state.sets[setIndex].peakHR = hr.peak
         state.sets[setIndex].avgHR = hr.avg
         state.sets[setIndex].endHR = hr.current
+
+        if state.firstCompletedAt == nil {
+            state.firstCompletedAt = Date()
+        }
 
         exerciseStates[exerciseId] = state
 
@@ -1002,11 +1301,23 @@ class TrainViewModel {
         )
         context.insert(session)
 
+        // Sort exercises by actual completion time so the saved order
+        // reflects HOW the user did the session, not the static program
+        // order. This powers dynamic reordering in future sessions.
+        let completedExercises: [(ExerciseDefinition, ExerciseState)] = effectiveExercises
+            .compactMap { ex in
+                guard let state = exerciseStates[ex.id],
+                      state.sets.contains(where: { $0.isCompleted }) else { return nil }
+                return (ex, state)
+            }
+            .sorted { a, b in
+                let tA = a.1.firstCompletedAt ?? .distantFuture
+                let tB = b.1.firstCompletedAt ?? .distantFuture
+                return tA < tB
+            }
+
         var orderIndex = 0
-        for exercise in effectiveExercises {
-            guard let state = exerciseStates[exercise.id] else { continue }
-            let hasAnyCompleted = state.sets.contains { $0.isCompleted }
-            guard hasAnyCompleted else { continue }
+        for (exercise, state) in completedExercises {
 
             let exerciseLog = ExerciseLog(
                 exerciseId: exercise.id,

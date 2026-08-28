@@ -175,7 +175,7 @@ struct ReflectionSheet: View {
                 }
             }
         }
-        .presentationDetents([.large])
+        .presentationDetents([.large, .medium])
         .onAppear {
             // If reflecting on an existing session, prefill
             rpe = session.subjectiveRPE

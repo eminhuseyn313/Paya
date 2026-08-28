@@ -55,6 +55,7 @@ struct PulseDashboardView: View {
     @State private var todayTrainingDay: DaySnapshot? = nil
     @State private var showWaterSheet = false
     @State private var showHealthJourney = false
+    @State private var showHealthProfileSummary = false
     @State private var showFoodQuickPicker = false
 
     private var readinessScore: Int {
@@ -85,6 +86,9 @@ struct PulseDashboardView: View {
                         greetingBar
                             .padding(.top, 8)
 
+                        // ━━━ 1.5 Connection Status ━━━
+                        watchConnectionPill
+
                         // ━━━ 2. Hero Readiness ━━━
                         heroReadiness
 
@@ -103,11 +107,14 @@ struct PulseDashboardView: View {
                             healthJourneyBanner(profile: profile)
                         }
 
-                        // ━━━ 4.7 Health Nudges ━━━
+                        // ━━━ 4.7 Health Nudges + Profile Badge ━━━
                         if let profile = ProfileStore.current(context: modelContext),
                            profile.healthJourneyCompleted {
-                            healthNudgeCards(profile: profile)
-                            healthJourneyInsightBadge(profile: profile)
+                            // Nudges and badge combined — keeps dashboard scannable
+                            VStack(spacing: 8) {
+                                healthJourneyInsightBadge(profile: profile)
+                                healthNudgeCards(profile: profile)
+                            }
                         }
 
                         // ━━━ 5. Flare Alert (conditional) ━━━
@@ -211,6 +218,13 @@ struct PulseDashboardView: View {
             .fullScreenCover(isPresented: $showHealthJourney) {
                 if let profile = ProfileStore.current(context: modelContext) {
                     HealthJourneyView(profile: profile)
+                }
+            }
+            .sheet(isPresented: $showHealthProfileSummary) {
+                if let profile = ProfileStore.current(context: modelContext) {
+                    HealthProfileSummaryView(profile: profile) {
+                        showHealthJourney = true
+                    }
                 }
             }
         }
@@ -399,6 +413,60 @@ struct PulseDashboardView: View {
         .scaleEffect(hasAppeared ? 1 : 0.9)
     }
 
+    // MARK: - Watch Connection Pill
+
+    @ViewBuilder
+    private var watchConnectionPill: some View {
+        // Read directly from source @Observable singletons — LiveHRManager's
+        // computed properties don't propagate observation to the BLE/Watch
+        // objects they delegate to.
+        let watch = WatchSessionManager.shared
+        let ble = BLEHeartRateManager.shared
+        let hasBLE = ble.currentBPM != nil
+        let hasWatchHR: Bool = {
+            guard let _ = watch.watchHeartRate,
+                  let ts = watch.watchHeartRateTimestamp else { return false }
+            return Date().timeIntervalSince(ts) < 30
+        }()
+        let isLive = hasBLE || hasWatchHR
+
+        if watch.hasActivated {
+            HStack(spacing: 8) {
+                // Connection dot — green when reachable, amber when paired but not on wrist
+                Circle()
+                    .fill(watch.isWatchReachable ? Pulse.positive : (watch.isConnected ? Pulse.warning : Pulse.textTertiary))
+                    .frame(width: 6, height: 6)
+
+                Image(systemName: watch.isConnected ? "applewatch" : "applewatch.slash")
+                    .font(.system(size: 11))
+                    .foregroundColor(watch.isWatchReachable ? Pulse.positive : Pulse.textTertiary)
+
+                Text(watch.connectionLabel)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(Pulse.textSecondary)
+
+                // Live HR source indicator
+                if isLive {
+                    Spacer(minLength: 4)
+                    LiveHRPill()
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(Pulse.surfaceFallback)
+                    .overlay(
+                        Capsule()
+                            .stroke(
+                                (watch.isWatchReachable ? Pulse.positive : Pulse.textTertiary).opacity(0.15),
+                                lineWidth: 0.5
+                            )
+                    )
+            )
+        }
+    }
+
     // MARK: - Vitals Orbs
 
     private var vitalsOrbs: some View {
@@ -446,7 +514,28 @@ struct PulseDashboardView: View {
                     action: { showWeightEntry = true }
                 )
 
-                if let hr = viewModel.appleHealthHR {
+                // Live HR (BLE/Watch) takes priority over resting HR from HealthKit.
+                // Read directly from source @Observable — LiveHRManager's computed
+                // properties don't propagate observation across object boundaries.
+                if let liveBPM = BLEHeartRateManager.shared.currentBPM {
+                    MetricOrb(
+                        value: "\(liveBPM)",
+                        unit: "bpm",
+                        label: "♥ Live",
+                        color: LiveHRManager.shared.zone(for: liveBPM)?.color ?? Pulse.vitals,
+                        action: { selectedTab = 3 }
+                    )
+                } else if let watchBPM = WatchSessionManager.shared.watchHeartRate,
+                          let ts = WatchSessionManager.shared.watchHeartRateTimestamp,
+                          Date().timeIntervalSince(ts) < 30 {
+                    MetricOrb(
+                        value: "\(watchBPM)",
+                        unit: "bpm",
+                        label: "♥ Watch",
+                        color: LiveHRManager.shared.zone(for: watchBPM)?.color ?? Pulse.vitals,
+                        action: { selectedTab = 3 }
+                    )
+                } else if let hr = viewModel.appleHealthHR {
                     MetricOrb(
                         value: "\(hr)",
                         unit: "bpm",
@@ -783,7 +872,12 @@ struct PulseDashboardView: View {
     @ViewBuilder
     private func healthNudgeCards(profile: PersonProfile) -> some View {
         let nudges = HealthNudgeEngine.generate(profile: profile, context: modelContext)
-        if !nudges.isEmpty {
+        // Show max 2 nudges on the dashboard — keeps the feed scannable
+        // instead of overwhelming with cards. The Health tab has full detail.
+        let visibleNudges = Array(nudges.prefix(2))
+        let extraCount = nudges.count - visibleNudges.count
+
+        if !visibleNudges.isEmpty {
             VStack(spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: "sparkles")
@@ -793,16 +887,18 @@ struct PulseDashboardView: View {
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(Pulse.textPrimary)
                     Spacer()
-                    Text("\(nudges.count)")
-                        .font(.system(size: 11, weight: .bold, design: .monospaced))
-                        .foregroundColor(Pulse.ai)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Pulse.ai.opacity(0.12))
-                        .clipShape(Capsule())
+                    if extraCount > 0 {
+                        Button {
+                            selectedTab = 3 // Health tab
+                        } label: {
+                            Text("+\(extraCount) more")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(Pulse.ai)
+                        }
+                    }
                 }
 
-                ForEach(nudges) { nudge in
+                ForEach(visibleNudges) { nudge in
                     nudgeCard(nudge)
                 }
             }
@@ -892,7 +988,7 @@ struct PulseDashboardView: View {
 
         if !report.isEmpty {
             Button {
-                showHealthJourney = true
+                showHealthProfileSummary = true
             } label: {
                 VStack(spacing: 0) {
                     HStack(spacing: 10) {
