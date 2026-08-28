@@ -41,6 +41,55 @@ final class WatchSessionManager: NSObject {
     /// Set by ContentView; invoked when the watch sends a quick check-in.
     var onCheckInReceived: ((_ energy: Int, _ soreness: Int, _ hasSymptom: Bool) -> Void)?
 
+    // MARK: - Live heart rate from watch
+
+    /// Latest heart rate received from the watch companion app (updated in
+    /// real-time when the watch streams HR during workouts or background
+    /// monitoring). This supplements BLE HR — whichever source updates more
+    /// recently wins in the UI.
+    var watchHeartRate: Int? = nil
+    /// When the last watch HR sample arrived — used for freshness checks.
+    var watchHeartRateTimestamp: Date? = nil
+
+    // MARK: - Connection status (observable)
+
+    /// Whether an Apple Watch is paired to this iPhone.
+    var isWatchPaired: Bool = false
+    /// Whether the paired watch's Paya companion app is installed.
+    var isWatchAppInstalled: Bool = false
+    /// Whether the watch is currently reachable (on-wrist, in range, etc.).
+    var isWatchReachable: Bool = false
+    /// True once WCSession activation completes — until then, pairing
+    /// state is unknown and the UI should not claim "not connected."
+    var hasActivated: Bool = false
+
+    /// Human-readable connection status for the UI.
+    var connectionLabel: String {
+        guard WCSession.isSupported() else { return "Not supported" }
+        guard hasActivated else { return "Checking…" }
+        if !isWatchPaired { return "No watch paired" }
+        // Show reachability even without companion app — the watch is
+        // physically there and HealthKit syncs HR/HRV/etc. regardless.
+        if isWatchReachable && isWatchAppInstalled { return "Connected" }
+        if isWatchReachable && !isWatchAppInstalled { return "Watch connected · install Paya for live HR" }
+        if isWatchAppInstalled { return "Paired · not on wrist" }
+        return "Paired · HealthKit syncing"
+    }
+
+    /// Whether the watch is paired at all — used for UI indicators.
+    /// Previously required `isWatchAppInstalled`, which made the UI
+    /// claim "not connected" even when the watch was on the user's
+    /// wrist — HealthKit data still syncs without the companion app.
+    var isConnected: Bool {
+        hasActivated && isWatchPaired
+    }
+
+    /// Whether the companion app is installed and two-way messaging
+    /// (session push, set logging from watch) is available.
+    var isFullyConnected: Bool {
+        hasActivated && isWatchPaired && isWatchAppInstalled
+    }
+
     private override init() {
         super.init()
     }
@@ -51,10 +100,18 @@ final class WatchSessionManager: NSObject {
         WCSession.default.activate()
     }
 
+    /// Refresh pairing state from WCSession — safe to call anytime.
+    func refreshStatus() {
+        guard WCSession.isSupported(), WCSession.default.activationState == .activated else { return }
+        isWatchPaired = WCSession.default.isPaired
+        isWatchAppInstalled = WCSession.default.isWatchAppInstalled
+        isWatchReachable = WCSession.default.isReachable
+    }
+
     // MARK: - Push state to watch
 
     func pushSessionSnapshot(_ snapshot: WatchSessionSnapshot?) {
-        guard WCSession.default.activationState == .activated, WCSession.default.isWatchAppInstalled else { return }
+        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
         var context: [String: Any] = currentApplicationContext()
         if let snapshot {
             context["sessionActive"] = true
@@ -84,10 +141,23 @@ final class WatchSessionManager: NSObject {
     }
 
     func pushWaterTotal(_ ml: Int) {
-        guard WCSession.default.activationState == .activated, WCSession.default.isWatchAppInstalled else { return }
+        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
         var context: [String: Any] = currentApplicationContext()
         context["waterMl"] = ml
         context["waterTargetMl"] = WaterStore.dailyTargetMl
+        try? WCSession.default.updateApplicationContext(context)
+    }
+
+    /// Push the phone's baseline-relative readiness score to the watch so it
+    /// doesn't have to fall back on absolute-threshold guesswork (population
+    /// averages for HRV/RHR miss personal baselines by a wide margin).
+    func pushReadiness(score: Int, band: String, recommendation: String?) {
+        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        var context: [String: Any] = currentApplicationContext()
+        context["readinessScore"] = score
+        context["readinessBand"] = band
+        context["readinessRecommendation"] = recommendation ?? ""
+        context["readinessTimestamp"] = Date()
         try? WCSession.default.updateApplicationContext(context)
     }
 
@@ -106,12 +176,29 @@ extension WatchSessionManager: WCSessionDelegate {
         _ session: WCSession,
         activationDidCompleteWith activationState: WCSessionActivationState,
         error: Error?
-    ) {}
+    ) {
+        Task { @MainActor in
+            WatchSessionManager.shared.hasActivated = true
+            WatchSessionManager.shared.refreshStatus()
+        }
+    }
 
     nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
 
     nonisolated func sessionDidDeactivate(_ session: WCSession) {
         session.activate()
+    }
+
+    nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
+        Task { @MainActor in
+            WatchSessionManager.shared.refreshStatus()
+        }
+    }
+
+    nonisolated func sessionWatchStateDidChange(_ session: WCSession) {
+        Task { @MainActor in
+            WatchSessionManager.shared.refreshStatus()
+        }
     }
 
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
@@ -134,6 +221,14 @@ extension WatchSessionManager: WCSessionDelegate {
                 let soreness = message["soreness"] as? Int ?? 1
                 let hasSymptom = message["hasSymptom"] as? Bool ?? false
                 WatchSessionManager.shared.onCheckInReceived?(energy, soreness, hasSymptom)
+            case "heartRate":
+                // Watch companion streams HR samples — Apple Watch writes HR
+                // every ~5s during workouts, ~10min passively. This real-time
+                // bridge avoids the HealthKit sync delay (up to 15 min).
+                if let bpm = message["bpm"] as? Int, bpm > 30 && bpm < 250 {
+                    WatchSessionManager.shared.watchHeartRate = bpm
+                    WatchSessionManager.shared.watchHeartRateTimestamp = Date()
+                }
             default:
                 break
             }

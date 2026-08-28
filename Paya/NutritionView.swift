@@ -89,6 +89,7 @@ struct NutritionView: View {
                         })
                         CalorieDeficitCard()
                         DrinkQuickCard(modelContext: modelContext, onOpenFull: { showDrinkManagement = true })
+                        NutritionSupplementsCard()
                         if !vm.meals.isEmpty {
                             LoggedMealsCard(vm: vm, modelContext: modelContext)
                         }
@@ -102,7 +103,6 @@ struct NutritionView: View {
                             CustomTemplatesCard(vm: vm, modelContext: modelContext)
                         }
                         MealTemplatesCard(vm: vm, modelContext: modelContext)
-                        NutritionSupplementsCard()
 
                     case .insights:
                         NutritionStreakCard()
@@ -133,6 +133,10 @@ struct NutritionView: View {
             Task { await vm.loadTDEE(context: modelContext, profile: appState.profile) }
             Task { await vm.checkRecoveryNudge() }
             lifestyleProfile = ProfileStore.current(context: modelContext)
+            applyPendingNutritionAction()
+        }
+        .onChange(of: appState.pendingNutritionAction) { _, action in
+            if action != nil { applyPendingNutritionAction() }
         }
         .sheet(isPresented: $showLifestylePlan) {
             if let profile = lifestyleProfile {
@@ -219,6 +223,24 @@ struct NutritionView: View {
             }
         }
             }
+
+    // MARK: - Deep-Link Action
+
+    private func applyPendingNutritionAction() {
+        guard let action = appState.pendingNutritionAction else { return }
+        appState.pendingNutritionAction = nil
+        // Small delay so the tab switch animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            switch action {
+            case .search:   vm.showSearchSheet = true
+            case .scan:     vm.showBarcodeScanner = true
+            case .manual:   showManualLogSheet = true
+            case .describe: showDescribeFood = true
+            case .label:    showLabelScanner = true
+            case .photo:    showPhotoEstimate = true
+            }
+        }
+    }
         }
 
 // MARK: - Progress Card

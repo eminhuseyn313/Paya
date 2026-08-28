@@ -210,14 +210,16 @@ struct PulseRing: View {
                 .frame(width: size, height: size)
                 .rotationEffect(.degrees(-90))
 
-            // End cap glow
+            // End cap glow — pulses gently so the ring feels alive
             if animatedProgress > 0.02 {
                 Circle()
                     .fill(color)
                     .frame(width: lineWidth + 4, height: lineWidth + 4)
-                    .shadow(color: color.opacity(0.6), radius: 8)
+                    .shadow(color: color.opacity(glowPulse ? 0.8 : 0.4), radius: glowPulse ? 12 : 6)
+                    .scaleEffect(glowPulse ? 1.15 : 1.0)
                     .offset(y: -(size / 2))
                     .rotationEffect(.degrees(animatedProgress * 360 - 90))
+                    .animation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true), value: glowPulse)
             }
         }
         .onAppear {
@@ -229,7 +231,10 @@ struct PulseRing: View {
                 withAnimation(Pulse.Motion.dramatic) {
                     animatedProgress = progress
                 }
-                glowPulse = true
+                // Continuous breathing glow — the ring never looks "inactive"
+                withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
+                    glowPulse = true
+                }
             }
         }
         .onChange(of: progress) { _, new in
@@ -293,24 +298,28 @@ struct BreathingOrb: View {
         let reduceMotion = UIAccessibility.isReduceMotionEnabled
 
         ZStack {
+            // Fixed-size frames with scaleEffect for animation —
+            // avoids layout recalculation that causes parent view dancing.
             Circle()
                 .fill(color.opacity(0.08))
-                .frame(width: size * (isBreathing ? 1.15 : 0.95),
-                       height: size * (isBreathing ? 1.15 : 0.95))
+                .frame(width: size, height: size)
                 .blur(radius: 30)
+                .scaleEffect(isBreathing ? 1.15 : 0.95)
 
             Circle()
                 .fill(color.opacity(0.12))
-                .frame(width: size * 0.7 * (isBreathing ? 1.1 : 0.9),
-                       height: size * 0.7 * (isBreathing ? 1.1 : 0.9))
+                .frame(width: size * 0.7, height: size * 0.7)
                 .blur(radius: 20)
+                .scaleEffect(isBreathing ? 1.1 : 0.9)
 
             Circle()
                 .fill(color.opacity(0.2))
-                .frame(width: size * 0.4 * (isBreathing ? 1.05 : 0.95),
-                       height: size * 0.4 * (isBreathing ? 1.05 : 0.95))
+                .frame(width: size * 0.4, height: size * 0.4)
                 .blur(radius: 10)
+                .scaleEffect(isBreathing ? 1.05 : 0.95)
         }
+        // Fixed layout footprint — animation is render-only
+        .frame(width: size * 1.15, height: size * 1.15)
         .onAppear {
             if reduceMotion {
                 // Static glow — no animation
@@ -338,35 +347,37 @@ struct HeroInsight: View {
 
     var body: some View {
         Button(action: { action?() }) {
-            VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 14) {
+                // Compact emoji badge
                 Text(emoji)
-                    .font(.system(size: 36))
+                    .font(.system(size: 22))
+                    .frame(width: 40, height: 40)
+                    .background(accentColor.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .scaleEffect(appeared ? 1 : 0.5)
                     .opacity(appeared ? 1 : 0)
 
-                Text(headline)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(Pulse.textPrimary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(headline)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
 
-                Text(detail)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Pulse.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(detail)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(Pulse.textSecondary)
+                        .lineLimit(2)
+                }
+
+                Spacer(minLength: 0)
 
                 if action != nil {
-                    HStack(spacing: 4) {
-                        Text("Learn more")
-                            .font(.system(size: 13, weight: .semibold))
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 11, weight: .bold))
-                    }
-                    .foregroundColor(accentColor)
-                    .padding(.top, 4)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(accentColor)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .pulseSurfaceGlow(color: accentColor, padding: 20)
+            .pulseSurfaceGlow(color: accentColor, padding: 14)
         }
         .buttonStyle(PulsePress(scale: 0.98))
         .onAppear {
@@ -388,46 +399,72 @@ struct MetricOrb: View {
     var size: CGFloat = 72
     var progress: CGFloat? = nil
     var action: (() -> Void)? = nil
+    /// Optional freshness label shown below the metric label (e.g. "2h ago")
+    var freshness: String? = nil
+    /// Whether this reading is fresh — drives a subtle breathing animation on the ring
+    var isFresh: Bool = true
+
+    @State private var breathe = false
+    @State private var animatedProgress: CGFloat = 0
 
     var body: some View {
         Button(action: { action?() }) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 ZStack {
-                    // Ambient glow
+                    // Ambient glow — pulses gently when fresh
                     Circle()
-                        .fill(color.opacity(0.08))
+                        .fill(color.opacity(isFresh ? 0.08 : 0.04))
                         .frame(width: size + 8, height: size + 8)
                         .blur(radius: 8)
+                        .scaleEffect(isFresh && breathe ? 1.12 : 1.0)
+                        .animation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true), value: breathe)
 
                     // Background circle
                     Circle()
-                        .fill(color.opacity(0.1))
+                        .fill(color.opacity(isFresh ? 0.1 : 0.05))
                         .frame(width: size, height: size)
 
-                    // Progress ring (optional)
+                    // Progress ring (optional) — animates on appear
                     if let progress = progress {
                         Circle()
                             .stroke(color.opacity(0.15), lineWidth: 3)
                             .frame(width: size, height: size)
                         Circle()
-                            .trim(from: 0, to: min(progress, 1.0))
-                            .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                            .trim(from: 0, to: animatedProgress)
+                            .stroke(
+                                AngularGradient(
+                                    colors: [color, color.opacity(0.6), color],
+                                    center: .center,
+                                    startAngle: .degrees(-90),
+                                    endAngle: .degrees(270)
+                                ),
+                                style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                            )
                             .frame(width: size, height: size)
                             .rotationEffect(.degrees(-90))
-                            .animation(Pulse.Motion.standard, value: progress)
+
+                        // Ring end-cap dot — subtle breathing glow
+                        if animatedProgress > 0.02 {
+                            Circle()
+                                .fill(color)
+                                .frame(width: 5, height: 5)
+                                .shadow(color: color.opacity(breathe ? 0.8 : 0.3), radius: breathe ? 6 : 3)
+                                .offset(y: -(size / 2))
+                                .rotationEffect(.degrees(animatedProgress * 360 - 90))
+                        }
                     }
 
                     // Value
                     VStack(spacing: 0) {
                         Text(value)
                             .font(.system(size: size * 0.28, weight: .bold, design: .rounded))
-                            .foregroundColor(Pulse.textPrimary)
+                            .foregroundColor(isFresh ? Pulse.textPrimary : Pulse.textTertiary)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                         if !unit.isEmpty {
                             Text(unit)
                                 .font(.system(size: size * 0.14, weight: .medium))
-                                .foregroundColor(color)
+                                .foregroundColor(color.opacity(isFresh ? 1.0 : 0.5))
                         }
                     }
                 }
@@ -436,11 +473,40 @@ struct MetricOrb: View {
                 Text(label)
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
+
+                // Freshness timestamp
+                if let freshness = freshness {
+                    Text(freshness)
+                        .font(.system(size: 8, weight: .semibold))
+                        .foregroundColor(isFresh ? color.opacity(0.6) : Pulse.warning.opacity(0.7))
+                }
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(action == nil)
+        .onAppear {
+            // Animate progress ring fill on appear
+            if let p = progress, !UIAccessibility.isReduceMotionEnabled {
+                withAnimation(.spring(response: 0.8, dampingFraction: 0.75).delay(0.15)) {
+                    animatedProgress = min(p, 1.0)
+                }
+            } else {
+                animatedProgress = min(progress ?? 0, 1.0)
+            }
+            guard isFresh else { return }
+            breathe = true
+        }
+        .onChange(of: progress) { _, new in
+            let target = min(new ?? 0, 1.0)
+            if UIAccessibility.isReduceMotionEnabled {
+                animatedProgress = target
+            } else {
+                withAnimation(Pulse.Motion.standard) {
+                    animatedProgress = target
+                }
+            }
+        }
     }
 }
 

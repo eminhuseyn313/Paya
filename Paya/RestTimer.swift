@@ -77,17 +77,47 @@ class RestTimerManager {
 
     private func scheduleCompletionNotification(in seconds: Int, exerciseName: String) {
         let content = UNMutableNotificationContent()
-        content.title = "Rest complete"
-        content.body = "Back to \(exerciseName) — next set is ready."
+        content.title = "⏱ Rest complete — \(seconds)s"
+        content.body = "Back to \(exerciseName) — next set is ready. Tap to open."
         content.sound = .default
+        content.interruptionLevel = .timeSensitive
         content.userInfo = ["destination": NotificationDestination.train.rawValue]
+        content.categoryIdentifier = "REST_TIMER"
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, Double(seconds)), repeats: false)
         let request = UNNotificationRequest(identifier: Self.pendingNotificationId, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
+
+        // Also schedule a heads-up at 10s remaining so the user knows
+        // rest is almost over — even if the app is backgrounded, they
+        // get a countdown cue.
+        if seconds > 15 {
+            let headsUpContent = UNMutableNotificationContent()
+            headsUpContent.title = "10s left"
+            headsUpContent.body = "\(exerciseName) — get ready for the next set"
+            headsUpContent.sound = .default
+            headsUpContent.interruptionLevel = .timeSensitive
+            headsUpContent.userInfo = ["destination": NotificationDestination.train.rawValue]
+            let headsUpTrigger = UNTimeIntervalNotificationTrigger(
+                timeInterval: max(1, Double(seconds - 10)),
+                repeats: false
+            )
+            let headsUpRequest = UNNotificationRequest(
+                identifier: Self.pendingNotificationId + "_headsup",
+                content: headsUpContent,
+                trigger: headsUpTrigger
+            )
+            UNUserNotificationCenter.current().add(headsUpRequest)
+        }
     }
 
     private func cancelPendingNotification() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [Self.pendingNotificationId])
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+            withIdentifiers: [Self.pendingNotificationId, Self.pendingNotificationId + "_headsup"]
+        )
+        // Also remove any delivered rest notifications so they don't stack
+        UNUserNotificationCenter.current().removeDeliveredNotifications(
+            withIdentifiers: [Self.pendingNotificationId, Self.pendingNotificationId + "_headsup"]
+        )
     }
 
     // MARK: Tick
@@ -133,6 +163,14 @@ class RestTimerManager {
         strong.impactOccurred()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { strong.impactOccurred() }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) { strong.impactOccurred() }
+
+        // Auto-dismiss after 5 seconds — the "Ready for next set / Go"
+        // message stays visible long enough to see, then clears itself
+        // so the timer bar doesn't linger indefinitely.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
+            guard let self, self.hasFinished, self.isActive else { return }
+            self.stop()
+        }
     }
 
     // MARK: Stop / Skip

@@ -92,7 +92,7 @@ enum WeeklyDigestEngine {
             category: .weeklyDigest,
             title: "Your Week in Review",
             body: result,
-            destination: .home,
+            destination: .progress,
             deduplicationKey: dedupKey,
             context: context
         )
@@ -103,7 +103,7 @@ enum WeeklyDigestEngine {
         content.body = result
         content.sound = .default
         content.threadIdentifier = "weekly_digest"
-        content.userInfo = ["destination": NotificationDestination.home.rawValue]
+        content.userInfo = ["destination": NotificationDestination.progress.rawValue]
         let request = UNNotificationRequest(
             identifier: dedupKey,
             content: content,

@@ -29,6 +29,13 @@ final class WatchConnectivityManager: NSObject {
     var waterMl: Int = 0
     var waterTargetMl: Int = 2500
 
+    // Readiness score pushed from the phone's baseline-relative
+    // ReadinessEngine — preferred over local absolute-threshold guesswork.
+    var phoneReadinessScore: Int? = nil
+    var phoneReadinessBand: String? = nil
+    var phoneReadinessRecommendation: String? = nil
+    var phoneReadinessTimestamp: Date? = nil
+
     // Rest timer — end date + total duration from the phone, counted down
     // locally by SessionView (against its own ticking `now`) so there's no
     // ongoing WCSession traffic just to keep a clock running.
@@ -156,6 +163,14 @@ final class WatchConnectivityManager: NSObject {
             restTotalSeconds = restTotal
         } else {
             restEndDate = nil
+        }
+
+        // Readiness from the phone's ReadinessEngine (baseline-relative)
+        if let score = context["readinessScore"] as? Int {
+            phoneReadinessScore = score
+            phoneReadinessBand = context["readinessBand"] as? String
+            phoneReadinessRecommendation = context["readinessRecommendation"] as? String
+            phoneReadinessTimestamp = context["readinessTimestamp"] as? Date
         }
     }
 }

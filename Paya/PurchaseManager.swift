@@ -29,7 +29,9 @@ final class PurchaseManager {
 
     // MARK: State
 
-    var isPro: Bool = false
+    var isPro: Bool = false {
+        didSet { UserDefaults.standard.set(isPro, forKey: "paya_is_pro") }
+    }
     var product: Product? = nil
     var purchaseState: PurchaseState = .idle
 
@@ -92,8 +94,7 @@ final class PurchaseManager {
     /// isDeveloper is false — this method catches the post-auth case.
     func checkDeveloperAccess() {
         if isDeveloper {
-            isPro = true
-            UserDefaults.standard.set(true, forKey: "paya_is_pro")
+            isPro = true  // didSet writes to UserDefaults
         }
     }
 
@@ -101,8 +102,7 @@ final class PurchaseManager {
     /// access to SupabaseClient.shared during its own initialization.
     func checkDeveloperAccess(email: String?) {
         guard let email, Self.developerEmails.contains(email.lowercased()) else { return }
-        isPro = true
-        UserDefaults.standard.set(true, forKey: "paya_is_pro")
+        isPro = true  // didSet writes to UserDefaults
     }
 
     // MARK: - Load Product

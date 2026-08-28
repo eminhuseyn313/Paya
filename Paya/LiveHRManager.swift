@@ -70,14 +70,35 @@ class LiveHRManager {
         self.maxHR = stored > 0 ? stored : 187
     }
 
+    /// Best available real-time BPM — prefers BLE chest strap (lowest latency),
+    /// falls back to Apple Watch HR forwarded via WatchConnectivity.
+    /// Watch HR is considered stale after 30s (Apple Watch passive sampling
+    /// cadence is ~10min; during workouts it's ~5s — Hernando et al. 2018).
     var currentBPM: Int? {
-        BLEHeartRateManager.shared.currentBPM
+        if let ble = BLEHeartRateManager.shared.currentBPM,
+           case .connected = BLEHeartRateManager.shared.connectionState {
+            return ble
+        }
+        // Watch HR — only if received within the last 30 seconds
+        let watch = WatchSessionManager.shared
+        if let watchBPM = watch.watchHeartRate,
+           let ts = watch.watchHeartRateTimestamp,
+           Date().timeIntervalSince(ts) < 30 {
+            return watchBPM
+        }
+        return nil
     }
 
     var currentSource: HRSource {
         if BLEHeartRateManager.shared.currentBPM != nil,
            case .connected = BLEHeartRateManager.shared.connectionState {
             return .ble
+        }
+        let watch = WatchSessionManager.shared
+        if let _ = watch.watchHeartRate,
+           let ts = watch.watchHeartRateTimestamp,
+           Date().timeIntervalSince(ts) < 30 {
+            return .watch
         }
         return .none
     }

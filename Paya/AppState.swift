@@ -218,6 +218,18 @@ class AppState {
 
     var dataRefreshTrigger: UUID = UUID()
 
+    // MARK: - Deep-Link Navigation
+    //
+    // When a button on one tab needs to open a specific sheet on another tab,
+    // it sets the pending action here before switching tabs. The destination
+    // tab reads and clears it on appear.
+
+    enum NutritionAction {
+        case search, scan, manual, describe, label, photo
+    }
+
+    var pendingNutritionAction: NutritionAction? = nil
+
     // MARK: - Active Session State (visible across all tabs)
 
     var activeSessionType: SessionType? = ProgramData.todaySessionType

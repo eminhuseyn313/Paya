@@ -27,10 +27,10 @@ struct DescribeFoodCard: View {
                 .frame(width: 44, height: 44)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Voice log")
+                    Text("Describe your meal")
                         .font(.subheadline.weight(.bold))
                         .foregroundColor(Pulse.textPrimary)
-                    Text("\"I had two eggs and toast\" — we estimate the rest")
+                    Text("Type or speak what you ate — AI estimates calories & macros")
                         .font(.caption2)
                         .foregroundColor(Pulse.textTertiary)
                         .lineLimit(2)

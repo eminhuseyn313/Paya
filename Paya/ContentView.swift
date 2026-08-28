@@ -61,9 +61,35 @@ struct ContentView: View {
             WatchSessionManager.shared.pushWaterTotal(WaterStore.todayTotal(context: modelContext))
             Task { await ExternalWorkoutImporter.importRecent(context: modelContext) }
             applyPendingIntentNavigation()
+
+            // If the app was killed with an active session, restore AppState
+            // so the FloatingSessionBar appears even before the user opens
+            // the Train tab (where full VM restoration happens).
+            if let snapshot = ActiveSessionStore.load(),
+               Date().timeIntervalSince(snapshot.startTime) < 6 * 3600 {
+                appState.isSessionActive = true
+                appState.sessionStartTime = snapshot.startTime
+                appState.isSessionPaused = snapshot.isPaused
+                appState.activeSessionLabel = snapshot.sessionLabel
+                let completed = snapshot.exercises.reduce(0) { $0 + $1.sets.filter(\.isCompleted).count }
+                let total = snapshot.exercises.reduce(0) { $0 + $1.sets.count }
+                appState.completedSetsInSession = completed
+                appState.totalSetsInSession = total
+            }
         }
         .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active { applyPendingIntentNavigation() }
+            switch newPhase {
+            case .active:
+                applyPendingIntentNavigation()
+                // Re-check Pro access on every foreground — catches cases where
+                // the developer email check didn't fire during initial launch
+                PurchaseManager.shared.checkDeveloperAccess()
+            case .background:
+                // Tell the active session (if any) to persist immediately
+                NotificationCenter.default.post(name: .payaWillBackground, object: nil)
+            default:
+                break
+            }
         }
         .onChange(of: appState.dataRefreshTrigger) { _, _ in
             Task { await ExternalWorkoutImporter.importRecent(context: modelContext) }
