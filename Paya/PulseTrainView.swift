@@ -452,6 +452,32 @@ struct PulseTrainView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
+            // Pre-workout glucose alert (diabetic users with CGM)
+            if let glucoseAlert = vm.preWorkoutGlucoseAlert, glucoseAlert.level != .optimal {
+                HStack(spacing: 10) {
+                    Image(systemName: glucoseAlert.level == .low ? "exclamationmark.triangle.fill" : "bolt.trianglebadge.exclamationmark.fill")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(glucoseAlert.level == .low ? Pulse.warning : Pulse.critical)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(glucoseAlert.level == .low ? "Low glucose" : "High glucose")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(Pulse.textPrimary)
+                        Text(glucoseAlert.message)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(Pulse.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer()
+                }
+                .padding(12)
+                .background((glucoseAlert.level == .low ? Pulse.warning : Pulse.critical).opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke((glucoseAlert.level == .low ? Pulse.warning : Pulse.critical).opacity(0.2), lineWidth: 0.5)
+                )
+            }
+
             // Recovery adjustment
             if let adjustment = vm.currentAdjustment {
                 PulseRecoveryBadge(adjustment: adjustment)

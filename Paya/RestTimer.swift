@@ -17,10 +17,19 @@ class RestTimerManager {
     var totalSeconds: Int = 0
     var exerciseName: String = ""
     var sessionColor: Color = .blue
-    
+
     var peakBPM: Int? = nil
 
+    /// Wall-clock deadline when rest ends — the source of truth for
+    /// `secondsRemaining`. Using a fixed point in time instead of a
+    /// decrementing counter means the timer stays correct even when
+    /// iOS suspends the Task.sleep loop in the background. On
+    /// foreground return, `recalculateFromWallClock()` snaps the
+    /// display back to real remaining time.
+    private var restEndDate: Date? = nil
+
     private var tickTask: Task<Void, Never>?
+    private var foregroundObserver: Any? = nil
     private var hasWarned: Bool = false
     private var hasFinished: Bool = false
     private var notificationScheduled: Bool = false
@@ -48,6 +57,7 @@ class RestTimerManager {
         stop()
         self.totalSeconds = seconds
         self.secondsRemaining = seconds
+        self.restEndDate = Date().addingTimeInterval(Double(seconds))
         self.exerciseName = exerciseName
         self.sessionColor = sessionColor
         self.currentExerciseId = exerciseId
@@ -62,6 +72,18 @@ class RestTimerManager {
             scheduleCompletionNotification(in: seconds, exerciseName: exerciseName)
         }
 
+        // Listen for foreground return so we can snap the countdown
+        // back to wall-clock truth after iOS suspended our tick loop.
+        foregroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.recalculateFromWallClock()
+            }
+        }
+
         // A structured Task loop instead of Timer — the closure is
         // @MainActor from creation, so there's no captured-self-in-
         // concurrently-executing-code warning under Swift 6 strict
@@ -70,7 +92,7 @@ class RestTimerManager {
             while let self, self.isActive {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
-                self.tick()
+                self.recalculateFromWallClock()
             }
         }
     }
@@ -120,24 +142,36 @@ class RestTimerManager {
         )
     }
 
-    // MARK: Tick
+    // MARK: Wall-clock recalculation
+    //
+    // Instead of decrementing a counter each tick (which freezes when
+    // iOS suspends the Task.sleep loop in background), we always
+    // derive `secondsRemaining` from the fixed `restEndDate` minus
+    // the current wall-clock time. This is called on every tick AND
+    // on `UIApplication.willEnterForegroundNotification`, so the
+    // display snaps to the correct value the instant the user opens
+    // the app — no stale "1:15" while the notification correctly
+    // said "10s left".
 
-    private func tick() {
-            if let current = LiveHRManager.shared.currentBPM {
-                if let peak = peakBPM {
-                    if current > peak { peakBPM = current }
-                } else {
-                    peakBPM = current
-                }
+    private func recalculateFromWallClock() {
+        // Update peak HR tracking
+        if let current = LiveHRManager.shared.currentBPM {
+            if let peak = peakBPM {
+                if current > peak { peakBPM = current }
+            } else {
+                peakBPM = current
             }
+        }
 
-            guard secondsRemaining > 0 else {
-                finish()
-                return
-            }
-            secondsRemaining -= 1
+        guard let endDate = restEndDate else {
+            finish()
+            return
+        }
 
-        if secondsRemaining == 10 && !hasWarned {
+        let remaining = Int(ceil(endDate.timeIntervalSinceNow))
+        secondsRemaining = max(0, remaining)
+
+        if secondsRemaining <= 10 && !hasWarned {
             hasWarned = true
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
@@ -176,14 +210,19 @@ class RestTimerManager {
     // MARK: Stop / Skip
 
     func stop() {
-            tickTask?.cancel()
-            tickTask = nil
-            isActive = false
-            secondsRemaining = 0
-            totalSeconds = 0
-            peakBPM = nil
-            cancelPendingNotification()
+        tickTask?.cancel()
+        tickTask = nil
+        if let obs = foregroundObserver {
+            NotificationCenter.default.removeObserver(obs)
+            foregroundObserver = nil
         }
+        isActive = false
+        secondsRemaining = 0
+        totalSeconds = 0
+        restEndDate = nil
+        peakBPM = nil
+        cancelPendingNotification()
+    }
 
     func skip() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -200,6 +239,10 @@ class RestTimerManager {
     // MARK: Adjust
 
     func add(_ delta: Int) {
+        // Shift the wall-clock deadline by the same delta
+        if let end = restEndDate {
+            restEndDate = end.addingTimeInterval(Double(delta))
+        }
         secondsRemaining = max(0, secondsRemaining + delta)
         totalSeconds = max(totalSeconds, secondsRemaining)
         UIImpactFeedbackGenerator(style: .light).impactOccurred()

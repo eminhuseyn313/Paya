@@ -11,8 +11,18 @@ struct RecoveryContext {
     let isFlareDay: Bool              // user-tagged flare day
     let yesterdayTrimp: Double?
     let chronicAvgDailyTrimp: Double?   // trailing 28-day daily average — the ACWR "chronic" baseline
-    let restingHR: Int?// yesterday's session strain
+    let restingHR: Int?               // yesterday's session strain
     let isDeloadWeek: Bool
+    /// HRV-guided auto-periodization — 7-day trend vs. 30-day baseline.
+    /// When present, modifies session structure (volume, movement selection)
+    /// independently from the single-day weight adjustments above.
+    let hrvPeriodization: HRVAutoPeriodizerEngine.SessionModification?
+
+    /// Menstrual cycle phase — luteal phase increases perceived exertion
+    /// at the same workload (Oosthuyse & Bosch 2010, Sports Med), so a
+    /// modest intensity reduction prevents unnecessary frustration without
+    /// telling the user to skip training.
+    let cyclePhase: CycleAwareEngine.CyclePhase?
 
     static let empty = RecoveryContext(
             recoveryScore: nil,
@@ -22,8 +32,9 @@ struct RecoveryContext {
             yesterdayTrimp: nil,
             chronicAvgDailyTrimp: nil,
             restingHR: nil,
-            isDeloadWeek: false
-
+            isDeloadWeek: false,
+            hrvPeriodization: nil,
+            cyclePhase: nil
         )
 
     var hasAnySignal: Bool {
@@ -273,6 +284,44 @@ enum RecoveryAdjuster {
                         text: "Heavier than usual yesterday (TRIMP \(Int(trimp)))"
                     ))
                 }
+            }
+        }
+
+        // HRV auto-periodization intensity multiplier — stacks with
+        // the single-day adjustments above. The HRV engine operates on
+        // a 7-day trend (Flatt & Howells 2019), so this captures
+        // accumulated fatigue that a single-day snapshot misses.
+        if let hrvMod = context.hrvPeriodization, hrvMod.intensityMultiplier < 1.0 {
+            multiplier *= hrvMod.intensityMultiplier
+            reasons.append(Reason(
+                icon: "waveform.path.ecg",
+                text: "HRV trend below baseline (\(hrvMod.zone.rawValue))"
+            ))
+        }
+
+        // Menstrual cycle phase — progesterone rises in the luteal phase,
+        // increasing core temperature and perceived exertion at the same
+        // workload (Oosthuyse & Bosch 2010, Sports Med). A modest cut
+        // keeps the session productive without the frustration of RPE
+        // mismatch. The menstrual-phase cut is lighter — energy is often
+        // lower but strength isn't mechanistically impaired (McNulty et al.
+        // 2020 meta-analysis: "trivially reduced" performance).
+        if let phase = context.cyclePhase {
+            switch phase {
+            case .luteal:
+                multiplier *= 0.95
+                reasons.append(Reason(
+                    icon: "moon.fill",
+                    text: "Luteal phase — higher RPE expected"
+                ))
+            case .menstrual:
+                multiplier *= 0.97
+                reasons.append(Reason(
+                    icon: "drop.fill",
+                    text: "Menstrual phase — moderate loads preferred"
+                ))
+            default:
+                break
             }
         }
 

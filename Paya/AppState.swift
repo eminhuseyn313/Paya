@@ -107,7 +107,15 @@ struct UserProfile: Codable {
         NotificationCategory.hydration.rawValue: true,
         NotificationCategory.recovery.rawValue: true,
         NotificationCategory.weighIn.rawValue: true,
-        NotificationCategory.restTimer.rawValue: false,
+        // Was `false` — the one notification that matters mid-workout
+        // (every other category defaults on) was silently never scheduled
+        // unless the user found this specific toggle in Settings. Symptom
+        // reported: rest timer never notifies in the background, but a
+        // haptic/sound fires the instant the app is reopened — that's
+        // `recalculateFromWallClock()` on foreground-return correctly
+        // detecting time had already elapsed, with no background
+        // notification ever having been armed to tell the user sooner.
+        NotificationCategory.restTimer.rawValue: true,
         NotificationCategory.medication.rawValue: true,
         NotificationCategory.eyeCare.rawValue: true,
         NotificationCategory.circadian.rawValue: true,

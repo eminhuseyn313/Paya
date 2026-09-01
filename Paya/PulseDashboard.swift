@@ -388,6 +388,13 @@ struct PulseDashboardView: View {
                             .lineLimit(2)
                             .padding(.horizontal, 20)
                     }
+
+                    // ━━━ Driver breakdown — Whoop/Oura-style factor indicators ━━━
+                    // Shows what's driving the score up or down at a glance
+                    // without tapping into the detail sheet.
+                    if let drivers = viewModel.readiness?.drivers, !drivers.isEmpty {
+                        readinessDriverStrip(drivers: drivers)
+                    }
                 } else {
                     // No wearable explanation
                     Text("Connect a wearable")
@@ -411,6 +418,84 @@ struct PulseDashboardView: View {
         .buttonStyle(PulsePress())
         .opacity(hasAppeared ? 1 : 0)
         .scaleEffect(hasAppeared ? 1 : 0.9)
+    }
+
+    // MARK: - Readiness Driver Strip
+
+    /// Compact horizontal factor bars showing what's driving the readiness score.
+    /// Each driver shows icon + label + mini progress bar + score.
+    /// Inspired by Oura's contributing-factor breakdown.
+    @ViewBuilder
+    private func readinessDriverStrip(drivers: [ReadinessEngine.Driver]) -> some View {
+        VStack(spacing: 6) {
+            ForEach(drivers.prefix(4)) { driver in
+                HStack(spacing: 8) {
+                    // Semantic icon per driver type
+                    Image(systemName: driverIcon(for: driver.id))
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(driverColor(for: driver.id))
+                        .frame(width: 14)
+
+                    Text(driver.label)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(Pulse.textSecondary)
+                        .frame(width: 72, alignment: .leading)
+
+                    // Mini progress bar — score 0-100 mapped to fill
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Pulse.surfaceFallback)
+                                .frame(height: 4)
+
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(driverBarColor(score: driver.score))
+                                .frame(width: geo.size.width * CGFloat(min(driver.score, 100) / 100.0), height: 4)
+                        }
+                    }
+                    .frame(height: 4)
+
+                    Text("\(Int(driver.score))")
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundColor(driverBarColor(score: driver.score))
+                        .monospacedDigit()
+                        .frame(width: 24, alignment: .trailing)
+                }
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 4)
+    }
+
+    private func driverIcon(for id: String) -> String {
+        switch id {
+        case "hrv":     return "waveform.path.ecg"
+        case "rhr":     return "heart.fill"
+        case "sleep":   return "moon.fill"
+        case "load":    return "figure.strengthtraining.traditional"
+        case "checkin": return "face.smiling"
+        default:        return "circle.fill"
+        }
+    }
+
+    private func driverColor(for id: String) -> Color {
+        switch id {
+        case "hrv":     return Pulse.recovery
+        case "rhr":     return Pulse.vitals
+        case "sleep":   return Pulse.ai
+        case "load":    return Pulse.energy
+        case "checkin": return Pulse.positive
+        default:        return Pulse.textSecondary
+        }
+    }
+
+    /// Bar fill color based on individual driver score.
+    /// Green ≥ 70, amber 40–69, red < 40 — matches readiness band thresholds
+    /// shifted down slightly for individual components.
+    private func driverBarColor(score: Double) -> Color {
+        if score >= 70 { return Pulse.positive }
+        if score >= 40 { return Pulse.warning }
+        return Pulse.critical
     }
 
     // MARK: - Watch Connection Pill
@@ -523,6 +608,7 @@ struct PulseDashboardView: View {
                         unit: "bpm",
                         label: "♥ Live",
                         color: LiveHRManager.shared.zone(for: liveBPM)?.color ?? Pulse.vitals,
+                        progress: min(Double(liveBPM) / 200.0, 1.0),
                         action: { selectedTab = 3 }
                     )
                 } else if let watchBPM = WatchSessionManager.shared.watchHeartRate,
@@ -533,6 +619,7 @@ struct PulseDashboardView: View {
                         unit: "bpm",
                         label: "♥ Watch",
                         color: LiveHRManager.shared.zone(for: watchBPM)?.color ?? Pulse.vitals,
+                        progress: min(Double(watchBPM) / 200.0, 1.0),
                         action: { selectedTab = 3 }
                     )
                 } else if let hr = viewModel.appleHealthHR {
@@ -541,6 +628,8 @@ struct PulseDashboardView: View {
                         unit: "bpm",
                         label: "Heart",
                         color: Pulse.vitals,
+                        // Inverted: lower resting HR = better (Reimers et al. 2013)
+                        progress: 1.0 - max(0, min((Double(hr) - 45) / 55, 1.0)),
                         action: { selectedTab = 3 }
                     )
                 }

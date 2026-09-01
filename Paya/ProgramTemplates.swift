@@ -915,17 +915,31 @@ enum ProgramInstaller {
         let pid = ActiveProfile.id
         let profile = ProfileStore.current(context: context)
 
-        // 1. Remove ONLY this profile's day configs + custom sessions
+        // 1. Collect user-added exercises BEFORE deleting custom sessions.
+        // Exercises added via "Add Exercise" (source: .library) represent
+        // deliberate user choices that should survive program rebuilds.
+        // Without this, every program change silently erases exercises
+        // the user manually added — a trust-destroying data loss.
+        let sessionDescriptor = FetchDescriptor<CustomSession>(
+            predicate: #Predicate { $0.profileId == pid }
+        )
+        let existingSessions = (try? context.fetch(sessionDescriptor)) ?? []
+        var userExercisesByDayCode: [String: [CustomSessionExercise]] = [:]
+        for session in existingSessions {
+            let userAdded = session.exercises.filter { $0.sourceRaw == CustomSessionExercise.Source.library.rawValue }
+            if !userAdded.isEmpty {
+                userExercisesByDayCode[session.sessionTypeRaw] = userAdded
+            }
+        }
+
+        // Remove ONLY this profile's day configs + custom sessions
         let dayDescriptor = FetchDescriptor<TrainingDayConfig>(
             predicate: #Predicate { $0.profileId == pid }
         )
         for day in (try? context.fetch(dayDescriptor)) ?? [] {
             context.delete(day)
         }
-        let sessionDescriptor = FetchDescriptor<CustomSession>(
-            predicate: #Predicate { $0.profileId == pid }
-        )
-        for session in (try? context.fetch(sessionDescriptor)) ?? [] {
+        for session in existingSessions {
             context.delete(session)
         }
 
@@ -1007,6 +1021,34 @@ enum ProgramInstaller {
                 )
                 context.insert(cse)
                 cse.session = custom
+            }
+
+            // Re-attach user-added exercises from the previous program.
+            // These were added via "Add Exercise" and represent deliberate
+            // user choices that should survive across program rebuilds.
+            // They keep their original name but get fresh IDs and are
+            // appended after the template exercises.
+            if let userExercises = userExercisesByDayCode[day.code] {
+                for userEx in userExercises {
+                    let nextOrder = (custom.exercises.map(\.orderIndex).max() ?? -1) + 1
+                    let restored = CustomSessionExercise(
+                        exerciseId: "user_\(UUID().uuidString)",
+                        exerciseName: userEx.exerciseName,
+                        orderIndex: nextOrder,
+                        sets: userEx.sets,
+                        repMin: userEx.repMin,
+                        repMax: userEx.repMax,
+                        startWeightKg: userEx.startWeightKg,
+                        restSeconds: userEx.restSeconds,
+                        isJointSensitive: userEx.isJointSensitive,
+                        notes: userEx.notes,
+                        muscleGroup: userEx.muscleGroup,
+                        sourceRaw: CustomSessionExercise.Source.library.rawValue,
+                        alternatives: userEx.alternatives
+                    )
+                    context.insert(restored)
+                    restored.session = custom
+                }
             }
         }
 

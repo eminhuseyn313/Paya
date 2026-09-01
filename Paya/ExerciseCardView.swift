@@ -438,7 +438,7 @@ struct ExerciseCardView: View {
                         .foregroundColor(Pulse.textTertiary)
 
                     // Progressive overload in simple mode too
-                    if let prev = vm.previousSessionData[exercise.id] {
+                    if let prev = vm.previousData(for: exercise) {
                         progressiveOverloadBadge(prev: prev)
                     }
                 }
@@ -556,7 +556,7 @@ struct ExerciseCardView: View {
                     }
 
                     // Progressive overload indicator (visible in collapsed state)
-                    if let prev = vm.previousSessionData[exercise.id] {
+                    if let prev = vm.previousData(for: exercise) {
                         progressiveOverloadBadge(prev: prev)
                     }
                 }
@@ -608,10 +608,43 @@ struct ExerciseCardView: View {
                         .frame(width: 32, height: 32)
                 }
 
-                Image(systemName: state.isExpanded ? "chevron.up" : "chevron.down")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(Pulse.textTertiary)
-                    .frame(width: 20)
+                // Reorder arrows — visible during active session for quick
+                // exercise reordering without digging into the three-dot menu.
+                // This surfaces the feature users expect when they say
+                // "drag and drop to reorder."
+                if vm.isSessionActive {
+                    VStack(spacing: 2) {
+                        Button {
+                            withAnimation(.spring(response: 0.3)) {
+                                vm.moveExercise(from: exerciseNumber - 1, by: -1)
+                            }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            Image(systemName: "chevron.up")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(exerciseNumber > 1 ? Pulse.textTertiary : .clear)
+                        }
+                        .disabled(exerciseNumber <= 1)
+
+                        Button {
+                            withAnimation(.spring(response: 0.3)) {
+                                vm.moveExercise(from: exerciseNumber - 1, by: 1)
+                            }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(exerciseNumber < totalExercises ? Pulse.textTertiary : .clear)
+                        }
+                        .disabled(exerciseNumber >= totalExercises)
+                    }
+                    .frame(width: 22)
+                } else {
+                    Image(systemName: state.isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(Pulse.textTertiary)
+                        .frame(width: 20)
+                }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
@@ -641,7 +674,7 @@ struct ExerciseCardView: View {
                         .padding(.top, 8)
                     }
 
-                    if let prev = vm.previousSessionData[exercise.id] {
+                    if let prev = vm.previousData(for: exercise) {
                         // Previous cable variant
                         if prev.cableAttachment != nil || prev.cablePosition != nil {
                             HStack(spacing: 6) {
@@ -722,8 +755,8 @@ struct ExerciseCardView: View {
                                 setIndex: i,
                                 setState: state.sets[i],
                                 sessionColor: vm.selectedDayColor,
-                                previousWeight: vm.previousSessionData[exercise.id]?.weightKg,
-                                previousReps: vm.previousSessionData[exercise.id]?.reps
+                                previousWeight: vm.previousData(for: exercise)?.weightKg,
+                                previousReps: vm.previousData(for: exercise)?.reps
                             )
                             if state.sets.count > 1 {
                                 Button {
@@ -967,7 +1000,7 @@ struct SetRowView: View {
             guard let state = vm.exerciseStates[exercise.id] else { return false }
             return state.sets[setIndex - 1].isCompleted
         }
-        return vm.previousSessionData[exercise.id] != nil
+        return vm.previousData(for: exercise) != nil
     }
 
     private var isPR: Bool {
@@ -1028,18 +1061,27 @@ struct SetRowView: View {
                 } label: {
                     HStack(spacing: 6) {
                         if exercise.measurement.showsWeightField {
-                            Text(formatWeight(displayWeight(setState.weightKg)))
-                                .font(.system(size: 15, weight: .semibold))
-                                .monospacedDigit()
-                                .foregroundColor(setState.isCompleted ? .secondary : .primary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
-                                .background(
-                                    setState.isCompleted
-                                        ? sessionColor.opacity(0.06)
-                                        : Pulse.surfaceElevatedFallback
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            HStack(spacing: 2) {
+                                Text(formatWeight(displayWeight(setState.weightKg)))
+                                    .font(.system(size: 15, weight: .semibold))
+                                    .monospacedDigit()
+                                    .foregroundColor(setState.isCompleted ? .secondary : .primary)
+                                // "×2" badge for bilateral dumbbell/kettlebell exercises
+                                // so users understand the volume calc accounts for both hands
+                                if exercise.isDualWeighted {
+                                    Text("×2")
+                                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                                        .foregroundColor(Pulse.textTertiary)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(
+                                setState.isCompleted
+                                    ? sessionColor.opacity(0.06)
+                                    : Pulse.surfaceElevatedFallback
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
 
                         Text("\(setState.reps)")

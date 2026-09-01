@@ -47,6 +47,11 @@ enum CorrelationEngine {
         var supplementAdherence: Double?   // 0-100, % of that day's active stack actually taken
         var timeOutdoorMin: Double?
 
+        // CGM glucose (from GlucoseEngine via HealthKit)
+        var glucoseMean: Double?           // mg/dL, daily mean glucose
+        var glucoseCV: Double?             // %, coefficient of variation (Danne 2017: <36% stable)
+        var glucoseTimeInRange: Double?    // %, time in 70-180 mg/dL (Battelino 2019)
+
         // Behavior tags (1.0 if tagged, 0.0 if not)
         var behaviorAlcohol: Double?
         var behaviorColdShower: Double?
@@ -89,6 +94,11 @@ enum CorrelationEngine {
         Metric(id: "bpDiastolic", label: "Diastolic BP", unit: "mmHg", keyPath: { $0.bpDiastolic }),
         Metric(id: "supplementAdherence", label: "Supplement adherence", unit: "%", keyPath: { $0.supplementAdherence }),
         Metric(id: "timeOutdoor", label: "Time outdoors", unit: "min", keyPath: { $0.timeOutdoorMin }),
+
+        // CGM glucose
+        Metric(id: "glucoseMean", label: "Avg glucose", unit: "mg/dL", keyPath: { $0.glucoseMean }),
+        Metric(id: "glucoseCV", label: "Glucose variability", unit: "CV%", keyPath: { $0.glucoseCV }),
+        Metric(id: "glucoseTIR", label: "Time in range", unit: "%", keyPath: { $0.glucoseTimeInRange }),
 
         // Behavior tags
         Metric(id: "behaviorAlcohol", label: "Alcohol", unit: "yes/no", keyPath: { $0.behaviorAlcohol }),
@@ -306,6 +316,27 @@ enum CorrelationEngine {
             }
         }
 
+        // CGM glucose daily stats — from GlucoseEngine (HealthKit reads).
+        // Only fetches if the user has a CGM writing to Apple Health;
+        // empty result → all glucose fields stay nil → no spurious correlations.
+        let glucoseSamples = await GlucoseEngine.fetchGlucoseSamples(from: windowStart)
+        if !glucoseSamples.isEmpty {
+            let grouped = Dictionary(grouping: glucoseSamples) { calendar.startOfDay(for: $0.date) }
+            for (day, daySamples) in grouped where daySamples.count >= 3 {
+                let values = daySamples.map(\.value)
+                let mean = values.reduce(0, +) / Double(values.count)
+                let variance = values.map { ($0 - mean) * ($0 - mean) }.reduce(0, +) / Double(values.count)
+                let cv = mean > 0 ? (sqrt(variance) / mean) * 100 : 0
+                let tir = Double(values.filter { $0 >= 70 && $0 <= 180 }.count) / Double(values.count) * 100
+
+                var m = byDay[day] ?? DailyMetrics(date: day)
+                m.glucoseMean = mean
+                m.glucoseCV = cv
+                m.glucoseTimeInRange = tir
+                byDay[day] = m
+            }
+        }
+
         return byDay.values.sorted { $0.date < $1.date }
     }
 
@@ -367,6 +398,87 @@ enum CorrelationEngine {
         }
         let r = pairs.count > 1 ? pearsonR(pairs.map { ($0.x, $0.y) }) : nil
         return ManualResult(metricA: a, metricB: b, pairs: pairs, r: r)
+    }
+
+    // MARK: - Lagged Cross-Domain Insights
+    //
+    // The key insight no competitor surfaces: TODAY's nutrition/behavior
+    // affects TOMORROW's biometrics. A same-day correlation misses these
+    // causal pathways because the effect hasn't materialized yet.
+    //
+    // Dietary Inflammatory Index research (Shivappa et al. 2014, 65 studies):
+    // dietary patterns causally affect inflammatory biomarkers measurable
+    // via HRV/RHR with a 12–36 hour lag. Sleep architecture responds to
+    // meal timing within one sleep cycle (St-Onge et al. 2016, AJCN).
+
+    /// Metrics that are plausibly "causes" — things you DO today.
+    private static let laggedCauses: [Metric] = metrics.filter {
+        ["water", "meals", "volume", "energy", "soreness",
+         "medication", "supplementAdherence", "timeOutdoor", "daylight",
+         "behaviorAlcohol", "behaviorColdShower", "behaviorStretching",
+         "behaviorMeditation", "behaviorLateScreen", "behaviorOutdoor",
+         "behaviorHighStress"].contains($0.id)
+    }
+
+    /// Metrics that are plausibly "effects" — things you MEASURE tomorrow.
+    private static let laggedEffects: [Metric] = metrics.filter {
+        ["sleep", "deepSleep", "remSleep", "restingHR", "hrv",
+         "spo2", "wristTemp", "steadiness", "energy", "soreness",
+         "steps", "jointPain",
+         "glucoseMean", "glucoseCV", "glucoseTIR"].contains($0.id)
+    }
+
+    struct LaggedInsight: Identifiable {
+        var id: String { "\(cause.id)_lag\(lagDays)_\(effect.id)" }
+        let cause: Metric         // e.g. "Alcohol"
+        let effect: Metric        // e.g. "HRV"
+        let lagDays: Int          // 1 = "today → tomorrow"
+        let r: Double
+        let sampleSize: Int
+        let text: String
+    }
+
+    /// Discovers lagged correlations: "What I did on day N" vs "What I measured
+    /// on day N+lag." Default lag = 1 day (the strongest causal window for most
+    /// nutrition/behavior → biometric pathways).
+    static func discoverLaggedInsights(from days: [DailyMetrics], lag: Int = 1) -> [LaggedInsight] {
+        guard days.count > lag + minSampleSize else { return [] }
+        let calendar = Calendar.current
+        let byDate: [Date: DailyMetrics] = Dictionary(
+            days.map { (calendar.startOfDay(for: $0.date), $0) },
+            uniquingKeysWith: { _, last in last }
+        )
+
+        var results: [LaggedInsight] = []
+        for cause in laggedCauses {
+            for effect in laggedEffects {
+                // Skip same-metric lag (e.g. "energy today → energy tomorrow"
+                // is autocorrelation, not a cross-domain insight)
+                guard cause.id != effect.id else { continue }
+
+                var pairs: [(Double, Double)] = []
+                for day in days {
+                    guard let causeVal = cause.keyPath(day),
+                          let futureDate = calendar.date(byAdding: .day, value: lag, to: calendar.startOfDay(for: day.date)),
+                          let futureDay = byDate[futureDate],
+                          let effectVal = effect.keyPath(futureDay) else { continue }
+                    pairs.append((causeVal, effectVal))
+                }
+
+                guard pairs.count >= minSampleSize,
+                      let r = pearsonR(pairs),
+                      abs(r) >= minAbsR else { continue }
+
+                let direction = r > 0 ? "higher" : "lower"
+                let lagLabel = lag == 1 ? "the next day" : "\(lag) days later"
+                let text = "When your \(cause.label.lowercased()) is higher, your \(effect.label.lowercased()) tends to be \(direction) \(lagLabel) (r=\(String(format: "%.2f", r)), \(pairs.count) days). This suggests a delayed effect worth watching."
+                results.append(LaggedInsight(
+                    cause: cause, effect: effect, lagDays: lag,
+                    r: r, sampleSize: pairs.count, text: text
+                ))
+            }
+        }
+        return results.sorted { abs($0.r) > abs($1.r) }
     }
 
     private static func pearsonR(_ pairs: [(Double, Double)]) -> Double? {

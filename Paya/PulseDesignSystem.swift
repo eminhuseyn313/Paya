@@ -425,7 +425,7 @@ struct MetricOrb: View {
                         .frame(width: size, height: size)
 
                     // Progress ring (optional) — animates on appear
-                    if let progress = progress {
+                    if progress != nil {
                         Circle()
                             .stroke(color.opacity(0.15), lineWidth: 3)
                             .frame(width: size, height: size)

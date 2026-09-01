@@ -67,6 +67,7 @@ struct TrainView: View {
                             DayHeaderCard(
                                 vm: vm,
                                 adjustment: vm.currentAdjustment,
+                                hrvPeriodization: vm.hrvPeriodization,
                                 showQuickSwitch: {
                                     if let adj = vm.currentAdjustment {
                                         return (adj.severity == .caution || adj.severity == .deload)
@@ -403,6 +404,7 @@ struct DayPickerBar: View {
 struct DayHeaderCard: View {
     var vm: TrainViewModel
     var adjustment: RecoveryAdjuster.Adjustment? = nil
+    var hrvPeriodization: HRVAutoPeriodizerEngine.SessionModification? = nil
     var showQuickSwitch: Bool = false
     var onQuickSwitch: (() -> Void)? = nil
     var isFlareDay: Bool = false
@@ -573,6 +575,56 @@ struct DayHeaderCard: View {
                         .stroke(adjustment.severity.color.opacity(0.2), lineWidth: 1)
                 )
 
+                // ANS zone badge — HRV-guided periodization status
+                // (Plews et al. 2024, Flatt & Howells 2019)
+                if let hrv = hrvPeriodization, hrv.isAdjusted {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 8) {
+                            Image(systemName: ansZoneIcon(hrv.zone))
+                                .font(.system(size: 12))
+                                .foregroundColor(ansZoneColor(hrv.zone))
+                            Text("ANS: \(ansZoneLabel(hrv.zone))")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(ansZoneColor(hrv.zone))
+                            Spacer()
+                            Text("\(hrv.dataPoints)d data")
+                                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                                .foregroundColor(Pulse.textTertiary)
+                        }
+                        Text(hrv.explanation)
+                            .font(.system(size: 10))
+                            .foregroundColor(Pulse.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        if hrv.swapExplosiveForTempo {
+                            HStack(spacing: 5) {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                    .font(.system(size: 8))
+                                Text("Explosive movements → controlled tempo")
+                                    .font(.system(size: 9, weight: .medium))
+                            }
+                            .foregroundColor(Pulse.warning)
+                        }
+
+                        if hrv.intensityPushAvailable {
+                            HStack(spacing: 5) {
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .font(.system(size: 8))
+                                Text("Intensity push unlocked — go heavier if you want")
+                                    .font(.system(size: 9, weight: .medium))
+                            }
+                            .foregroundColor(Pulse.positive)
+                        }
+                    }
+                    .padding(10)
+                    .background(ansZoneColor(hrv.zone).opacity(0.06))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(ansZoneColor(hrv.zone).opacity(0.2), lineWidth: 1)
+                    )
+                }
+
                 // Quick session switch — compact inline
                 if showQuickSwitch, let onQuickSwitch {
                     Button(action: onQuickSwitch) {
@@ -602,6 +654,31 @@ struct DayHeaderCard: View {
         }
         .payaCard(padding: 14)
     }
+
+    // ANS zone display helpers
+    private func ansZoneColor(_ zone: HRVAutoPeriodizerEngine.ANSZone) -> Color {
+        switch zone {
+        case .suppressed:  return Pulse.warning
+        case .normal:      return Pulse.positive
+        case .potentiated: return Pulse.ai
+        }
+    }
+
+    private func ansZoneIcon(_ zone: HRVAutoPeriodizerEngine.ANSZone) -> String {
+        switch zone {
+        case .suppressed:  return "waveform.path.ecg"
+        case .normal:      return "heart.fill"
+        case .potentiated: return "bolt.heart.fill"
+        }
+    }
+
+    private func ansZoneLabel(_ zone: HRVAutoPeriodizerEngine.ANSZone) -> String {
+        switch zone {
+        case .suppressed:  return "Suppressed"
+        case .normal:      return "Normal"
+        case .potentiated: return "Potentiated"
+        }
+    }
 }
 
 // MARK: - Session Live Header (during active session)
@@ -623,7 +700,8 @@ struct SessionLiveHeader: View {
     private var totalVolumeKg: Double {
         vm.orderedExercises.reduce(0.0) { total, ex in
             guard let state = vm.exerciseStates[ex.id] else { return total }
-            return total + state.sets.filter { $0.isCompleted }.reduce(0.0) { $0 + $1.weightKg * Double($1.reps) }
+            let mult = ex.volumeWeightMultiplier
+            return total + state.sets.filter { $0.isCompleted }.reduce(0.0) { $0 + $1.weightKg * mult * Double($1.reps) }
         }
     }
 
@@ -788,7 +866,8 @@ struct BottomActionBar: View {
     private var totalVolume: Double {
         vm.orderedExercises.reduce(0.0) { total, ex in
             guard let state = vm.exerciseStates[ex.id] else { return total }
-            return total + state.sets.filter { $0.isCompleted }.reduce(0.0) { $0 + $1.weightKg * Double($1.reps) }
+            let mult = ex.volumeWeightMultiplier
+            return total + state.sets.filter { $0.isCompleted }.reduce(0.0) { $0 + $1.weightKg * mult * Double($1.reps) }
         }
     }
 

@@ -27,6 +27,10 @@ class TrainViewModel {
     var pausedElapsed: TimeInterval = 0
     private var pauseStartTime: Date? = nil
     var exerciseStates: [String: ExerciseState] = [:]
+    /// The exercise the user is actively interacting with — set by expanding
+    /// a card, entering weight/reps, or completing a set. The Live Activity
+    /// and watch snapshot show THIS exercise, not the first-incomplete-in-list.
+    var focusedExerciseId: String? = nil
     var showCompletionSheet: Bool = false
     var completedSession: TrainingSession? = nil
     var isFlareDay: Bool
@@ -41,6 +45,23 @@ class TrainViewModel {
     var appStateRef: AppState?
     var recoveryContext: RecoveryContext = .empty
     var currentAdjustment: RecoveryAdjuster.Adjustment? = nil
+    /// HRV auto-periodization result — shown as a zone badge and may modify
+    /// session volume/movement selection (Plews et al. 2024).
+    var hrvPeriodization: HRVAutoPeriodizerEngine.SessionModification? = nil
+
+    /// Pre-workout glucose alert for diabetic users with a CGM.
+    /// ADA Standards of Care (2024): avoid intense exercise if glucose
+    /// >250 mg/dL with ketones or <100 mg/dL without a snack.
+    var preWorkoutGlucoseAlert: PreWorkoutGlucoseAlert? = nil
+
+    struct PreWorkoutGlucoseAlert {
+        let glucose: Double      // mg/dL
+        let level: Level
+        let message: String
+
+        enum Level { case low, high, optimal }
+    }
+
     private(set) var effectiveExercises: [ExerciseDefinition] = []
     private(set) var fullExerciseCountBeforeQuickMode: Int? = nil
 
@@ -128,9 +149,13 @@ class TrainViewModel {
 
     var totalSessionVolume: Double {
         exerciseStates.values.reduce(0.0) { total, state in
+            // For bilateral dumbbell/kettlebell exercises, the user enters
+            // weight per hand — actual load per rep is 2× (Haff & Triplett,
+            // NSCA Essentials of Strength Training, 4th ed., 2016).
+            let multiplier = state.definition.volumeWeightMultiplier
             let volume = state.sets
                 .filter { $0.isCompleted && !$0.isWarmup }
-                .reduce(0.0) { $0 + ($1.weightKg * Double($1.reps)) }
+                .reduce(0.0) { $0 + ($1.weightKg * multiplier * Double($1.reps)) }
             return total + volume
         }
     }
@@ -318,7 +343,16 @@ class TrainViewModel {
         let resolvedStartWeight = measurement == .bodyweightReps ? 0 : startWeight
         let muscleGroup = poolMatch?.muscleGroup ?? (libraryExercise.primaryMuscles.first?.capitalized ?? "General")
 
-        let newId = "today_\(UUID().uuidString)"
+        // Use a stable, name-derived ID so the exercise can be matched
+        // across sessions by ID — not just by name. The "today_UUID" pattern
+        // previously generated a different ID every time, making ID-based
+        // lookup in loadPreviousSession always miss and falling through to
+        // name matching (which can fail on abbreviation variants).
+        let sanitized = libraryExercise.name.lowercased()
+            .replacingOccurrences(of: " ", with: "_")
+            .replacingOccurrences(of: "(", with: "")
+            .replacingOccurrences(of: ")", with: "")
+        let newId = "user_\(selectedDay.code)_\(sanitized)"
         let definition = ExerciseDefinition(
             id: newId,
             name: libraryExercise.name,
@@ -433,24 +467,26 @@ class TrainViewModel {
 
     // MARK: - Suggested Weight
 
+    /// Single source of truth for "what did the user do last time for this
+    /// exercise" — ID match first, then exact name, then normalized name.
+    /// Every call site (suggested weight/reps, the PREVIOUS column shown
+    /// while training, progressive-overload badges) MUST go through this —
+    /// previously ExerciseCardView's display path only checked `previousSessionData[exercise.id]`
+    /// directly and skipped the name-based fallbacks, so any exercise whose
+    /// ID didn't exactly match last session's log (added via "Add exercise"
+    /// mid-session, swapped for an alternative, or re-synced from a rebuilt
+    /// program) silently showed no previous data at all — the user got new
+    /// blank sets every time even though the ViewModel actually had the
+    /// history, just under a different key.
+    func previousData(for exercise: ExerciseDefinition) -> PreviousExerciseData? {
+        if let prev = previousSessionData[exercise.id] { return prev }
+        if let prev = previousSessionDataByName[exercise.name.lowercased()] { return prev }
+        if let prev = previousSessionDataByName[Self.normalizeExerciseName(exercise.name)] { return prev }
+        return nil
+    }
+
     func suggestedWeight(for exercise: ExerciseDefinition) -> Double {
-        var baseWeight: Double
-        if let prev = previousSessionData[exercise.id] {
-            // Best case: exact ID match from previous session
-            baseWeight = prev.weightKg
-        } else if let prev = previousSessionDataByName[exercise.name.lowercased()] {
-            // Fallback: exercise name match — catches cases where IDs changed
-            // (program rebuild, template migration, alternative swap) but the
-            // exercise itself is the same movement. Without this, every program
-            // rebuild loses all weight history and users see template start
-            // weights (e.g. 6.25kg instead of their actual 25kg).
-            baseWeight = prev.weightKg
-        } else if let prev = previousSessionDataByName[Self.normalizeExerciseName(exercise.name)] {
-            // Normalized match: "DB Bench Press" ↔ "Dumbbell Bench Press"
-            baseWeight = prev.weightKg
-        } else {
-            baseWeight = exercise.startWeightKg
-        }
+        let baseWeight = previousData(for: exercise)?.weightKg ?? exercise.startWeightKg
         let adjustment = RecoveryAdjuster.compute(
             baseWeight: baseWeight,
             context: recoveryContext
@@ -463,16 +499,7 @@ class TrainViewModel {
     /// Without this, reps always reset to repRange.max and the user's actual
     /// rep count from last session is lost.
     func suggestedReps(for exercise: ExerciseDefinition) -> Int {
-        if let prev = previousSessionData[exercise.id] {
-            return prev.reps
-        }
-        if let prev = previousSessionDataByName[exercise.name.lowercased()] {
-            return prev.reps
-        }
-        if let prev = previousSessionDataByName[Self.normalizeExerciseName(exercise.name)] {
-            return prev.reps
-        }
-        return exercise.repRange.max
+        previousData(for: exercise)?.reps ?? exercise.repRange.max
     }
 
     // MARK: - Recovery Context
@@ -507,11 +534,23 @@ class TrainViewModel {
                 await biometrics.loadHistory(daysBack: 30)
             }
 
+            // HRV auto-periodization — 7-day trend analysis (Plews et al. 2024,
+            // Kiviniemi 2025). Runs concurrently with the readiness computation.
+            async let hrvPeriodization = HRVAutoPeriodizerEngine.compute()
+
+            // Cycle-aware phase detection — only runs for female users,
+            // returns .unknown (ignored by adjuster) otherwise.
+            async let cycleOverview = CycleAwareEngine.compute(sexRaw: appState.profile.sexRaw)
+
             // Baseline-relative readiness where enough history exists (same
             // engine as the dashboard); falls back to the absolute-threshold
             // score so day-one users still get an adjustment signal.
             let recovery = ReadinessEngine.compute(store: biometrics, context: context)?.score
                 ?? manager.computeRecoveryScore(sleepHours: sleepVal, hrvMs: hrvVal, restingHR: hrVal)
+
+            let hrvMod = await hrvPeriodization
+            let cycleResult = await cycleOverview
+            let cyclePhase: CycleAwareEngine.CyclePhase? = cycleResult.isAvailable ? cycleResult.currentPhase : nil
 
             let calendar = Calendar.current
             let pid = ActiveProfile.id
@@ -545,13 +584,49 @@ class TrainViewModel {
                     yesterdayTrimp: yesterdayTrimp,
                     chronicAvgDailyTrimp: chronicAvgTrimp,
                     restingHR: hrVal.map { Int($0) },
-                    isDeloadWeek: DeloadEngine.isDeloadActive
+                    isDeloadWeek: DeloadEngine.isDeloadActive,
+                    hrvPeriodization: hrvMod,
+                    cyclePhase: cyclePhase
                 )
+            self.hrvPeriodization = hrvMod
             let sampleAdjustment = RecoveryAdjuster.compute(
                 baseWeight: 20.0,
                 context: recoveryContext
             )
             self.currentAdjustment = sampleAdjustment.isAdjusted ? sampleAdjustment : nil
+
+            // Pre-workout glucose check for diabetic users with a CGM.
+            // Reads the most recent glucose sample (last 30 min) and warns
+            // if outside the safe exercise range.
+            if let profile = ProfileStore.current(context: context) {
+                let conditions = Set(profile.chronicConditionsRaw)
+                if conditions.contains("diabetes_t1") || conditions.contains("diabetes_t2") {
+                    let recentSamples = await GlucoseEngine.fetchGlucoseSamples(
+                        from: Date().addingTimeInterval(-30 * 60)
+                    )
+                    if let latest = recentSamples.last {
+                        if latest.value < 100 {
+                            self.preWorkoutGlucoseAlert = PreWorkoutGlucoseAlert(
+                                glucose: latest.value,
+                                level: .low,
+                                message: "Glucose \(Int(latest.value)) mg/dL — have a snack before training (ADA: <100 mg/dL requires carbs before exercise)"
+                            )
+                        } else if latest.value > 250 {
+                            self.preWorkoutGlucoseAlert = PreWorkoutGlucoseAlert(
+                                glucose: latest.value,
+                                level: .high,
+                                message: "Glucose \(Int(latest.value)) mg/dL — check for ketones before intense exercise (ADA: >250 mg/dL with ketones is a contraindication)"
+                            )
+                        } else {
+                            self.preWorkoutGlucoseAlert = PreWorkoutGlucoseAlert(
+                                glucose: latest.value,
+                                level: .optimal,
+                                message: "Glucose \(Int(latest.value)) mg/dL — good to train"
+                            )
+                        }
+                    }
+                }
+            }
 
             buildExerciseStates(context: context)
         }
@@ -579,7 +654,6 @@ class TrainViewModel {
 
             let avgWeight = completedSets.map { $0.weightKg }.reduce(0, +) / Double(completedSets.count)
             let avgReps = completedSets.map { $0.reps }.reduce(0, +) / completedSets.count
-            let totalVolume = completedSets.reduce(0.0) { $0 + ($1.weightKg * Double($1.reps)) }
 
             // Try matching by ID first, then by exact name, then by
             // normalized name — covers cases where the program was rebuilt
@@ -589,6 +663,10 @@ class TrainViewModel {
             let definition = effectiveExercises.first { $0.id == exerciseLog.exerciseId }
                 ?? effectiveExercises.first { $0.name.lowercased() == exerciseLog.exerciseName.lowercased() }
                 ?? effectiveExercises.first { Self.normalizeExerciseName($0.name) == Self.normalizeExerciseName(exerciseLog.exerciseName) }
+
+            // Apply dual-weight multiplier for bilateral dumbbell/kettlebell exercises
+            let mult = definition?.volumeWeightMultiplier ?? 1.0
+            let totalVolume = completedSets.reduce(0.0) { $0 + ($1.weightKg * mult * Double($1.reps)) }
             var nextWeight = avgWeight
             var allHit = false
             if let def = definition {
@@ -731,7 +809,11 @@ class TrainViewModel {
 
                 let avgWeight = completedSets.map { $0.weightKg }.reduce(0, +) / Double(completedSets.count)
                 let avgReps = completedSets.map { $0.reps }.reduce(0, +) / completedSets.count
-                let totalVolume = completedSets.reduce(0.0) { $0 + ($1.weightKg * Double($1.reps)) }
+                // Apply dual-weight multiplier for bilateral dumbbell/kettlebell
+                let matchedDef = effectiveExercises.first { $0.name.lowercased() == key }
+                    ?? effectiveExercises.first { Self.normalizeExerciseName($0.name) == Self.normalizeExerciseName(exerciseLog.exerciseName) }
+                let mult = matchedDef?.volumeWeightMultiplier ?? 1.0
+                let totalVolume = completedSets.reduce(0.0) { $0 + ($1.weightKg * mult * Double($1.reps)) }
 
                 // Don't try to compute progression here — just use the last-used weight.
                 // Better to suggest 25kg (actual last weight) than 6.25kg (template fallback).
@@ -820,6 +902,7 @@ class TrainViewModel {
         guard var state = exerciseStates[exerciseId] else { return }
         let wasCompleted = state.sets[setIndex].isCompleted
         state.sets[setIndex].isCompleted.toggle()
+        focusedExerciseId = exerciseId
 
         if !wasCompleted && state.sets[setIndex].isCompleted {
             let hr = HRSampleBuffer.shared.snapshotAndReset()
@@ -867,6 +950,7 @@ class TrainViewModel {
             if var nextState = exerciseStates[nextId], !nextState.allSetsCompleted {
                 nextState.isExpanded = true
                 exerciseStates[nextId] = nextState
+                focusedExerciseId = nextId
                 break
             }
         }
@@ -910,14 +994,20 @@ class TrainViewModel {
         guard var state = exerciseStates[exerciseId] else { return }
         state.sets[setIndex].weightKg = weight
         exerciseStates[exerciseId] = state
+        // The user is actively entering values for this exercise —
+        // update Live Activity / watch so they see it on the lock screen.
+        focusedExerciseId = exerciseId
         schedulePersist()
+        debounceLiveActivityPush()
     }
 
     func updateReps(exerciseId: String, setIndex: Int, reps: Int) {
         guard var state = exerciseStates[exerciseId] else { return }
         state.sets[setIndex].reps = reps
         exerciseStates[exerciseId] = state
+        focusedExerciseId = exerciseId
         schedulePersist()
+        debounceLiveActivityPush()
     }
 
     func updateRPE(exerciseId: String, setIndex: Int, rpe: Int) {
@@ -1029,7 +1119,7 @@ class TrainViewModel {
             let prevSet = state.sets[setIndex - 1]
             state.sets[setIndex].weightKg = prevSet.weightKg
             state.sets[setIndex].reps = prevSet.reps
-        } else if let prev = previousSessionData[exerciseId] {
+        } else if let prev = previousData(for: exercise) {
             state.sets[setIndex].weightKg = prev.weightKg
             state.sets[setIndex].reps = prev.reps
         }
@@ -1081,7 +1171,7 @@ class TrainViewModel {
     func prefillAllFromPrevious() {
         for exercise in effectiveExercises {
             guard var state = exerciseStates[exercise.id],
-                  let prev = previousSessionData[exercise.id] else { continue }
+                  let prev = previousData(for: exercise) else { continue }
             for i in state.sets.indices where !state.sets[i].isCompleted {
                 state.sets[i].weightKg = prev.weightKg
                 state.sets[i].reps = prev.reps
@@ -1111,6 +1201,12 @@ class TrainViewModel {
         guard var state = exerciseStates[exerciseId] else { return }
         state.isExpanded.toggle()
         exerciseStates[exerciseId] = state
+        // When expanding a card, the user is declaring "I'm working on this
+        // exercise now." Update the Live Activity / watch to reflect it.
+        if state.isExpanded {
+            focusedExerciseId = exerciseId
+            pushProgressToAppState()
+        }
     }
 
     // MARK: - Reorder Exercises (live session)
@@ -1205,8 +1301,45 @@ class TrainViewModel {
 
     // MARK: - Watch session control
 
-    /// First exercise (in order) with an incomplete set, and that set's index.
+    /// Debounced Live Activity push timer — weight/rep edits fire rapidly
+    /// (every keystroke). We batch them into a single push every 0.5s so
+    /// ActivityKit doesn't throttle us (budget: ~10 updates/hour in background).
+    private var liveActivityDebounceTask: Task<Void, Never>? = nil
+
+    private func debounceLiveActivityPush() {
+        liveActivityDebounceTask?.cancel()
+        liveActivityDebounceTask = Task {
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            pushWatchSnapshot()
+        }
+    }
+
+    /// First exercise (in order) with an incomplete set — used by the watch
+    /// when logging a set (the watch doesn't know which card is expanded).
     private func currentIncompleteSet() -> (exerciseId: String, setIndex: Int)? {
+        for exercise in effectiveExercises {
+            guard let state = exerciseStates[exercise.id] else { continue }
+            if let idx = state.sets.firstIndex(where: { !$0.isCompleted }) {
+                return (exercise.id, idx)
+            }
+        }
+        return nil
+    }
+
+    /// The exercise the user is **actively working on** — determined by:
+    /// 1. The explicitly focused exercise (expanded card / last value edit)
+    /// 2. Fallback: first exercise with an incomplete set (original behavior)
+    ///
+    /// Returns the exercise ID and the index of its first incomplete set.
+    private func activeExerciseForDisplay() -> (exerciseId: String, setIndex: Int)? {
+        // Prefer the focused exercise if it still has incomplete sets
+        if let focusedId = focusedExerciseId,
+           let state = exerciseStates[focusedId],
+           let idx = state.sets.firstIndex(where: { !$0.isCompleted }) {
+            return (focusedId, idx)
+        }
+        // Fallback: first exercise in order with an incomplete set
         for exercise in effectiveExercises {
             guard let state = exerciseStates[exercise.id] else { continue }
             if let idx = state.sets.firstIndex(where: { !$0.isCompleted }) {
@@ -1222,7 +1355,7 @@ class TrainViewModel {
     /// pushProgressToAppState), so the first push can't see the rest state yet.
     func pushWatchSnapshot() {
         guard isSessionActive,
-              let current = currentIncompleteSet(),
+              let current = activeExerciseForDisplay(),
               let exercise = effectiveExercises.first(where: { $0.id == current.exerciseId }),
               let state = exerciseStates[current.exerciseId] else {
             WatchSessionManager.shared.pushSessionSnapshot(nil)
@@ -1255,7 +1388,10 @@ class TrainViewModel {
             setLabel: setLabel,
             exerciseProgress: exerciseProgress,
             restEndDate: restEndDate,
-            restTotalSeconds: restTotalSeconds
+            restTotalSeconds: restTotalSeconds,
+            weightKg: set.weightKg,
+            reps: set.reps,
+            measurementRaw: exercise.measurement.rawValue
         )
         if LiveActivityManager.shared.isRunning {
             LiveActivityManager.shared.update(activityState)

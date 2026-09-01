@@ -323,6 +323,8 @@ struct HealthJourneyView: View {
                 )
                 .padding(.horizontal, 20)
 
+                liveInsightFeedback(for: "conditions")
+
                 skipOrContinue { step = 2 }
 
                 Spacer(minLength: 40)
@@ -425,6 +427,8 @@ struct HealthJourneyView: View {
                 }
                 .padding(.horizontal, 20)
 
+                liveInsightFeedback(for: "allergies")
+
                 skipOrContinue { step = 4 }
 
                 Spacer(minLength: 40)
@@ -456,6 +460,8 @@ struct HealthJourneyView: View {
                     icon: "lock.shield.fill",
                     text: "Medication names stay on-device only. They're used to match known interaction rules — never sent to external APIs."
                 )
+
+                liveInsightFeedback(for: "medications")
 
                 skipOrContinue { step = 5 }
 
@@ -652,6 +658,8 @@ struct HealthJourneyView: View {
                 )
                 .padding(.horizontal, 20)
 
+                liveInsightFeedback(for: "sleep")
+
                 skipOrContinue { step = 8 }
 
                 Spacer(minLength: 40)
@@ -693,6 +701,8 @@ struct HealthJourneyView: View {
                     icon: "heart.fill",
                     text: "Paya is not a therapist. If you're in crisis, please reach out to a mental health professional or call 988 (Suicide & Crisis Lifeline)."
                 )
+
+                liveInsightFeedback(for: "mental")
 
                 skipOrContinue { step = 9 }
 
@@ -819,6 +829,8 @@ struct HealthJourneyView: View {
                     )
                 }
                 .padding(.horizontal, 20)
+
+                liveInsightFeedback(for: "exercise")
 
                 skipOrContinue {
                     saveAllToProfile()  // Persist before step 11 so previewReport reads fresh data
@@ -1268,6 +1280,116 @@ struct HealthJourneyView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundColor(Pulse.textTertiary)
             }
+        }
+    }
+
+    // MARK: - Real-Time Feedback
+    //
+    // Shows a live preview of how many contraindication rules fire based on
+    // the user's current selections. This is the "real-time feedback during
+    // each screen" enhancement — the user sees the engine responding to their
+    // choices before they even finish the journey.
+
+    private var livePreview: HealthContraindicationEngine.QuickPreview {
+        HealthContraindicationEngine.quickPreview(
+            conditions: selectedConditions,
+            genetics: selectedGenetics,
+            allergies: selectedAllergies,
+            medications: medications,
+            supplements: mergedSupplements,
+            sleepDisorders: sleepDisorders,
+            mentalConditions: mentalConditions,
+            digestiveIssues: digestiveIssues,
+            surgeries: pastSurgeries,
+            mobilityLimits: mobilityLimits,
+            profile: profile
+        )
+    }
+
+    @ViewBuilder
+    private func liveInsightFeedback(for stepKey: String) -> some View {
+        let preview = livePreview
+
+        if !preview.isEmpty {
+            let active = insightPairs(for: stepKey, preview: preview).filter { $0.1 > 0 }
+
+            if !active.isEmpty {
+                HStack(spacing: 10) {
+                    Image(systemName: "sparkles")
+                        .font(.caption)
+                        .foregroundColor(Pulse.ai)
+
+                    Text("Activated:")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(Pulse.textTertiary)
+
+                    ForEach(active, id: \.2) { icon, count, label, color in
+                        HStack(spacing: 3) {
+                            Image(systemName: icon)
+                                .font(.system(size: 9))
+                                .foregroundColor(color)
+                            Text("\(count) \(label)")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(Pulse.textSecondary)
+                        }
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Pulse.ai.opacity(0.06))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Pulse.ai.opacity(0.15), lineWidth: 0.5)
+                        )
+                )
+                .padding(.horizontal, 20)
+                .animation(.spring(response: 0.3), value: preview.totalCount)
+            }
+        }
+    }
+
+    private func insightPairs(
+        for stepKey: String,
+        preview: HealthContraindicationEngine.QuickPreview
+    ) -> [(String, Int, String, Color)] {
+        switch stepKey {
+        case "conditions":
+            return [
+                ("fork.knife", preview.nutritionCount, "nutrition", Pulse.nutrition),
+                ("figure.run", preview.exerciseCount, "exercise", Pulse.energy),
+                ("pills.fill", preview.supplementCount, "supplement", Color(hex: "FFB547")),
+            ]
+        case "medications":
+            return [
+                ("pills.fill", preview.supplementCount, "supplement", Color(hex: "FFB547")),
+                ("figure.run", preview.exerciseCount, "exercise", Pulse.energy),
+                ("fork.knife", preview.nutritionCount, "nutrition", Pulse.nutrition),
+            ]
+        case "allergies":
+            return [
+                ("fork.knife", preview.nutritionCount, "nutrition", Pulse.nutrition),
+                ("pills.fill", preview.supplementCount, "supplement", Color(hex: "FFB547")),
+            ]
+        case "sleep":
+            return [
+                ("moon.fill", preview.sleepCount, "sleep", Pulse.recovery),
+                ("fork.knife", preview.nutritionCount, "nutrition", Pulse.nutrition),
+            ]
+        case "mental":
+            return [
+                ("brain.head.profile", preview.mentalHealthCount, "wellbeing", Pulse.ai),
+                ("figure.run", preview.exerciseCount, "exercise", Pulse.energy),
+            ]
+        case "exercise":
+            return [
+                ("figure.run", preview.exerciseCount, "exercise", Pulse.energy),
+            ]
+        default:
+            return []
         }
     }
 }

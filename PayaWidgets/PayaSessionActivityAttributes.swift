@@ -13,6 +13,14 @@ struct PayaSessionActivityAttributes: ActivityAttributes {
         var exerciseProgress: String
         var restEndDate: Date?
         var restTotalSeconds: Int?
+        /// Current set's weight — shown in the notification so the user can
+        /// verify what they entered without unlocking.
+        var weightKg: Double?
+        /// Current set's rep count.
+        var reps: Int?
+        /// Exercise measurement type (e.g. "weightedReps", "bodyweightReps",
+        /// "timed") — determines whether to show the weight field.
+        var measurementRaw: String?
     }
 
     var sessionLabel: String

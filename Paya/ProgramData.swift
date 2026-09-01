@@ -101,6 +101,32 @@ struct ExerciseDefinition: Identifiable {
     var alternatives: [String] = []
 
     var measurement: ExerciseMeasurement { .infer(name: name, startWeightKg: startWeightKg) }
+    var equipmentTag: ExerciseEquipmentTag { ExerciseEquipmentTag.classify(name) }
+
+    /// True when the exercise uses two separate weights (one per hand),
+    /// so the user enters the per-hand weight and the actual load per
+    /// rep is 2×. Covers bilateral dumbbell and kettlebell movements
+    /// where both hands hold independent implements at the same time.
+    ///
+    /// Single-limb exercises (e.g. "DB Single-Arm Row", "one-arm") are
+    /// excluded — the user works one side at a time, so the entered
+    /// weight IS the actual load for that set.
+    var isDualWeighted: Bool {
+        let tag = equipmentTag
+        guard tag == .dumbbell || tag == .kettlebell else { return false }
+        let n = name.lowercased()
+        let singleArmKeywords = [
+            "single-arm", "single arm", "one-arm", "one arm",
+            "single-leg", "single leg", "one-leg", "one leg",
+            "unilateral", "concentration",
+        ]
+        return !singleArmKeywords.contains(where: { n.contains($0) })
+    }
+
+    /// Multiplier to convert user-entered weight to actual load per rep.
+    /// 2 for bilateral dumbbell/kettlebell exercises (user enters per-hand),
+    /// 1 for everything else.
+    var volumeWeightMultiplier: Double { isDualWeighted ? 2.0 : 1.0 }
 }
 
 // MARK: - Meal Template
