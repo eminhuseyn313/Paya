@@ -1,9 +1,14 @@
 import SwiftUI
+import AuthenticationServices
+import CryptoKit
 
 // MARK: - Auth Gate View
 //
 // Full-screen sign-in / sign-up screen shown before the user can access
 // the app. This is the first thing a new user sees after install.
+//
+// Apple Review Guideline 4.8: Sign In with Apple is required whenever
+// an app offers any form of account creation or third-party auth.
 
 struct AuthGateView: View {
 
@@ -15,6 +20,7 @@ struct AuthGateView: View {
     @State private var errorMessage: String?
     @State private var showCheckEmail = false
     @State private var showResetSent = false
+    @State private var currentNonce: String?
 
     var body: some View {
         ZStack {
@@ -29,7 +35,6 @@ struct AuthGateView: View {
                 formView
             }
         }
-        .preferredColorScheme(.dark)
         .onChange(of: client.isSignedIn) { _, signedIn in
             // Deep link callback completed — view will disappear
             // as ContentView re-evaluates its body.
@@ -58,6 +63,34 @@ struct AuthGateView: View {
                         .font(.system(size: 17, weight: .medium))
                         .foregroundColor(.secondary)
                 }
+
+                // MARK: Sign In with Apple (§ 4.8)
+                SignInWithAppleButton(.continue) { request in
+                    let nonce = randomNonceString()
+                    currentNonce = nonce
+                    request.requestedScopes = [.email, .fullName]
+                    request.nonce = sha256(nonce)
+                } onCompletion: { result in
+                    handleAppleSignIn(result)
+                }
+                .signInWithAppleButtonStyle(.white)
+                .frame(height: 52)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .padding(.horizontal, 32)
+
+                // Divider
+                HStack(spacing: 12) {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.12))
+                        .frame(height: 1)
+                    Text("or")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Rectangle()
+                        .fill(Color.white.opacity(0.12))
+                        .frame(height: 1)
+                }
+                .padding(.horizontal, 40)
 
                 // Form fields
                 VStack(spacing: 14) {
@@ -373,5 +406,72 @@ struct AuthGateView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    // MARK: - Sign In with Apple
+
+    private func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                  let identityTokenData = appleIDCredential.identityToken,
+                  let idToken = String(data: identityTokenData, encoding: .utf8),
+                  let nonce = currentNonce else {
+                errorMessage = "Could not process Apple credentials"
+                return
+            }
+
+            isLoading = true
+            errorMessage = nil
+
+            Task {
+                do {
+                    try await client.signInWithApple(
+                        idToken: idToken,
+                        nonce: nonce,
+                        fullName: appleIDCredential.fullName
+                    )
+                } catch {
+                    errorMessage = error.localizedDescription
+                }
+                isLoading = false
+            }
+
+        case .failure(let error):
+            // ASAuthorizationError.canceled means user dismissed the
+            // sheet — don't show an error for that.
+            if (error as? ASAuthorizationError)?.code == .canceled { return }
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Generate a random nonce string for Apple Sign In security.
+    /// The nonce binds the Apple identity token to this specific
+    /// sign-in attempt, preventing replay attacks.
+    private func randomNonceString(length: Int = 32) -> String {
+        let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+        while remainingLength > 0 {
+            var randoms = [UInt8](repeating: 0, count: 16)
+            _ = SecRandomCopyBytes(kSecRandomDefault, randoms.count, &randoms)
+            for random in randoms {
+                guard remainingLength > 0 else { break }
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remainingLength -= 1
+                }
+            }
+        }
+        return result
+    }
+
+    /// SHA256 hash of the nonce, sent to Apple in the sign-in request.
+    /// Apple returns the original nonce inside the identity token's claims,
+    /// allowing Supabase to verify the token wasn't replayed.
+    private func sha256(_ input: String) -> String {
+        let data = Data(input.utf8)
+        let hash = SHA256.hash(data: data)
+        return hash.map { String(format: "%02x", $0) }.joined()
     }
 }

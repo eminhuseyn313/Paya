@@ -167,7 +167,6 @@ struct GlucoseDetailView: View {
                 }
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
-            .preferredColorScheme(.dark)
         }
         .presentationDetents([.large])
     }

@@ -69,6 +69,7 @@ class DashboardViewModel {
 
     // Flare risk
     var flareAssessment: FlareRiskAssessment? = nil
+    var flareForecast: FlareForecastEngine.Forecast? = nil
 
     enum WeightSource {
         case manual
@@ -247,6 +248,18 @@ class DashboardViewModel {
         let healthLogs = (try? context.fetch(hDescriptor)) ?? []
 
         let calendar = Calendar.current
+        let chronicWindowStart = calendar.date(byAdding: .day, value: -28, to: .now) ?? .now
+        let sessionDescriptor = FetchDescriptor<TrainingSession>(
+            predicate: #Predicate<TrainingSession> { $0.profileId == pid && $0.date >= chronicWindowStart }
+        )
+        let recentSessions = (try? context.fetch(sessionDescriptor)) ?? []
+        let medications = (try? context.fetch(FetchDescriptor<Medication>(
+            predicate: #Predicate<Medication> { $0.profileId == pid }
+        ))) ?? []
+        let doseLogs = (try? context.fetch(FetchDescriptor<MedicationDoseLog>(
+            predicate: #Predicate<MedicationDoseLog> { $0.profileId == pid }
+        ))) ?? []
+
         let startOfDay = calendar.startOfDay(for: .now)
         let yesterdayStart = calendar.date(byAdding: .day, value: -1, to: startOfDay) ?? startOfDay
         let envDescriptor = FetchDescriptor<EnvironmentalReading>(
@@ -262,12 +275,32 @@ class DashboardViewModel {
         }()
         let noiseByDay = await HealthKitManager.shared.fetchDailyEnvironmentalNoise(daysBack: 1)
         let todaysNoise = noiseByDay[startOfDay]
+        let todaysAQI = envReadings.last { $0.date >= startOfDay }?.airQualityIndex
+        // PM2.5/pollen aren't persisted to EnvironmentalReading (that model
+        // only stores the composite AQI) — fetched fresh here, same
+        // best-effort/nil-on-failure pattern as the AQI fetch above.
+        async let pm25 = WeatherService.shared.currentPM25()
+        async let pollen = WeatherService.shared.currentPollen()
+        let (todaysPM25, todaysPollen) = await (pm25, pollen)
 
-        flareAssessment = FlareDetectionEngine.shared.assess(
+        let assessment = FlareDetectionEngine.shared.assess(
             biometrics: store,
             healthLogs: healthLogs,
             pressureDropKPa: pressureDrop,
-            todaysNoiseDb: todaysNoise
+            todaysNoiseDb: todaysNoise,
+            recentSessions: recentSessions,
+            medications: medications,
+            medicationDoseLogs: doseLogs,
+            todaysAQI: todaysAQI,
+            todaysPM25: todaysPM25,
+            todaysPollen: todaysPollen
+        )
+        flareAssessment = assessment
+        let pressureForecast = await WeatherService.shared.pressureForecast()
+        flareForecast = FlareForecastEngine.forecast(
+            biometrics: store,
+            todayAssessment: assessment,
+            pressureForecastKPa: pressureForecast
         )
     }
 

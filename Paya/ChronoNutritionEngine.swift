@@ -46,6 +46,7 @@ enum ChronoNutritionEngine {
             case deepSleep        = "Deep sleep impact"
             case hrvRecovery      = "HRV recovery"
             case sleepOnset       = "Sleep duration"
+            case caffeineTiming   = "Caffeine timing"
         }
 
         enum MetricTone {
@@ -152,7 +153,82 @@ enum ChronoNutritionEngine {
         if let i = hrvRecoveryAnalysis(profiles) { insights.append(i) }
         if let i = sleepDurationAnalysis(profiles) { insights.append(i) }
 
+        // Caffeine timing — a cross-domain correlation nothing else in the
+        // app computes: WaterStore already tracks per-drink caffeine
+        // content (added earlier this session for the liquid/drink-type
+        // rework), and this engine already correlates timing against
+        // same-night sleep — the missing link was joining the two. Built
+        // from its own day-profile pass over WaterEventLog rather than
+        // folding into the meal-based `profiles` above, since caffeine
+        // timing is independent of meal timing and a day can have one
+        // without the other.
+        if let i = await caffeineTimingAnalysis(context: context, bio: bio) { insights.append(i) }
+
         return insights
+    }
+
+    /// Compare sleep duration on nights following a "late" caffeine drink
+    /// (last caffeinated drink at/after 2 PM) vs. no caffeine after 2 PM.
+    /// The 2 PM cutoff follows Drake et al. 2013 (J Clin Sleep Med):
+    /// caffeine taken even 6 hours before bedtime measurably reduced total
+    /// sleep time relative to placebo, consistent with caffeine's ~5-6h
+    /// half-life still leaving meaningful levels active at a typical
+    /// bedtime — for a ~10-11 PM bedtime, that puts the "risk window"
+    /// starting around early-to-mid afternoon, not just evening.
+    private static func caffeineTimingAnalysis(context: ModelContext, bio: BiometricStore) async -> Insight? {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let startDate = calendar.date(byAdding: .day, value: -60, to: now) else { return nil }
+
+        let pid = ActiveProfile.id
+        let descriptor = FetchDescriptor<WaterEventLog>(
+            predicate: #Predicate<WaterEventLog> { $0.profileId == pid && $0.date >= startDate }
+        )
+        guard let events = try? context.fetch(descriptor), !events.isEmpty else { return nil }
+
+        var bioByDate: [String: DailySummary] = [:]
+        for day in bio.history {
+            bioByDate[calendar.startOfDay(for: day.date).formatted(.iso8601.year().month().day())] = day
+        }
+
+        // Group caffeinated drinks by day, find each day's latest one.
+        var latestCaffeineHourByDay: [String: Double] = [:]
+        for event in events {
+            guard event.drinkType.caffeineMgPer250ml > 0 else { continue }
+            let dayKey = calendar.startOfDay(for: event.date).formatted(.iso8601.year().month().day())
+            let comps = calendar.dateComponents([.hour, .minute], from: event.date)
+            guard let h = comps.hour, let m = comps.minute else { continue }
+            let hour = Double(h) + Double(m) / 60.0
+            latestCaffeineHourByDay[dayKey] = max(latestCaffeineHourByDay[dayKey] ?? 0, hour)
+        }
+        guard !latestCaffeineHourByDay.isEmpty else { return nil }
+
+        var lateSleep: [Double] = []
+        var earlySleep: [Double] = []
+        for (dayKey, latestHour) in latestCaffeineHourByDay {
+            guard let sleep = bioByDate[dayKey]?.sleepHours else { continue }
+            if latestHour >= 14 { lateSleep.append(sleep) } else { earlySleep.append(sleep) }
+        }
+
+        guard lateSleep.count >= 4, earlySleep.count >= 4 else { return nil }
+
+        let lateAvg = lateSleep.reduce(0, +) / Double(lateSleep.count)
+        let earlyAvg = earlySleep.reduce(0, +) / Double(earlySleep.count)
+        let diffHours = earlyAvg - lateAvg
+        guard diffHours >= 0.25 else { return nil } // not enough of a gap to be worth surfacing
+
+        let totalDays = lateSleep.count + earlySleep.count
+        let confidence: Insight.Confidence = totalDays >= 20 ? .strong : totalDays >= 10 ? .moderate : .emerging
+
+        return Insight(
+            category: .caffeineTiming,
+            headline: "Afternoon caffeine is cutting into your sleep",
+            detail: "On days with a caffeinated drink at or after 2 PM, you average \(String(format: "%.1f", lateAvg))h of sleep that night vs. \(String(format: "%.1f", earlyAvg))h on days without — based on \(lateSleep.count) late-caffeine nights and \(earlySleep.count) early/no-caffeine nights.",
+            metric: String(format: "−%.1fh sleep", diffHours),
+            metricColor: .negative,
+            sampleDays: totalDays,
+            confidence: confidence
+        )
     }
 
     // MARK: - Individual Analyses

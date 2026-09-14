@@ -2,16 +2,21 @@ import SwiftUI
 import SwiftData
 import StoreKit
 import UniformTypeIdentifiers
+import CoreLocation
 
 struct SettingsView: View {
 
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
 
+    private var airQualityMonitor = AirQualityLocationMonitor.shared
+
     @State private var showAPIKeyField = false
     @State private var apiKeyInput = ""
     @State private var showGeminiAPIKeyField = false
     @State private var geminiAPIKeyInput = ""
+    @State private var showUSDAAPIKeyField = false
+    @State private var usdaAPIKeyInput = ""
     @State private var showExportConfirm = false
     @State private var exportedCSV = ""
     @State private var showCSVSheet = false
@@ -232,10 +237,21 @@ struct SettingsView: View {
                         showAPIKeyField: $showGeminiAPIKeyField,
                         apiKeyInput: $geminiAPIKeyInput
                     )
+
+                    APIKeyRow(
+                        title: "USDA Food Database Key",
+                        placeholder: "DEMO_KEY or your own",
+                        maskPrefix: "",
+                        iconColor: Color(hex: "059669"),
+                        currentValue: { appState.usdaAPIKey },
+                        save: { appState.usdaAPIKey = $0 },
+                        showAPIKeyField: $showUSDAAPIKeyField,
+                        apiKeyInput: $usdaAPIKeyInput
+                    )
                 } header: {
                     SectionHeader(title: "AI & Privacy", icon: "sparkles")
                 } footer: {
-                    Text("API keys stored in iOS Keychain. Claude: console.anthropic.com · Gemini (free): aistudio.google.com")
+                    Text("API keys stored in iOS Keychain. Claude: console.anthropic.com · Gemini (free): aistudio.google.com · USDA (free, adds government-verified whole-food data to search): api.data.gov/signup")
                         .font(.caption)
                 }
 
@@ -266,6 +282,34 @@ struct SettingsView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                    }
+
+                    HStack {
+                        SettingsIcon(icon: "aqi.medium", color: Color(hex: "059669"))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Air Quality Alerts")
+                            Text("Notify when you move somewhere with poor air quality — works even with the app closed")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                        Toggle("", isOn: Binding(
+                            get: { airQualityMonitor.isMonitoring },
+                            set: { newValue in
+                                if newValue {
+                                    airQualityMonitor.enable()
+                                } else {
+                                    airQualityMonitor.disable()
+                                }
+                            }
+                        ))
+                        .labelsHidden()
+                    }
+                    if airQualityMonitor.isMonitoring && airQualityMonitor.authorizationStatus != .authorizedAlways && airQualityMonitor.authorizationStatus != .notDetermined {
+                        Text("Location access is set to less than \"Always\" — open Settings app → Paya → Location to allow alerts while the app is closed.")
+                            .font(.caption2)
+                            .foregroundColor(Pulse.warning)
                     }
                                 } header: {
                                     SectionHeader(title: "Notifications", icon: "bell.fill")

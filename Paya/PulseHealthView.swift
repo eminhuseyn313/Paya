@@ -37,6 +37,9 @@ struct PulseHealthView: View {
     @State private var showReadinessDetail = false
     @State private var hasAppeared = false
     @State private var readinessReport: ReadinessEngine.Report? = nil
+    @State private var narrative: DailyNarrativeEngine.Narrative? = nil
+    @State private var narrativeLoading = true
+    @State private var showTrendJournal = false
 
     // Wellness composite score — integrates biometrics when available.
     //
@@ -152,7 +155,6 @@ struct PulseHealthView: View {
                 .scrollDismissesKeyboard(.interactively)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -174,6 +176,7 @@ struct PulseHealthView: View {
                     await store.loadHistory(daysBack: 30)
                 }
                 readinessReport = ReadinessEngine.compute(store: store, context: modelContext)
+                await loadNarrative(store: store)
             }
             withAnimation(.easeOut(duration: 0.6).delay(0.1)) { hasAppeared = true }
         }
@@ -184,6 +187,7 @@ struct PulseHealthView: View {
                 readinessReport = ReadinessEngine.compute(store: BiometricStore.shared, context: modelContext)
             }
         }
+        .sheet(isPresented: $showTrendJournal) { TrendJournalView() }
         .sheet(isPresented: $showHealthActivities) { HealthActivitiesView() }
         .sheet(isPresented: $showSymptomDiet) {
             if let profile = ProfileStore.current(context: modelContext) {
@@ -631,10 +635,78 @@ struct PulseHealthView: View {
         }
     }
 
+    // MARK: - Narrative Loading
+
+    /// Synthesizes the signal engines already used individually below into
+    /// one ranked narrative — see DailyNarrativeEngine. Runs after the
+    /// screen's own biometric load so BiometricStore is already warm (no
+    /// duplicate HealthKit fetch), and after readinessReport is set so this
+    /// doesn't race it for the same store.
+    private func loadNarrative(store: BiometricStore) async {
+        let pid = ActiveProfile.id
+        let hDescriptor = FetchDescriptor<HealthLog>(
+            predicate: #Predicate<HealthLog> { $0.profileId == pid },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        let healthLogs = (try? modelContext.fetch(hDescriptor)) ?? []
+        let chronicWindowStart = Calendar.current.date(byAdding: .day, value: -28, to: .now) ?? .now
+        let sessionDescriptor = FetchDescriptor<TrainingSession>(
+            predicate: #Predicate<TrainingSession> { $0.profileId == pid && $0.date >= chronicWindowStart }
+        )
+        let recentSessions = (try? modelContext.fetch(sessionDescriptor)) ?? []
+        let medications = (try? modelContext.fetch(FetchDescriptor<Medication>(
+            predicate: #Predicate<Medication> { $0.profileId == pid }
+        ))) ?? []
+        let doseLogs = (try? modelContext.fetch(FetchDescriptor<MedicationDoseLog>(
+            predicate: #Predicate<MedicationDoseLog> { $0.profileId == pid }
+        ))) ?? []
+        let assessment = appState.flareEngineEnabled
+            ? FlareDetectionEngine.shared.assess(biometrics: store, healthLogs: healthLogs, recentSessions: recentSessions, medications: medications, medicationDoseLogs: doseLogs)
+            : nil
+        let forecast = assessment.flatMap { FlareForecastEngine.forecast(biometrics: store, todayAssessment: $0) }
+        let wellness = await WellnessCorrelationEngine.analyzeToday(context: modelContext)
+
+        narrative = await DailyNarrativeEngine.build(
+            context: modelContext,
+            sexRaw: appState.profile.sexRaw,
+            flareAssessment: assessment,
+            flareForecast: forecast,
+            wellnessInsights: wellness
+        )
+        narrativeLoading = false
+    }
+
     // MARK: - Insights Section
 
     @ViewBuilder
     private var insightsSection: some View {
+        // Synthesis layer — the one thing worth reading first, drawn from
+        // every signal engine below instead of scrolling through each
+        // separately. See DailyNarrativeEngine.
+        // Proactive, not buried in Settings — surfaces only when the data
+        // itself suggests it's worth having ready for an appointment.
+        CareTeamPromptCard()
+
+        NarrativeCard(narrative: narrative, isLoading: narrativeLoading)
+
+        Button { showTrendJournal = true } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "book.pages")
+                    .font(.caption)
+                Text("View trend journal")
+                    .font(.system(size: 12, weight: .semibold))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 10, weight: .bold))
+            }
+            .foregroundColor(Pulse.ai)
+            .padding(.horizontal, 2)
+        }
+        .buttonStyle(.plain)
+
+        // Closed-loop tracking — did what you tried actually work.
+        ExperimentsCard()
+
         // AI diet plan — symptom-driven anti-inflammatory guidance
         if let profile = ProfileStore.current(context: modelContext) {
             SymptomDietCard(profile: profile, onOpen: { showSymptomDiet = true })

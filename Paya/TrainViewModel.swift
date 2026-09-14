@@ -370,8 +370,9 @@ class TrainViewModel {
         )
 
         effectiveExercises.append(definition)
+        let addedRepCount = suggestedReps(for: definition)
         let sets = (1...definition.sets).map { i in
-            SetState(setNumber: i, weightKg: resolvedStartWeight, reps: definition.repRange.min)
+            SetState(setNumber: i, weightKg: resolvedStartWeight, reps: addedRepCount)
         }
         exerciseStates[newId] = ExerciseState(
             id: newId,
@@ -452,8 +453,9 @@ class TrainViewModel {
         )
         effectiveExercises[idx] = updated
 
+        let swappedRepCount = suggestedReps(for: updated)
         let sets = (1...updated.sets).map { i in
-            SetState(setNumber: i, weightKg: newStartWeight, reps: updated.repRange.min)
+            SetState(setNumber: i, weightKg: newStartWeight, reps: swappedRepCount)
         }
         exerciseStates[exerciseId] = ExerciseState(
             id: exerciseId,
@@ -489,7 +491,8 @@ class TrainViewModel {
         let baseWeight = previousData(for: exercise)?.weightKg ?? exercise.startWeightKg
         let adjustment = RecoveryAdjuster.compute(
             baseWeight: baseWeight,
-            context: recoveryContext
+            context: recoveryContext,
+            isAssisted: AssistedExerciseDetector.isAssisted(name: exercise.name)
         )
         return adjustment.adjustedWeight
     }
@@ -498,8 +501,32 @@ class TrainViewModel {
     /// lookup priority (ID → exact name → normalized name → template default).
     /// Without this, reps always reset to repRange.max and the user's actual
     /// rep count from last session is lost.
+    /// Default reps when there's no previous-session data to carry forward
+    /// at all — 12 across every exercise type, a fixed policy rather than
+    /// each exercise's own repRange.max (which varied 10/12/15/20 and made
+    /// "why does this one start at 10 and that one at 15" feel arbitrary).
+    /// Previous-session data always wins over this when it exists — this
+    /// is only the true first-time-ever floor.
+    static let defaultReps = 12
+
     func suggestedReps(for exercise: ExerciseDefinition) -> Int {
-        previousData(for: exercise)?.reps ?? exercise.repRange.max
+        previousData(for: exercise)?.reps ?? Self.defaultReps
+    }
+
+    /// Whether to show the weight input for this exercise. Normally just
+    /// `exercise.measurement.showsWeightField`, which infers off the
+    /// exercise's static template `startWeightKg` (0 for anything
+    /// pool-tagged as bodyweight, like most pull-up/dip variants) — but a
+    /// user who adds real weight to a nominally-bodyweight movement
+    /// (weighted pull-ups, a weighted vest) has real logged weight in
+    /// their history that the static template default can't see. Reported
+    /// symptom this fixes: "previous data exists but no offered kg" — the
+    /// weight field was hidden by the template default even though real
+    /// weighted history existed for that exact exercise. Only ever ADDS
+    /// the field when real history says to; never hides one the static
+    /// inference would otherwise show.
+    func showsWeightField(for exercise: ExerciseDefinition) -> Bool {
+        exercise.measurement.showsWeightField || (previousData(for: exercise)?.weightKg ?? 0) > 0
     }
 
     // MARK: - Recovery Context
@@ -513,8 +540,23 @@ class TrainViewModel {
 
             let (sleepVal, hrVal, hrvVal) = await (sleep, hr, hrv)
 
+            // 28-day session window — fetched early so it's available both
+            // for the flare assessment's training-load signal below AND the
+            // chronic-TRIMP calculation further down (previously fetched
+            // only after the flare assessment ran, so that signal always
+            // saw an empty session list).
+            let calendarEarly = Calendar.current
+            let pidEarly = ActiveProfile.id
+            let chronicWindowStartEarly = calendarEarly.date(byAdding: .day, value: -28, to: Date()) ?? Date()
+            let sessionDescriptorEarly = FetchDescriptor<TrainingSession>(
+                predicate: #Predicate<TrainingSession> { $0.profileId == pidEarly && $0.date >= chronicWindowStartEarly },
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            let recentSessions = (try? context.fetch(sessionDescriptorEarly)) ?? []
+
             // Flare assessment only for profiles with an inflammatory condition
             var flareLevel: FlareRiskLevel? = nil
+            var flareForecastWorsening = false
             let biometrics = BiometricStore.shared
             if appState.flareEngineEnabled {
                 await biometrics.loadHistory(daysBack: 30)
@@ -525,11 +567,21 @@ class TrainViewModel {
                     sortBy: [SortDescriptor(\.date, order: .reverse)]
                 )
                 let healthLogs = (try? context.fetch(healthDescriptor)) ?? []
+                let medications = (try? context.fetch(FetchDescriptor<Medication>(
+                    predicate: #Predicate<Medication> { $0.profileId == flarePid }
+                ))) ?? []
+                let doseLogs = (try? context.fetch(FetchDescriptor<MedicationDoseLog>(
+                    predicate: #Predicate<MedicationDoseLog> { $0.profileId == flarePid }
+                ))) ?? []
                 let assessment = FlareDetectionEngine.shared.assess(
                     biometrics: biometrics,
-                    healthLogs: healthLogs
+                    healthLogs: healthLogs,
+                    recentSessions: recentSessions,
+                    medications: medications,
+                    medicationDoseLogs: doseLogs
                 )
                 flareLevel = assessment.level
+                flareForecastWorsening = FlareForecastEngine.forecast(biometrics: biometrics, todayAssessment: assessment)?.trajectory == .worsening
             } else {
                 await biometrics.loadHistory(daysBack: 30)
             }
@@ -553,13 +605,7 @@ class TrainViewModel {
             let cyclePhase: CycleAwareEngine.CyclePhase? = cycleResult.isAvailable ? cycleResult.currentPhase : nil
 
             let calendar = Calendar.current
-            let pid = ActiveProfile.id
-            let chronicWindowStart = calendar.date(byAdding: .day, value: -28, to: Date()) ?? Date()
-            let sessionDescriptor = FetchDescriptor<TrainingSession>(
-                predicate: #Predicate<TrainingSession> { $0.profileId == pid && $0.date >= chronicWindowStart },
-                sortBy: [SortDescriptor(\.date, order: .reverse)]
-            )
-            let sessions = (try? context.fetch(sessionDescriptor)) ?? []
+            let sessions = recentSessions
             let yesterdayTrimp = sessions.first {
                 guard let yesterday = calendar.date(
                     byAdding: .day, value: -1, to: Date()
@@ -580,6 +626,7 @@ class TrainViewModel {
                     recoveryScore: recovery,
                     sleepHours: sleepVal,
                     flareLevel: flareLevel,
+                    flareForecastWorsening: flareForecastWorsening,
                     isFlareDay: appState.flareEngineEnabled && appState.isFlareDay,
                     yesterdayTrimp: yesterdayTrimp,
                     chronicAvgDailyTrimp: chronicAvgTrimp,
@@ -1199,14 +1246,34 @@ class TrainViewModel {
 
     func toggleExpanded(exerciseId: String) {
         guard var state = exerciseStates[exerciseId] else { return }
-        state.isExpanded.toggle()
+        let expanding = !state.isExpanded
+        state.isExpanded = expanding
         exerciseStates[exerciseId] = state
-        // When expanding a card, the user is declaring "I'm working on this
-        // exercise now." Update the Live Activity / watch to reflect it.
-        if state.isExpanded {
+        // Single-expand accordion: only one exercise's set-logging rows are
+        // ever on screen at once. With a long-history session restored to
+        // 7-8 exercises, letting several expand at the same time was the
+        // real driver of "scroll up and down forever to find the
+        // exercise" — every open card adds several set rows' worth of
+        // height. Collapsing the rest when one opens keeps the list
+        // scannable regardless of how many exercises the day has.
+        if expanding {
+            for otherId in exerciseStates.keys where otherId != exerciseId {
+                exerciseStates[otherId]?.isExpanded = false
+            }
             focusedExerciseId = exerciseId
             pushProgressToAppState()
         }
+    }
+
+    /// Jump directly to one exercise — collapses every other card and
+    /// expands this one, for use with the quick-jump strip.
+    func focusExercise(exerciseId: String) {
+        guard exerciseStates[exerciseId] != nil else { return }
+        for id in exerciseStates.keys {
+            exerciseStates[id]?.isExpanded = (id == exerciseId)
+        }
+        focusedExerciseId = exerciseId
+        pushProgressToAppState()
     }
 
     // MARK: - Reorder Exercises (live session)
@@ -1222,6 +1289,13 @@ class TrainViewModel {
     // MARK: - Session Start / End
 
     func startSession(appState: AppState) {
+        // Defensive: RestTimerManager is a singleton, not scoped to a
+        // session, so any prior session that ended without a clean stop —
+        // completeSession() didn't call this at all until now — left its
+        // countdown state sitting there. Without this, a brand-new session
+        // with zero sets completed could open already showing "resting."
+        RestTimerManager.shared.stop()
+
         isSessionActive = true
         isSessionPaused = false
         pausedElapsed = 0
@@ -1412,6 +1486,13 @@ class TrainViewModel {
     // MARK: - Complete Session
 
     func completeSession(context: ModelContext) {
+        // Was missing entirely — only discardSession() stopped the rest
+        // timer, so finishing a session while a rest countdown was still
+        // running (a very normal thing to do — the last set's rest doesn't
+        // need to finish before you tap Finish) left it active for
+        // whatever came next, including a brand-new session.
+        RestTimerManager.shared.stop()
+
         let samples = HRSampleBuffer.shared.sessionSamples
         let interval = HRSampleBuffer.shared.sessionSamplingIntervalSeconds
         let report = SessionStrainCalculator.computeStrain(
@@ -1621,8 +1702,9 @@ class TrainViewModel {
             } else {
                 // Exercise wasn't in the snapshot (program changed?) — use fresh state
                 let suggested = suggestedWeight(for: exercise)
+                let suggestedRepCount = suggestedReps(for: exercise)
                 let sets = (1...exercise.sets).map { i in
-                    SetState(setNumber: i, weightKg: suggested, reps: exercise.repRange.max)
+                    SetState(setNumber: i, weightKg: suggested, reps: suggestedRepCount)
                 }
                 exerciseStates[exercise.id] = ExerciseState(
                     id: exercise.id,

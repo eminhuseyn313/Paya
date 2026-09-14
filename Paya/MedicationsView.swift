@@ -75,10 +75,39 @@ struct MedicationsView: View {
     @State private var medications: [Medication] = []
     @State private var showAddSheet = false
     @State private var refreshTrigger = 0
+    @State private var nearestPharmacy: OverpassService.Place? = nil
 
     var body: some View {
         NavigationStack {
             List {
+                if !medications.isEmpty {
+                    // Real supply tracking (pills remaining, refill dates)
+                    // doesn't exist yet — this is a plain convenience, not
+                    // triggered by a "running low" detection this app can't
+                    // do yet. OpenStreetMap Overpass, free, no key.
+                    if let pharmacy = nearestPharmacy {
+                        Button {
+                            if let url = URL(string: "https://www.openstreetmap.org/?mlat=\(pharmacy.latitude)&mlon=\(pharmacy.longitude)#map=17/\(pharmacy.latitude)/\(pharmacy.longitude)") {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "cross.case.fill", color: Color(hex: "059669"))
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Nearest pharmacy")
+                                        .foregroundColor(.primary)
+                                    Text(pharmacy.name + String(format: " — %.1f km away", pharmacy.distanceMeters / 1000))
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
                 if medications.isEmpty {
                     Section {
                         VStack(spacing: 10) {
@@ -130,6 +159,11 @@ struct MedicationsView: View {
                 AddMedicationSheet()
             }
             .onAppear(perform: reload)
+        }
+        .task {
+            guard let coords = await WeatherService.shared.currentCoordinates() else { return }
+            let pharmacies = await OverpassService.nearbyPharmacies(latitude: coords.latitude, longitude: coords.longitude)
+            nearestPharmacy = pharmacies.first
         }
     }
 

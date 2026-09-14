@@ -44,6 +44,7 @@ struct PulseTrainView: View {
     @State private var hasTodaysMobilityCheckIn = false
     @State private var hasAppeared = false
     @State private var showRetroactiveLog = false
+    @State private var showProgramCheckup = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -87,7 +88,15 @@ struct PulseTrainView: View {
                                     // Hero day card
                                     pulseDayHero(vm: vm)
 
-                                    // Pre-session context
+                                    // Volume-landmark gap for THIS day, if any —
+                                    // shown before the collapsed prep checklist since
+                                    // it's an actionable recommendation, not reference info
+                                    ProgramGapCard(
+                                        dayCode: vm.selectedDay.code,
+                                        onAdded: { vm.buildExerciseStates(context: modelContext) }
+                                    )
+
+                                    // Pre-session context (collapsed by default)
                                     PreSessionContextSection(
                                         vm: vm,
                                         hasMobilityCheckIn: hasTodaysMobilityCheckIn,
@@ -100,11 +109,11 @@ struct PulseTrainView: View {
                                     FlareNotice(text: appState.flareWarningText)
                                 }
 
-                                // ━━━ Exercise List ━━━
+                                // ━━━ Exercise Overview ━━━
                                 if vm.orderedExercises.isEmpty {
                                     pulseEmptyDay(vm: vm)
                                 } else {
-                                    exerciseList(vm: vm)
+                                    exerciseOverview(vm: vm, scrollProxy: scrollProxy)
                                 }
 
                                 // ━━━ Add Exercise (during session) ━━━
@@ -154,13 +163,22 @@ struct PulseTrainView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Train")
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showProgramCheckup = true } label: {
+                        Image(systemName: "wand.and.stars")
+                            .font(.system(size: 16))
+                            .foregroundColor(Pulse.textSecondary)
+                            .frame(width: 36, height: 36)
+                            .background(Pulse.surfaceFallback)
+                            .clipShape(Circle())
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -237,6 +255,7 @@ struct PulseTrainView: View {
                 if let session = vm?.completedSession { ReflectionSheet(session: session) }
             }
             .sheet(isPresented: $showLibrary) { ExerciseLibraryView() }
+            .sheet(isPresented: $showProgramCheckup) { ProgramCheckupView() }
             .sheet(isPresented: $showSessionEditor) {
                 if let vm = vm {
                     SessionComposerView(
@@ -265,7 +284,13 @@ struct PulseTrainView: View {
                 }
             }
             .sheet(isPresented: $showAddExerciseForToday) {
-                LibraryPickerSheet { picked in vm?.addExerciseForToday(picked) }
+                // Was missing `context:` — addExerciseForToday's DB-persist
+                // block is entirely gated on that parameter being non-nil,
+                // so every exercise added from the live Train tab was only
+                // ever kept in memory for that view session, never actually
+                // saved. Looked fine during the workout, gone the next time
+                // the app opened or that day's program was viewed.
+                LibraryPickerSheet { picked in vm?.addExerciseForToday(picked, context: modelContext) }
             }
             .sheet(isPresented: $showRetroactiveLog) {
                 RetroactiveWorkoutView()
@@ -585,20 +610,110 @@ struct PulseTrainView: View {
         .pulseSurfaceGlow(color: vm.selectedDay.color, padding: 16)
     }
 
-    // MARK: - Exercise List
+    // MARK: - Exercise Overview
+    //
+    // A day with 7-8 restored exercises stacked as full-width rows — even
+    // collapsed ones — was still a long scroll, and letting several rows
+    // expand independently made it worse. This replaces the flat list with
+    // the pattern gym apps at this density actually use: a compact 2-column
+    // grid as the map of the whole session (roughly half the vertical
+    // space of one row per exercise), plus a single "now training" card
+    // for whichever exercise is active — never more than one exercise's
+    // set-logging rows on screen at a time, and every other exercise is
+    // one tap away instead of a scroll away.
+    private func exerciseOverview(vm: TrainViewModel, scrollProxy: ScrollViewProxy) -> some View {
+        let exercises = vm.orderedExercises
+        let activeId = vm.focusedExerciseId
+            ?? exercises.first(where: { vm.exerciseStates[$0.id]?.allSetsCompleted != true })?.id
+            ?? exercises.first?.id
 
-    private func exerciseList(vm: TrainViewModel) -> some View {
-        VStack(spacing: 12) {
-            ForEach(Array(vm.orderedExercises.enumerated()), id: \.element.id) { index, exercise in
-                if let state = vm.exerciseStates[exercise.id] {
-                    ExerciseCardView(
-                        vm: vm,
-                        exercise: exercise,
-                        state: state,
-                        exerciseNumber: index + 1,
-                        totalExercises: vm.orderedExercises.count
+        return VStack(spacing: 14) {
+            exerciseGrid(vm: vm, exercises: exercises, activeId: activeId)
+
+            if let activeId,
+               let index = exercises.firstIndex(where: { $0.id == activeId }),
+               let state = vm.exerciseStates[activeId] {
+                let displayState = { var s = state; s.isExpanded = true; return s }()
+                ExerciseCardView(
+                    vm: vm,
+                    exercise: exercises[index],
+                    state: displayState,
+                    exerciseNumber: index + 1,
+                    totalExercises: exercises.count
+                )
+                .id(activeId)
+            }
+        }
+        // Whenever the active exercise changes — tapping a grid tile, or
+        // auto-advancing to the next exercise after finishing a set —
+        // scroll its logging card into view. Without this the card renders
+        // below the grid and the user has to manually scroll down every
+        // time just to reach the weight/rep inputs they're about to use.
+        .onChange(of: activeId) { _, newId in
+            guard let newId else { return }
+            withAnimation(.easeInOut(duration: 0.3)) {
+                scrollProxy.scrollTo(newId, anchor: .top)
+            }
+        }
+    }
+
+    private func exerciseGrid(vm: TrainViewModel, exercises: [ExerciseDefinition], activeId: String?) -> some View {
+        let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
+        return LazyVGrid(columns: columns, spacing: 10) {
+            ForEach(Array(exercises.enumerated()), id: \.element.id) { index, exercise in
+                let state = vm.exerciseStates[exercise.id]
+                let done = state?.allSetsCompleted == true
+                let active = exercise.id == activeId
+
+                Button {
+                    vm.focusExercise(exerciseId: exercise.id)
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                } label: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 6) {
+                            ZStack {
+                                Circle()
+                                    .fill(done ? Pulse.positive : (active ? vm.selectedDayColor : Pulse.surfaceElevatedFallback))
+                                    .frame(width: 20, height: 20)
+                                if done {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundColor(.white)
+                                } else {
+                                    Text("\(index + 1)")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(active ? .white : Pulse.textSecondary)
+                                }
+                            }
+                            Spacer()
+                            if let state, state.completedSetsCount > 0, !done {
+                                Text("\(state.completedSetsCount)/\(exercise.sets)")
+                                    .font(.system(size: 9, weight: .bold))
+                                    .monospacedDigit()
+                                    .foregroundColor(vm.selectedDayColor)
+                            }
+                        }
+                        Text(exercise.name)
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(done ? Pulse.textSecondary : Pulse.textPrimary)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(exercise.muscleGroup)
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundColor(vm.selectedDayColor)
+                            .lineLimit(1)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, minHeight: 82, alignment: .topLeading)
+                    .background(active ? vm.selectedDayColor.opacity(0.1) : Pulse.surfaceFallback)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(active ? vm.selectedDayColor.opacity(0.4) : Color.clear, lineWidth: 1.5)
                     )
                 }
+                .buttonStyle(PulsePress())
             }
         }
     }

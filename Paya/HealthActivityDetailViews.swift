@@ -209,6 +209,13 @@ struct MorningLightDetailView: View {
         comps.minute = LifestyleReminderSettings.morningLightMinute
         return Calendar.current.date(from: comps) ?? .now
     }()
+    // Real local sunrise (Open-Meteo, free, same provider already used for
+    // weather) — the reminder time was always a fixed clock hour with no
+    // connection to when the sun actually rises at the user's location, so
+    // a winter 8:30 AM reminder could fire well before sunrise (useless —
+    // there's no bright light to get yet) or a summer one well after
+    // (missing the early part of the photoentrainment window).
+    @State private var sunrise: Date? = nil
 
     var body: some View {
         @Bindable var state = appState
@@ -219,6 +226,33 @@ struct MorningLightDetailView: View {
                         .font(.subheadline)
                         .foregroundColor(Pulse.textTertiary)
                         .payaCard(padding: 14)
+
+                    if let sunrise {
+                        Button {
+                            reminderTime = sunrise.addingTimeInterval(30 * 60)
+                            let comps = Calendar.current.dateComponents([.hour, .minute], from: reminderTime)
+                            LifestyleReminderSettings.morningLightHour = comps.hour ?? 8
+                            LifestyleReminderSettings.morningLightMinute = comps.minute ?? 30
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "sunrise.fill")
+                                    .foregroundColor(Color(hex: "D97706"))
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Today's sunrise: \(sunrise.formatted(date: .omitted, time: .shortened))")
+                                        .font(.system(size: 12, weight: .semibold))
+                                    Text("Tap to set your reminder for 30 min after sunrise")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(Pulse.textTertiary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2)
+                                    .foregroundColor(Pulse.textTertiary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .payaCard(padding: 12)
+                    }
 
                     Toggle(isOn: Binding(
                         get: { state.profile.notificationCategoryEnabled[NotificationCategory.circadian.rawValue] ?? false },
@@ -252,6 +286,9 @@ struct MorningLightDetailView: View {
                     Button("Done") { dismiss() }.fontWeight(.semibold)
                 }
             }
+        }
+        .task {
+            sunrise = await WeatherService.shared.todaySunAndUV()?.sunrise
         }
     }
 }

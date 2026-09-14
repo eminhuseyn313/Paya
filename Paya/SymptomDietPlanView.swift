@@ -116,7 +116,6 @@ struct SymptomDietPlanView: View {
                 .padding(.top, 8)
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
-            .preferredColorScheme(.dark)
             .navigationTitle("Diet Plan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -378,12 +377,14 @@ struct SymptomDietPlanView: View {
 
             Spacer()
 
-            Text("\(Int(Double(food.calories) * servings))")
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
-                .foregroundColor(Pulse.textSecondary)
-            + Text(" kcal")
-                .font(.system(size: 9))
-                .foregroundColor(Pulse.textTertiary)
+            HStack(spacing: 1) {
+                Text("\(Int(Double(food.calories) * servings))")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundColor(Pulse.textSecondary)
+                Text(" kcal")
+                    .font(.system(size: 9))
+                    .foregroundColor(Pulse.textTertiary)
+            }
         }
         .padding(.vertical, 4)
     }

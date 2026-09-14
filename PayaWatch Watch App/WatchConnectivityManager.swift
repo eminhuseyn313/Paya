@@ -181,9 +181,9 @@ final class WatchConnectivityManager: NSObject {
 
         let hrType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
         healthStore.requestAuthorization(toShare: [HKQuantityType.workoutType()], read: [hrType]) { [weak self] ok, _ in
-            guard ok else { return }
+            guard ok, let s = self else { return }
             Task { @MainActor in
-                self?.beginWorkoutSession()
+                s.beginWorkoutSession()
             }
         }
     }
@@ -236,15 +236,41 @@ final class WatchConnectivityManager: NSObject {
         for sample in quantitySamples {
             let bpm = Int(sample.quantity.doubleValue(for: bpmUnit))
             guard bpm > 30 && bpm < 250 else { continue }
-            // Send to phone — best-effort, no error handler needed
+
+            // `sendMessage` requires the phone to be reachable (foreground-ish,
+            // Bluetooth-adjacent) — during a real set the phone is usually
+            // locked/pocketed, so `isReachable` goes false and every sample
+            // was previously just dropped silently. That's why HR only
+            // registered for the first set: whichever set happened before the
+            // phone locked. `updateApplicationContext` has no such
+            // reachability requirement (delivered whenever WatchConnectivity
+            // next syncs, including background) — used as the fallback so a
+            // BPM reading still lands even while unreachable, instead of
+            // going dark for the rest of the session.
             if WCSession.default.isReachable {
                 WCSession.default.sendMessage(
                     ["action": "heartRate", "bpm": bpm],
                     replyHandler: nil,
-                    errorHandler: nil
+                    errorHandler: { _ in
+                        Self.pushHRViaApplicationContext(bpm: bpm)
+                    }
                 )
+            } else {
+                Self.pushHRViaApplicationContext(bpm: bpm)
             }
         }
+    }
+
+    /// Best-effort fallback path for HR delivery when `sendMessage` can't be
+    /// used — merges into the existing application context rather than
+    /// replacing it wholesale, since other keys (session state, water total)
+    /// are also carried via context updates elsewhere in this file. Key name
+    /// ("watchHR") matches what WatchSessionManager.didReceiveApplicationContext
+    /// already listens for on the phone side.
+    private nonisolated static func pushHRViaApplicationContext(bpm: Int) {
+        var context = WCSession.default.applicationContext
+        context["watchHR"] = bpm
+        try? WCSession.default.updateApplicationContext(context)
     }
 
     private func stopWorkoutForHR() {
@@ -253,8 +279,9 @@ final class WatchConnectivityManager: NSObject {
             hrQuery = nil
         }
         workoutSession?.end()
-        workoutBuilder?.endCollection(withEnd: Date()) { [weak self] _, _ in
-            self?.workoutBuilder?.finishWorkout { _, _ in }
+        let builder = workoutBuilder
+        builder?.endCollection(withEnd: Date()) { _, _ in
+            builder?.finishWorkout { _, _ in }
         }
         workoutSession = nil
         workoutBuilder = nil
@@ -303,6 +330,18 @@ final class WatchConnectivityManager: NSObject {
             phoneReadinessRecommendation = context["readinessRecommendation"] as? String
             phoneReadinessTimestamp = context["readinessTimestamp"] as? Date
         }
+
+        // Mirror into the App Group so the watch face complication (a
+        // separate process — can't read this @Observable state directly)
+        // has something fresh to show. Cheap to call on every context
+        // update; the write itself is a small UserDefaults set.
+        ComplicationSnapshotWriter.write(
+            readinessScore: phoneReadinessScore,
+            readinessBand: phoneReadinessBand,
+            sessionLabel: sessionLabel.isEmpty ? nil : sessionLabel,
+            waterMl: waterMl,
+            waterTargetMl: waterTargetMl
+        )
     }
 }
 

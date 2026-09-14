@@ -13,6 +13,21 @@ final class SupabaseClient {
     private let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnZvZG1oZ2RyZmp4dmRqanF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NjM5NjEsImV4cCI6MjEwMjQzOTk2MX0.53vSIiui9hNLaUX34M_pOvYDH1L9cr8JFjE6qz7Y4Zk"
 
     var isSignedIn = false
+
+    /// Tri-state, distinct from `isSignedIn`: `.unknown` covers the gap
+    /// while a stored-but-expired token is being refreshed on launch.
+    /// ContentView gates on THIS, not `isSignedIn` directly — `isSignedIn`
+    /// starts `false` and only flips true once restore/refresh completes,
+    /// so gating on it alone showed the sign-in screen for a beat on every
+    /// launch where the access token had expired (session lasts ~1h; any
+    /// launch after that triggers `refreshAccessToken()`, which is async),
+    /// then silently swapped to the home screen the instant the refresh
+    /// resolved — exactly the "login page flashes then home opens with no
+    /// action" symptom. Showing a neutral splash during `.unknown` instead
+    /// removes the incorrect intermediate state entirely.
+    enum AuthState: Equatable { case unknown, signedIn, signedOut }
+    var authState: AuthState = .unknown
+
     var userId: UUID?
     var userEmail: String?
     var isSyncing = false
@@ -63,6 +78,10 @@ final class SupabaseClient {
         refreshToken = UserDefaults.standard.string(forKey: "supabase_refresh_token")
         if let tokenData = accessToken, !tokenData.isEmpty {
             restoreSession()
+        } else {
+            // No stored token at all — definitely signed out, no async gap
+            // to worry about, so it's safe to resolve immediately.
+            authState = .signedOut
         }
         lastSyncDate = UserDefaults.standard.object(forKey: "supabase_last_sync") as? Date
     }
@@ -231,10 +250,60 @@ final class SupabaseClient {
         signOut()
     }
 
+    // MARK: - Sign In with Apple (via Supabase OAuth)
+
+    /// Exchanges the Apple ID credential (identity token) for a Supabase session.
+    /// Supabase GoTrue accepts Apple's id_token directly via the
+    /// `POST /auth/v1/token?grant_type=id_token` endpoint.
+    ///
+    /// Apple Review Guideline 4.8 requires Sign In with Apple whenever
+    /// any other third-party auth method is offered.
+    func signInWithApple(idToken: String, nonce: String, fullName: PersonNameComponents?) async throws {
+        let url = URL(string: "\(baseURL)/auth/v1/token?grant_type=id_token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(anonKey, forHTTPHeaderField: "apikey")
+
+        var body: [String: Any] = [
+            "provider": "apple",
+            "id_token": idToken,
+            "nonce": nonce
+        ]
+
+        // Apple sends the user's name only on the FIRST sign-in.
+        // After that, the credential's fullName is nil. We pass it
+        // to Supabase so it can store it in user_metadata.
+        if let name = fullName {
+            var meta: [String: String] = [:]
+            if let given = name.givenName { meta["full_name"] = given }
+            if let family = name.familyName {
+                meta["full_name"] = (meta["full_name"].map { $0 + " " } ?? "") + family
+            }
+            if !meta.isEmpty {
+                body["data"] = meta
+            }
+        }
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw SyncError.networkError }
+
+        if http.statusCode >= 400 {
+            let authErr = try? decoder.decode(AuthError.self, from: data)
+            throw SyncError.auth(authErr?.message ?? "Apple sign-in failed (\(http.statusCode))")
+        }
+
+        let auth = try decoder.decode(AuthResponse.self, from: data)
+        applySession(auth)
+    }
+
     func signOut() {
         accessToken = nil
         refreshToken = nil
         isSignedIn = false
+        authState = .signedOut
         userId = nil
         userEmail = nil
         pendingConfirmationEmail = nil
@@ -280,6 +349,7 @@ final class SupabaseClient {
                 }
             }
             isSignedIn = true
+            authState = .signedIn
         } else if let errorDesc = params["error_description"] {
             syncError = errorDesc.removingPercentEncoding ?? errorDesc
         }
@@ -323,6 +393,7 @@ final class SupabaseClient {
         userId = auth.user.id
         userEmail = auth.user.email
         isSignedIn = true
+        authState = .signedIn
 
         // Re-check developer Pro access now that we know the email.
         // configure() runs at app launch before sign-in, so isDeveloper
@@ -354,6 +425,7 @@ final class SupabaseClient {
             userEmail = email
         }
         isSignedIn = true
+        authState = .signedIn
         PurchaseManager.shared.checkDeveloperAccess(email: userEmail)
     }
 

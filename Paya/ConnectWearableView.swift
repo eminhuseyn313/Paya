@@ -38,7 +38,6 @@ struct ConnectWearableView: View {
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
         }
-        .preferredColorScheme(.dark)
     }
 }
 

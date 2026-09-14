@@ -70,21 +70,40 @@ enum MuscleActivationEngine {
     /// Maps this app's muscleGroup strings to which body-diagram region(s)
     /// they paint — several muscle groups the app tracks (e.g. "Hamstrings")
     /// only appear on the back view, "Chest" only on the front, etc.
+    ///
+    /// Was an exact-string switch ("Back" only) against a catalog that
+    /// actually stores compound values like "Lats · Mid Back", "Mid Back ·
+    /// Lats", "Upper Back", "Rear Delt" (singular), "Chest · Triceps" —
+    /// none of those equal the literal strings the switch checked for, so
+    /// any exercise tagged with a compound or slightly different muscle
+    /// group silently painted nothing at all. A session full of real back
+    /// work showed a blank back figure because "Lats · Mid Back" never
+    /// matched "Back". Same class of bug already fixed once this session
+    /// in ExerciseCurator's exact-match matching — token/substring
+    /// containment instead of whole-string equality, and a compound label
+    /// can now paint multiple regions at once.
     static func regions(for muscleGroup: String) -> [BodyRegion] {
-        switch muscleGroup {
-        case "Chest": return [.chest]
-        case "Shoulders", "Side Delts": return [.frontDelts]
-        case "Rear Delts": return [.rearDelts]
-        case "Back": return [.back]
-        case "Biceps": return [.biceps]
-        case "Triceps": return [.triceps]
-        case "Core": return [.abs]
-        case "Quads": return [.quads]
-        case "Hamstrings": return [.hamstrings]
-        case "Glutes": return [.glutes]
-        case "Calves": return [.calves]
-        default: return []
-        }
+        let lower = muscleGroup.lowercased()
+        var result: Set<BodyRegion> = []
+        if lower.contains("chest") { result.insert(.chest) }
+        if lower.contains("shoulder") || lower.contains("side delt") { result.insert(.frontDelts) }
+        if lower.contains("rear delt") { result.insert(.rearDelts) }
+        if lower.contains("back") || lower.contains("lat") { result.insert(.back) }
+        if lower.contains("bicep") { result.insert(.biceps) }
+        if lower.contains("tricep") { result.insert(.triceps) }
+        // "ab" alone false-positives on "abductors"/"abductor" (hip/glute
+        // muscles, not abs) — real bug, reachable whenever an exercise
+        // added from the library falls back to the free-exercise-db
+        // dataset's own muscle names (SessionComposerView.swift,
+        // TrainViewModel.addExerciseForToday), which does include
+        // "Abductors" as a literal value. Match the actual ab-related
+        // words instead of a bare 2-letter substring.
+        if lower.contains("core") || lower.contains("abs") || lower.contains("abdomin") { result.insert(.abs) }
+        if lower.contains("quad") { result.insert(.quads) }
+        if lower.contains("hamstring") { result.insert(.hamstrings) }
+        if lower.contains("glute") { result.insert(.glutes) }
+        if lower.contains("calf") || lower.contains("calve") { result.insert(.calves) }
+        return Array(result)
     }
 }
 

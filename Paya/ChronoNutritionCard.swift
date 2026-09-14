@@ -219,6 +219,7 @@ struct ChronoNutritionDetailView: View {
         case .deepSleep:      return "moon.zzz.fill"
         case .hrvRecovery:    return "waveform.path.ecg"
         case .sleepOnset:     return "bed.double.fill"
+        case .caffeineTiming: return "cup.and.saucer.fill"
         }
     }
 

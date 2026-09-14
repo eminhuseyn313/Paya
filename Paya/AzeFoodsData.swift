@@ -29,7 +29,7 @@ struct AzeFood: Identifiable, Hashable {
             case .dairy:      return "cup.and.saucer"
             case .grains:     return "leaf"
             case .vegetables: return "carrot"
-            case .fruitsNuts: return "apple.logo"
+            case .fruitsNuts: return "tree"
             case .soups:      return "takeoutbag.and.cup.and.straw"
             }
         }

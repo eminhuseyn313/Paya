@@ -82,6 +82,40 @@ struct ExerciseInfoSheet: View {
                         .payaCard(padding: 12)
                     }
 
+                    // Muscles worked — reuses the same anatomy figure
+                    // (BodyFigureView) already built for the Progress tab's
+                    // soreness/activation heatmap, just fed this one
+                    // exercise's muscle group instead of a session's worth
+                    // of logged activation. Front and back both render;
+                    // only the regions this exercise actually maps to
+                    // (MuscleActivationEngine.regions) light up.
+                    InfoSection(title: "Muscles Worked") {
+                        let regions = MuscleActivationEngine.regions(for: exercise.muscleGroup)
+                        let regionColors = Dictionary(uniqueKeysWithValues: regions.map { ($0, sessionColor) })
+                        VStack(spacing: 10) {
+                            HStack(spacing: 16) {
+                                VStack(spacing: 4) {
+                                    BodyFigureView(isFront: true, regionColors: regionColors)
+                                    Text("Front").font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
+                                }
+                                VStack(spacing: 4) {
+                                    BodyFigureView(isFront: false, regionColors: regionColors)
+                                    Text("Back").font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            if !regions.isEmpty {
+                                HStack(spacing: 6) {
+                                    ForEach(regions.sorted(by: { $0.displayName < $1.displayName }), id: \.self) { region in
+                                        TagBadge(text: region.displayName, color: sessionColor)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        .payaCard(padding: 12)
+                    }
+
                     // Personal record (loaded from session history)
                     if let prW = prWeight, let prR = prReps, let prD = prDate {
                         InfoSection(title: "Your Record") {
@@ -236,7 +270,6 @@ struct ExerciseInfoSheet: View {
             }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -724,7 +757,7 @@ struct ExerciseCardView: View {
                     HStack(spacing: 0) {
                         Text("SET")
                             .frame(width: 36, alignment: .center)
-                        if exercise.measurement.showsWeightField {
+                        if vm.showsWeightField(for: exercise) {
                             Text("PREVIOUS")
                                 .frame(maxWidth: .infinity)
                             Text(AssistedExerciseDetector.isAssisted(name: exercise.name)
@@ -792,7 +825,7 @@ struct ExerciseCardView: View {
                         }
                         .buttonStyle(PulsePress())
 
-                        if vm.isSessionActive && exercise.measurement.showsWeightField {
+                        if vm.isSessionActive && vm.showsWeightField(for: exercise) {
                             Button {
                                 vm.addDropSet(to: exercise.id)
                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -987,7 +1020,7 @@ struct SetRowView: View {
 
     private var previousText: String? {
         guard let pw = previousWeight, let pr = previousReps else { return nil }
-        if exercise.measurement.showsWeightField {
+        if vm.showsWeightField(for: exercise) {
             return "\(formatWeight(displayWeight(pw))) × \(pr)"
         }
         return "\(pr)"
@@ -1005,7 +1038,7 @@ struct SetRowView: View {
 
     private var isPR: Bool {
         guard setState.isCompleted,
-              exercise.measurement.showsWeightField,
+              vm.showsWeightField(for: exercise),
               setState.weightKg > 0,
               let pw = previousWeight else { return false }
         let currentE1RM = setState.weightKg * (1 + Double(setState.reps) / 30.0)
@@ -1060,7 +1093,7 @@ struct SetRowView: View {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 } label: {
                     HStack(spacing: 6) {
-                        if exercise.measurement.showsWeightField {
+                        if vm.showsWeightField(for: exercise) {
                             HStack(spacing: 2) {
                                 Text(formatWeight(displayWeight(setState.weightKg)))
                                     .font(.system(size: 15, weight: .semibold))
@@ -1171,7 +1204,7 @@ struct SetRowView: View {
                             .background(Pulse.positive)
                             .clipShape(Capsule())
                     }
-                    if exercise.measurement.showsWeightField,
+                    if vm.showsWeightField(for: exercise),
                        setState.weightKg > 0,
                        setState.reps > 1 && setState.reps <= 12 {
                         let oneRM = setState.weightKg * (1 + Double(setState.reps) / 30.0)

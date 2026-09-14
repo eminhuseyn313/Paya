@@ -117,7 +117,6 @@ struct HealthProfileSummaryView: View {
                 .padding(.top, 8)
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
-            .preferredColorScheme(.dark)
             .navigationTitle("Health Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

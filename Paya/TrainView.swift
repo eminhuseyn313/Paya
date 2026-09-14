@@ -1174,7 +1174,6 @@ struct CompleteSessionSheet: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.large])
-        .preferredColorScheme(.dark)
     }
 }
 

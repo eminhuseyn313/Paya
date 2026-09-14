@@ -77,7 +77,12 @@ enum VolumeLandmarkEngine {
     /// Weekly hard-set landmarks, hypertrophy-oriented (RP's published
     /// figures). Muscle groups the app doesn't track with enough specificity
     /// (Cardio, unclassified custom exercises) are simply excluded.
-    private static let landmarks: [String: Landmark] = [
+    /// Not private — ProgramGapEngine needs the target numbers for muscle
+    /// groups that currently have ZERO logged sets too (a muscle absent
+    /// from the program entirely is the most important gap to catch, and
+    /// `weeklyVolume` below only returns entries for muscles with at least
+    /// one set, so there'd be nothing to look up otherwise).
+    static let landmarks: [String: Landmark] = [
         "Chest": Landmark(mev: 8, mavLow: 12, mavHigh: 20, mrv: 22),
         "Back": Landmark(mev: 10, mavLow: 14, mavHigh: 22, mrv: 25),
         "Quads": Landmark(mev: 8, mavLow: 12, mavHigh: 18, mrv: 20),
@@ -106,7 +111,8 @@ enum VolumeLandmarkEngine {
             for log in session.exercises {
                 let hardSets = log.sets.filter { $0.isCompleted }.count
                 guard hardSets > 0, !log.muscleGroup.isEmpty else { continue }
-                let bucket = log.muscleGroup == "Side Delts" ? "Shoulders" : log.muscleGroup
+                let canonical = canonicalMuscleGroup(log.muscleGroup)
+                let bucket = canonical == "Side Delts" ? "Shoulders" : canonical
                 counts[bucket, default: 0] += hardSets
             }
         }
@@ -116,5 +122,35 @@ enum VolumeLandmarkEngine {
             return MuscleVolume(muscleGroup: muscle, sets: sets, landmark: landmark)
         }
         .sorted { $0.sets > $1.sets }
+    }
+
+    /// Exercise logs carry free-text-ish muscle-group labels from several
+    /// sources (manual entry, AI food/exercise parsing, library seed data),
+    /// so the same muscle shows up as "Lats", "Middle Back", "Upper Back",
+    /// "Mid Back · Lats", "Quadriceps" vs "Quads", "Side Delt" vs "Side
+    /// Delts", or compound strings like "Biceps · Brachialis". Matched
+    /// exactly against `landmarks`, all of those silently vanished from
+    /// volume tracking instead of counting toward their real muscle — this
+    /// under-counted logged volume and, downstream in ProgramGapEngine,
+    /// falsely flagged muscles (most visibly "Back") as missing from the
+    /// program entirely when they were actually being trained under a
+    /// synonym. Take the primary label before any "·" separator and match
+    /// it by substring against the landmark table's canonical names.
+    static func canonicalMuscleGroup(_ raw: String) -> String {
+        let primary = raw.split(separator: "·").first.map(String.init) ?? raw
+        let lower = primary.trimmingCharacters(in: .whitespaces).lowercased()
+        if lower.contains("quad") { return "Quads" }
+        if lower.contains("ham") { return "Hamstrings" }
+        if lower.contains("glute") { return "Glutes" }
+        if lower.contains("calv") { return "Calves" }
+        if lower.contains("chest") { return "Chest" }
+        if lower.contains("rear delt") { return "Rear Delts" }
+        if lower.contains("side delt") { return "Side Delts" }
+        if lower.contains("shoulder") || lower.contains("delt") { return "Shoulders" }
+        if lower.contains("bicep") { return "Biceps" }
+        if lower.contains("tricep") { return "Triceps" }
+        if lower.contains("core") || lower.contains(" ab") || lower.hasPrefix("ab") { return "Core" }
+        if lower.contains("back") || lower.contains("lat") { return "Back" }
+        return primary.trimmingCharacters(in: .whitespaces)
     }
 }

@@ -79,8 +79,9 @@ class RestTimerManager {
             object: nil,
             queue: .main
         ) { [weak self] _ in
+            guard let s = self else { return }
             Task { @MainActor in
-                self?.recalculateFromWallClock()
+                s.recalculateFromWallClock()
             }
         }
 

@@ -160,7 +160,7 @@ enum CycleAwareEngine {
                 }
                 // Filter to actual flow days (not "none" or predicted)
                 let flowDates = samples
-                    .filter { $0.value != HKCategoryValueMenstrualFlow.none.rawValue }
+                    .filter { $0.value != HKCategoryValueVaginalBleeding.none.rawValue }
                     .map(\.startDate)
                 continuation.resume(returning: flowDates)
             }

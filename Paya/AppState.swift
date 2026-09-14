@@ -4,7 +4,16 @@ import SwiftData
 // MARK: - User Profile
 
 struct UserProfile: Codable {
-    var name: String = "Emin"
+    // Was "Emin" (the developer's own name, from single-user testing) — real
+    // bug, not a cosmetic default: ContentView.bootstrapProfiles() decides
+    // whether to show onboarding by checking `appState.profile.name.isEmpty`,
+    // which can never be true while this default is non-empty. Every fresh
+    // install/new sign-up silently skipped onboarding entirely and got a
+    // PersonProfile auto-created with this literal name. Empty string lets
+    // that fresh-install check actually work, and legacy users upgrading
+    // from before the multi-profile system (who have a real saved name)
+    // are unaffected — they never hit this default in the first place.
+    var name: String = ""
     /// Birth year — age is computed dynamically so it never goes stale.
     /// Migrated from legacy `age` field on first decode.
     var birthYear: Int = Calendar.current.component(.year, from: Date()) - 30
@@ -33,7 +42,7 @@ struct UserProfile: Codable {
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        name = (try? c.decode(String.self, forKey: .name)) ?? "Emin"
+        name = (try? c.decode(String.self, forKey: .name)) ?? ""
         sexRaw = (try? c.decode(String.self, forKey: .sexRaw)) ?? "male"
         heightCm = (try? c.decode(Double.self, forKey: .heightCm)) ?? 178
         bodyWeightGoalKg = (try? c.decode(Double.self, forKey: .bodyWeightGoalKg)) ?? 80
@@ -121,6 +130,7 @@ struct UserProfile: Codable {
         NotificationCategory.circadian.rawValue: true,
         NotificationCategory.postWorkoutNutrition.rawValue: true,
         NotificationCategory.weeklyDigest.rawValue: true,
+        NotificationCategory.dailyBriefing.rawValue: true,
     ]
     var notificationsQuietHoursEnabled: Bool = false
     var quietHoursStart: Date = Calendar.current.date(
@@ -180,6 +190,17 @@ class AppState {
     // without needing the paid Claude path.
     var geminiAPIKey: String = "" {
         didSet { KeychainHelper.save(key: "gemini_api_key", value: geminiAPIKey) }
+    }
+
+    // USDA FoodData Central — free, government-verified nutrition data for
+    // generic/whole foods (chicken breast, rice, banana), complementing
+    // Open Food Facts (already integrated, no key needed) which is strong
+    // for packaged/branded products but crowdsourced and weaker for
+    // staples. Requires a free key from api.data.gov/signup — a real
+    // account signup, so unlike Gemini's key this can't be created for the
+    // user, only wired up once they have one.
+    var usdaAPIKey: String = "" {
+        didSet { KeychainHelper.save(key: "usda_api_key", value: usdaAPIKey) }
     }
 
     /// User has explicitly consented to sending health/fitness data to
@@ -267,12 +288,28 @@ class AppState {
             profile = decoded
         }
 
+        // One-time correction: `restTimer` was flipped to default-on in
+        // UserProfile()'s own initializer (see the comment there), but
+        // that only affects BRAND NEW profiles — anyone with an already-
+        // persisted `userProfile` blob decoded the OLD dictionary above
+        // (which has the key explicitly absent or false), so the new
+        // default never actually took effect for an existing install.
+        // This is the literal cause of "rest timer never notifies in the
+        // background" being reported as still-broken after that fix
+        // shipped. Force it on exactly once, without touching any other
+        // category the user may have deliberately changed.
+        if !UserDefaults.standard.bool(forKey: "rest_timer_notif_default_migrated_v1") {
+            UserDefaults.standard.set(true, forKey: "rest_timer_notif_default_migrated_v1")
+            profile.notificationCategoryEnabled[NotificationCategory.restTimer.rawValue] = true
+        }
+
         // Restore AI consent
         hasConsentedToExternalAI = UserDefaults.standard.bool(forKey: "hasConsentedToExternalAI")
 
         // Restore API key from Keychain
         anthropicAPIKey = KeychainHelper.load(key: "anthropic_api_key") ?? ""
         geminiAPIKey = KeychainHelper.load(key: "gemini_api_key") ?? ""
+        usdaAPIKey = KeychainHelper.load(key: "usda_api_key") ?? ""
     }
 
     // MARK: - Computed Properties

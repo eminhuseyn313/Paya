@@ -799,7 +799,7 @@ struct FoodSearchSheet: View {
                     TextField("Search food (e.g. Greek yogurt)", text: $vm.searchQuery)
                         .onSubmit {
                             Task {
-                                await db.search(query: vm.searchQuery)
+                                await db.search(query: vm.searchQuery, usdaAPIKey: appState.usdaAPIKey)
                             }
                         }
                     if !vm.searchQuery.isEmpty {
@@ -911,14 +911,45 @@ struct FoodSearchSheet: View {
                                 dismiss()
                             } label: {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(product.displayName)
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundColor(Pulse.textPrimary)
-                                        .lineLimit(2)
-                                        .multilineTextAlignment(.leading)
+                                    HStack(spacing: 6) {
+                                        Text(product.displayName)
+                                            .font(.subheadline.weight(.semibold))
+                                            .foregroundColor(Pulse.textPrimary)
+                                            .lineLimit(2)
+                                            .multilineTextAlignment(.leading)
+                                        if product.source == "USDA" {
+                                            Text("USDA")
+                                                .font(.system(size: 8, weight: .bold))
+                                                .foregroundColor(Pulse.positive)
+                                                .padding(.horizontal, 5)
+                                                .padding(.vertical, 1)
+                                                .background(Pulse.positive.opacity(0.12))
+                                                .clipShape(Capsule())
+                                        }
+                                    }
                                     Text("\(Int(product.proteinPer100g))g P · \(Int(product.caloriesPer100g)) kcal per 100g")
                                         .font(.caption)
                                         .foregroundColor(Pulse.textTertiary)
+                                    // Sodium/sugar data existed in Open Food
+                                    // Facts' response all along, just never
+                                    // extracted — flags against the same
+                                    // anti-inflammatory guidance
+                                    // SymptomDietEngine already gives, at
+                                    // the point of logging instead of after.
+                                    if product.isHighSodium || product.isHighSugar {
+                                        HStack(spacing: 6) {
+                                            if product.isHighSodium {
+                                                Text("High sodium")
+                                                    .font(.system(size: 9, weight: .bold))
+                                                    .foregroundColor(Pulse.warning)
+                                            }
+                                            if product.isHighSugar {
+                                                Text("High sugar")
+                                                    .font(.system(size: 9, weight: .bold))
+                                                    .foregroundColor(Pulse.warning)
+                                            }
+                                        }
+                                    }
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .payaCard(padding: 10)

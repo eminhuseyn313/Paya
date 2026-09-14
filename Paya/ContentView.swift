@@ -14,22 +14,39 @@ struct ContentView: View {
     var body: some View {
         @Bindable var state = appState
         return Group {
-            if !client.isSignedIn {
+            switch client.authState {
+            case .unknown:
+                // Stored token exists but is expired and being refreshed —
+                // an async gap of a few hundred ms on a normal launch.
+                // Gating on `isSignedIn` directly (which starts false) used
+                // to show the full sign-in screen for that gap, then swap to
+                // the home screen the instant the refresh resolved — read as
+                // "login page flashes then home opens with no action."
+                // Neutral splash instead, so there's no incorrect screen to
+                // flash away from.
+                launchSplash
+            case .signedOut:
                 // Auth gate: user must sign in before using the app.
                 // Data stays local-first — the account is for cloud backup
                 // and identity, not a prerequisite for local storage.
                 AuthGateView()
-            } else if needsOnboarding {
-                OnboardingView(onComplete: {
-                    needsOnboarding = false
-                })
-            } else {
-                mainTabs(state: state)
+            case .signedIn:
+                if needsOnboarding {
+                    OnboardingView(onComplete: {
+                        needsOnboarding = false
+                    })
+                } else {
+                    mainTabs(state: state)
+                }
             }
         }
         .preferredColorScheme(.dark)
         .onAppear {
             bootstrapProfiles()
+            LostExerciseRepair.repairIfNeeded(context: modelContext)
+            ProgramDensityCorrection.correctIfNeeded(context: modelContext)
+            RepTargetNormalization.normalizeIfNeeded(context: modelContext)
+            PendingExerciseAddition.applyIfNeeded(context: modelContext)
             #if DEBUG
             YesterdayWorkoutSeeder.seedIfNeeded(context: modelContext)
             #endif
@@ -96,6 +113,30 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: PayaNotificationDelegate.didNavigateNotification)) { _ in
             applyPendingIntentNavigation()
+        }
+        .onChange(of: client.authState) { oldValue, newValue in
+            // One Supabase account per device: wipe local data on every
+            // sign-out (including account deletion, which also calls
+            // signOut()) so a different account signing in later never
+            // inherits the previous person's local health data. Only fires
+            // on a real signedIn→signedOut transition, not on launch's
+            // unknown→signedOut resolution (nothing to wipe there anyway).
+            if oldValue == .signedIn && newValue == .signedOut {
+                LocalDataWiper.wipeAll(context: modelContext)
+                needsOnboarding = false
+            }
+        }
+    }
+
+    /// Shown only for the brief `.unknown` auth window on launch (expired
+    /// token being refreshed) — deliberately neutral, matching the app's
+    /// own dark canvas so it reads as a beat of loading, not as a screen.
+    private var launchSplash: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            Image(systemName: "figure.strengthtraining.traditional")
+                .font(.system(size: 48, weight: .medium))
+                .foregroundColor(Pulse.hydration)
         }
     }
 

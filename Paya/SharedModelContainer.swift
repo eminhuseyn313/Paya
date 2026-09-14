@@ -40,7 +40,9 @@ enum SharedModelContainer {
             Achievement.self,
             SavedMealTemplate.self,
             BehaviorLog.self,
-            BathroomLog.self
+            BathroomLog.self,
+            Experiment.self,
+            NarrativeHistoryEntry.self
         ])
         do {
             return try ModelContainer(for: schema)

@@ -40,7 +40,14 @@ struct ConsistencyScoreCard: View {
                     VStack(spacing: 3) {
                         RoundedRectangle(cornerRadius: 2)
                             .fill(week.isCurrent ? scoreColor : scoreColor.opacity(0.3))
-                            .frame(height: max(4, CGFloat(week.sessions) / CGFloat(max(1, plannedPerWeek)) * 30))
+                            // Was uncapped — a week with MORE sessions than
+                            // the target (a good thing, and common) grew the
+                            // bar past the row's fixed 40pt height, pushing
+                            // its date label down into the legend row below.
+                            // Capped at the same 30pt the formula targets for
+                            // a fully-met week; overachieving just fills the
+                            // full bar instead of overflowing it.
+                            .frame(height: min(30, max(4, CGFloat(week.sessions) / CGFloat(max(1, plannedPerWeek)) * 30)))
 
                         Text(week.label)
                             .font(.system(size: 7))

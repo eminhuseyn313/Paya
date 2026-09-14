@@ -293,8 +293,14 @@ extension WatchSessionManager: WCSessionDelegate {
         didReceiveApplicationContext applicationContext: [String: Any]
     ) {
         Task { @MainActor in
-            // Currently the watch doesn't push structured context back,
-            // but when it does (HR summary, workout recap) we handle it here.
+            // Fallback HR delivery path: the watch prefers `sendMessage` for
+            // real-time BPM (handled in `handleIncomingMessage` below), but
+            // that requires the phone to be reachable. When it isn't — phone
+            // locked/backgrounded mid-set, the common case during an actual
+            // lift — the watch pushes the latest BPM via application context
+            // instead, which doesn't require reachability. Without this
+            // path, HR only ever registered for whichever set happened
+            // before the phone stopped being reachable.
             if let bpm = applicationContext["watchHR"] as? Int, bpm > 30 && bpm < 250 {
                 WatchSessionManager.shared.watchHeartRate = bpm
                 WatchSessionManager.shared.watchHeartRateTimestamp = Date()

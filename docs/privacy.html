@@ -84,19 +84,43 @@
     <div class="logo">Paya</div>
 
     <h1>Privacy Policy</h1>
-    <p class="updated">Last updated: August 13, 2026</p>
+    <p class="updated">Last updated: September 14, 2026</p>
 
     <p>Paya ("we", "our", "the app") is a personal fitness and health tracking application. Your privacy is fundamental to how we build Paya. This policy explains what data we collect, how we use it, and the controls you have.</p>
 
     <h2>Data We Collect</h2>
-    <p>All data listed below is stored locally on your device using Apple's SwiftData framework. We do not operate servers that store your personal data.</p>
+    <p>All data listed below is stored locally on your device using Apple's SwiftData framework. If you create an account, a subset of your data is also synced to our cloud service (see "Cloud Sync &amp; Account Data" below).</p>
     <ul>
-        <li><strong>Health &amp; fitness data</strong> — workouts, exercise logs, sets, reps, weights, body measurements, sleep data, heart rate, and steps (via Apple HealthKit with your permission).</li>
-        <li><strong>Nutrition data</strong> — meals, calories, macronutrients, and supplement schedules you enter.</li>
-        <li><strong>Profile information</strong> — name, age, height, weight, and fitness goals you provide during setup.</li>
+        <li><strong>Health &amp; fitness data</strong> — workouts, exercise logs, sets, reps, weights, body measurements, sleep data, heart rate, heart rate variability (HRV), wrist temperature, and steps (via Apple HealthKit with your permission).</li>
+        <li><strong>Blood glucose data</strong> — glucose readings from HealthKit (if you grant permission), used to provide glycemic trend insights and chrono-nutrition suggestions.</li>
+        <li><strong>Menstrual cycle data</strong> — menstrual flow data from HealthKit (if you grant permission), used for cycle-aware training and recovery adjustments.</li>
+        <li><strong>Nutrition data</strong> — meals, calories, macronutrients, micronutrients, and supplement schedules you enter.</li>
+        <li><strong>Profile information</strong> — name, age, height, weight, fitness goals, health conditions, medications, and lifestyle data you provide during onboarding.</li>
         <li><strong>Progress photos</strong> — photos you take within the app, stored only on your device.</li>
-        <li><strong>Location data</strong> — used solely to fetch local weather and UV index from Open-Meteo (a free, open-source weather API). Your coordinates are sent to Open-Meteo to retrieve weather data; we do not store or transmit your location elsewhere.</li>
+        <li><strong>Location data</strong> — used solely to fetch local weather, UV index, and air quality data from Open-Meteo (a free, open-source weather API). Your coordinates are sent to Open-Meteo to retrieve environmental data; we do not store or transmit your location elsewhere.</li>
+        <li><strong>Bathroom logs</strong> — optional digestive health entries you record, used for health correlations. Stored on-device only.</li>
     </ul>
+
+    <h2>Authentication &amp; Sign In with Apple</h2>
+    <p>Paya supports Sign In with Apple and email/password authentication through Supabase (our backend provider). When you sign in with Apple:</p>
+    <ul>
+        <li>Apple provides us with a unique, anonymous identifier and, optionally, your name and email (only if you choose to share them).</li>
+        <li>We use this information solely to create and authenticate your account.</li>
+        <li>You may choose to hide your email address using Apple's private relay service.</li>
+        <li>We never receive or store your Apple ID password.</li>
+    </ul>
+
+    <h2>Cloud Sync &amp; Account Data</h2>
+    <p>If you create an account (via Sign In with Apple or email), Paya syncs the following data to our cloud service powered by <a href="https://supabase.com">Supabase</a> (hosted on AWS infrastructure in the US):</p>
+    <ul>
+        <li>Profile information (name, fitness goals, health profile)</li>
+        <li>Workout history and exercise logs</li>
+        <li>Nutrition entries and meal logs</li>
+        <li>Body measurements and progress data</li>
+        <li>App settings and preferences</li>
+    </ul>
+    <p>Cloud sync enables you to recover your data if you switch devices or reinstall the app. Your data is protected by Supabase's Row Level Security (RLS) — only you can access your own data. All data is transmitted over HTTPS (TLS 1.2+).</p>
+    <p>Progress photos, HealthKit raw data, and API keys are <strong>never</strong> uploaded to the cloud.</p>
 
     <h2>AI Features</h2>
     <p>Paya offers optional AI-powered coaching and nutrition analysis. These features may use on-device Apple Intelligence (data never leaves your device) or cloud-based AI services (Anthropic Claude or Google Gemini) that require your own API key.</p>
@@ -113,7 +137,8 @@
     <h2>Third-Party Services</h2>
     <p>Paya connects to the following external services:</p>
     <ul>
-        <li><strong>Open-Meteo</strong> (<a href="https://open-meteo.com">open-meteo.com</a>) — weather and UV data. Your approximate location is sent to retrieve local conditions. Open-Meteo is open-source and does not track users.</li>
+        <li><strong>Supabase</strong> (<a href="https://supabase.com">supabase.com</a>) — authentication and cloud data sync. Only accessed when you have an account.</li>
+        <li><strong>Open-Meteo</strong> (<a href="https://open-meteo.com">open-meteo.com</a>) — weather, UV, and air quality data. Your approximate location is sent to retrieve local conditions. Open-Meteo is open-source and does not track users.</li>
         <li><strong>OpenFoodFacts</strong> (<a href="https://openfoodfacts.org">openfoodfacts.org</a>) — barcode lookup for nutrition data. Only the barcode number is sent.</li>
         <li><strong>Anthropic / Google Gemini</strong> — AI features, only when you provide your own API key and enable consent.</li>
         <li><strong>GitHub raw content</strong> — exercise demonstration images.</li>
@@ -121,15 +146,24 @@
     <p>We do not use any analytics SDKs, advertising networks, crash reporting services, or tracking pixels.</p>
 
     <h2>Apple HealthKit</h2>
-    <p>Paya reads and writes health data through Apple HealthKit with your explicit permission. We read: steps, heart rate, sleep analysis, body weight, active energy, and workout data. We write: body weight entries and completed workouts. HealthKit data is never shared with third parties, used for advertising, or transmitted off your device (except when you explicitly use AI features on that data with your consent).</p>
+    <p>Paya reads and writes health data through Apple HealthKit with your explicit permission. We read: steps, heart rate, heart rate variability (HRV), sleep analysis, body weight, active energy, workout data, blood glucose, menstrual flow, and wrist temperature. We write: body weight entries and completed workouts. HealthKit data is never shared with third parties, used for advertising, or transmitted off your device (except when you explicitly use AI features on that data with your consent).</p>
 
     <h2>Data Storage &amp; Security</h2>
     <ul>
-        <li>All personal data is stored locally on your device.</li>
+        <li>All personal data is stored locally on your device, with optional cloud sync to Supabase.</li>
+        <li>Cloud data is protected by Row Level Security — only your authenticated session can access your data.</li>
         <li>API keys are stored in the iOS Keychain (hardware-encrypted).</li>
         <li>All network communication uses HTTPS (TLS 1.2+).</li>
-        <li>We do not have a backend server — there is nothing to breach.</li>
-        <li>Deleting the app removes all Paya data from your device.</li>
+        <li>Deleting the app removes all local Paya data from your device.</li>
+    </ul>
+
+    <h2>Account Deletion</h2>
+    <p>You can delete your account and all associated cloud data at any time from Settings → Delete Account within the app. This action:</p>
+    <ul>
+        <li>Permanently deletes your account credentials from our authentication system.</li>
+        <li>Permanently deletes all your synced data from our cloud servers.</li>
+        <li>Removes local data from your device.</li>
+        <li>This action is irreversible.</li>
     </ul>
 
     <h2>Data Sharing</h2>
@@ -139,13 +173,14 @@
     <p>Paya is not directed at children under 13. We do not knowingly collect data from children.</p>
 
     <h2>Your Rights</h2>
-    <p>Since all data is stored on your device, you have full control:</p>
+    <p>You have full control over your data:</p>
     <ul>
         <li>View all your data within the app at any time.</li>
-        <li>Delete any or all data by removing entries or uninstalling the app.</li>
+        <li>Delete any or all data by removing entries, deleting your account, or uninstalling the app.</li>
         <li>Revoke HealthKit permissions in Settings → Privacy → Health.</li>
         <li>Remove API keys from Settings within the app.</li>
         <li>Revoke AI data sharing consent at any time in Settings.</li>
+        <li>Request a copy of your cloud-stored data by contacting us.</li>
     </ul>
 
     <h2>Changes to This Policy</h2>

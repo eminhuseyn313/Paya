@@ -214,7 +214,11 @@ enum SupplementalExercises {
                 "Return with control to a full stretch. The chest pad removes lower-back involvement, making this a good option for isolating mid-back without spinal loading."
             ],
             category: "strength",
-            images: nil
+            // No exact "Seated Row Machine" in the bundled dataset, but
+            // "Leverage Iso Row" is the same category — a plate-loaded,
+            // fixed-path row machine, same target muscles. Closest
+            // legitimate match rather than a pixel-perfect one.
+            images: ["Leverage_Iso_Row/0.jpg", "Leverage_Iso_Row/1.jpg"]
         ),
         Exercise(
             id: "Paya_Machine_Shoulder_Press",
@@ -232,7 +236,12 @@ enum SupplementalExercises {
                 "A back-lean variant (slightly reclined pad angle) shifts emphasis toward the front delts and upper chest."
             ],
             category: "strength",
-            images: nil
+            // "Leverage Shoulder Press" in the bundled free-exercise-db
+            // dataset is the same fixed-path machine press under a
+            // different common name — same equipment, same movement, real
+            // CC0-licensed photos already integrated elsewhere in this app
+            // (see Exercise.imageBaseURL).
+            images: ["Leverage_Shoulder_Press/0.jpg", "Leverage_Shoulder_Press/1.jpg"]
         ),
         Exercise(
             id: "Paya_Cable_Rope_Face_Pull",
@@ -250,7 +259,9 @@ enum SupplementalExercises {
                 "Squeeze rear delts and mid-traps at the peak, then return with control. A key exercise for shoulder health and posture — targets the rear delts and external rotators that pressing movements neglect."
             ],
             category: "strength",
-            images: nil
+            // Matches "Face Pull" in the bundled dataset exactly — same
+            // cable/rope face pull movement, real licensed photos.
+            images: ["Face_Pull/0.jpg", "Face_Pull/1.jpg"]
         ),
         Exercise(
             id: "Paya_Cable_Lateral_Raise",
@@ -266,6 +277,27 @@ enum SupplementalExercises {
                 "With a slight bend in the elbow, raise your arm out to the side until it's roughly parallel with the floor.",
                 "Lower with control. The cable provides constant tension throughout the range — unlike a dumbbell, which is hardest at the top and easy at the bottom.",
                 "Great for building the lateral (side) delt head for shoulder width and a V-taper appearance."
+            ],
+            category: "strength",
+            // Bundled dataset has "Cable Seated Lateral Raise" — same
+            // cable equipment and movement, seated vs standing (a stance
+            // difference, not an equipment mismatch), real licensed photos.
+            images: ["Cable_Seated_Lateral_Raise/0.jpg", "Cable_Seated_Lateral_Raise/1.jpg"]
+        ),
+        Exercise(
+            id: "Paya_Machine_Lateral_Raise",
+            name: "Machine Lateral Raise",
+            force: "push",
+            level: "beginner",
+            mechanic: "isolation",
+            equipment: "machine",
+            primaryMuscles: ["shoulders"],
+            secondaryMuscles: [],
+            instructions: [
+                "Sit in the machine with the pads against the outsides of your upper arms, elbows at your sides.",
+                "Drive your elbows outward and upward until your upper arms are roughly parallel with the floor.",
+                "Lower with control back to the start. The fixed path removes the swinging/momentum that creeps into a dumbbell lateral raise, making it easier to isolate the side delt.",
+                "Builds the lateral (side) delt head for shoulder width — was missing from the exercise library despite already being used in AI program recommendations, which is why it couldn't be found or added here."
             ],
             category: "strength",
             images: nil
@@ -286,7 +318,10 @@ enum SupplementalExercises {
                 "Lower with control. Stop the pull before your elbows go above shoulder height to keep the shoulder in a safe range."
             ],
             category: "strength",
-            images: nil
+            // Missed this the first pass — "Upright Cable Row" in the
+            // bundled dataset is the same exercise, same cable equipment,
+            // just word order flipped from this app's own naming.
+            images: ["Upright_Cable_Row/0.jpg", "Upright_Cable_Row/1.jpg"]
         ),
         Exercise(
             id: "Paya_Mid_Back_Machine",

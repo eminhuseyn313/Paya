@@ -636,12 +636,20 @@ class EnvironmentalReading {
     var barometricPressureKPa: Double?
     var airQualityIndex: Double?
     var profileId: UUID? = nil
+    // Added for reverse-geocoded location labels (Doctor Report, trend
+    // journal) — "poor air quality near Downtown" instead of nothing at
+    // all. Optional/nil-defaulted so existing rows from before this field
+    // existed decode fine.
+    var latitude: Double? = nil
+    var longitude: Double? = nil
 
-    init(date: Date = .now, barometricPressureKPa: Double? = nil, airQualityIndex: Double? = nil) {
+    init(date: Date = .now, barometricPressureKPa: Double? = nil, airQualityIndex: Double? = nil, latitude: Double? = nil, longitude: Double? = nil) {
         self.id = UUID()
         self.date = date
         self.barometricPressureKPa = barometricPressureKPa
         self.airQualityIndex = airQualityIndex
+        self.latitude = latitude
+        self.longitude = longitude
     }
 }
 

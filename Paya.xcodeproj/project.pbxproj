@@ -10,7 +10,10 @@
 		21EADF8DD968171948256576 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC66B9615C057061049E7C21 /* Foundation.framework */; };
 		3A502F612FFACB2600CBCBBB /* exercises.json in Resources */ = {isa = PBXBuildFile; fileRef = 3A502F602FFACB2600CBCBBB /* exercises.json */; };
 		3A77A30C300EB068008D43AF /* PayaWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3A77A302300EB067008D43AF /* PayaWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3DC935C22986BE98192AB94F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FDDFABCE239F02CFAD26A9 /* Foundation.framework */; };
+		444A7C437521C5DF65843F96 /* PayaWatchComplications.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2C251D6C1B53BAA5497F8FC0 /* PayaWatchComplications.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4804240386E35853036C5021 /* PayaWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C660FF3256AC8849048203FD /* PayaWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		86B3F7BF396DEF47F3D6D56F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3BF4EE8D88EDA6F132AEF9D /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,6 +30,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = F08DB2FD0128771ED6860391;
 			remoteInfo = PayaWidgets;
+		};
+		F7A93088F980FFED857FF396 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3A0DF4CE2FCF6AE600B8591D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2014EE9CFC77706682A808B2;
+			remoteInfo = PayaWatchComplications;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -53,15 +63,29 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		88C862FC01D2E47EB1E8CA57 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				444A7C437521C5DF65843F96 /* PayaWatchComplications.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		27FDDFABCE239F02CFAD26A9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		2C251D6C1B53BAA5497F8FC0 /* PayaWatchComplications.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PayaWatchComplications.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A0DF4D62FCF6AE600B8591D /* Paya.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Paya.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A502F602FFACB2600CBCBBB /* exercises.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = exercises.json; sourceTree = "<group>"; };
 		3A7796AD30096520008D43AF /* PayaWatch-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PayaWatch-Bridging-Header.h"; sourceTree = "<group>"; };
 		3A77A302300EB067008D43AF /* PayaWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PayaWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8B668D2FD74C1F0043404A /* Paya.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Paya.xcodeproj; sourceTree = SOURCE_ROOT; };
 		C660FF3256AC8849048203FD /* PayaWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PayaWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3BF4EE8D88EDA6F132AEF9D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		EC66B9615C057061049E7C21 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
@@ -79,6 +103,13 @@
 				Info.plist,
 			);
 			target = F08DB2FD0128771ED6860391 /* PayaWidgets */;
+		};
+		8C78394C885255FF342CF300 /* Exceptions for "PayaWatchComplications" folder in "PayaWatchComplications" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2014EE9CFC77706682A808B2 /* PayaWatchComplications */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -99,6 +130,14 @@
 		3A8B66B32FDD64CF0043404A /* PayaWatch Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "PayaWatch Watch App";
+			sourceTree = "<group>";
+		};
+		E4681FB02A585A621B72C8E1 /* PayaWatchComplications */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8C78394C885255FF342CF300 /* Exceptions for "PayaWatchComplications" folder in "PayaWatchComplications" target */,
+			);
+			path = PayaWatchComplications;
 			sourceTree = "<group>";
 		};
 		FA068B20F80A3ABD3A5387C4 /* PayaWidgets */ = {
@@ -134,6 +173,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A4D9E5F9793EAF8E4F633A78 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86B3F7BF396DEF47F3D6D56F /* Foundation.framework in Frameworks */,
+				3DC935C22986BE98192AB94F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -157,6 +205,7 @@
 				3A7796AD30096520008D43AF /* PayaWatch-Bridging-Header.h */,
 				C79233B6BCEDBA7FFBC74889 /* Frameworks */,
 				FA068B20F80A3ABD3A5387C4 /* PayaWidgets */,
+				E4681FB02A585A621B72C8E1 /* PayaWatchComplications */,
 			);
 			sourceTree = "<group>";
 		};
@@ -166,6 +215,7 @@
 				3A0DF4D62FCF6AE600B8591D /* Paya.app */,
 				3A77A302300EB067008D43AF /* PayaWatch Watch App.app */,
 				C660FF3256AC8849048203FD /* PayaWidgets.appex */,
+				2C251D6C1B53BAA5497F8FC0 /* PayaWatchComplications.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -181,13 +231,43 @@
 			isa = PBXGroup;
 			children = (
 				04DBD653A578DD96BEB10A5D /* iOS */,
+				F314862E9B532F0FBE85F796 /* watchOS */,
+				27FDDFABCE239F02CFAD26A9 /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F314862E9B532F0FBE85F796 /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				E3BF4EE8D88EDA6F132AEF9D /* Foundation.framework */,
+			);
+			name = watchOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2014EE9CFC77706682A808B2 /* PayaWatchComplications */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 110B4FD8D9DF4B1D5A8909A1 /* Build configuration list for PBXNativeTarget "PayaWatchComplications" */;
+			buildPhases = (
+				F75E8F8611A49E6F5E1A39DE /* Sources */,
+				A4D9E5F9793EAF8E4F633A78 /* Frameworks */,
+				02303AC177DA91C8E068A164 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E4681FB02A585A621B72C8E1 /* PayaWatchComplications */,
+			);
+			name = PayaWatchComplications;
+			productName = PayaWatchComplications;
+			productReference = 2C251D6C1B53BAA5497F8FC0 /* PayaWatchComplications.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		3A0DF4D52FCF6AE600B8591D /* Paya */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3A0DF4E12FCF6AE800B8591D /* Build configuration list for PBXNativeTarget "Paya" */;
@@ -219,10 +299,12 @@
 				3A77A2FE300EB067008D43AF /* Sources */,
 				3A77A2FF300EB067008D43AF /* Frameworks */,
 				3A77A300300EB067008D43AF /* Resources */,
+				88C862FC01D2E47EB1E8CA57 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AE369A79CC3EBFF995436AAE /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				3A77A303300EB067008D43AF /* PayaWatch Watch App */,
@@ -296,11 +378,19 @@
 				3A0DF4D52FCF6AE600B8591D /* Paya */,
 				3A77A301300EB067008D43AF /* PayaWatch Watch App */,
 				F08DB2FD0128771ED6860391 /* PayaWidgets */,
+				2014EE9CFC77706682A808B2 /* PayaWatchComplications */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		02303AC177DA91C8E068A164 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3A0DF4D42FCF6AE600B8591D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -347,6 +437,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F75E8F8611A49E6F5E1A39DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -361,9 +458,36 @@
 			target = 3A77A301300EB067008D43AF /* PayaWatch Watch App */;
 			targetProxy = 3A77A30A300EB068008D43AF /* PBXContainerItemProxy */;
 		};
+		AE369A79CC3EBFF995436AAE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = PayaWatchComplications;
+			target = 2014EE9CFC77706682A808B2 /* PayaWatchComplications */;
+			targetProxy = F7A93088F980FFED857FF396 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		1F3576E34475EFAC474155AA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PayaWatchComplications/PayaWatchComplications.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PayaWatchComplications/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya.watchkitapp.complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 		3A0DF4DF2FCF6AE800B8591D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -682,6 +806,26 @@
 			};
 			name = Release;
 		};
+		444270BB42CF82D043B7D8BA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PayaWatchComplications/PayaWatchComplications.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PayaWatchComplications/Info.plist;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Paya.Paya.watchkitapp.complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
 		5D4F9738EB36AE3DB1601E30 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -712,6 +856,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		110B4FD8D9DF4B1D5A8909A1 /* Build configuration list for PBXNativeTarget "PayaWatchComplications" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1F3576E34475EFAC474155AA /* Release */,
+				444270BB42CF82D043B7D8BA /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3A0DF4D12FCF6AE600B8591D /* Build configuration list for PBXProject "Paya" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

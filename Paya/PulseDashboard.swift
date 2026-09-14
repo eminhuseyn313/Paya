@@ -57,6 +57,7 @@ struct PulseDashboardView: View {
     @State private var showHealthJourney = false
     @State private var showHealthProfileSummary = false
     @State private var showFoodQuickPicker = false
+    @State private var showAskPaya = false
 
     private var readinessScore: Int {
         viewModel.readiness?.score ?? viewModel.recoveryScore ?? 0
@@ -95,51 +96,72 @@ struct PulseDashboardView: View {
                         // ━━━ 3. Vitals Orbs ━━━
                         vitalsOrbs
 
-                        // ━━━ 4. Hero Insight ━━━
-                        heroInsightCard
-
-                        // ━━━ 4.25 Daily Actions ━━━
-                        DailyActionCard()
-
-                        // ━━━ 4.5 Health Journey prompt ━━━
-                        if let profile = ProfileStore.current(context: modelContext),
-                           !profile.healthJourneyCompleted {
-                            healthJourneyBanner(profile: profile)
-                        }
-
-                        // ━━━ 4.7 Health Nudges + Profile Badge ━━━
-                        if let profile = ProfileStore.current(context: modelContext),
-                           profile.healthJourneyCompleted {
-                            // Nudges and badge combined — keeps dashboard scannable
-                            VStack(spacing: 8) {
-                                healthJourneyInsightBadge(profile: profile)
-                                healthNudgeCards(profile: profile)
-                            }
-                        }
-
-                        // ━━━ 5. Flare Alert (conditional) ━━━
+                        // ━━━ 4. Flare Alert — most urgent, leads everything
+                        // below it. Previously this rendered after the health
+                        // journey banner and nudge cards, so a genuine health
+                        // warning had the SAME visual weight (and lower
+                        // position) as routine prompts like "complete your
+                        // health journey" — urgency wasn't legible from
+                        // position or treatment alone.
                         if appState.flareEngineEnabled,
                            let assessment = viewModel.flareAssessment,
-                           assessment.level != .low {
-                            flareAlert(assessment)
+                           // Surface the card when TODAY is elevated, OR when
+                           // today looks fine but the forecast says it won't
+                           // stay that way — the entire point of a leading
+                           // indicator is catching this case, which the old
+                           // `assessment.level != .low` check couldn't.
+                           assessment.level != .low || viewModel.flareForecast?.trajectory == .worsening {
+                            flareAlert(assessment, forecast: viewModel.flareForecast)
                         }
+
+                        // ━━━ 5. Hero Insight ━━━
+                        heroInsightCard
 
                         // ━━━ 6. Today's Focus ━━━
                         todayFocus
 
-                        // ━━━ 7. Week Pulse ━━━
+                        // ━━━ 7. Daily Actions ━━━
+                        DailyActionCard()
+
+                        // ━━━ 8. Health — collapsed to ONE entry point.
+                        // Previously up to 3 separate full-width cards
+                        // (journey banner, profile badge, up to 2 nudge
+                        // cards) stacked here regardless of urgency — all
+                        // routine/informational, none as time-critical as the
+                        // flare alert above, so they don't need to compete
+                        // for the same "full card" attention budget.
+                        healthSummaryEntry
+
+                        // ━━━ 9. Week Pulse ━━━
                         weekPulse
 
-                        // ━━━ 8. Quick Actions ━━━
+                        // ━━━ 10. Quick Actions ━━━
                         quickActions
 
-                        Spacer().frame(height: 40)
+                        Spacer().frame(height: 56)
                     }
                     .padding(.horizontal, 20)
                 }
+                // Scroll-edge protection: content scrolls under the status
+                // bar (navigationBarHidden removes the normal opaque nav-bar
+                // backing that would otherwise sit behind it), so without
+                // this a scrolled-up row — e.g. the readiness driver strip's
+                // "Resting HR" label — renders directly under the clock/
+                // signal icons with no legibility protection. Pinned outside
+                // the ScrollView so it stays put regardless of scroll offset.
+                VStack {
+                    LinearGradient(
+                        colors: [Pulse.canvasFallback, Pulse.canvasFallback.opacity(0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 50)
+                    .ignoresSafeArea(edges: .top)
+                    .allowsHitTesting(false)
+                    Spacer()
+                }
             }
             .navigationBarHidden(true)
-            .preferredColorScheme(.dark)
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showProfileSwitcher) { ProfileSwitcherView() }
             .sheet(isPresented: $showNotifications) {
@@ -158,6 +180,14 @@ struct PulseDashboardView: View {
                             selectedTab = 0
                             if viewModel.flareAssessment != nil { showFlareRiskDetail = true }
                         }
+                        // Recovery notifications used to just switch to Home
+                        // and leave the user to find the ring themselves —
+                        // now opens the actual driver breakdown directly,
+                        // matching what the notification body now explains.
+                        if record.category == .recovery {
+                            selectedTab = 0
+                            if viewModel.readiness != nil { showReadinessDetail = true }
+                        }
                     }
                 }
             }
@@ -166,7 +196,7 @@ struct PulseDashboardView: View {
             }
             .sheet(isPresented: $showFlareRiskDetail) {
                 if let assessment = viewModel.flareAssessment {
-                    FlareRiskDetailView(assessment: assessment)
+                    FlareRiskDetailView(assessment: assessment, forecast: viewModel.flareForecast)
                 }
             }
             .sheet(isPresented: $showReadinessDetail) {
@@ -199,6 +229,9 @@ struct PulseDashboardView: View {
                         showWeightEntry = false
                     }
                 )
+            }
+            .sheet(isPresented: $showAskPaya) {
+                AskPayaView()
             }
             .sheet(isPresented: $showWaterSheet) {
                 WaterQuickSheet()
@@ -704,21 +737,32 @@ struct PulseDashboardView: View {
 
     // MARK: - Flare Alert
 
-    private func flareAlert(_ assessment: FlareRiskAssessment) -> some View {
-        Button { showFlareRiskDetail = true } label: {
+    private func flareAlert(_ assessment: FlareRiskAssessment, forecast: FlareForecastEngine.Forecast?) -> some View {
+        // Today's level can legitimately be .low while the forecast is
+        // worsening — the card's headline and color should track whichever
+        // is more urgent, not just today's snapshot, or the leading-
+        // indicator case would show as a bland "low risk" card.
+        let isForecastLed = assessment.level == .low && forecast?.trajectory == .worsening
+        let color = assessment.level == .high ? Pulse.critical
+            : (assessment.level == .low && isForecastLed) ? Pulse.warning
+            : Pulse.warning
+
+        return Button { showFlareRiskDetail = true } label: {
             HStack(spacing: 12) {
-                Image(systemName: "exclamationmark.triangle.fill")
+                Image(systemName: isForecastLed ? "chart.line.uptrend.xyaxis" : "exclamationmark.triangle.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(assessment.level == .high ? Pulse.critical : Pulse.warning)
+                    .foregroundColor(color)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Flare risk: \(assessment.level.rawValue)")
+                    Text(isForecastLed ? "Flare risk rising" : "Flare risk: \(assessment.level.rawValue)")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(Pulse.textPrimary)
-                    Text(assessment.recommendation.components(separatedBy: ".").first ?? "")
+                    Text(isForecastLed
+                         ? (forecast?.summary ?? "")
+                         : (assessment.recommendation.components(separatedBy: ".").first ?? ""))
                         .font(.system(size: 12))
                         .foregroundColor(Pulse.textSecondary)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
 
                 Spacer()
@@ -728,7 +772,7 @@ struct PulseDashboardView: View {
                     .foregroundColor(Pulse.textTertiary)
             }
             .pulseSurfaceGlow(
-                color: assessment.level == .high ? Pulse.critical : Pulse.warning,
+                color: color,
                 padding: 16
             )
         }
@@ -887,6 +931,9 @@ struct PulseDashboardView: View {
                 PulseChip(icon: "chart.line.uptrend.xyaxis", label: "Insights", color: Pulse.ai) {
                     selectedTab = 4
                 }
+                PulseChip(icon: "sparkles", label: "Ask Paya", color: Pulse.ai) {
+                    showAskPaya = true
+                }
             }
         }
     }
@@ -956,39 +1003,99 @@ struct PulseDashboardView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Health Nudge Cards
-
+    // MARK: - Health Summary Entry
+    //
+    // Single consolidated entry point — was up to 3 separate full-width
+    // cards (journey banner, contraindication badge, up to 2 nudge cards)
+    // stacked back to back, all routine/informational and all competing for
+    // the same visual weight as the flare alert above. Now one card: a
+    // header that surfaces the single most urgent thing (top contraindication
+    // warning, or a completion prompt), with nudges as compact rows inside
+    // the same card instead of their own separate one.
     @ViewBuilder
-    private func healthNudgeCards(profile: PersonProfile) -> some View {
-        let nudges = HealthNudgeEngine.generate(profile: profile, context: modelContext)
-        // Show max 2 nudges on the dashboard — keeps the feed scannable
-        // instead of overwhelming with cards. The Health tab has full detail.
-        let visibleNudges = Array(nudges.prefix(2))
-        let extraCount = nudges.count - visibleNudges.count
+    private var healthSummaryEntry: some View {
+        if let profile = ProfileStore.current(context: modelContext) {
+            if !profile.healthJourneyCompleted {
+                healthJourneyBanner(profile: profile)
+            } else {
+                let report = HealthContraindicationEngine.generate(for: profile)
+                let topWarning = report.allWarnings.sorted(by: { $0.severity > $1.severity }).first
+                let nudges = HealthNudgeEngine.generate(profile: profile, context: modelContext)
+                let visibleNudges = Array(nudges.prefix(2))
+                let extraCount = nudges.count - visibleNudges.count
+                let accentColor: Color = {
+                    switch topWarning?.severity {
+                    case .critical: return Pulse.critical
+                    case .warning:  return Pulse.warning
+                    case .caution:  return Pulse.warning
+                    default:        return Pulse.ai
+                    }
+                }()
 
-        if !visibleNudges.isEmpty {
-            VStack(spacing: 8) {
-                HStack(spacing: 6) {
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 11))
-                        .foregroundColor(Pulse.ai)
-                    Text("Health Insights")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(Pulse.textPrimary)
-                    Spacer()
-                    if extraCount > 0 {
+                if !report.isEmpty || !visibleNudges.isEmpty {
+                    VStack(spacing: 0) {
                         Button {
-                            selectedTab = 3 // Health tab
+                            showHealthProfileSummary = true
                         } label: {
-                            Text("+\(extraCount) more")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(Pulse.ai)
+                            VStack(spacing: 8) {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "heart.text.clipboard")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(accentColor)
+                                        .frame(width: 32, height: 32)
+                                        .background(accentColor.opacity(0.12))
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Health")
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundColor(Pulse.textPrimary)
+                                        Text(topWarning.map { $0.title } ?? "\(report.totalCount) personalized rules active")
+                                            .font(.system(size: 10))
+                                            .foregroundColor(Pulse.textTertiary)
+                                            .lineLimit(2)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(Pulse.textTertiary)
+                                }
+                            }
+                        }
+                        .buttonStyle(.plain)
+
+                        if !visibleNudges.isEmpty {
+                            Divider().padding(.vertical, 8)
+                            VStack(spacing: 8) {
+                                ForEach(visibleNudges) { nudge in
+                                    nudgeCard(nudge)
+                                }
+                                if extraCount > 0 {
+                                    Button {
+                                        selectedTab = 3 // Health tab
+                                    } label: {
+                                        HStack {
+                                            Text("+\(extraCount) more insight\(extraCount == 1 ? "" : "s")")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(Pulse.ai)
+                                            Spacer()
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-
-                ForEach(visibleNudges) { nudge in
-                    nudgeCard(nudge)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Pulse.surfaceFallback)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(accentColor.opacity(0.1), lineWidth: 1)
+                            )
+                    )
                 }
             }
         }
@@ -1058,85 +1165,6 @@ struct PulseDashboardView: View {
         }
     }
 
-    // MARK: - Health Journey Insight Badge
-
-    @ViewBuilder
-    private func healthJourneyInsightBadge(profile: PersonProfile) -> some View {
-        let report = HealthContraindicationEngine.generate(for: profile)
-        let topWarning = report.allWarnings
-            .sorted(by: { $0.severity > $1.severity })
-            .first
-        let accentColor: Color = {
-            switch topWarning?.severity {
-            case .critical: return Pulse.critical
-            case .warning:  return Pulse.warning
-            case .caution:  return Pulse.warning
-            default:        return Pulse.ai
-            }
-        }()
-
-        if !report.isEmpty {
-            Button {
-                showHealthProfileSummary = true
-            } label: {
-                VStack(spacing: 0) {
-                    HStack(spacing: 10) {
-                        Image(systemName: "heart.text.clipboard")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(accentColor)
-                            .frame(width: 32, height: 32)
-                            .background(accentColor.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Health profile active")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(Pulse.textPrimary)
-                            Text("\(report.totalCount) personalized rules guiding your nutrition, training & supplements")
-                                .font(.system(size: 10))
-                                .foregroundColor(Pulse.textTertiary)
-                                .lineLimit(2)
-                        }
-
-                        Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(Pulse.textTertiary)
-                    }
-
-                    // Surface the top-priority warning so it's not just a badge count
-                    if let warning = topWarning,
-                       warning.severity >= .caution {
-                        Divider().padding(.vertical, 6)
-                        HStack(spacing: 8) {
-                            Image(systemName: warning.severity >= .warning
-                                  ? "exclamationmark.triangle.fill"
-                                  : "info.circle.fill")
-                                .font(.system(size: 11))
-                                .foregroundColor(accentColor)
-                            Text(warning.title)
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(Pulse.textPrimary)
-                                .lineLimit(1)
-                            Spacer()
-                        }
-                    }
-                }
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Pulse.surfaceFallback)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(accentColor.opacity(0.1), lineWidth: 1)
-                        )
-                )
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
     private func nudgeColor(_ priority: HealthNudgeEngine.Nudge.Priority) -> Color {
         switch priority {
         case .urgent: return Pulse.critical
@@ -1159,17 +1187,51 @@ struct PulseDashboardView: View {
             if appState.flareEngineEnabled,
                appState.profile.preFlareAlertsEnabled,
                let assessment = viewModel.flareAssessment {
+                // Forecast-led case: today's assessed level can be .low
+                // while the trend is worsening — schedulePreFlareAlert only
+                // fires at .elevated+, so without this override the entire
+                // point of the forecast (catching risk BEFORE today's score
+                // reflects it) would never reach a notification, only
+                // whoever happens to open the app.
+                let isForecastLed = assessment.level == .low && viewModel.flareForecast?.trajectory == .worsening
+                let effectiveLevel = isForecastLed ? .elevated : assessment.level
+                let effectiveRecommendation = isForecastLed
+                    ? (viewModel.flareForecast?.summary ?? assessment.recommendation)
+                    : assessment.recommendation
+
                 await NotificationManager.shared.schedulePreFlareAlert(
-                    riskLevel: assessment.level,
-                    recommendation: assessment.recommendation,
+                    riskLevel: effectiveLevel,
+                    recommendation: effectiveRecommendation,
                     context: modelContext,
                     profile: appState.profile
                 )
+            }
+            // Daily briefing — one synthesized morning notification instead
+            // of scattered pings. Guarded first so the narrative synthesis
+            // (4 concurrent engines) only actually runs once per day, not
+            // on every dashboard load.
+            if !NotificationManager.shared.hasScheduledDailyBriefingToday() {
+                let wellness = await WellnessCorrelationEngine.analyzeToday(context: modelContext)
+                if let narrative = await DailyNarrativeEngine.build(
+                    context: modelContext,
+                    sexRaw: appState.profile.sexRaw,
+                    flareAssessment: viewModel.flareAssessment,
+                    flareForecast: viewModel.flareForecast,
+                    wellnessInsights: wellness
+                ) {
+                    await NotificationManager.shared.scheduleDailyBriefing(
+                        headline: narrative.headline.text,
+                        context: modelContext,
+                        profile: appState.profile
+                    )
+                    NarrativeHistoryStore.record(headline: narrative.headline, context: modelContext)
+                }
             }
             if let readiness = viewModel.readiness {
                 NotificationManager.shared.scheduleRecoveryPrompt(
                     score: readiness.score,
                     bandLabel: readiness.band.rawValue,
+                    drivers: readiness.drivers,
                     context: modelContext,
                     profile: appState.profile
                 )

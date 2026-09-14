@@ -260,7 +260,6 @@ struct BathroomLogSheet: View {
                 .padding(.bottom, 8)
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
-            .preferredColorScheme(.dark)
             .navigationTitle("Log \(isPoop ? "Poop" : "Pee")")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

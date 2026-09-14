@@ -129,7 +129,6 @@ struct HealthJourneyView: View {
                 stepContent
             }
         }
-        .preferredColorScheme(.dark)
         .sheet(isPresented: $showContraindicationPreview) {
             ContraindicationPreviewSheet(profile: profile)
         }
@@ -1460,7 +1459,6 @@ struct ContraindicationPreviewSheet: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     @ViewBuilder

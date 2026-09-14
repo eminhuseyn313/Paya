@@ -312,9 +312,10 @@ enum GlucoseEngine {
 
             guard postSamples.count >= 2 else { return nil }
 
-            let peak = postSamples.max(by: { $0.value < $1.value })!
+            guard let peak = postSamples.max(by: { $0.value < $1.value }),
+                  let firstSample = postSamples.first else { return nil }
             let peakMinutes = Int(peak.date.timeIntervalSince(mealTime) / 60)
-            let baseline = preMealGlucose ?? postSamples.first!.value
+            let baseline = preMealGlucose ?? firstSample.value
             let delta = peak.value - baseline
 
             // AUC above baseline (trapezoidal rule)

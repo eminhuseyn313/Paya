@@ -197,6 +197,65 @@ class NotificationManager {
         }
     }
 
+    // MARK: - Daily briefing
+    //
+    // One synthesized morning notification instead of the scattered
+    // training-day / recovery / flare-risk pings that already fire
+    // separately — this is DailyNarrativeEngine's headline, delivered
+    // proactively rather than only visible if the user happens to open the
+    // Health tab. Scheduled ahead for a fixed morning hour, same pattern as
+    // schedulePreFlareAlert, and deduplicated per day.
+    private static let dailyBriefingPrefix = "daily_briefing_"
+
+    func hasScheduledDailyBriefingToday() -> Bool {
+        UserDefaults.standard.string(forKey: "last_daily_briefing_date") == Self.todayStamp()
+    }
+
+    func scheduleDailyBriefing(
+        headline: String,
+        context: ModelContext,
+        profile: UserProfile,
+        atHour hour: Int = 8
+    ) async {
+        guard isCategoryEnabled(.dailyBriefing, profile: profile) else { return }
+        guard !hasScheduledDailyBriefingToday() else { return }
+        UserDefaults.standard.set(Self.todayStamp(), forKey: "last_daily_briefing_date")
+
+        let id = "\(Self.dailyBriefingPrefix)\(Self.todayStamp())"
+        let content = UNMutableNotificationContent()
+        content.title = "Your day, in short"
+        content.body = headline
+        content.sound = .default
+        content.userInfo = ["destination": NotificationDestination.health.rawValue]
+
+        recordInInbox(
+            category: .dailyBriefing,
+            title: content.title,
+            body: headline,
+            destination: .health,
+            deduplicationKey: id,
+            context: context
+        )
+
+        let calendar = Calendar.current
+        var target = calendar.dateComponents([.year, .month, .day], from: Date())
+        target.hour = hour
+        target.minute = 0
+
+        if let targetDate = calendar.date(from: target), targetDate > Date() {
+            guard !isQuietHours(hour: hour, minute: 0, profile: profile) else { return }
+            let trigger = UNCalendarNotificationTrigger(
+                dateMatching: calendar.dateComponents([.year, .month, .day, .hour, .minute], from: targetDate),
+                repeats: false
+            )
+            try? await UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
+        }
+        // Past the target hour: the in-inbox record above still lands (via
+        // recordInInbox) so it's visible in the notification center even
+        // without a push — unlike pre-flare, this one isn't urgent enough
+        // to justify an immediate catch-up push if the window already passed.
+    }
+
     func cancelPreFlareAlertForToday() {
         let id = "\(Self.preFlareAlertPrefix)\(Self.todayStamp())"
         UNUserNotificationCenter.current().removePendingNotificationRequests(
@@ -213,15 +272,28 @@ class NotificationManager {
     // resend it.
     private static let recoveryPromptPrefix = "recovery_prompt_"
 
+    /// `drivers` should be sorted worst-first (lowest score = biggest drag
+    /// on today's number) — pass `readiness.drivers` directly, since
+    /// ReadinessEngine already orders them that way for the driver-strip UI.
+    /// Without real driver context, this notification used to say nothing
+    /// more than "Today's score is 62" — a number with no explanation is
+    /// the exact complaint that motivated this change.
     func scheduleRecoveryPrompt(
         score: Int,
         bandLabel: String,
+        drivers: [ReadinessEngine.Driver] = [],
         context: ModelContext,
         profile: UserProfile
     ) {
         let dedupKey = "\(Self.recoveryPromptPrefix)\(Self.todayStamp())"
         let title = "Recovery: \(bandLabel)"
-        let body = "Today's score is \(score)."
+
+        let body: String
+        if let worst = drivers.min(by: { $0.score < $1.score }) {
+            body = "\(score)/100 — \(worst.label) is today's biggest factor (\(Int(worst.score)))."
+        } else {
+            body = "Today's score is \(score)."
+        }
 
         recordInInbox(
             category: .recovery,

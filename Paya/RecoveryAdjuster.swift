@@ -8,6 +8,13 @@ struct RecoveryContext {
     let recoveryScore: Int?           // 0-100, or nil if HealthKit unavailable
     let sleepHours: Double?           // last night sleep from HealthKit
     let flareLevel: FlareRiskLevel?   // FlareDetectionEngine assessment
+    /// True when FlareForecastEngine says the 24-48h trend is worsening —
+    /// distinct from `flareLevel`, which is today's snapshot. A session
+    /// planned while today's level still reads "low" but the trend is
+    /// climbing gets a small precautionary trim; without this, the forecast
+    /// only ever showed as information on a card, never actually changed
+    /// what the user was asked to lift.
+    let flareForecastWorsening: Bool
     let isFlareDay: Bool              // user-tagged flare day
     let yesterdayTrimp: Double?
     let chronicAvgDailyTrimp: Double?   // trailing 28-day daily average — the ACWR "chronic" baseline
@@ -28,6 +35,7 @@ struct RecoveryContext {
             recoveryScore: nil,
             sleepHours: nil,
             flareLevel: nil,
+            flareForecastWorsening: false,
             isFlareDay: false,
             yesterdayTrimp: nil,
             chronicAvgDailyTrimp: nil,
@@ -146,7 +154,8 @@ enum RecoveryAdjuster {
 
     static func compute(
         baseWeight: Double,
-        context: RecoveryContext
+        context: RecoveryContext,
+        isAssisted: Bool = false
     ) -> Adjustment {
 
         var multiplier = 1.0
@@ -194,7 +203,18 @@ enum RecoveryAdjuster {
                         text: "Elevated flare risk"
                     ))
                 default:
-                    break
+                    // Today's level itself isn't elevated, but if the trend
+                    // is — a signal drifting toward the flare zone over the
+                    // last few days — a small precautionary trim, smaller
+                    // than an actual elevated-today cut since this is a
+                    // leading indicator, not a confirmed signal.
+                    if context.flareForecastWorsening {
+                        multiplier *= 0.95
+                        reasons.append(Reason(
+                            icon: "chart.line.uptrend.xyaxis",
+                            text: "Flare risk trending up"
+                        ))
+                    }
                 }
             }
 
@@ -328,8 +348,18 @@ enum RecoveryAdjuster {
         // Cap total reduction at 25%
         multiplier = max(0.75, multiplier)
 
-        let adjustedRaw = baseWeight * multiplier
-        let adjustedRounded = adjustedRaw.rounded(toNearest: 1.25)
+        // Assisted exercises (assisted pull-up, assisted dip) log the
+        // counterweight, not the load — LESS weight is harder. `multiplier`
+        // below 1.0 means "go easier today," which for a normal exercise
+        // means less working weight but for an assisted one means MORE
+        // assistance. Without this branch, a low-recovery day told someone
+        // doing assisted pull-ups to reduce their assistance — the
+        // opposite of easier — which is exactly backwards.
+        let adjustedRaw = isAssisted ? baseWeight * (2 - multiplier) : baseWeight * multiplier
+        // 2.5kg, not 1.25kg — matches the gym-loadable increment used
+        // everywhere else weight progression is computed (see
+        // RepRange.increment in ProgramData.swift).
+        let adjustedRounded = adjustedRaw.rounded(toNearest: 2.5)
 
         let severity: Severity
         if multiplier >= 0.98 {

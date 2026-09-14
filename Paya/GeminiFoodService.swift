@@ -253,14 +253,14 @@ enum GeminiFoodService {
     /// backoff. Without this every 503 surfaced straight to the user as a
     /// dead end ("Gemini request failed: HTTP 503...") even though a retry
     /// a second later would usually have gone through fine.
-    private static func performWithRetry(_ request: URLRequest, maxAttempts: Int = 3) async throws -> (Data, URLResponse) {
+    private static func performWithRetry(_ request: URLRequest, maxAttempts: Int = 4) async throws -> (Data, URLResponse) {
         var lastError: Error?
         for attempt in 0..<maxAttempts {
             do {
                 let (data, response) = try await URLSession.shared.data(for: request)
                 let status = (response as? HTTPURLResponse)?.statusCode ?? 200
                 if status == 503 || status == 429, attempt < maxAttempts - 1 {
-                    let backoff = pow(2.0, Double(attempt)) // 1s, 2s
+                    let backoff = pow(2.0, Double(attempt)) // 1s, 2s, 4s
                     try? await Task.sleep(nanoseconds: UInt64(backoff * 1_000_000_000))
                     continue
                 }
