@@ -9,8 +9,25 @@ final class SupabaseClient {
 
     static let shared = SupabaseClient()
 
-    private let baseURL = "https://bpvvodmhgdrfjxvdjjqu.supabase.co"
-    private let anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnZvZG1oZ2RyZmp4dmRqanF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NjM5NjEsImV4cCI6MjEwMjQzOTk2MX0.53vSIiui9hNLaUX34M_pOvYDH1L9cr8JFjE6qz7Y4Zk"
+    // Read from Info.plist (injected by Secrets.xcconfig via build settings).
+    // Falls back to hardcoded values when xcconfig isn't set — Supabase
+    // anon keys are public-facing by design (RLS protects data), so this
+    // is safe; the xcconfig approach just keeps JWT strings out of the
+    // binary's symbol table and lets you rotate without a code change.
+    private let baseURL: String = {
+        let plist = Bundle.main.infoDictionary?["SUPABASE_URL"] as? String
+        if let plist, !plist.isEmpty, !plist.contains("$(") {
+            return plist
+        }
+        return "https://bpvvodmhgdrfjxvdjjqu.supabase.co"
+    }()
+    private let anonKey: String = {
+        let plist = Bundle.main.infoDictionary?["SUPABASE_ANON_KEY"] as? String
+        if let plist, !plist.isEmpty, !plist.contains("$(") {
+            return plist
+        }
+        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwdnZvZG1oZ2RyZmp4dmRqanF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4NjM5NjEsImV4cCI6MjEwMjQzOTk2MX0.53vSIiui9hNLaUX34M_pOvYDH1L9cr8JFjE6qz7Y4Zk"
+    }()
 
     var isSignedIn = false
 
@@ -25,8 +42,15 @@ final class SupabaseClient {
     /// resolved — exactly the "login page flashes then home opens with no
     /// action" symptom. Showing a neutral splash during `.unknown` instead
     /// removes the incorrect intermediate state entirely.
-    enum AuthState: Equatable { case unknown, signedIn, signedOut }
+    enum AuthState: Equatable { case unknown, signedIn, signedOut, guest }
     var authState: AuthState = .unknown
+
+    /// True when the user chose "Continue without account" — all features
+    /// work locally, but cloud sync is disabled. Persisted so the choice
+    /// survives relaunch. The user can sign up later from Settings.
+    var isGuestMode: Bool {
+        authState == .guest
+    }
 
     var userId: UUID?
     var userEmail: String?
@@ -76,7 +100,11 @@ final class SupabaseClient {
     private init() {
         accessToken = UserDefaults.standard.string(forKey: "supabase_access_token")
         refreshToken = UserDefaults.standard.string(forKey: "supabase_refresh_token")
-        if let tokenData = accessToken, !tokenData.isEmpty {
+        if UserDefaults.standard.bool(forKey: "paya_guest_mode") {
+            // User previously chose "Continue without account" — restore
+            // that choice so they land on the home screen, not the auth gate.
+            authState = .guest
+        } else if let tokenData = accessToken, !tokenData.isEmpty {
             restoreSession()
         } else {
             // No stored token at all — definitely signed out, no async gap
@@ -309,6 +337,24 @@ final class SupabaseClient {
         pendingConfirmationEmail = nil
         UserDefaults.standard.removeObject(forKey: "supabase_access_token")
         UserDefaults.standard.removeObject(forKey: "supabase_refresh_token")
+        UserDefaults.standard.removeObject(forKey: "paya_guest_mode")
+    }
+
+    // MARK: - Guest Mode
+
+    /// Enter local-only mode — all features work, cloud sync is disabled.
+    /// The user can create an account later from Settings.
+    func enterGuestMode() {
+        UserDefaults.standard.set(true, forKey: "paya_guest_mode")
+        authState = .guest
+    }
+
+    /// Exit guest mode (called when user decides to create an account).
+    /// Does NOT sign out — just clears the guest flag so the auth gate
+    /// appears. Once they sign in/up, the normal flow resumes.
+    func exitGuestMode() {
+        UserDefaults.standard.removeObject(forKey: "paya_guest_mode")
+        authState = .signedOut
     }
 
     /// Handle the deep link callback from Supabase email confirmation.

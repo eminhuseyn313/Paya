@@ -431,50 +431,75 @@ struct SettingsView: View {
 
                 // MARK: - Account
                 Section {
-                    // Signed-in email
-                    if let email = SupabaseClient.shared.userEmail {
+                    if SupabaseClient.shared.isGuestMode {
+                        // Guest mode — prompt to create an account
                         HStack {
-                            SettingsIcon(icon: "person.crop.circle.fill", color: Color(hex: "2563EB"))
+                            SettingsIcon(icon: "person.crop.circle.badge.questionmark", color: Color(hex: "F59E0B"))
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Signed in as")
+                                Text("Local-only mode")
+                                    .font(.subheadline.weight(.medium))
+                                Text("Your data is only on this device. Create an account to enable cloud backup.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
-                                Text(email)
-                                    .font(.subheadline)
                             }
                         }
-                    }
 
-                    // Change password
-                    Button {
-                        showChangePassword = true
-                    } label: {
-                        HStack {
-                            SettingsIcon(icon: "key.fill", color: Color(hex: "F59E0B"))
-                            Text("Change Password")
-                                .foregroundColor(.primary)
+                        Button {
+                            SupabaseClient.shared.exitGuestMode()
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "person.crop.circle.badge.plus", color: Pulse.hydration)
+                                Text("Create Account")
+                                    .foregroundColor(Pulse.hydration)
+                                    .fontWeight(.semibold)
+                            }
                         }
-                    }
-
-                    // Sign out
-                    Button {
-                        showSignOutConfirm = true
-                    } label: {
-                        HStack {
-                            SettingsIcon(icon: "rectangle.portrait.and.arrow.right", color: .secondary)
-                            Text("Sign Out")
-                                .foregroundColor(.primary)
+                    } else {
+                        // Signed-in email
+                        if let email = SupabaseClient.shared.userEmail {
+                            HStack {
+                                SettingsIcon(icon: "person.crop.circle.fill", color: Color(hex: "2563EB"))
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Signed in as")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    Text(email)
+                                        .font(.subheadline)
+                                }
+                            }
                         }
-                    }
 
-                    // Delete account — Apple requires this for apps with account creation
-                    Button(role: .destructive) {
-                        showDeleteAccountConfirm = true
-                    } label: {
-                        HStack {
-                            SettingsIcon(icon: "person.crop.circle.badge.minus", color: .red)
-                            Text("Delete Account")
-                                .foregroundColor(.red)
+                        // Change password
+                        Button {
+                            showChangePassword = true
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "key.fill", color: Color(hex: "F59E0B"))
+                                Text("Change Password")
+                                    .foregroundColor(.primary)
+                            }
+                        }
+
+                        // Sign out
+                        Button {
+                            showSignOutConfirm = true
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "rectangle.portrait.and.arrow.right", color: .secondary)
+                                Text("Sign Out")
+                                    .foregroundColor(.primary)
+                            }
+                        }
+
+                        // Delete account — Apple requires this for apps with account creation
+                        Button(role: .destructive) {
+                            showDeleteAccountConfirm = true
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "person.crop.circle.badge.minus", color: .red)
+                                Text("Delete Account")
+                                    .foregroundColor(.red)
+                            }
                         }
                     }
                 } header: {

@@ -178,6 +178,22 @@ struct AuthGateView: View {
                     .disabled(email.isEmpty || isLoading)
                 }
 
+                // Guest mode — local-only, no cloud sync
+                Button {
+                    client.enterGuestMode()
+                } label: {
+                    Text("Continue without account")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .padding(.top, 4)
+
+                Text("Your data stays on this device. You can create an account later.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+
                 Spacer()
 
                 // Legal links

@@ -30,7 +30,9 @@ struct ContentView: View {
                 // Data stays local-first — the account is for cloud backup
                 // and identity, not a prerequisite for local storage.
                 AuthGateView()
-            case .signedIn:
+            case .signedIn, .guest:
+                // .guest = local-only mode, all features work, no cloud sync.
+                // User can create an account later from Settings.
                 if needsOnboarding {
                     OnboardingView(onComplete: {
                         needsOnboarding = false
@@ -122,6 +124,10 @@ struct ContentView: View {
             // on a real signedIn→signedOut transition, not on launch's
             // unknown→signedOut resolution (nothing to wipe there anyway).
             if oldValue == .signedIn && newValue == .signedOut {
+                // Wipe local data on sign-out from a real account so a
+                // different account never inherits the previous person's
+                // data. Don't wipe on guest→signedOut (that's just
+                // "create an account" from Settings, keep their data).
                 LocalDataWiper.wipeAll(context: modelContext)
                 needsOnboarding = false
             }

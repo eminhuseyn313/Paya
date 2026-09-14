@@ -49,24 +49,27 @@ EAT WITH CLARITY
 • Barcode scanning via OpenFoodFacts
 • Full macro + micronutrient tracking (14 nutrients)
 • Personalized calorie targets based on your goal and activity
-• Meal templates for quick logging
+• Chrono-nutrition insights — meal timing optimization
+• Regional food databases (Azerbaijani, Turkish, Russian cuisines)
 • Supports any cuisine and language
 
 RECOVER WITH DATA
-• Apple Health integration (sleep, steps, heart rate, HRV)
+• Apple Health integration (sleep, steps, heart rate, HRV, blood glucose, menstrual cycle, wrist temperature)
 • Readiness score based on HRV, RHR, and sleep quality
 • Sleep debt tracking with recovery recommendations
-• Soreness mapping by muscle group
-• Morning check-in for daily wellness tracking
+• Cycle-aware training adjustments for menstrual cycle phases
+• Blood glucose trend insights and glycemic response tracking
 • Symptom and flare-day logging for chronic conditions
+• Flare forecasting engine with 24-48h predictive alerts
 
 UNDERSTAND YOUR BODY
 • Correlation engine linking sleep, nutrition, and performance
 • Body recomposition tracking (weight + strength trends)
 • Progress photos with timeline view
-• Weekly AI-powered coaching digest
-• Personal health narrative and trend analysis
+• AI-powered coaching digest and daily narrative briefing
+• Trend journal with personal health narrative
 • Blood pressure, medication, and supplement tracking
+• Closed-loop experiments to test lifestyle changes
 
 APPLE WATCH
 • Readiness glance with circular score ring
@@ -74,13 +77,16 @@ APPLE WATCH
 • Water logging
 • Guided breathwork (4s-in/6s-out with HRV measurement)
 • Quick morning check-in from your wrist
+• Complications for readiness score
 
 PRIVACY FIRST
-• All data stored locally on your device
+• All data stored locally on your device by default
+• Optional cloud backup with account creation (Supabase, AWS-hosted)
 • No analytics, no ads, no tracking
 • API keys stored in iOS Keychain
 • Optional AI features require your own API key
-• Explicit consent required before any data leaves your device
+• Sign In with Apple supported
+• Use the app without an account — your choice
 
 PAYA PRO (one-time $14.99)
 • AI coaching and weekly digest
@@ -110,42 +116,68 @@ Science-backed workout tracking, AI nutrition analysis, and recovery insights �
 Paste this in the "Notes for Review" field in App Store Connect:
 
 ```
-DEMO ACCOUNT / SETUP
-No login required — Paya stores everything locally on-device.
-Launch the app → complete the 8-step onboarding (takes ~60 seconds with any values).
+AUTHENTICATION
+The app supports Sign In with Apple, email/password, and local-only
+guest mode (no account required). You can test any path:
+
+  Option A — Sign In with Apple: tap "Continue with Apple" on the
+  auth screen.
+
+  Option B — Guest mode: tap "Continue without account" at the
+  bottom of the auth screen. All features work locally; cloud sync
+  is disabled.
+
+  Option C — Email: use these demo credentials:
+    Email: reviewer@getpaya.app
+    Password: PayaReview2026!
+
+After signing in, complete the 8-step onboarding (~60 seconds with
+any values).
 
 TESTING IN-APP PURCHASE
-The app uses StoreKit 2 for a non-consumable "Paya Pro — Lifetime" ($14.99).
+The app uses StoreKit 2 for a non-consumable "Paya Pro — Lifetime"
+($14.99).
 Product ID: com.paya.pro.lifetime
-In sandbox, you can test purchase and restore using a sandbox Apple ID.
+In sandbox, test purchase and restore using a sandbox Apple ID.
 
 AI FEATURES
-AI coaching features require the user's own API key (Anthropic Claude or Google Gemini).
-The app does NOT provide or bundle any API keys.
-Users must also enable "Allow External AI" in Settings → AI Data Sharing before data is sent externally.
-Apple Intelligence (on-device) works without any API key or consent toggle.
+AI coaching requires the user's own API key (Anthropic Claude or
+Google Gemini). The app does NOT bundle any API keys. Users must
+enable "Allow External AI" in Settings → AI Data Sharing before
+data is sent externally. On-device Apple Intelligence works without
+any API key or consent toggle.
 
 HEALTH DATA
-The app reads HealthKit data (steps, heart rate, sleep, weight) to provide recovery scoring and training recommendations.
-The app writes completed workouts and body weight entries back to HealthKit.
-HealthKit data is never shared with third parties (except when the user explicitly uses AI features with consent enabled).
+The app reads HealthKit data: steps, heart rate, HRV, sleep, weight,
+blood glucose, menstrual flow, and wrist temperature — to provide
+recovery scoring, cycle-aware training, and glucose trend insights.
+The app writes completed workouts and body weight to HealthKit.
+HealthKit data is never shared with third parties (except when the
+user explicitly uses AI features with consent enabled).
 
-PROMO CODES
-The app includes a promo code system for press/review access.
-Codes are stored as SHA-256 hashes — no plaintext codes exist in the binary.
-This is separate from App Store promo codes.
+CLOUD SYNC
+Account holders' data syncs to Supabase (AWS-hosted). Supabase Row
+Level Security ensures each user can only access their own data.
+Guest mode users have no cloud data at all.
 
 HEALTH DISCLAIMER
-A health disclaimer is shown during onboarding (final step) and in Settings.
-The app is a fitness tracker, not a medical device (per Guideline 5.3.3).
+A health disclaimer is shown during onboarding and in Settings.
+The app is a fitness tracker, not a medical device. Blood glucose
+insights, menstrual cycle adjustments, and HRV analysis are for
+informational purposes only.
 
 BLUETOOTH
 The app connects to Bluetooth heart rate monitors during workouts.
-Background Bluetooth is declared for live HR during active sessions only.
+Background Bluetooth is declared for live HR during active sessions.
 
 LOCATION
-Location is used only to fetch weather/UV data from Open-Meteo (open-source, no tracking).
-The app does not store location history.
+Location is used to fetch weather/UV/air quality data from Open-Meteo
+(open-source, no tracking). Optional background air quality alerts
+require Always location permission (off by default, user must opt in).
+
+PROMO CODES
+The app includes a promo code system for press/review access.
+Codes are stored as SHA-256 hashes — no plaintext in the binary.
 ```
 
 ---
@@ -189,16 +221,17 @@ Recommended screenshot sequence (5-8 screenshots):
 
 In App Store Connect → App Privacy:
 
-**Data Linked to You: None** (all data is on-device)
-
 **Data Used to Track You: None**
 
 **Data types collected:**
-- Health & Fitness → used for App Functionality → not linked to identity
-- Fitness → used for App Functionality → not linked to identity
-- Body → used for App Functionality → not linked to identity  
-- Photos → used for App Functionality → not linked to identity
-- Precise Location → used for App Functionality → not linked to identity
-- Name → used for App Functionality → not linked to identity
+- Health & Fitness → used for App Functionality → linked to identity (if account created)
+- Fitness → used for App Functionality → linked to identity (if account created)
+- Body → used for App Functionality → linked to identity (if account created)
+- Photos → used for App Functionality → not linked to identity (local only)
+- Precise Location → used for App Functionality → not linked to identity (sent to Open-Meteo, not stored)
+- Name → used for App Functionality → linked to identity (if account created)
+- Email Address → used for App Functionality → linked to identity (if account created via email)
+- User ID → used for App Functionality → linked to identity (Supabase auth)
 
-All "Not Linked to You" because there's no account system / no server / no way to tie data to an identity.
+Note: Guest mode users have no linked data at all — but the nutrition
+label must reflect the maximum data collection when an account exists.
