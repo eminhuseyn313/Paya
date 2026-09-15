@@ -10,6 +10,7 @@ struct TrainView: View {
     @State private var showDiscardConfirm = false
     @State private var showCompleteSheet = false
     @State private var showReflectionSheet = false
+    @State private var showCelebration = false
     @State private var showFlareToggle = false
     @State private var showLibrary = false
     @State private var showSessionEditor = false
@@ -253,7 +254,7 @@ struct TrainView: View {
                             showCompleteSheet = false
                             UINotificationFeedbackGenerator().notificationOccurred(.success)
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                showReflectionSheet = true
+                                showCelebration = true
                             }
                         },
                         onCancel: { showCompleteSheet = false }
@@ -263,6 +264,16 @@ struct TrainView: View {
             .sheet(isPresented: $showReflectionSheet) {
                 if let session = vm?.completedSession {
                     ReflectionSheet(session: session)
+                }
+            }
+            .fullScreenCover(isPresented: $showCelebration) {
+                if let session = vm?.completedSession {
+                    SessionCelebrationView(session: session) {
+                        showCelebration = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showReflectionSheet = true
+                        }
+                    }
                 }
             }
             .sheet(isPresented: $showLibrary) {
@@ -341,6 +352,9 @@ struct TrainView: View {
             WatchSessionManager.shared.onEndSessionRequested = { [weak vm] in
                 guard let vm, vm.isSessionActive else { return }
                 vm.completeSession(context: modelContext)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    showCelebration = true
+                }
             }
             Task {
                 await vm?.loadRecoveryContext(

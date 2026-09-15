@@ -219,13 +219,14 @@ struct ReflectionTag: Identifiable, Hashable {
 // MARK: - Session Header Strip
 
 struct SessionHeaderStrip: View {
+    @Environment(AppState.self) private var appState
     var session: TrainingSession
 
     var sessionType: SessionType? {
         SessionType(rawValue: session.sessionType)
     }
 
-    var totalVolume: Double {
+    var totalVolumeKg: Double {
         session.exercises.reduce(0.0) { total, ex in
             total + ex.sets
                 .filter { $0.isCompleted }
@@ -240,6 +241,10 @@ struct SessionHeaderStrip: View {
     }
 
     var body: some View {
+        let useLbs = appState.profile.prefersLbs
+        let vol = useLbs ? totalVolumeKg * 2.20462 : totalVolumeKg
+        let unit = useLbs ? "lbs" : "kg"
+
         HStack(spacing: 12) {
             if let type = sessionType {
                 ZStack {
@@ -255,7 +260,7 @@ struct SessionHeaderStrip: View {
                 Text(sessionType?.displayName ?? "Session")
                     .font(.subheadline.weight(.semibold))
                 Text(
-                    "\(session.durationMinutes)m · \(totalSets) sets · \(Int(totalVolume))kg"
+                    "\(session.durationMinutes)m · \(totalSets) sets · \(Int(vol))\(unit)"
                     + (session.hrRecovery60.map { " · HRR \($0)↓" } ?? "")
                 )
                     .font(.caption)
