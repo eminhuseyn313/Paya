@@ -56,7 +56,7 @@ struct PlateCalculatorView: View {
                         PlateBar(weightKg: plate, color: sessionColor)
                     }
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(Color(.systemGray3))
+                        .fill(Pulse.textTertiary)
                         .frame(width: 50, height: 14)
                 }
                 .frame(height: 140, alignment: .center)

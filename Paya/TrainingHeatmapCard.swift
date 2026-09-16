@@ -103,7 +103,7 @@ struct TrainingHeatmapCard: View {
 
     private func cellColor(count: Int, date: Date?) -> Color {
         guard let d = date, d <= Date() else {
-            return Color(.systemBackground).opacity(0.3)
+            return Pulse.surfaceFallback.opacity(0.3)
         }
         return levelColor(min(count, 3))
     }

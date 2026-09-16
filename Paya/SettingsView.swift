@@ -992,7 +992,7 @@ struct TrainingDaysRow: View {
                             .frame(width: 32, height: 32)
                             .background(isTraining
                                 ? Color(hex: "2563EB")
-                                : Color(.tertiarySystemBackground))
+                                : Pulse.surfaceElevatedFallback)
                             .foregroundColor(isTraining ? .white : .secondary)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
@@ -1059,7 +1059,7 @@ struct APIKeyRow: View {
                     TextField(placeholder, text: $apiKeyInput)
                         .font(.system(.caption, design: .monospaced))
                         .padding(10)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
@@ -1085,7 +1085,7 @@ struct APIKeyRow: View {
                             .padding(.vertical, 10)
                             .background(saved
                                 ? Color(hex: "059669")
-                                : (trimmedInput.isEmpty ? Color(.systemGray4) : Color(hex: "2563EB")))
+                                : (trimmedInput.isEmpty ? Pulse.surfaceFallback : Color(hex: "2563EB")))
                             .foregroundColor(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }

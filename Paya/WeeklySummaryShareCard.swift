@@ -260,7 +260,7 @@ struct WeeklySummaryShareCard: View {
                 }
             }
             .padding(16)
-            .background(Color(.systemBackground))
+            .background(Pulse.canvasFallback)
 
             // Footer
             HStack {
