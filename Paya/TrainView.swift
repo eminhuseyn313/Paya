@@ -1037,8 +1037,7 @@ struct EmptyDayCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 30)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .payaCard(padding: 16)
     }
 }
 
