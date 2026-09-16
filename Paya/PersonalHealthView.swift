@@ -176,7 +176,7 @@ struct DayNavigator: View {
                 Image(systemName: "chevron.left")
                     .font(.subheadline.weight(.semibold))
                     .frame(width: 36, height: 36)
-                    .background(Color(.secondarySystemBackground))
+                    .background(Pulse.surfaceFallback)
                     .clipShape(Circle())
             }
             .accessibilityLabel("Previous day")
@@ -195,7 +195,7 @@ struct DayNavigator: View {
                 Image(systemName: "chevron.right")
                     .font(.subheadline.weight(.semibold))
                     .frame(width: 36, height: 36)
-                    .background(isToday ? Color.clear : Color(.secondarySystemBackground))
+                    .background(isToday ? Color.clear : Pulse.surfaceFallback)
                     .clipShape(Circle())
                     .opacity(isToday ? 0.3 : 1)
             }
@@ -840,7 +840,7 @@ struct TimelineSection: View {
                     }
                 }
             }
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
             .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
         }
     }

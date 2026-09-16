@@ -84,7 +84,7 @@ struct RecoveryBanner: View {
                 .padding(14)
             }
         }
-        .background(Color(.secondarySystemBackground))
+        .background(Pulse.surfaceFallback)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
             RoundedRectangle(cornerRadius: 14)

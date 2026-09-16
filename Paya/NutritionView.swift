@@ -60,7 +60,7 @@ struct NutritionView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color(.secondarySystemBackground))
+                        .background(Pulse.surfaceFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
 
@@ -451,7 +451,7 @@ struct QuickActionChip: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
             .clipShape(Capsule())
         }
         .buttonStyle(PulsePress())

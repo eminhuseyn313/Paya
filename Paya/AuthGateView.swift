@@ -25,7 +25,13 @@ struct AuthGateView: View {
     var body: some View {
         ZStack {
             // Background
-            Color.black.ignoresSafeArea()
+            Pulse.canvasFallback.ignoresSafeArea()
+            Circle()
+                .fill(Pulse.hydration.opacity(0.06))
+                .frame(width: 400, height: 400)
+                .blur(radius: 100)
+                .offset(y: -200)
+                .ignoresSafeArea()
 
             if showResetSent {
                 resetSentView

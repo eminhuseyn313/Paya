@@ -552,6 +552,9 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
+            .scrollContentBackground(.hidden)
+            .background(Pulse.canvasFallback)
+            .preferredColorScheme(.dark)
             .alert("Clear All Data", isPresented: $showExportConfirm) {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) {

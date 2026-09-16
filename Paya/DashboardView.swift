@@ -153,8 +153,12 @@ struct DashboardView: View {
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(14)
-                        .background(Color(.secondarySystemBackground))
+                        .background(Pulse.surfaceFallback)
                         .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: PayaRadius.card)
+                                .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                        )
                     }
                     .buttonStyle(PulsePress())
 
@@ -397,8 +401,12 @@ struct StatusHeader: View {
                             .foregroundColor(Pulse.textTertiary)
                     }
                     .padding(12)
-                    .background(Color(.secondarySystemBackground))
+                    .background(Pulse.surfaceFallback)
                     .clipShape(RoundedRectangle(cornerRadius: PayaRadius.card))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: PayaRadius.card)
+                            .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                    )
                 }
                 .buttonStyle(PulsePress())
 
@@ -500,8 +508,9 @@ struct StatusHeader: View {
                 .font(.system(size: 14))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 34, height: 34)
-                .background(Color(.secondarySystemBackground))
+                .background(Pulse.surfaceFallback)
                 .clipShape(Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.06), lineWidth: 0.5))
         }
         .accessibilityLabel("Settings")
     }
@@ -836,7 +845,10 @@ struct VitalsStrip: View {
         color: String,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        } label: {
             VStack(spacing: 4) {
                 // Mini progress ring or icon
                 ZStack {
@@ -875,8 +887,12 @@ struct VitalsStrip: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
             .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+            )
         }
         .buttonStyle(PulsePress())
     }

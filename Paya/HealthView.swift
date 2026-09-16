@@ -230,7 +230,7 @@ struct FlareDayToggle: View {
             .padding(14)
             .background(appState.isFlareDay
                 ? Pulse.warning.opacity(0.1)
-                : Color(.secondarySystemBackground))
+                : Pulse.surfaceFallback)
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }

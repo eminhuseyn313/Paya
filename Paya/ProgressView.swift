@@ -319,7 +319,7 @@ struct ProgressCollapsible<Content: View>: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(Color(.secondarySystemBackground))
+                .background(Pulse.surfaceFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
             .buttonStyle(PulsePress())
@@ -431,7 +431,7 @@ struct ProgressStatChip: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(Color(.secondarySystemBackground))
+            .background(Pulse.surfaceFallback)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(PulsePress())

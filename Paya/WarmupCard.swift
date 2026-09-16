@@ -160,13 +160,13 @@ struct WarmupCard: View {
                 .padding(14)
             }
         }
-        .background(Color(.secondarySystemBackground))
+        .background(Pulse.surfaceFallback)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(
-                    isComplete ? Pulse.positive.opacity(0.4) : Color.clear,
-                    lineWidth: 1.5
+                    isComplete ? Pulse.positive.opacity(0.4) : Color.white.opacity(0.06),
+                    lineWidth: isComplete ? 1.5 : 0.5
                 )
         )
     }

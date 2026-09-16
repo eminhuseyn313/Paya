@@ -300,7 +300,7 @@ struct WeeklySummaryShareCard: View {
             Spacer()
         }
         .padding(10)
-        .background(Color(.secondarySystemBackground))
+        .background(Pulse.surfaceFallback)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }

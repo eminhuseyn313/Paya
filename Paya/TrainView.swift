@@ -403,7 +403,7 @@ struct DayPickerBar: View {
                                 .lineLimit(1)
                         }
                         .frame(width: 60, height: 50)
-                        .background(isSelected ? day.color : Color(.secondarySystemBackground))
+                        .background(isSelected ? day.color : Pulse.surfaceFallback)
                         .foregroundColor(isSelected ? .white : .secondary)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
@@ -1367,8 +1367,12 @@ struct PreSessionContextSection: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(Color(.secondarySystemBackground))
+                .background(Pulse.surfaceFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                )
             }
             .buttonStyle(PulsePress())
 
