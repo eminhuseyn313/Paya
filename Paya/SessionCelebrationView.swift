@@ -31,6 +31,7 @@ struct SessionCelebrationView: View {
     @State private var showButton = false
     @State private var pulseScale: CGFloat = 1.0
     @State private var particlePhase: CGFloat = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var totalVolume: Double {
         session.exercises.reduce(0.0) { total, ex in
@@ -78,10 +79,11 @@ struct SessionCelebrationView: View {
             .scaleEffect(pulseScale)
             .ignoresSafeArea()
 
-            // Floating particles
-            CelebrationParticles(color: heroColor, phase: particlePhase)
-                .opacity(showContent ? 1 : 0)
-                .ignoresSafeArea()
+            if !reduceMotion {
+                CelebrationParticles(color: heroColor, phase: particlePhase)
+                    .opacity(showContent ? 1 : 0)
+                    .ignoresSafeArea()
+            }
 
             VStack(spacing: 0) {
                 Spacer()
@@ -254,6 +256,7 @@ struct SessionCelebrationView: View {
                 .offset(y: showButton ? 0 : 20)
             }
         }
+        .preferredColorScheme(.dark)
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true
@@ -264,14 +267,16 @@ struct SessionCelebrationView: View {
             withAnimation(.easeOut(duration: 0.4).delay(0.8)) {
                 showButton = true
             }
-            withAnimation(
-                .easeInOut(duration: 2.0)
-                .repeatForever(autoreverses: true)
-            ) {
-                pulseScale = 1.08
-            }
-            withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
-                particlePhase = 1
+            if !reduceMotion {
+                withAnimation(
+                    .easeInOut(duration: 2.0)
+                    .repeatForever(autoreverses: true)
+                ) {
+                    pulseScale = 1.08
+                }
+                withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
+                    particlePhase = 1
+                }
             }
             UINotificationFeedbackGenerator().notificationOccurred(.success)
         }
