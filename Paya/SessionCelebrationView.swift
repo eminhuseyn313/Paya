@@ -40,12 +40,25 @@ struct SessionCelebrationView: View {
         }
     }
 
+    private var totalReps: Int {
+        session.exercises.reduce(0) { total, ex in
+            total + ex.sets.filter { $0.isCompleted }.reduce(0) { $0 + $1.reps }
+        }
+    }
+
+    private var hasVolume: Bool { totalVolume > 10 }
+
     private var comparison: WeightComparison {
         WeightComparison.best(for: totalVolume)
     }
 
     private var multiplier: Double {
-        totalVolume / comparison.weightKg
+        guard comparison.weightKg > 0 else { return 1 }
+        return totalVolume / comparison.weightKg
+    }
+
+    private var heroColor: Color {
+        hasVolume ? comparison.glowColor : Pulse.positive
     }
 
     var body: some View {
@@ -55,7 +68,7 @@ struct SessionCelebrationView: View {
             // Ambient radial glow behind the icon
             RadialGradient(
                 colors: [
-                    comparison.glowColor.opacity(showContent ? 0.25 : 0),
+                    heroColor.opacity(showContent ? 0.25 : 0),
                     Color.clear
                 ],
                 center: .center,
@@ -66,7 +79,7 @@ struct SessionCelebrationView: View {
             .ignoresSafeArea()
 
             // Floating particles
-            CelebrationParticles(color: comparison.glowColor, phase: particlePhase)
+            CelebrationParticles(color: heroColor, phase: particlePhase)
                 .opacity(showContent ? 1 : 0)
                 .ignoresSafeArea()
 
@@ -77,7 +90,7 @@ struct SessionCelebrationView: View {
                 Text("SESSION COMPLETE")
                     .font(.system(size: 11, weight: .heavy, design: .rounded))
                     .tracking(3)
-                    .foregroundColor(comparison.glowColor.opacity(0.7))
+                    .foregroundColor(heroColor.opacity(0.7))
                     .opacity(showContent ? 1 : 0)
                     .offset(y: showContent ? 0 : 10)
 
@@ -86,98 +99,132 @@ struct SessionCelebrationView: View {
                 // Hero icon
                 ZStack {
                     Circle()
-                        .fill(comparison.glowColor.opacity(0.08))
+                        .fill(heroColor.opacity(0.08))
                         .frame(width: 160, height: 160)
                         .scaleEffect(pulseScale)
 
                     Circle()
-                        .fill(comparison.glowColor.opacity(0.04))
+                        .fill(heroColor.opacity(0.04))
                         .frame(width: 200, height: 200)
                         .scaleEffect(pulseScale * 0.95)
 
-                    Image(systemName: comparison.sfSymbol)
+                    Image(systemName: hasVolume ? comparison.sfSymbol : "figure.strengthtraining.traditional")
                         .font(.system(size: 72, weight: .medium))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [comparison.glowColor, comparison.glowColor.opacity(0.6)],
+                                colors: [heroColor, heroColor.opacity(0.6)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
                         )
-                        .shadow(color: comparison.glowColor.opacity(0.5), radius: 20)
+                        .shadow(color: heroColor.opacity(0.5), radius: 20)
                 }
                 .scaleEffect(showContent ? 1 : 0.5)
                 .opacity(showContent ? 1 : 0)
 
                 Spacer().frame(height: 32)
 
-                // Volume number
+                // Main metric
                 VStack(spacing: 6) {
-                    Text(volumeString)
-                        .font(.system(size: 52, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
-                        .contentTransition(.numericText())
-
-                    Text("total \(useLbs ? "lbs" : "kg") moved")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(Pulse.textSecondary)
+                    if hasVolume {
+                        Text(volumeString)
+                            .font(.system(size: 52, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                            .contentTransition(.numericText())
+                        Text("total \(useLbs ? "lbs" : "kg") moved")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Pulse.textSecondary)
+                    } else {
+                        Text("\(totalReps)")
+                            .font(.system(size: 52, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                            .contentTransition(.numericText())
+                        Text("total reps crushed")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(Pulse.textSecondary)
+                    }
                 }
                 .opacity(showContent ? 1 : 0)
                 .offset(y: showContent ? 0 : 20)
 
                 Spacer().frame(height: 36)
 
-                // Comparison card
-                VStack(spacing: 12) {
-                    Text("That's like lifting")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Pulse.textTertiary)
+                // Comparison card — only for weighted sessions
+                if hasVolume {
+                    VStack(spacing: 12) {
+                        Text("That's like lifting")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(Pulse.textTertiary)
 
-                    HStack(spacing: 14) {
-                        // Repeated icons for multiplier
-                        HStack(spacing: -8) {
-                            ForEach(0..<min(Int(multiplier.rounded()), 5), id: \.self) { i in
-                                Image(systemName: comparison.sfSymbol)
-                                    .font(.system(size: 28, weight: .medium))
-                                    .foregroundColor(comparison.glowColor)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.black)
-                                            .frame(width: 44, height: 44)
-                                    )
-                                    .offset(x: showComparison ? 0 : CGFloat(i) * -20)
-                                    .opacity(showComparison ? 1 : 0)
-                                    .animation(
-                                        .spring(response: 0.5, dampingFraction: 0.7)
-                                            .delay(Double(i) * 0.08),
-                                        value: showComparison
-                                    )
+                        HStack(spacing: 14) {
+                            HStack(spacing: -8) {
+                                ForEach(0..<min(max(Int(multiplier.rounded()), 1), 5), id: \.self) { i in
+                                    Image(systemName: comparison.sfSymbol)
+                                        .font(.system(size: 28, weight: .medium))
+                                        .foregroundColor(comparison.glowColor)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.black)
+                                                .frame(width: 44, height: 44)
+                                        )
+                                        .offset(x: showComparison ? 0 : CGFloat(i) * -20)
+                                        .opacity(showComparison ? 1 : 0)
+                                        .animation(
+                                            .spring(response: 0.5, dampingFraction: 0.7)
+                                                .delay(Double(i) * 0.08),
+                                            value: showComparison
+                                        )
+                                }
+                            }
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(comparisonText)
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                Text(comparison.subtitle)
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(Pulse.textTertiary)
                             }
                         }
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(comparisonText)
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                            Text(comparison.subtitle)
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(Pulse.textTertiary)
-                        }
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.white.opacity(0.06))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(heroColor.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                    .padding(.horizontal, 32)
+                    .scaleEffect(showComparison ? 1 : 0.9)
+                    .opacity(showComparison ? 1 : 0)
+                } else {
+                    // Bodyweight session encouragement
+                    VStack(spacing: 8) {
+                        Text("Pure bodyweight power")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                        Text("You moved your own body through \(totalReps) reps across \(totalSets) sets")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(Pulse.textTertiary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.white.opacity(0.06))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(heroColor.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                    .padding(.horizontal, 32)
+                    .scaleEffect(showComparison ? 1 : 0.9)
+                    .opacity(showComparison ? 1 : 0)
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.06))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(comparison.glowColor.opacity(0.2), lineWidth: 1)
-                        )
-                )
-                .padding(.horizontal, 32)
-                .scaleEffect(showComparison ? 1 : 0.9)
-                .opacity(showComparison ? 1 : 0)
 
                 Spacer().frame(height: 20)
 
@@ -198,7 +245,7 @@ struct SessionCelebrationView: View {
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(comparison.glowColor)
+                        .background(heroColor)
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
                 .padding(.horizontal, 32)
@@ -385,7 +432,7 @@ struct WeightComparison {
         if let match = sorted.first(where: { volume / $0.weightKg >= 0.8 }) {
             return match
         }
-        return all.first!
+        return all[0]
     }
 }
 
