@@ -31,6 +31,7 @@ struct PulseTrainView: View {
     @State private var showDiscardConfirm = false
     @State private var showCompleteSheet = false
     @State private var showReflectionSheet = false
+    @State private var showCelebration = false
     @State private var showFlareToggle = false
     @State private var showLibrary = false
     @State private var showSessionEditor = false
@@ -245,7 +246,7 @@ struct PulseTrainView: View {
                             vm.completeSession(context: modelContext)
                             showCompleteSheet = false
                             UINotificationFeedbackGenerator().notificationOccurred(.success)
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { showReflectionSheet = true }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { showCelebration = true }
                         },
                         onCancel: { showCompleteSheet = false }
                     )
@@ -253,6 +254,16 @@ struct PulseTrainView: View {
             }
             .sheet(isPresented: $showReflectionSheet) {
                 if let session = vm?.completedSession { ReflectionSheet(session: session) }
+            }
+            .fullScreenCover(isPresented: $showCelebration) {
+                if let session = vm?.completedSession {
+                    SessionCelebrationView(session: session) {
+                        showCelebration = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showReflectionSheet = true
+                        }
+                    }
+                }
             }
             .sheet(isPresented: $showLibrary) { ExerciseLibraryView() }
             .sheet(isPresented: $showProgramCheckup) { ProgramCheckupView() }
@@ -324,6 +335,9 @@ struct PulseTrainView: View {
             WatchSessionManager.shared.onEndSessionRequested = { [weak vm] in
                 guard let vm, vm.isSessionActive else { return }
                 vm.completeSession(context: modelContext)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    showCelebration = true
+                }
             }
             Task { await vm?.loadRecoveryContext(context: modelContext, appState: appState) }
             withAnimation(.easeOut(duration: 0.6).delay(0.1)) { hasAppeared = true }

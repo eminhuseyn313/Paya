@@ -781,8 +781,9 @@ struct SessionLiveHeader: View {
                                 .font(.system(size: 14, weight: .bold).monospacedDigit())
                         }
                         if vm.previousSessionVolume > 0 {
-                            let delta = totalVolume - vm.previousSessionVolume
-                            let pct = (delta / vm.previousSessionVolume) * 100
+                            let prevDisplay = appState.profile.prefersLbs ? vm.previousSessionVolume * 2.20462 : vm.previousSessionVolume
+                            let delta = totalVolume - prevDisplay
+                            let pct = (delta / prevDisplay) * 100
                             Text(delta >= 0
                                  ? String(format: "+%.0f%%", pct)
                                  : String(format: "%.0f%%", pct))
