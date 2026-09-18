@@ -383,7 +383,7 @@ struct EditableExerciseCard: View {
                 .padding(12)
             }
         }
-        .background(Color(.secondarySystemBackground))
+        .background(Pulse.surfaceFallback)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .alert("Remove this exercise?", isPresented: $showDeleteConfirm) {
             Button("Cancel", role: .cancel) {}

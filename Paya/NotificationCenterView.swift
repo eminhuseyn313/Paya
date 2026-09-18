@@ -56,7 +56,6 @@ struct NotificationCenterView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -181,6 +180,7 @@ private extension NotificationCategory {
         case .circadian: return "sun.max.fill"
         case .postWorkoutNutrition: return "fork.knife.circle.fill"
         case .weeklyDigest: return "doc.text.magnifyingglass"
+        case .dailyBriefing: return "sparkles"
         }
     }
     var color: Color {
@@ -199,6 +199,7 @@ private extension NotificationCategory {
         case .circadian: return Color(hex: "D97706")
         case .postWorkoutNutrition: return Pulse.positive
         case .weeklyDigest: return Pulse.hydration
+        case .dailyBriefing: return Pulse.ai
         }
     }
 }

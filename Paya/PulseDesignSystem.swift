@@ -425,7 +425,7 @@ struct MetricOrb: View {
                         .frame(width: size, height: size)
 
                     // Progress ring (optional) — animates on appear
-                    if let progress = progress {
+                    if progress != nil {
                         Circle()
                             .stroke(color.opacity(0.15), lineWidth: 3)
                             .frame(width: size, height: size)
@@ -679,7 +679,10 @@ struct PulseChip: View {
     var action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            action()
+        } label: {
             HStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 11, weight: .bold))

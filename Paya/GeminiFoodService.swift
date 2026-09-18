@@ -132,13 +132,7 @@ enum GeminiFoodService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-        let (data, response): (Data, URLResponse)
-        do {
-            (data, response) = try await URLSession.shared.data(for: request)
-        } catch {
-            throw ServiceError.requestFailed(error.localizedDescription)
-        }
-
+        let (data, response) = try await performWithRetry(request)
         try Self.checkResponse(response, data: data)
         return try parseEstimate(from: data)
     }
@@ -198,13 +192,7 @@ enum GeminiFoodService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-        let (data, response): (Data, URLResponse)
-        do {
-            (data, response) = try await URLSession.shared.data(for: request)
-        } catch {
-            throw ServiceError.requestFailed(error.localizedDescription)
-        }
-
+        let (data, response) = try await performWithRetry(request)
         try Self.checkResponse(response, data: data)
         return try parseEstimate(from: data)
     }
@@ -244,13 +232,7 @@ enum GeminiFoodService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
-        let (data, response): (Data, URLResponse)
-        do {
-            (data, response) = try await URLSession.shared.data(for: request)
-        } catch {
-            throw ServiceError.requestFailed(error.localizedDescription)
-        }
-
+        let (data, response) = try await performWithRetry(request)
         try Self.checkResponse(response, data: data)
 
         guard
@@ -263,6 +245,35 @@ enum GeminiFoodService {
             throw ServiceError.unparseable
         }
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Gemini's free-tier flash model returns 503 ("model overloaded")
+    /// fairly often under normal load — it's a transient capacity signal,
+    /// not a real failure, and Google's own docs recommend retrying with
+    /// backoff. Without this every 503 surfaced straight to the user as a
+    /// dead end ("Gemini request failed: HTTP 503...") even though a retry
+    /// a second later would usually have gone through fine.
+    private static func performWithRetry(_ request: URLRequest, maxAttempts: Int = 4) async throws -> (Data, URLResponse) {
+        var lastError: Error?
+        for attempt in 0..<maxAttempts {
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                let status = (response as? HTTPURLResponse)?.statusCode ?? 200
+                if status == 503 || status == 429, attempt < maxAttempts - 1 {
+                    let backoff = pow(2.0, Double(attempt)) // 1s, 2s, 4s
+                    try? await Task.sleep(nanoseconds: UInt64(backoff * 1_000_000_000))
+                    continue
+                }
+                return (data, response)
+            } catch {
+                lastError = error
+                if attempt < maxAttempts - 1 {
+                    try? await Task.sleep(nanoseconds: UInt64(pow(2.0, Double(attempt)) * 1_000_000_000))
+                    continue
+                }
+            }
+        }
+        throw ServiceError.requestFailed(lastError?.localizedDescription ?? "unknown network error")
     }
 
     private static func checkResponse(_ response: URLResponse, data: Data) throws {

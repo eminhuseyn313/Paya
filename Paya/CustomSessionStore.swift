@@ -19,11 +19,13 @@ enum CustomSessionStore {
            !custom.exercises.isEmpty {
             return custom.sortedExercises.map { $0.toExerciseDefinition() }
         }
-        if let orphan = fetch(code: code, context: context),
-           orphan.exercises.isEmpty {
-            context.delete(orphan)
-            try? context.save()
-        }
+        // Previously, an empty CustomSession was DELETED here before
+        // falling through to the built-in template. This was dangerous:
+        // SwiftData lazy-loads relationships, so `exercises` can appear
+        // empty momentarily during a cold launch or context fault, causing
+        // the record to be deleted — permanently losing any user
+        // customizations once the relationship loads. Instead, just fall
+        // through to the built-in exercises without touching the record.
         if let builtIn = SessionType(rawValue: code) {
             return ProgramData.exercises(for: builtIn)
         }

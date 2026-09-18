@@ -34,7 +34,7 @@ class AIService {
     }
 
     var providerIcon: String {
-        isAppleIntelligenceAvailable ? "apple.logo" : "sparkles"
+        isAppleIntelligenceAvailable ? "brain" : "sparkles"
     }
 
     // MARK: - Generate

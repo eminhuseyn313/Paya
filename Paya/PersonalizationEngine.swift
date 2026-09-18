@@ -267,8 +267,12 @@ enum PersonalizationEngine {
         let sexFactor = sexRaw.lowercased() == "female" ? 0.65 : 1.0
         let raw = templateWeightKg * bodyWeightFactor * sexFactor * experience.weightScalar
 
-        // Round to a realistic loadable increment.
-        let increment: Double = raw < 20 ? 1.25 : 2.5
+        // Round to a realistic loadable increment. 2.5kg throughout, not a
+        // finer 1.25kg step under 20kg — not every gym stocks 1.25kg
+        // plates or matching fractional dumbbells/machine pins, and a
+        // starting-weight suggestion the equipment can't actually produce
+        // isn't useful regardless of how fine-grained it looks on paper.
+        let increment: Double = 2.5
         return (raw / increment).rounded() * increment
     }
 }

@@ -26,6 +26,7 @@ Pods/
 *.pem
 *.cer
 *.mobileprovision
+Secrets.xcconfig
 
 # Screenshots (App Store submission assets)
 Screenshots/

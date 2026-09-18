@@ -111,7 +111,13 @@ final class WatchSessionManager: NSObject {
     // MARK: - Push state to watch
 
     func pushSessionSnapshot(_ snapshot: WatchSessionSnapshot?) {
-        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        guard isFullyConnected, WCSession.default.activationState == .activated else {
+            // Queue for retry when connectivity returns — only the latest
+            // snapshot matters (older ones are stale by definition).
+            if let snapshot { pendingSnapshot = snapshot }
+            return
+        }
+        pendingSnapshot = nil
         var context: [String: Any] = currentApplicationContext()
         if let snapshot {
             context["sessionActive"] = true
@@ -141,7 +147,11 @@ final class WatchSessionManager: NSObject {
     }
 
     func pushWaterTotal(_ ml: Int) {
-        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        guard isFullyConnected, WCSession.default.activationState == .activated else {
+            pendingWaterMl = ml
+            return
+        }
+        pendingWaterMl = nil
         var context: [String: Any] = currentApplicationContext()
         context["waterMl"] = ml
         context["waterTargetMl"] = WaterStore.dailyTargetMl
@@ -152,13 +162,43 @@ final class WatchSessionManager: NSObject {
     /// doesn't have to fall back on absolute-threshold guesswork (population
     /// averages for HRV/RHR miss personal baselines by a wide margin).
     func pushReadiness(score: Int, band: String, recommendation: String?) {
-        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        guard isFullyConnected, WCSession.default.activationState == .activated else {
+            pendingReadiness = (score, band, recommendation)
+            return
+        }
+        pendingReadiness = nil
         var context: [String: Any] = currentApplicationContext()
         context["readinessScore"] = score
         context["readinessBand"] = band
         context["readinessRecommendation"] = recommendation ?? ""
         context["readinessTimestamp"] = Date()
         try? WCSession.default.updateApplicationContext(context)
+    }
+
+    // MARK: - Pending push queue
+
+    /// Holds the most recent snapshot that failed to send (connectivity down).
+    /// Retried automatically when reachability changes. Only the latest
+    /// snapshot matters — older ones are stale by definition.
+    private var pendingSnapshot: WatchSessionSnapshot? = nil
+    private var pendingWaterMl: Int? = nil
+    private var pendingReadiness: (score: Int, band: String, recommendation: String?)? = nil
+
+    /// Retry any queued pushes — called when reachability flips to true.
+    private func flushPendingPushes() {
+        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        if let snapshot = pendingSnapshot {
+            pendingSnapshot = nil
+            pushSessionSnapshot(snapshot)
+        }
+        if let ml = pendingWaterMl {
+            pendingWaterMl = nil
+            pushWaterTotal(ml)
+        }
+        if let r = pendingReadiness {
+            pendingReadiness = nil
+            pushReadiness(score: r.score, band: r.band, recommendation: r.recommendation)
+        }
     }
 
     private func currentApplicationContext() -> [String: Any] {
@@ -180,18 +220,34 @@ extension WatchSessionManager: WCSessionDelegate {
         Task { @MainActor in
             WatchSessionManager.shared.hasActivated = true
             WatchSessionManager.shared.refreshStatus()
+            // Flush anything queued before activation completed
+            WatchSessionManager.shared.flushPendingPushes()
         }
     }
 
-    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {}
+    nonisolated func sessionDidBecomeInactive(_ session: WCSession) {
+        // Multi-watch switch: the old watch is disconnecting. Update status
+        // so the UI reflects the transient state (Apple docs: this is brief,
+        // followed by sessionDidDeactivate).
+        Task { @MainActor in
+            WatchSessionManager.shared.isWatchReachable = false
+        }
+    }
 
     nonisolated func sessionDidDeactivate(_ session: WCSession) {
+        // Multi-watch handoff complete — re-activate so the new watch's
+        // delegate callbacks start flowing (Apple docs requirement).
         session.activate()
     }
 
     nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
         Task { @MainActor in
             WatchSessionManager.shared.refreshStatus()
+            // When the watch comes back in range, flush any queued pushes
+            // so the watch gets the latest state without user intervention.
+            if session.isReachable {
+                WatchSessionManager.shared.flushPendingPushes()
+            }
         }
     }
 
@@ -201,37 +257,90 @@ extension WatchSessionManager: WCSessionDelegate {
         }
     }
 
+    // MARK: - Incoming messages (fire-and-forget)
+
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
         Task { @MainActor in
-            guard let action = message["action"] as? String else { return }
-            switch action {
-            case "logSet":
-                let weight = message["weightKg"] as? Double ?? 0
-                let reps = message["reps"] as? Int ?? 0
-                WatchSessionManager.shared.onSetLogged?(weight, reps)
-            case "addWater":
-                let ml = message["ml"] as? Int ?? 0
-                WatchSessionManager.shared.onWaterAdded?(ml)
-            case "skipRest":
-                WatchSessionManager.shared.onSkipRestRequested?()
-            case "endSession":
-                WatchSessionManager.shared.onEndSessionRequested?()
-            case "quickCheckIn":
-                let energy = message["energy"] as? Int ?? 2
-                let soreness = message["soreness"] as? Int ?? 1
-                let hasSymptom = message["hasSymptom"] as? Bool ?? false
-                WatchSessionManager.shared.onCheckInReceived?(energy, soreness, hasSymptom)
-            case "heartRate":
-                // Watch companion streams HR samples — Apple Watch writes HR
-                // every ~5s during workouts, ~10min passively. This real-time
-                // bridge avoids the HealthKit sync delay (up to 15 min).
-                if let bpm = message["bpm"] as? Int, bpm > 30 && bpm < 250 {
-                    WatchSessionManager.shared.watchHeartRate = bpm
-                    WatchSessionManager.shared.watchHeartRateTimestamp = Date()
-                }
-            default:
-                break
+            WatchSessionManager.shared.handleIncomingMessage(message)
+        }
+    }
+
+    // MARK: - Incoming messages (reply expected)
+    // If the watch ever sends with a replyHandler, WCSession requires this
+    // overload — without it the watch times out after 60s and the user sees
+    // a connectivity error. Even if we don't have meaningful reply data, we
+    // must call the handler to close the channel.
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessage message: [String: Any],
+        replyHandler: @escaping ([String: Any]) -> Void
+    ) {
+        Task { @MainActor in
+            WatchSessionManager.shared.handleIncomingMessage(message)
+        }
+        replyHandler(["status": "ok"])
+    }
+
+    // MARK: - Incoming application context
+    // The watch can push context back to the phone (e.g. last workout HR
+    // summary, complication state). Without this delegate method, those
+    // updates silently vanish and the watch-side `updateApplicationContext`
+    // call appears to succeed from the watch's perspective.
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveApplicationContext applicationContext: [String: Any]
+    ) {
+        Task { @MainActor in
+            // Fallback HR delivery path: the watch prefers `sendMessage` for
+            // real-time BPM (handled in `handleIncomingMessage` below), but
+            // that requires the phone to be reachable. When it isn't — phone
+            // locked/backgrounded mid-set, the common case during an actual
+            // lift — the watch pushes the latest BPM via application context
+            // instead, which doesn't require reachability. Without this
+            // path, HR only ever registered for whichever set happened
+            // before the phone stopped being reachable.
+            if let bpm = applicationContext["watchHR"] as? Int, bpm > 30 && bpm < 250 {
+                WatchSessionManager.shared.watchHeartRate = bpm
+                WatchSessionManager.shared.watchHeartRateTimestamp = Date()
             }
+        }
+    }
+}
+
+// MARK: - Message dispatch (shared by fire-and-forget + reply-handler paths)
+
+extension WatchSessionManager {
+    fileprivate func handleIncomingMessage(_ message: [String: Any]) {
+        guard let action = message["action"] as? String else { return }
+        switch action {
+        case "logSet":
+            let weight = message["weightKg"] as? Double ?? 0
+            let reps = message["reps"] as? Int ?? 0
+            onSetLogged?(weight, reps)
+        case "addWater":
+            let ml = message["ml"] as? Int ?? 0
+            onWaterAdded?(ml)
+        case "skipRest":
+            onSkipRestRequested?()
+        case "endSession":
+            onEndSessionRequested?()
+        case "quickCheckIn":
+            let energy = message["energy"] as? Int ?? 2
+            let soreness = message["soreness"] as? Int ?? 1
+            let hasSymptom = message["hasSymptom"] as? Bool ?? false
+            onCheckInReceived?(energy, soreness, hasSymptom)
+        case "heartRate":
+            // Watch companion streams HR samples — Apple Watch writes HR
+            // every ~5s during workouts, ~10min passively. This real-time
+            // bridge avoids the HealthKit sync delay (up to 15 min).
+            if let bpm = message["bpm"] as? Int, bpm > 30 && bpm < 250 {
+                watchHeartRate = bpm
+                watchHeartRateTimestamp = Date()
+            }
+        default:
+            break
         }
     }
 }

@@ -287,7 +287,12 @@ enum SmartProgramEngine {
             let weights = logs.compactMap { log -> Double? in
                 let completed = log.sets.filter(\.isCompleted)
                 guard !completed.isEmpty else { return nil }
-                return completed.map(\.weightKg).reduce(0, +) / Double(completed.count)
+                // Was an average across that session's sets — any variance
+                // between sets (a drop set, a mid-exercise adjustment)
+                // produced a fractional "working weight" no plate combo
+                // could actually produce. Max working weight is the
+                // meaningful number here, same convention ProgressiveOverloadCard uses.
+                return completed.map(\.weightKg).max()
             }
             guard weights.count >= 4 else { continue }
 
@@ -335,16 +340,42 @@ enum SmartProgramEngine {
 
             let allHitTop = completed.allSatisfy { $0.reps >= exercise.repRange.max }
             if allHitTop {
-                let currentWeight = completed.map(\.weightKg).reduce(0, +) / Double(completed.count)
+                // Was an average across sets — e.g. sets logged at 60/65/65kg
+                // averaged to 63.33kg, a weight no plate combination can
+                // actually produce, then got carried forward as the "next
+                // weight" suggestion. Max working weight this session,
+                // rounded to a real 2.5kg increment (same rounding
+                // RecoveryAdjuster already applies elsewhere — 2.5kg and
+                // 5kg are the jumps this gym's equipment actually offers,
+                // not a finer 1.25kg plate not every gym stocks), gives an
+                // actually loadable number.
+                let currentWeight = completed.map(\.weightKg).max() ?? exercise.startWeightKg
                 let increment = exercise.repRange.increment
-                let newWeight = currentWeight + increment
+
+                // Assisted exercises (assisted pull-up, assisted dip) log
+                // the counterweight, not the load — LESS weight is harder.
+                // Hitting the top of the rep range means "reduce
+                // assistance," the opposite direction of every other
+                // weighted exercise. This block used to always add the
+                // increment, which told someone who'd mastered their
+                // assisted pull-ups to add MORE assistance next time —
+                // exactly backwards. Same fix TrainViewModel.swift already
+                // applies to the same-shaped suggestion in `previousData`.
+                let isAssisted = AssistedExerciseDetector.isAssisted(name: exercise.name)
+                let newWeight = isAssisted
+                    ? max(0, (currentWeight - increment).rounded(toNearest: 2.5))
+                    : (currentWeight + increment).rounded(toNearest: 2.5)
+                let delta = newWeight - currentWeight
+
                 recs.append(SmartRecommendation(
                     type: .weightIncrease,
                     exerciseId: exercise.id,
                     exerciseName: exercise.name,
-                    title: "Increase: \(exercise.name)",
-                    detail: "Hit top of rep range on all sets. Move to \(String(format: "%.1f", convert(newWeight))) \(unit) (+\(String(format: "%.1f", convert(increment)))) next session.",
-                    icon: "arrow.up.circle.fill",
+                    title: isAssisted ? "Reduce assistance: \(exercise.name)" : "Increase: \(exercise.name)",
+                    detail: isAssisted
+                        ? "Hit top of rep range on all sets. Drop assistance to \(String(format: "%.1f", convert(newWeight))) \(unit) (\(String(format: "%.1f", convert(delta)))) next session."
+                        : "Hit top of rep range on all sets. Move to \(String(format: "%.1f", convert(newWeight))) \(unit) (+\(String(format: "%.1f", convert(delta)))) next session.",
+                    icon: isAssisted ? "arrow.down.circle.fill" : "arrow.up.circle.fill",
                     color: Pulse.positive,
                     priority: 2
                 ))

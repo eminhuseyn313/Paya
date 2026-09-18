@@ -219,13 +219,14 @@ struct ReflectionTag: Identifiable, Hashable {
 // MARK: - Session Header Strip
 
 struct SessionHeaderStrip: View {
+    @Environment(AppState.self) private var appState
     var session: TrainingSession
 
     var sessionType: SessionType? {
         SessionType(rawValue: session.sessionType)
     }
 
-    var totalVolume: Double {
+    var totalVolumeKg: Double {
         session.exercises.reduce(0.0) { total, ex in
             total + ex.sets
                 .filter { $0.isCompleted }
@@ -240,6 +241,10 @@ struct SessionHeaderStrip: View {
     }
 
     var body: some View {
+        let useLbs = appState.profile.prefersLbs
+        let vol = useLbs ? totalVolumeKg * 2.20462 : totalVolumeKg
+        let unit = useLbs ? "lbs" : "kg"
+
         HStack(spacing: 12) {
             if let type = sessionType {
                 ZStack {
@@ -255,7 +260,7 @@ struct SessionHeaderStrip: View {
                 Text(sessionType?.displayName ?? "Session")
                     .font(.subheadline.weight(.semibold))
                 Text(
-                    "\(session.durationMinutes)m · \(totalSets) sets · \(Int(totalVolume))kg"
+                    "\(session.durationMinutes)m · \(totalSets) sets · \(Int(vol))\(unit)"
                     + (session.hrRecovery60.map { " · HRR \($0)↓" } ?? "")
                 )
                     .font(.caption)
@@ -306,23 +311,32 @@ struct RPESection: View {
                 }
             }
 
-            HStack(spacing: 4) {
-                ForEach(1...10, id: \.self) { value in
-                    Button {
-                        withAnimation(.spring(response: 0.2)) {
-                            rpe = value
+            // Was one 10-wide HStack — each button's minimum width (digit +
+            // padding) summed past the screen width on every phone size, so
+            // "10" always got pushed off-screen (an HStack won't compress
+            // children below their intrinsic minimum). Two rows of 5 fits
+            // comfortably instead.
+            VStack(spacing: 4) {
+                ForEach([Array(1...5), Array(6...10)], id: \.self) { row in
+                    HStack(spacing: 4) {
+                        ForEach(row, id: \.self) { value in
+                            Button {
+                                withAnimation(.spring(response: 0.2)) {
+                                    rpe = value
+                                }
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            } label: {
+                                Text("\(value)")
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundColor(rpe == value ? .white : .primary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(rpe == value
+                                        ? colorForRPE(value)
+                                        : Pulse.surfaceElevatedFallback)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
                         }
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    } label: {
-                        Text("\(value)")
-                            .font(.subheadline.weight(.bold))
-                            .foregroundColor(rpe == value ? .white : .primary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(rpe == value
-                                ? colorForRPE(value)
-                                : Pulse.surfaceElevatedFallback)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
             }

@@ -152,7 +152,6 @@ struct WaterQuickSheet: View {
             .padding(.top, 16)
             .padding(.bottom, 12)
             .background(Pulse.canvasFallback.ignoresSafeArea())
-            .preferredColorScheme(.dark)
             .navigationTitle("Water")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -93,8 +93,12 @@ struct SessionComparisonBanner: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(Color(.secondarySystemBackground))
+                .background(Pulse.surfaceFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                )
             }
         }
     }

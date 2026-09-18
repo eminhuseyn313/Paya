@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum NotificationCategory: String, Codable, CaseIterable, Identifiable {
-    case training, meal, supplement, hydration, recovery, weighIn, milestone, flareRisk, restTimer, medication, eyeCare, circadian, postWorkoutNutrition, weeklyDigest
+    case training, meal, supplement, hydration, recovery, weighIn, milestone, flareRisk, restTimer, medication, eyeCare, circadian, postWorkoutNutrition, weeklyDigest, dailyBriefing
 
     var id: String { rawValue }
 
@@ -22,6 +22,7 @@ enum NotificationCategory: String, Codable, CaseIterable, Identifiable {
         case .circadian: return "Morning light reminders"
         case .postWorkoutNutrition: return "Post-workout nutrition"
         case .weeklyDigest: return "Weekly review"
+        case .dailyBriefing: return "Daily briefing"
         }
     }
 }

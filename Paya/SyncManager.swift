@@ -70,6 +70,15 @@ final class SyncManager {
             try await syncEnvironmentalReadings(context: context, userId: uid)
             try await syncWellnessInsightRecords(context: context, userId: uid)
 
+            // Last: the "experiments" Supabase table doesn't exist yet
+            // server-side (needs to be created before this can succeed) —
+            // kept last so a failure here doesn't block every other table's
+            // backup, which upstream would fail first if this threw earlier
+            // in the chain. Local storage is unaffected either way; this
+            // only blocks the cloud copy.
+            try await syncExperiments(context: context, userId: uid)
+            try await syncNarrativeHistory(context: context, userId: uid)
+
             client.markSynced()
         } catch {
             client.syncError = error.localizedDescription
@@ -517,6 +526,41 @@ final class SyncManager {
         try await upsertJSON(table: "custom_meal_templates", rows: rows)
     }
 
+    private func syncExperiments(context: ModelContext, userId: UUID) async throws {
+        let logs = (try? context.fetch(FetchDescriptor<Experiment>())) ?? []
+        let rows: [[String: Any]] = logs.map { e in
+            [
+                "id": e.id.uuidString,
+                "user_id": userId.uuidString,
+                "profile_id": e.profileId?.uuidString as Any,
+                "title": e.title,
+                "metric_raw": e.metricRaw,
+                "start_date": iso(e.startDate),
+                "notes": e.notes,
+                "created_at": iso(e.createdAt),
+                "is_active": e.isActive,
+            ]
+        }
+        try await upsertJSON(table: "experiments", rows: rows)
+    }
+
+    private func syncNarrativeHistory(context: ModelContext, userId: UUID) async throws {
+        let logs = (try? context.fetch(FetchDescriptor<NarrativeHistoryEntry>())) ?? []
+        let rows: [[String: Any]] = logs.map { n in
+            [
+                "id": n.id.uuidString,
+                "user_id": userId.uuidString,
+                "profile_id": n.profileId?.uuidString as Any,
+                "date": iso(n.date),
+                "headline": n.headline,
+                "source": n.source,
+                "icon": n.icon,
+                "color_hex": n.colorHex,
+            ]
+        }
+        try await upsertJSON(table: "narrative_history_entries", rows: rows)
+    }
+
     private func syncAchievements(context: ModelContext, userId: UUID) async throws {
         let logs = (try? context.fetch(FetchDescriptor<Achievement>())) ?? []
         let rows: [[String: Any]] = logs.map { a in
@@ -638,7 +682,11 @@ final class SyncManager {
                         if mirror.children.isEmpty {
                             result[key] = NSNull()
                         } else {
-                            result[key] = mirror.children.first!.value
+                            if let child = mirror.children.first {
+                                result[key] = child.value
+                            } else {
+                                result[key] = NSNull()
+                            }
                         }
                     } else if value is NSNull {
                         result[key] = NSNull()

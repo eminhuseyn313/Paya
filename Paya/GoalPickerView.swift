@@ -126,6 +126,9 @@ struct GoalPickerView: View {
             }
             .navigationTitle("Training Goal")
             .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .background(Pulse.canvasFallback)
+            .preferredColorScheme(.dark)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }

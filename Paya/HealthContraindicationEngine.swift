@@ -76,6 +76,92 @@ enum HealthContraindicationEngine {
         }
     }
 
+    // MARK: - Quick Preview Count
+    //
+    // Used by HealthJourneyView to show real-time feedback as the user
+    // makes selections, before they've completed the journey. Runs the
+    // same rules but returns only (category → count) pairs — cheaper
+    // to display and doesn't require a full report.
+
+    struct QuickPreview {
+        let nutritionCount: Int
+        let supplementCount: Int
+        let exerciseCount: Int
+        let sleepCount: Int
+        let mentalHealthCount: Int
+        let digestiveCount: Int
+
+        var totalCount: Int {
+            nutritionCount + supplementCount + exerciseCount +
+            sleepCount + mentalHealthCount + digestiveCount
+        }
+
+        var isEmpty: Bool { totalCount == 0 }
+    }
+
+    /// Returns category counts by temporarily setting profile fields,
+    /// running the full engine, and reverting. Does NOT persist to SwiftData.
+    static func quickPreview(
+        conditions: Set<String> = [],
+        genetics: Set<String> = [],
+        allergies: Set<String> = [],
+        medications: [String] = [],
+        supplements: [String] = [],
+        sleepDisorders: Set<String> = [],
+        mentalConditions: Set<String> = [],
+        digestiveIssues: Set<String> = [],
+        surgeries: Set<String> = [],
+        mobilityLimits: Set<String> = [],
+        profile: PersonProfile
+    ) -> QuickPreview {
+        // Snapshot current values
+        let origConditions = profile.chronicConditionsRaw
+        let origGenetics = profile.geneticDisordersRaw
+        let origAllergies = profile.allergiesRaw
+        let origMeds = profile.medicationsRaw
+        let origSupps = profile.currentSupplementsRaw
+        let origSleep = profile.sleepDisordersRaw
+        let origMental = profile.mentalHealthConditionsRaw
+        let origDigestive = profile.digestiveIssuesRaw
+        let origSurgeries = profile.pastSurgeriesRaw
+        let origMobility = profile.mobilityLimitationsRaw
+
+        // Apply current journey state
+        profile.chronicConditionsRaw = Array(conditions)
+        profile.geneticDisordersRaw = Array(genetics)
+        profile.allergiesRaw = Array(allergies)
+        profile.medicationsRaw = medications
+        profile.currentSupplementsRaw = supplements
+        profile.sleepDisordersRaw = Array(sleepDisorders)
+        profile.mentalHealthConditionsRaw = Array(mentalConditions)
+        profile.digestiveIssuesRaw = Array(digestiveIssues)
+        profile.pastSurgeriesRaw = Array(surgeries)
+        profile.mobilityLimitationsRaw = Array(mobilityLimits)
+
+        let report = generate(for: profile)
+
+        // Revert — no SwiftData save occurs
+        profile.chronicConditionsRaw = origConditions
+        profile.geneticDisordersRaw = origGenetics
+        profile.allergiesRaw = origAllergies
+        profile.medicationsRaw = origMeds
+        profile.currentSupplementsRaw = origSupps
+        profile.sleepDisordersRaw = origSleep
+        profile.mentalHealthConditionsRaw = origMental
+        profile.digestiveIssuesRaw = origDigestive
+        profile.pastSurgeriesRaw = origSurgeries
+        profile.mobilityLimitationsRaw = origMobility
+
+        return QuickPreview(
+            nutritionCount: report.nutritionWarnings.count,
+            supplementCount: report.supplementWarnings.count,
+            exerciseCount: report.exerciseWarnings.count,
+            sleepCount: report.sleepGuidance.count,
+            mentalHealthCount: report.mentalHealthNotes.count,
+            digestiveCount: report.digestiveNotes.count
+        )
+    }
+
     // MARK: - Generate Report
 
     static func generate(for profile: PersonProfile) -> ContraindicationReport {
@@ -639,6 +725,215 @@ enum HealthContraindicationEngine {
             mentalHealthNotes: mentalHealth.sorted { $0.severity > $1.severity },
             digestiveNotes: digestive.sorted { $0.severity > $1.severity }
         )
+    }
+
+    // MARK: - Personalized Recommendations
+
+    /// Positive, proactive recommendations derived from the user's profile.
+    /// These complement the warnings — instead of "avoid X," they say "prioritize Y."
+    /// Each is grounded in the same clinical sources as the contraindication rules.
+    struct Recommendation: Identifiable {
+        let id = UUID()
+        let icon: String          // SF Symbol
+        let title: String
+        let detail: String
+        let domain: String        // "Nutrition", "Training", "Recovery", "Supplements"
+        let source: String
+    }
+
+    static func recommendations(for profile: PersonProfile) -> [Recommendation] {
+        var recs: [Recommendation] = []
+
+        let conditions = Set(profile.chronicConditionsRaw)
+        let meds = Set(profile.medicationsRaw.map { $0.lowercased() })
+        let allergies = Set(profile.allergiesRaw)
+        let mentalRaw = Set(profile.mentalHealthConditionsRaw)
+        let sleepDisorders = Set(profile.sleepDisordersRaw)
+
+        // ── Universal baseline recommendations (personalized by lifestyle) ──
+
+        switch profile.occupationTypeRaw {
+        case "sedentary":
+            recs.append(Recommendation(
+                icon: "figure.walk", title: "Movement breaks every 45 min",
+                detail: "Sedentary work increases all-cause mortality risk. Even 2-minute walking breaks improve insulin sensitivity and reduce fatigue.",
+                domain: "Recovery",
+                source: "Dempsey et al. (2016) Diabetes Care — Breaks in Sitting"
+            ))
+        case "shiftWork":
+            recs.append(Recommendation(
+                icon: "moon.stars", title: "Anchor sleep with light exposure",
+                detail: "Use bright light during your work shift and blackout curtains for sleep. Melatonin 0.5–3 mg 30 min before your target sleep time helps circadian re-entrainment.",
+                domain: "Recovery",
+                source: "AASM Clinical Practice Guideline: Shift Work Disorder (2023)"
+            ))
+        default: break
+        }
+
+        // ── Condition-specific positive guidance ────────────────────────
+
+        if conditions.contains("diabetes_t1") || conditions.contains("diabetes_t2") {
+            recs.append(Recommendation(
+                icon: "figure.strengthtraining.traditional", title: "Resistance training improves glucose control",
+                detail: "3+ sessions/week of resistance training reduces HbA1c by 0.3–0.5%. Post-meal walks (10 min) blunt glucose spikes by ~20%.",
+                domain: "Training",
+                source: "ADA Position Statement: Physical Activity/Exercise and Diabetes (2024)"
+            ))
+        }
+
+        if conditions.contains("hypertension") {
+            recs.append(Recommendation(
+                icon: "heart.circle", title: "Aerobic exercise lowers BP naturally",
+                detail: "150+ min/week of moderate cardio reduces systolic BP by 5–8 mmHg. DASH diet + exercise is as effective as a first-line medication for Stage 1.",
+                domain: "Training",
+                source: "AHA/ACC Hypertension Guideline (2023)"
+            ))
+        }
+
+        if conditions.contains("pcos") {
+            recs.append(Recommendation(
+                icon: "scalemass", title: "Strength training is your strongest tool",
+                detail: "Resistance training improves insulin sensitivity and reduces androgen levels independent of weight loss. Aim for compound movements 3×/week.",
+                domain: "Training",
+                source: "International PCOS Network Evidence-Based Guideline (2023)"
+            ))
+        }
+
+        if conditions.contains("hypothyroidism") || conditions.contains("hashimotos") {
+            recs.append(Recommendation(
+                icon: "leaf", title: "Anti-inflammatory foods support thyroid",
+                detail: "Omega-3s, selenium-rich foods (brazil nuts, fish), and adequate iodine support thyroid hormone production. Gut health also matters — fermented foods help.",
+                domain: "Nutrition",
+                source: "ATA Guidelines for Hypothyroidism (2014, reaffirmed 2023)"
+            ))
+        }
+
+        if conditions.contains("crohns") || conditions.contains("ibs") {
+            recs.append(Recommendation(
+                icon: "chart.line.uptrend.xyaxis", title: "Your food diary is diagnostic",
+                detail: "After 14+ days of meal logging, Paya will identify your personal trigger foods. This data is more useful than generic elimination diets.",
+                domain: "Nutrition",
+                source: "ACG Clinical Guideline: IBS Management (2021)"
+            ))
+        }
+
+        if conditions.contains("fibromyalgia") {
+            recs.append(Recommendation(
+                icon: "drop.fill", title: "Water exercise is evidence-based",
+                detail: "Warm-water exercise programs reduce pain and improve function in fibromyalgia. Swimming, water aerobics, or pool walking 2–3×/week.",
+                domain: "Training",
+                source: "EULAR Revised Recommendations for Fibromyalgia (2017)"
+            ))
+        }
+
+        if conditions.contains("osteoporosis") || conditions.contains("osteopenia") {
+            recs.append(Recommendation(
+                icon: "figure.strengthtraining.traditional", title: "Weight-bearing exercise builds bone",
+                detail: "Impact exercises (jumping, stairs) + resistance training stimulate osteoblast activity. Combined with adequate calcium (1000–1200 mg) and vitamin D (800–1000 IU).",
+                domain: "Training",
+                source: "NOF Clinician's Guide to Prevention and Treatment of Osteoporosis (2022)"
+            ))
+        }
+
+        // ── Medication-aware positive recommendations ───────────────────
+
+        if meds.contains(where: { $0.contains("metformin") }) {
+            recs.append(Recommendation(
+                icon: "pill.circle", title: "Monitor B12 with metformin use",
+                detail: "Long-term metformin use depletes vitamin B12 in ~30% of users. Get B12 levels checked annually. Supplementing 1000 mcg/day is low-risk and preventive.",
+                domain: "Supplements",
+                source: "ADA Standards of Care (2024) — Vitamin B12 Monitoring"
+            ))
+        }
+
+        if meds.contains(where: { $0.contains("statin") || $0.contains("atorvastatin") || $0.contains("rosuvastatin") }) {
+            recs.append(Recommendation(
+                icon: "clock.arrow.circlepath", title: "Extended recovery is normal on statins",
+                detail: "Statins can cause myalgia in 5–10% of users. If you notice increased soreness, longer rest between sessions (48–72h for the same muscle group) is appropriate, not a sign to stop exercising.",
+                domain: "Recovery",
+                source: "ACC Expert Consensus on Statin-Associated Muscle Symptoms (2023)"
+            ))
+        }
+
+        if meds.contains(where: { $0.contains("beta") && $0.contains("blocker") || $0.contains("atenolol") || $0.contains("metoprolol") || $0.contains("propranolol") }) {
+            recs.append(Recommendation(
+                icon: "gauge.with.dots.needle.33percent", title: "Use RPE instead of heart rate zones",
+                detail: "Beta-blockers cap your heart rate response. Switch to Rate of Perceived Exertion (6–20 Borg scale) for training intensity — HR zones will underestimate your actual effort.",
+                domain: "Training",
+                source: "ACSM Guidelines for Exercise Testing and Prescription (11th ed.)"
+            ))
+        }
+
+        if meds.contains(where: { $0.contains("ssri") || $0.contains("sertraline") || $0.contains("fluoxetine") || $0.contains("escitalopram") || $0.contains("paroxetine") }) {
+            recs.append(Recommendation(
+                icon: "brain.head.profile", title: "Exercise amplifies SSRI effectiveness",
+                detail: "Regular exercise (150 min/week moderate or 75 min vigorous) enhances antidepressant response. Morning exercise may help offset SSRI-related sleep disruption.",
+                domain: "Training",
+                source: "Blumenthal et al. (2007) Psychosomatic Medicine — Exercise as Augmentation Therapy"
+            ))
+        }
+
+        // ── Mental health positive guidance ─────────────────────────────
+
+        if mentalRaw.contains("anxiety") {
+            recs.append(Recommendation(
+                icon: "wind", title: "Breathwork before training reduces anxiety",
+                detail: "4-7-8 breathing (4s inhale, 7s hold, 8s exhale) activates the parasympathetic nervous system. 2 minutes pre-workout improves focus and reduces pre-session anxiety.",
+                domain: "Recovery",
+                source: "Ma et al. (2017) Frontiers in Psychology — Diaphragmatic Breathing and Cortisol"
+            ))
+        }
+
+        if mentalRaw.contains("depression") {
+            recs.append(Recommendation(
+                icon: "sun.max", title: "Morning light + movement is evidence-based",
+                detail: "30 minutes of outdoor exercise in morning sunlight is as effective as low-dose antidepressants for mild-moderate depression. Start with walking — consistency beats intensity.",
+                domain: "Recovery",
+                source: "Singh et al. (2023) BMJ — Exercise for Depression Meta-Analysis"
+            ))
+        }
+
+        // ── Sleep disorder recommendations ──────────────────────────────
+
+        if sleepDisorders.contains("insomnia") {
+            recs.append(Recommendation(
+                icon: "bed.double", title: "Exercise timing matters for insomnia",
+                detail: "Moderate exercise 4–6 hours before bed improves sleep onset by ~13 minutes and total sleep by ~18 minutes. Avoid vigorous exercise within 2 hours of bedtime.",
+                domain: "Recovery",
+                source: "Kredlow et al. (2015) — Meta-Analysis of Exercise and Sleep"
+            ))
+        }
+
+        if sleepDisorders.contains("sleep_apnea") {
+            recs.append(Recommendation(
+                icon: "lungs", title: "Exercise reduces apnea severity",
+                detail: "Regular exercise reduces AHI (Apnea-Hypopnea Index) by ~25% even without weight loss. Tongue and throat exercises (myofunctional therapy) also help.",
+                domain: "Recovery",
+                source: "Iftikhar et al. (2014) — Exercise Training and Sleep Apnea Meta-Analysis"
+            ))
+        }
+
+        // ── Allergy-specific nutrition optimization ─────────────────────
+
+        if allergies.contains("lactose") {
+            recs.append(Recommendation(
+                icon: "leaf.arrow.circlepath", title: "Optimize calcium without dairy",
+                detail: "Fortified plant milks, sardines, broccoli, bok choy, and almonds cover your calcium needs (1000 mg/day). Pair with vitamin D for absorption.",
+                domain: "Nutrition",
+                source: "NIH Office of Dietary Supplements — Calcium Fact Sheet"
+            ))
+        }
+
+        if allergies.contains("gluten") || conditions.contains("celiac") {
+            recs.append(Recommendation(
+                icon: "carrot", title: "Focus on nutrient-dense GF grains",
+                detail: "Quinoa, buckwheat, amaranth, and millet are naturally gluten-free and more nutrient-dense than GF processed substitutes. They also provide more fiber and B vitamins.",
+                domain: "Nutrition",
+                source: "ACG Celiac Disease Guideline — Nutritional Management (2023)"
+            ))
+        }
+
+        return recs
     }
 
     // MARK: - AI Prompt Enrichment

@@ -1,26 +1,12 @@
 import SwiftUI
 import WatchKit
 
-// MARK: - Watch Quick Check-in
-//
-// A stripped-down morning check-in for the wrist. Users pick energy
-// (1-3), soreness (1-5), and an optional symptom flag — takes ~8
-// seconds. Data is sent to the phone via WatchConnectivity where it
-// becomes a full DailyCheckIn entry.
-//
-// Why on watch: the morning check-in prompt on the phone only fires
-// when the user opens the app. Many users see the notification and
-// dismiss it — but they're already wearing the watch when they wake up.
-
 struct QuickCheckInView: View {
 
-    @State private var energy: Int = 2      // 1=low, 2=ok, 3=high
-    @State private var soreness: Int = 1    // 1=none … 5=very sore
+    @State private var energy: Int = 2
+    @State private var soreness: Int = 1
     @State private var hasSymptom = false
     @State private var didSubmit = false
-
-    private let green = Color(hex: "059669")
-    private let amber = Color(hex: "F59E0B")
 
     var body: some View {
         if didSubmit {
@@ -35,14 +21,16 @@ struct QuickCheckInView: View {
     private var formView: some View {
         ScrollView {
             VStack(spacing: 10) {
-                Text("Quick Check-in")
-                    .font(.headline)
+                Text("Check-in")
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundColor(WatchPulse.textPrimary)
 
                 // Energy
                 VStack(spacing: 4) {
                     Text("ENERGY")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 9, weight: .black, design: .rounded))
+                        .foregroundColor(WatchPulse.textTertiary)
+                        .tracking(0.5)
 
                     HStack(spacing: 8) {
                         energyButton(level: 1, label: "Low", icon: "battery.25percent")
@@ -54,8 +42,9 @@ struct QuickCheckInView: View {
                 // Soreness
                 VStack(spacing: 4) {
                     Text("SORENESS")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 9, weight: .black, design: .rounded))
+                        .foregroundColor(WatchPulse.textTertiary)
+                        .tracking(0.5)
 
                     HStack(spacing: 4) {
                         ForEach(1...5, id: \.self) { level in
@@ -64,10 +53,10 @@ struct QuickCheckInView: View {
                                 WKInterfaceDevice.current().play(.click)
                             } label: {
                                 Text("\(level)")
-                                    .font(.system(size: 14, weight: .bold))
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
                                     .frame(width: 28, height: 28)
-                                    .background(soreness == level ? sorenessColor(level).opacity(0.2) : Color(.darkGray).opacity(0.3))
-                                    .foregroundColor(soreness == level ? sorenessColor(level) : .secondary)
+                                    .background(soreness == level ? sorenessColor(level).opacity(0.2) : WatchPulse.surface)
+                                    .foregroundColor(soreness == level ? sorenessColor(level) : WatchPulse.textTertiary)
                                     .clipShape(Circle())
                             }
                             .buttonStyle(.plain)
@@ -75,8 +64,8 @@ struct QuickCheckInView: View {
                     }
 
                     Text(sorenessLabel)
-                        .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(WatchPulse.textSecondary)
                 }
 
                 // Symptom flag
@@ -88,12 +77,12 @@ struct QuickCheckInView: View {
                         Image(systemName: hasSymptom ? "checkmark.circle.fill" : "circle")
                             .font(.system(size: 12))
                         Text("Feeling unwell")
-                            .font(.caption2)
+                            .font(.system(size: 11, weight: .medium))
                     }
-                    .foregroundColor(hasSymptom ? Color(hex: "DC2626") : .secondary)
+                    .foregroundColor(hasSymptom ? WatchPulse.critical : WatchPulse.textTertiary)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
-                    .background(hasSymptom ? Color(hex: "DC2626").opacity(0.1) : Color(.darkGray).opacity(0.2))
+                    .padding(.vertical, 5)
+                    .background(hasSymptom ? WatchPulse.critical.opacity(0.1) : WatchPulse.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
@@ -102,31 +91,39 @@ struct QuickCheckInView: View {
                 Button {
                     submit()
                 } label: {
-                    Text("Log Check-in")
-                        .font(.headline)
+                    Text("Log")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(green)
+                .tint(WatchPulse.positive)
             }
             .padding(.horizontal, 4)
         }
+        .background(WatchPulse.canvas)
     }
 
     // MARK: - Submitted
 
     private var submittedView: some View {
         VStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 36))
-                .foregroundColor(green)
+            ZStack {
+                Circle()
+                    .fill(WatchPulse.positive.opacity(0.15))
+                    .frame(width: 48, height: 48)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(WatchPulse.positive)
+            }
             Text("Logged")
-                .font(.headline)
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundColor(WatchPulse.textPrimary)
             Text("Energy \(energyLabel) · Soreness \(soreness)/5")
-                .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(WatchPulse.textSecondary)
         }
         .padding(.top, 16)
+        .background(WatchPulse.canvas)
     }
 
     // MARK: - Helpers
@@ -140,12 +137,12 @@ struct QuickCheckInView: View {
                 Image(systemName: icon)
                     .font(.system(size: 14))
                 Text(label)
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
-            .background(energy == level ? energyColor.opacity(0.2) : Color(.darkGray).opacity(0.3))
-            .foregroundColor(energy == level ? energyColor : .secondary)
+            .background(energy == level ? energyColor.opacity(0.2) : WatchPulse.surface)
+            .foregroundColor(energy == level ? energyColor : WatchPulse.textTertiary)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)
@@ -153,9 +150,9 @@ struct QuickCheckInView: View {
 
     private var energyColor: Color {
         switch energy {
-        case 1: return Color(hex: "DC2626")
-        case 3: return green
-        default: return amber
+        case 1: return WatchPulse.critical
+        case 3: return WatchPulse.positive
+        default: return WatchPulse.warning
         }
     }
 
@@ -179,11 +176,11 @@ struct QuickCheckInView: View {
 
     private func sorenessColor(_ level: Int) -> Color {
         switch level {
-        case 1: return green
+        case 1: return WatchPulse.positive
         case 2: return Color(hex: "84CC16")
-        case 3: return amber
+        case 3: return WatchPulse.warning
         case 4: return Color(hex: "EA580C")
-        default: return Color(hex: "DC2626")
+        default: return WatchPulse.critical
         }
     }
 
@@ -191,7 +188,6 @@ struct QuickCheckInView: View {
         WKInterfaceDevice.current().play(.success)
         didSubmit = true
 
-        // Send to phone via WatchConnectivity
         let payload: [String: Any] = [
             "type": "quickCheckIn",
             "energy": energy,

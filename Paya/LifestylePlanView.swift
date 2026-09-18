@@ -93,7 +93,6 @@ struct LifestylePlanView: View {
                 .padding(.top, 8)
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
-            .preferredColorScheme(.dark)
             .navigationTitle("Lifestyle Plan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

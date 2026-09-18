@@ -406,12 +406,14 @@ private struct SmallHydrationView: View {
                     .foregroundColor(.secondary)
             }
 
-            Text("\(snapshot.waterMl)")
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundColor(.cyan)
-            + Text(" ml")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.secondary)
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text("\(snapshot.waterMl)")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.cyan)
+                Text("ml")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+            }
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {

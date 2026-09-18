@@ -2,16 +2,21 @@ import SwiftUI
 import SwiftData
 import StoreKit
 import UniformTypeIdentifiers
+import CoreLocation
 
 struct SettingsView: View {
 
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
 
+    private var airQualityMonitor = AirQualityLocationMonitor.shared
+
     @State private var showAPIKeyField = false
     @State private var apiKeyInput = ""
     @State private var showGeminiAPIKeyField = false
     @State private var geminiAPIKeyInput = ""
+    @State private var showUSDAAPIKeyField = false
+    @State private var usdaAPIKeyInput = ""
     @State private var showExportConfirm = false
     @State private var exportedCSV = ""
     @State private var showCSVSheet = false
@@ -232,10 +237,21 @@ struct SettingsView: View {
                         showAPIKeyField: $showGeminiAPIKeyField,
                         apiKeyInput: $geminiAPIKeyInput
                     )
+
+                    APIKeyRow(
+                        title: "USDA Food Database Key",
+                        placeholder: "DEMO_KEY or your own",
+                        maskPrefix: "",
+                        iconColor: Color(hex: "059669"),
+                        currentValue: { appState.usdaAPIKey },
+                        save: { appState.usdaAPIKey = $0 },
+                        showAPIKeyField: $showUSDAAPIKeyField,
+                        apiKeyInput: $usdaAPIKeyInput
+                    )
                 } header: {
                     SectionHeader(title: "AI & Privacy", icon: "sparkles")
                 } footer: {
-                    Text("API keys stored in iOS Keychain. Claude: console.anthropic.com · Gemini (free): aistudio.google.com")
+                    Text("API keys stored in iOS Keychain. Claude: console.anthropic.com · Gemini (free): aistudio.google.com · USDA (free, adds government-verified whole-food data to search): api.data.gov/signup")
                         .font(.caption)
                 }
 
@@ -266,6 +282,34 @@ struct SettingsView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
+                    }
+
+                    HStack {
+                        SettingsIcon(icon: "aqi.medium", color: Color(hex: "059669"))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Air Quality Alerts")
+                            Text("Notify when you move somewhere with poor air quality — works even with the app closed")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer()
+                        Toggle("", isOn: Binding(
+                            get: { airQualityMonitor.isMonitoring },
+                            set: { newValue in
+                                if newValue {
+                                    airQualityMonitor.enable()
+                                } else {
+                                    airQualityMonitor.disable()
+                                }
+                            }
+                        ))
+                        .labelsHidden()
+                    }
+                    if airQualityMonitor.isMonitoring && airQualityMonitor.authorizationStatus != .authorizedAlways && airQualityMonitor.authorizationStatus != .notDetermined {
+                        Text("Location access is set to less than \"Always\" — open Settings app → Paya → Location to allow alerts while the app is closed.")
+                            .font(.caption2)
+                            .foregroundColor(Pulse.warning)
                     }
                                 } header: {
                                     SectionHeader(title: "Notifications", icon: "bell.fill")
@@ -387,50 +431,75 @@ struct SettingsView: View {
 
                 // MARK: - Account
                 Section {
-                    // Signed-in email
-                    if let email = SupabaseClient.shared.userEmail {
+                    if SupabaseClient.shared.isGuestMode {
+                        // Guest mode — prompt to create an account
                         HStack {
-                            SettingsIcon(icon: "person.crop.circle.fill", color: Color(hex: "2563EB"))
+                            SettingsIcon(icon: "person.crop.circle.badge.questionmark", color: Color(hex: "F59E0B"))
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Signed in as")
+                                Text("Local-only mode")
+                                    .font(.subheadline.weight(.medium))
+                                Text("Your data is only on this device. Create an account to enable cloud backup.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
-                                Text(email)
-                                    .font(.subheadline)
                             }
                         }
-                    }
 
-                    // Change password
-                    Button {
-                        showChangePassword = true
-                    } label: {
-                        HStack {
-                            SettingsIcon(icon: "key.fill", color: Color(hex: "F59E0B"))
-                            Text("Change Password")
-                                .foregroundColor(.primary)
+                        Button {
+                            SupabaseClient.shared.exitGuestMode()
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "person.crop.circle.badge.plus", color: Pulse.hydration)
+                                Text("Create Account")
+                                    .foregroundColor(Pulse.hydration)
+                                    .fontWeight(.semibold)
+                            }
                         }
-                    }
-
-                    // Sign out
-                    Button {
-                        showSignOutConfirm = true
-                    } label: {
-                        HStack {
-                            SettingsIcon(icon: "rectangle.portrait.and.arrow.right", color: .secondary)
-                            Text("Sign Out")
-                                .foregroundColor(.primary)
+                    } else {
+                        // Signed-in email
+                        if let email = SupabaseClient.shared.userEmail {
+                            HStack {
+                                SettingsIcon(icon: "person.crop.circle.fill", color: Color(hex: "2563EB"))
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Signed in as")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    Text(email)
+                                        .font(.subheadline)
+                                }
+                            }
                         }
-                    }
 
-                    // Delete account — Apple requires this for apps with account creation
-                    Button(role: .destructive) {
-                        showDeleteAccountConfirm = true
-                    } label: {
-                        HStack {
-                            SettingsIcon(icon: "person.crop.circle.badge.minus", color: .red)
-                            Text("Delete Account")
-                                .foregroundColor(.red)
+                        // Change password
+                        Button {
+                            showChangePassword = true
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "key.fill", color: Color(hex: "F59E0B"))
+                                Text("Change Password")
+                                    .foregroundColor(.primary)
+                            }
+                        }
+
+                        // Sign out
+                        Button {
+                            showSignOutConfirm = true
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "rectangle.portrait.and.arrow.right", color: .secondary)
+                                Text("Sign Out")
+                                    .foregroundColor(.primary)
+                            }
+                        }
+
+                        // Delete account — Apple requires this for apps with account creation
+                        Button(role: .destructive) {
+                            showDeleteAccountConfirm = true
+                        } label: {
+                            HStack {
+                                SettingsIcon(icon: "person.crop.circle.badge.minus", color: .red)
+                                Text("Delete Account")
+                                    .foregroundColor(.red)
+                            }
                         }
                     }
                 } header: {
@@ -483,6 +552,9 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.large)
+            .scrollContentBackground(.hidden)
+            .background(Pulse.canvasFallback)
+            .preferredColorScheme(.dark)
             .alert("Clear All Data", isPresented: $showExportConfirm) {
                 Button("Cancel", role: .cancel) {}
                 Button("Clear", role: .destructive) {
@@ -920,7 +992,7 @@ struct TrainingDaysRow: View {
                             .frame(width: 32, height: 32)
                             .background(isTraining
                                 ? Color(hex: "2563EB")
-                                : Color(.tertiarySystemBackground))
+                                : Pulse.surfaceElevatedFallback)
                             .foregroundColor(isTraining ? .white : .secondary)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
@@ -987,7 +1059,7 @@ struct APIKeyRow: View {
                     TextField(placeholder, text: $apiKeyInput)
                         .font(.system(.caption, design: .monospaced))
                         .padding(10)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
@@ -1013,7 +1085,7 @@ struct APIKeyRow: View {
                             .padding(.vertical, 10)
                             .background(saved
                                 ? Color(hex: "059669")
-                                : (trimmedInput.isEmpty ? Color(.systemGray4) : Color(hex: "2563EB")))
+                                : (trimmedInput.isEmpty ? Pulse.surfaceFallback : Color(hex: "2563EB")))
                             .foregroundColor(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }

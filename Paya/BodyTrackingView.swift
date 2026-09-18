@@ -356,11 +356,18 @@ struct ProgressPhotoThumb: View {
 
 struct PhotoCompareView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     let before: ProgressPhoto
     let after: ProgressPhoto
 
     @State private var mode: CompareMode = .sideBySide
     @State private var sliderPosition: CGFloat = 0.5
+    // Photos alone don't say much without the numbers alongside them —
+    // closest-to-date weight for each photo, so the visual comparison and
+    // the actual measured change read together instead of requiring a
+    // separate trip to the weight chart.
+    @State private var beforeWeightKg: Double? = nil
+    @State private var afterWeightKg: Double? = nil
 
     enum CompareMode: String, CaseIterable {
         case sideBySide = "Side by Side"
@@ -387,7 +394,7 @@ struct PhotoCompareView: View {
                 }
 
                 HStack(spacing: 24) {
-                    dateLabel(before.date, label: "Before")
+                    dateLabel(before.date, label: "Before", weightKg: beforeWeightKg)
                     Spacer()
                     if let daysBetween = Calendar.current.dateComponents([.day], from: before.date, to: after.date).day {
                         Text("\(daysBetween) days")
@@ -399,10 +406,17 @@ struct PhotoCompareView: View {
                             .clipShape(Capsule())
                     }
                     Spacer()
-                    dateLabel(after.date, label: "After")
+                    dateLabel(after.date, label: "After", weightKg: afterWeightKg)
                 }
                 .padding(.horizontal, 20)
-                .padding(.vertical, 12)
+                .padding(.vertical, 8)
+
+                if let bw = beforeWeightKg, let aw = afterWeightKg {
+                    Text(String(format: "%+.1f kg over this stretch", aw - bw))
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(aw <= bw ? Pulse.positive : Pulse.warning)
+                        .padding(.bottom, 12)
+                }
             }
             .navigationTitle("Comparison")
             .navigationBarTitleDisplayMode(.inline)
@@ -413,6 +427,27 @@ struct PhotoCompareView: View {
                 }
             }
         }
+        .onAppear {
+            beforeWeightKg = closestWeight(to: before.date)
+            afterWeightKg = closestWeight(to: after.date)
+        }
+    }
+
+    /// Nearest weight log within 5 days of the photo's date — close enough
+    /// to be representative without pairing a photo to a weight from weeks
+    /// away.
+    private func closestWeight(to date: Date) -> Double? {
+        let pid = ActiveProfile.id
+        let descriptor = FetchDescriptor<BodyWeightLog>(
+            predicate: #Predicate<BodyWeightLog> { $0.profileId == pid }
+        )
+        let logs = (try? modelContext.fetch(descriptor)) ?? []
+        guard let closest = logs.min(by: {
+            abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date))
+        }) else { return nil }
+        let gap = abs(closest.date.timeIntervalSince(date))
+        guard gap <= 5 * 24 * 3600 else { return nil }
+        return closest.weightKg
     }
 
     private var sideBySideView: some View {
@@ -477,13 +512,18 @@ struct PhotoCompareView: View {
         }
     }
 
-    private func dateLabel(_ date: Date, label: String) -> some View {
+    private func dateLabel(_ date: Date, label: String, weightKg: Double?) -> some View {
         VStack(spacing: 2) {
             Text(label)
                 .font(.caption2.weight(.bold))
                 .foregroundColor(Pulse.textTertiary)
             Text(date.formatted(date: .abbreviated, time: .omitted))
                 .font(.caption.weight(.semibold))
+            if let weightKg {
+                Text(String(format: "%.1f kg", weightKg))
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(Pulse.hydration)
+            }
         }
     }
 }

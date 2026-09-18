@@ -110,7 +110,6 @@ struct ExerciseLibraryView: View {
             }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {

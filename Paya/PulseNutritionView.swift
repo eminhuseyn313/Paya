@@ -90,7 +90,6 @@ struct PulseNutritionView: View {
                 .scrollDismissesKeyboard(.interactively)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {

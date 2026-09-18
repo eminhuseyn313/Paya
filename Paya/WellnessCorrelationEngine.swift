@@ -59,7 +59,26 @@ enum WellnessCorrelationEngine {
         )
         let waterEvents = (try? context.fetch(waterDescriptor)) ?? []
 
-        guard !todaysMeals.isEmpty || !waterEvents.isEmpty else { return [] }
+        // Humidity × joint pain — personal pattern-spotting, not a claimed
+        // universal effect (the evidence for humidity-sensitive joints is
+        // real but mixed in the literature, unlike barometric pressure).
+        // Checked before the meal/water guard below since it doesn't
+        // depend on either.
+        var humidityInsight: Insight? = nil
+        let healthDescriptor = FetchDescriptor<HealthLog>(
+            predicate: #Predicate<HealthLog> { $0.profileId == pid && $0.date >= startOfDay }
+        )
+        if let todaysPain = (try? context.fetch(healthDescriptor))?.first?.jointPainLevel, todaysPain >= 6,
+           let humidity = await WeatherService.shared.currentHumidity(), humidity >= 70 {
+            humidityInsight = Insight(
+                icon: "humidity.fill", colorHex: "0891B2",
+                text: "Humidity is \(Int(humidity))% today and you logged \(todaysPain)/10 joint pain — some people notice joints feel worse in high humidity, though the evidence for this is mixed. Worth tracking whether it's a real pattern for you specifically."
+            )
+        }
+
+        guard !todaysMeals.isEmpty || !waterEvents.isEmpty else {
+            return humidityInsight.map { [$0] } ?? []
+        }
 
         let hrSamples = await HealthKitManager.shared.fetchHeartRateSamples(since: startOfDay)
         guard hrSamples.count >= minimumSamplesForBaseline else { return [] }
@@ -123,6 +142,9 @@ enum WellnessCorrelationEngine {
                 icon: "checkmark.seal.fill", colorHex: "059669",
                 text: "Nothing unusual today — heart rate held steady around your logged meals and water."
             ))
+        }
+        if let humidityInsight {
+            insights.insert(humidityInsight, at: 0)
         }
         return insights
     }

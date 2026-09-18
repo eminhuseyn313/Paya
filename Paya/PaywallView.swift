@@ -18,6 +18,7 @@ struct PaywallView: View {
     @State private var promoCode: String = ""
     @State private var promoError: Bool = false
     @State private var showPromoField: Bool = false
+    @State private var heroGlow: Bool = false
 
     private let features: [(icon: String, title: String, description: String, color: String)] = [
         ("brain.head.profile.fill", "AI coaching",
@@ -49,6 +50,11 @@ struct PaywallView: View {
                     VStack(spacing: 12) {
                         ZStack {
                             Circle()
+                                .fill(Pulse.positive.opacity(heroGlow ? 0.2 : 0.08))
+                                .frame(width: 120, height: 120)
+                                .blur(radius: 20)
+
+                            Circle()
                                 .fill(
                                     LinearGradient(
                                         colors: [Pulse.positive, Pulse.recovery],
@@ -63,9 +69,13 @@ struct PaywallView: View {
                                 .foregroundColor(.white)
                         }
                         .padding(.top, 24)
+                        .onAppear {
+                            withAnimation(Pulse.Motion.glow) { heroGlow = true }
+                        }
 
                         Text("Paya Pro")
                             .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(Pulse.textPrimary)
 
                         Text("Unlock everything. Once, forever.")
                             .font(.subheadline)
@@ -103,8 +113,12 @@ struct PaywallView: View {
                             }
                         }
                     }
-                    .background(Color(.secondarySystemGroupedBackground))
+                    .background(Pulse.surfaceFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                    )
                     .padding(.horizontal, 16)
 
                     // MARK: Comparison
@@ -261,7 +275,8 @@ struct PaywallView: View {
                     .padding(.bottom, 40)
                 }
             }
-            .background(Color(.systemGroupedBackground))
+            .background(Pulse.canvasFallback)
+            .preferredColorScheme(.dark)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

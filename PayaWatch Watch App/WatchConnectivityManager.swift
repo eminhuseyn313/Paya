@@ -1,10 +1,15 @@
 import Foundation
 import WatchConnectivity
+import HealthKit
 
 // MARK: - Watch Connectivity Manager (watchOS side)
 // Mirrors the iPhone's active session + water total, and sends set-logged /
 // water-added actions back. Uses application context for state (so the watch
 // UI reflects the phone even after a relaunch) and messages for actions.
+//
+// NEW: starts an HKWorkoutSession when the phone's training session begins,
+// streams live heart rate samples back via sendMessage so the phone's
+// LiveHRManager has real-time BPM during exercises.
 
 @MainActor
 @Observable
@@ -69,17 +74,21 @@ final class WatchConnectivityManager: NSObject {
 
     // MARK: - Send actions to phone
 
+    /// Queued set that failed to send — retried when reachability returns.
+    /// Only one pending set at a time (the most recent failed one).
+    private var pendingSet: (weightKg: Double, reps: Int)? = nil
+
     func logSet(weightKg: Double, reps: Int) {
         guard WCSession.default.activationState == .activated else { return }
 
         guard WCSession.default.isReachable else {
-            // No point sending — sendMessage would just fail. Tell the
-            // user immediately rather than showing a "Logged!" confirmation
-            // for a set the phone can't possibly have received.
+            // Queue for retry when phone comes back in range.
+            pendingSet = (weightKg, reps)
             lastLogFailed = true
             return
         }
 
+        pendingSet = nil
         WCSession.default.sendMessage(
             ["action": "logSet", "weightKg": weightKg, "reps": reps],
             replyHandler: nil,
@@ -87,6 +96,9 @@ final class WatchConnectivityManager: NSObject {
                 Task { @MainActor in
                     self?.justLoggedSet = false
                     self?.lastLogFailed = true
+                    // Queue for retry — the phone was reachable but the
+                    // send failed (Bluetooth hiccup, phone locked, etc.)
+                    self?.pendingSet = (weightKg, reps)
                 }
             }
         )
@@ -99,6 +111,13 @@ final class WatchConnectivityManager: NSObject {
             try? await Task.sleep(for: .seconds(1.5))
             justLoggedSet = false
         }
+    }
+
+    /// Flush queued set when the phone becomes reachable again.
+    fileprivate func flushPendingSet() {
+        guard let set = pendingSet else { return }
+        pendingSet = nil
+        logSet(weightKg: set.weightKg, reps: set.reps)
     }
 
     func addWater(_ ml: Int) {
@@ -137,13 +156,152 @@ final class WatchConnectivityManager: NSObject {
         WCSession.default.sendMessage(msg, replyHandler: nil, errorHandler: nil)
     }
 
+    // MARK: - Live HR Streaming via HKWorkoutSession
+    //
+    // When the phone starts a training session, we start an HKWorkoutSession
+    // on the watch to enable continuous wrist HR sampling (~1 Hz during
+    // workouts, vs ~10 min passively — Apple Watch Technology Overview,
+    // Apple 2024). We then run an anchored-object query on HKQuantityType
+    // .heartRate and relay each sample to the phone via sendMessage.
+    //
+    // This fixes the "heartbeat not working during session" bug — the phone's
+    // LiveHRManager already handles incoming ["action": "heartRate", "bpm": N]
+    // messages at WatchSessionManager:328, but the watch side was never
+    // starting a workout or sending those messages.
+
+    private let healthStore = HKHealthStore()
+    private var workoutSession: HKWorkoutSession?
+    private var workoutBuilder: HKLiveWorkoutBuilder?
+    private var hrQuery: HKAnchoredObjectQuery?
+
+    private func startWorkoutForHR() {
+        // Only start once
+        guard workoutSession == nil else { return }
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+
+        let hrType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
+        healthStore.requestAuthorization(toShare: [HKQuantityType.workoutType()], read: [hrType]) { [weak self] ok, _ in
+            guard ok, let s = self else { return }
+            Task { @MainActor in
+                s.beginWorkoutSession()
+            }
+        }
+    }
+
+    private func beginWorkoutSession() {
+        let config = HKWorkoutConfiguration()
+        config.activityType = .traditionalStrengthTraining
+        config.locationType = .indoor
+
+        do {
+            let session = try HKWorkoutSession(healthStore: healthStore, configuration: config)
+            let builder = session.associatedWorkoutBuilder()
+            builder.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: config)
+
+            self.workoutSession = session
+            self.workoutBuilder = builder
+
+            session.startActivity(with: Date())
+            builder.beginCollection(withStart: Date()) { _, _ in }
+
+            // Start anchored query for live HR
+            startHRQuery()
+        } catch {
+            // Workout session failed — log but don't crash
+            print("[WatchHR] Failed to start workout session: \(error)")
+        }
+    }
+
+    private func startHRQuery() {
+        guard let hrType = HKQuantityType.quantityType(forIdentifier: .heartRate) else { return }
+
+        let query = HKAnchoredObjectQuery(
+            type: hrType,
+            predicate: HKQuery.predicateForSamples(withStart: Date(), end: nil, options: .strictStartDate),
+            anchor: nil,
+            limit: HKObjectQueryNoLimit
+        ) { [weak self] _, samples, _, _, _ in
+            self?.processHRSamples(samples)
+        }
+        query.updateHandler = { [weak self] _, samples, _, _, _ in
+            self?.processHRSamples(samples)
+        }
+        healthStore.execute(query)
+        self.hrQuery = query
+    }
+
+    private nonisolated func processHRSamples(_ samples: [HKSample]?) {
+        guard let quantitySamples = samples as? [HKQuantitySample], !quantitySamples.isEmpty else { return }
+        let bpmUnit = HKUnit.count().unitDivided(by: .minute())
+        for sample in quantitySamples {
+            let bpm = Int(sample.quantity.doubleValue(for: bpmUnit))
+            guard bpm > 30 && bpm < 250 else { continue }
+
+            // `sendMessage` requires the phone to be reachable (foreground-ish,
+            // Bluetooth-adjacent) — during a real set the phone is usually
+            // locked/pocketed, so `isReachable` goes false and every sample
+            // was previously just dropped silently. That's why HR only
+            // registered for the first set: whichever set happened before the
+            // phone locked. `updateApplicationContext` has no such
+            // reachability requirement (delivered whenever WatchConnectivity
+            // next syncs, including background) — used as the fallback so a
+            // BPM reading still lands even while unreachable, instead of
+            // going dark for the rest of the session.
+            if WCSession.default.isReachable {
+                WCSession.default.sendMessage(
+                    ["action": "heartRate", "bpm": bpm],
+                    replyHandler: nil,
+                    errorHandler: { _ in
+                        Self.pushHRViaApplicationContext(bpm: bpm)
+                    }
+                )
+            } else {
+                Self.pushHRViaApplicationContext(bpm: bpm)
+            }
+        }
+    }
+
+    /// Best-effort fallback path for HR delivery when `sendMessage` can't be
+    /// used — merges into the existing application context rather than
+    /// replacing it wholesale, since other keys (session state, water total)
+    /// are also carried via context updates elsewhere in this file. Key name
+    /// ("watchHR") matches what WatchSessionManager.didReceiveApplicationContext
+    /// already listens for on the phone side.
+    private nonisolated static func pushHRViaApplicationContext(bpm: Int) {
+        var context = WCSession.default.applicationContext
+        context["watchHR"] = bpm
+        try? WCSession.default.updateApplicationContext(context)
+    }
+
+    private func stopWorkoutForHR() {
+        if let query = hrQuery {
+            healthStore.stop(query)
+            hrQuery = nil
+        }
+        workoutSession?.end()
+        let builder = workoutBuilder
+        builder?.endCollection(withEnd: Date()) { _, _ in
+            builder?.finishWorkout { _, _ in }
+        }
+        workoutSession = nil
+        workoutBuilder = nil
+    }
+
     // MARK: - Apply incoming context
 
     private func apply(_ context: [String: Any]) {
         justLoggedSet = false
         lastLogFailed = false
+        let wasActive = sessionActive
         if let active = context["sessionActive"] as? Bool {
             sessionActive = active
+        }
+
+        // Start/stop HR workout session based on phone's training state
+        if sessionActive && !wasActive {
+            startWorkoutForHR()
+        } else if !sessionActive && wasActive {
+            stopWorkoutForHR()
         }
         exerciseName = context["exerciseName"] as? String ?? exerciseName
         setLabel = context["setLabel"] as? String ?? setLabel
@@ -172,6 +330,18 @@ final class WatchConnectivityManager: NSObject {
             phoneReadinessRecommendation = context["readinessRecommendation"] as? String
             phoneReadinessTimestamp = context["readinessTimestamp"] as? Date
         }
+
+        // Mirror into the App Group so the watch face complication (a
+        // separate process — can't read this @Observable state directly)
+        // has something fresh to show. Cheap to call on every context
+        // update; the write itself is a small UserDefaults set.
+        ComplicationSnapshotWriter.write(
+            readinessScore: phoneReadinessScore,
+            readinessBand: phoneReadinessBand,
+            sessionLabel: sessionLabel.isEmpty ? nil : sessionLabel,
+            waterMl: waterMl,
+            waterTargetMl: waterTargetMl
+        )
     }
 }
 
@@ -194,6 +364,17 @@ extension WatchConnectivityManager: WCSessionDelegate {
     nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
         Task { @MainActor in
             WatchConnectivityManager.shared.apply(applicationContext)
+        }
+    }
+
+    /// Fires when the phone toggles between reachable/unreachable — e.g.
+    /// user walks out of Bluetooth range then comes back. Retry any queued
+    /// set log so the user doesn't have to manually re-tap.
+    nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
+        Task { @MainActor in
+            if session.isReachable {
+                WatchConnectivityManager.shared.flushPendingSet()
+            }
         }
     }
 

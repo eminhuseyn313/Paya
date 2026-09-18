@@ -21,10 +21,14 @@ enum EnvironmentalReadingCapture {
 
         async let pressure = BarometricPressureService.currentPressureKPa()
         async let aqi = WeatherService.shared.currentAirQualityIndex()
+        async let coords = WeatherService.shared.currentCoordinates()
+        let resolvedCoords = await coords
 
         let reading = EnvironmentalReading(
             barometricPressureKPa: await pressure,
-            airQualityIndex: await aqi
+            airQualityIndex: await aqi,
+            latitude: resolvedCoords?.latitude,
+            longitude: resolvedCoords?.longitude
         )
         reading.profileId = pid
         guard reading.barometricPressureKPa != nil || reading.airQualityIndex != nil else { return }

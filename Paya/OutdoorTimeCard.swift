@@ -65,6 +65,15 @@ struct OutdoorTimeCard: View {
     @State private var todayMinutes: Double = 0
     @State private var streak: Int = 0
     @State private var weekData: [DayBar] = []
+    // UV index (Open-Meteo, free, no key) — outdoor time was tracked for
+    // its benefits (eye health, circadian anchoring) with no corresponding
+    // safety check on high-UV days. WHO UV Index scale: 6+ is "High" —
+    // recommends shade/protection during midday hours.
+    @State private var uvIndexMax: Double? = nil
+    // Nearest park (OpenStreetMap Overpass, free) — "a park is 8 min away"
+    // is a much lower-friction nudge than a bare minute counter with no
+    // sense of where to actually go.
+    @State private var nearestPark: OverpassService.Place? = nil
 
     private let quickAdds: [Double] = [15, 30, 60]
     private let green = Color(hex: "16A34A")
@@ -129,6 +138,41 @@ struct OutdoorTimeCard: View {
                     .foregroundColor(.secondary)
             }
 
+            if let park = nearestPark {
+                let walkMinutes = max(1, Int((park.distanceMeters / 80).rounded())) // ~80m/min walking pace
+                Button {
+                    if let url = URL(string: "https://www.openstreetmap.org/?mlat=\(park.latitude)&mlon=\(park.longitude)#map=17/\(park.latitude)/\(park.longitude)") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "tree.fill")
+                            .font(.caption2)
+                        Text("\(park.name) — ~\(walkMinutes) min walk")
+                            .font(.caption2.weight(.semibold))
+                        Spacer()
+                        Image(systemName: "arrow.up.right")
+                            .font(.system(size: 9, weight: .bold))
+                    }
+                    .foregroundColor(green)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 2)
+            }
+
+            if let uv = uvIndexMax, uv >= 6 {
+                HStack(spacing: 6) {
+                    Image(systemName: "sun.max.trianglebadge.exclamationmark.fill")
+                        .font(.caption2)
+                        .foregroundColor(Color(hex: "D97706"))
+                    Text("UV \(Int(uv)) today — \(uv >= 8 ? "very high, " : "")sun protection recommended if you're out around midday.")
+                        .font(.caption2)
+                        .foregroundColor(Color(hex: "D97706"))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.top, 2)
+            }
+
             HStack(spacing: 8) {
                 ForEach(quickAdds, id: \.self) { minutes in
                     Button {
@@ -191,6 +235,13 @@ struct OutdoorTimeCard: View {
             todayMinutes = OutdoorTimeStore.todayTotal(context: modelContext)
             streak = OutdoorTimeStore.currentStreak(context: modelContext)
             loadWeek()
+        }
+        .task {
+            uvIndexMax = await WeatherService.shared.todaySunAndUV()?.uvIndexMax
+            if let coords = await WeatherService.shared.currentCoordinates() {
+                let parks = await OverpassService.nearbyParks(latitude: coords.latitude, longitude: coords.longitude)
+                nearestPark = parks.first
+            }
         }
     }
 

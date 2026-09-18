@@ -172,7 +172,13 @@ class FlareDetectionEngine {
         biometrics: BiometricStore,
         healthLogs: [HealthLog],
         pressureDropKPa: Double? = nil,
-        todaysNoiseDb: Double? = nil
+        todaysNoiseDb: Double? = nil,
+        recentSessions: [TrainingSession] = [],
+        medications: [Medication] = [],
+        medicationDoseLogs: [MedicationDoseLog] = [],
+        todaysAQI: Double? = nil,
+        todaysPM25: Double? = nil,
+        todaysPollen: Double? = nil
     ) -> FlareRiskAssessment {
 
         let confidence = determineConfidence(
@@ -350,6 +356,134 @@ class FlareDetectionEngine {
                 severity: sev,
                 icon: "waveform"
             ))
+        }
+
+        // Signal 13: Poor air quality — EnvironmentalReadingCapture has
+        // fetched and stored a daily AQI reading (European AQI scale, 0-20
+        // Good … 100+ Extremely Poor) since earlier this session, but
+        // nothing ever read it back out; this was write-only data. PM2.5/
+        // particulate exposure has documented links to systemic
+        // inflammation and RA symptom exacerbation (Zhao CN et al. "Ambient
+        // air pollutant exposures and rheumatoid arthritis." Curr Rheumatol
+        // Rep. 2020, reviewing multiple cohort studies linking short-term
+        // pollution spikes to RA flare-ups). 60 = "Poor" band on the EAQI
+        // scale used here.
+        if let aqi = todaysAQI, aqi >= 60 {
+            let sev = aqi >= 80 ? 3 : 2
+            score += sev * 8
+            factors.append(.init(
+                name: "Air Quality",
+                observation: String(format: "AQI %.0f today", aqi),
+                severity: sev,
+                icon: "aqi.medium"
+            ))
+        }
+
+        // Signal 14: PM2.5 specifically — WHO's 2021 guideline flags 15
+        // µg/m³ (24h mean) as the threshold where health effects become a
+        // real concern; this is the raw pollutant the pollution-
+        // inflammation research actually measures, more precise than the
+        // blended AQI composite above. Both can fire independently since
+        // they're not always correlated (AQI blends several pollutants,
+        // one of which might be elevated while PM2.5 specifically isn't).
+        if let pm25 = todaysPM25, pm25 >= 15 {
+            let sev = pm25 >= 35 ? 3 : 2 // WHO interim target 1: 35 µg/m³
+            score += sev * 6
+            factors.append(.init(
+                name: "Fine Particulates",
+                observation: String(format: "PM2.5 %.0f µg/m³ today", pm25),
+                severity: sev,
+                icon: "aqi.high"
+            ))
+        }
+
+        // Signal 15: Pollen — allergic/atopic inflammation can cross-
+        // trigger autoimmune symptom flares via shared Th2/histamine
+        // pathways; this is a real but less direct mechanism than the
+        // air-quality signals above, so it's weighted lighter. Nil outside
+        // Europe (Open-Meteo's pollen model coverage), which is expected,
+        // not an error — the signal just doesn't fire there.
+        if let pollen = todaysPollen, pollen >= 50 {
+            let sev = pollen >= 150 ? 2 : 1
+            score += sev * 5
+            factors.append(.init(
+                name: "Pollen",
+                observation: String(format: "%.0f grains/m³ today", pollen),
+                severity: sev,
+                icon: "leaf.fill"
+            ))
+        }
+
+        // Signal 11: Training load spike — the one signal category that had
+        // never been connected to flare risk at all, despite the app
+        // already computing training load everywhere else (ACWRCard, TRIMP
+        // timeline). Acute:chronic workload ratio (Gabbett T. "The
+        // training-injury prevention paradox." Br J Sports Med. 2016) is a
+        // sports-science injury-risk marker, not a flare-specific one — but
+        // over-exertion aggravating inflammatory-condition symptoms is
+        // physiologically plausible and clinically observed (Cooney JK et
+        // al. "Benefits of exercise in rheumatoid arthritis." J Aging Res.
+        // 2011, notes overreaching as a caution alongside exercise's
+        // documented benefits). Treated here as a moderate-weight signal —
+        // real enough to surface, not asserted as an RA-specific finding.
+        if recentSessions.count >= 3 {
+            let calendar = Calendar.current
+            let now = Date()
+            let acuteCutoff = calendar.date(byAdding: .day, value: -7, to: now) ?? now
+            let chronicCutoff = calendar.date(byAdding: .day, value: -28, to: now) ?? now
+
+            let acuteTrimp = recentSessions
+                .filter { $0.date >= acuteCutoff }
+                .compactMap(\.sessionTrimpScore)
+            let chronicTrimp = recentSessions
+                .filter { $0.date >= chronicCutoff }
+                .compactMap(\.sessionTrimpScore)
+
+            if !acuteTrimp.isEmpty && !chronicTrimp.isEmpty {
+                let acuteAvg = acuteTrimp.reduce(0, +) / 7.0
+                let chronicAvg = chronicTrimp.reduce(0, +) / 28.0
+                if chronicAvg > 0 {
+                    let acwr = acuteAvg / chronicAvg
+                    if acwr > 1.5 {
+                        score += 15
+                        factors.append(.init(
+                            name: "Training load",
+                            observation: String(format: "Load spike — ACWR %.2f vs. your usual", acwr),
+                            severity: 2,
+                            icon: "figure.strengthtraining.traditional"
+                        ))
+                    }
+                }
+            }
+        }
+
+        // Signal 12: Missed medication dose — connects Medication tracking
+        // to flare risk, previously entirely disconnected despite both
+        // being core RA-management features. Medication non-adherence
+        // causing symptom flares is well-established clinically (this one
+        // needs no generalization the way the training-load signal does —
+        // missing a DMARD/biologic dose measurably raises flare risk in RA
+        // specifically, not just plausibly). Only flags daily-or-more-
+        // frequent medications overdue by more than a full day — a
+        // same-day "due later today, not taken yet" isn't a lapse.
+        for med in medications where med.isActive {
+            guard let interval = med.frequency.intervalDays, interval <= 2 else { continue }
+            let lastDose = medicationDoseLogs
+                .filter { $0.medicationId == med.id }
+                .map(\.takenAt)
+                .max() ?? med.startDate
+            guard let dueDate = Calendar.current.date(byAdding: .day, value: interval, to: lastDose) else { continue }
+            let overdueByDays = Calendar.current.dateComponents([.day], from: dueDate, to: .now).day ?? 0
+            if overdueByDays >= 1 {
+                score += 12
+                factors.append(.init(
+                    name: "Medication",
+                    observation: "\(med.name) — \(overdueByDays) day\(overdueByDays == 1 ? "" : "s") overdue",
+                    severity: overdueByDays >= 3 ? 3 : 2,
+                    icon: "cross.vial.fill"
+                ))
+                break // one factor is enough signal — don't stack multiple overdue meds into an inflated score
+            }
         }
 
         // Signal 6: Prior-flare pattern matching (only if personalized)

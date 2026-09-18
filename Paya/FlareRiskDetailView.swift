@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Flare Risk Detail
 //
@@ -11,7 +12,13 @@ import SwiftUI
 
 struct FlareRiskDetailView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     let assessment: FlareRiskAssessment
+    var forecast: FlareForecastEngine.Forecast? = nil
+    // Reverse-geocoded (OpenStreetMap, free) label for an Air Quality/
+    // Barometric Pressure factor — "near Downtown" instead of a bare
+    // observation with no sense of where it applies.
+    @State private var locationLabel: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -43,6 +50,10 @@ struct FlareRiskDetailView: View {
                         .background(assessment.level.color.opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 14))
 
+                    if let forecast {
+                        forecastSection(forecast)
+                    }
+
                     if assessment.factors.isEmpty {
                         Text("Nothing stands out today — this score reflects normal ranges across the board.")
                             .font(.caption)
@@ -65,6 +76,11 @@ struct FlareRiskDetailView: View {
                                         Text(factor.observation)
                                             .font(.caption)
                                             .foregroundColor(Pulse.textTertiary)
+                                        if let locationLabel, factor.name == "Air Quality" || factor.name == "Barometric Pressure" || factor.name == "Fine Particulates" {
+                                            Text("Near \(locationLabel)")
+                                                .font(.caption2)
+                                                .foregroundColor(Pulse.textTertiary.opacity(0.7))
+                                        }
                                     }
                                     Spacer()
                                 }
@@ -86,6 +102,73 @@ struct FlareRiskDetailView: View {
                     Button("Done") { dismiss() }
                 }
             }
+        }
+        .task {
+            guard assessment.factors.contains(where: { $0.name == "Air Quality" || $0.name == "Barometric Pressure" || $0.name == "Fine Particulates" }) else { return }
+            let pid = ActiveProfile.id
+            let startOfDay = Calendar.current.startOfDay(for: .now)
+            let descriptor = FetchDescriptor<EnvironmentalReading>(
+                predicate: #Predicate<EnvironmentalReading> { $0.date >= startOfDay && $0.profileId == pid }
+            )
+            guard let reading = (try? modelContext.fetch(descriptor))?.first,
+                  let lat = reading.latitude, let lon = reading.longitude else { return }
+            locationLabel = await LocationLabelService.label(latitude: lat, longitude: lon)
+        }
+    }
+
+    // MARK: - Forecast
+
+    private func forecastSection(_ forecast: FlareForecastEngine.Forecast) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .font(.caption)
+                    .foregroundColor(Pulse.ai)
+                Text("NEXT 24-48H")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(Pulse.textTertiary)
+                Spacer()
+                Text(forecast.trajectory.rawValue)
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(trajectoryColor(forecast.trajectory))
+            }
+
+            Text(forecast.summary)
+                .font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if !forecast.drivers.isEmpty {
+                VStack(spacing: 6) {
+                    ForEach(forecast.drivers) { driver in
+                        HStack(spacing: 8) {
+                            Image(systemName: driver.icon)
+                                .font(.caption)
+                                .foregroundColor(Pulse.warning)
+                                .frame(width: 18)
+                            Text(driver.label)
+                                .font(.caption.weight(.semibold))
+                            Spacer()
+                            Text(driver.detail)
+                                .font(.caption2)
+                                .foregroundColor(Pulse.textTertiary)
+                        }
+                    }
+                }
+                .padding(.top, 2)
+            }
+
+            Text(forecast.confidence.subtitle)
+                .font(.caption2)
+                .foregroundColor(Pulse.textTertiary)
+        }
+        .payaCard(padding: 14)
+    }
+
+    private func trajectoryColor(_ trajectory: FlareForecastEngine.Trajectory) -> Color {
+        switch trajectory {
+        case .worsening: return Pulse.critical
+        case .stable: return Pulse.textTertiary
+        case .improving: return Pulse.positive
         }
     }
 

@@ -50,7 +50,6 @@ struct RetroactiveWorkoutView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -570,7 +569,6 @@ struct RetroExercisePickerView: View {
             }
             .navigationTitle("Add Exercise")
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }

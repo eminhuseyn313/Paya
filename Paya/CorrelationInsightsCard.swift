@@ -6,6 +6,7 @@ struct CorrelationInsightsCard: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var insights: [CorrelationEngine.Insight] = []
+    @State private var laggedInsights: [CorrelationEngine.LaggedInsight] = []
     @State private var days: [CorrelationEngine.DailyMetrics] = []
     @State private var isLoading = true
     @State private var sampleDays = 0
@@ -27,7 +28,7 @@ struct CorrelationInsightsCard: View {
                         Text("Correlations")
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(Pulse.textPrimary)
-                        Text("\(sampleDays) days tracked · \(insights.count) patterns found")
+                        Text("\(sampleDays) days tracked · \(insights.count + laggedInsights.count) patterns found")
                             .font(.caption2)
                             .foregroundColor(Pulse.textTertiary)
                     }
@@ -68,10 +69,16 @@ struct CorrelationInsightsCard: View {
             days = await CorrelationEngine.gatherDailyMetrics(context: modelContext)
             sampleDays = days.count
             insights = CorrelationEngine.discoverInsights(from: days)
+            laggedInsights = CorrelationEngine.discoverLaggedInsights(from: days)
             isLoading = false
         }
         .sheet(isPresented: $showDetail) {
-            CorrelationDetailView(insights: insights, days: days, sampleDays: sampleDays)
+            CorrelationDetailView(
+                insights: insights,
+                laggedInsights: laggedInsights,
+                days: days,
+                sampleDays: sampleDays
+            )
         }
     }
 
@@ -108,6 +115,7 @@ struct CorrelationDetailView: View {
     @Environment(\.modelContext) private var modelContext
 
     let insights: [CorrelationEngine.Insight]
+    let laggedInsights: [CorrelationEngine.LaggedInsight]
     let days: [CorrelationEngine.DailyMetrics]
     let sampleDays: Int
 
@@ -130,6 +138,9 @@ struct CorrelationDetailView: View {
                         strengthMatrixSection
                     } else {
                         emptyStateSection
+                    }
+                    if !laggedInsights.isEmpty {
+                        delayedEffectsSection
                     }
                     builderSection
                     methodologySection
@@ -167,7 +178,7 @@ struct CorrelationDetailView: View {
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     HeroNumberText(
-                        value: "\(insights.count)",
+                        value: "\(insights.count + laggedInsights.count)",
                         size: 28,
                         color: accentPurple
                     )
@@ -178,12 +189,15 @@ struct CorrelationDetailView: View {
                 Spacer()
             }
 
-            if !insights.isEmpty {
+            if !insights.isEmpty || !laggedInsights.isEmpty {
                 let strongCount = insights.filter { abs($0.r) >= 0.5 }.count
                 let moderateCount = insights.filter { abs($0.r) >= 0.35 && abs($0.r) < 0.5 }.count
                 HStack(spacing: 12) {
                     strengthPill("Strong", count: strongCount, color: accentPurple)
                     strengthPill("Moderate", count: moderateCount, color: accentTeal)
+                    if !laggedInsights.isEmpty {
+                        strengthPill("Delayed", count: laggedInsights.count, color: Pulse.warning)
+                    }
                 }
             }
         }
@@ -442,6 +456,85 @@ struct CorrelationDetailView: View {
         .padding(.vertical, 24)
     }
 
+    // MARK: - Delayed Effects (Lagged Correlations)
+    //
+    // "What I did today → what I measured tomorrow" — the cross-domain insight
+    // no competitor surfaces. Grounded in Shivappa et al. 2014 (Dietary
+    // Inflammatory Index, 65 studies) and St-Onge et al. 2016 (meal timing →
+    // sleep architecture, AJCN).
+
+    private var delayedEffectsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: "clock.arrow.2.circlepath")
+                    .font(.system(size: 12))
+                    .foregroundColor(Pulse.warning)
+                Text("DELAYED EFFECTS")
+                    .font(.caption.weight(.bold))
+                    .foregroundColor(Pulse.textTertiary)
+            }
+
+            Text("How today's choices affect tomorrow's biometrics.")
+                .font(.caption)
+                .foregroundColor(Pulse.textTertiary)
+
+            ForEach(laggedInsights.prefix(6)) { lagged in
+                laggedInsightRow(lagged)
+            }
+
+            if laggedInsights.count > 6 {
+                Text("+\(laggedInsights.count - 6) more delayed pattern\(laggedInsights.count > 7 ? "s" : "")")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(Pulse.textTertiary)
+                    .padding(.top, 2)
+            }
+        }
+        .payaCard(padding: 14)
+    }
+
+    private func laggedInsightRow(_ lagged: CorrelationEngine.LaggedInsight) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                // Cause → Effect arrow badge
+                HStack(spacing: 4) {
+                    Text(lagged.cause.label)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(Pulse.textPrimary)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundColor(Pulse.warning)
+                    Text(lagged.effect.label)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(Pulse.textPrimary)
+                }
+
+                Spacer()
+
+                // Lag badge
+                Text("+\(lagged.lagDays)d")
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .foregroundColor(Pulse.warning)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Pulse.warning.opacity(0.12))
+                    .clipShape(Capsule())
+
+                // R-value
+                Text(String(format: "r=%.2f", lagged.r))
+                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .foregroundColor(barColor(lagged.r))
+            }
+
+            Text(lagged.text)
+                .font(.system(size: 10))
+                .foregroundColor(Pulse.textTertiary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(10)
+        .background(Pulse.surfaceElevatedFallback)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
     // MARK: - Builder
 
     private var builderSection: some View {
@@ -489,6 +582,7 @@ struct CorrelationDetailView: View {
                 methodologyRow("chart.bar.fill", "Pearson correlation coefficient (r) measures linear association between -1 and +1")
                 methodologyRow("line.horizontal.3.decrease", "Only pairs with |r| >= 0.35 shown — Cohen's moderate effect-size band (Cohen J., 1988)")
                 methodologyRow("calendar", "Minimum 8 overlapping days required — below that, coefficients are too noisy")
+                methodologyRow("clock.arrow.2.circlepath", "Delayed effects test today's behavior against tomorrow's biometrics — dietary inflammation takes 12–36 h to surface (Shivappa 2014)")
                 methodologyRow("exclamationmark.triangle.fill", "Correlation ≠ causation — two things moving together doesn't prove one causes the other")
             }
         }

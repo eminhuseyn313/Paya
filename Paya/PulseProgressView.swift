@@ -100,7 +100,6 @@ struct PulseProgressView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .preferredColorScheme(.dark)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -288,44 +287,59 @@ struct PulseProgressView: View {
     }
 
     // MARK: - Body Section
+    //
+    // Was the one section in this view with no progressive disclosure at
+    // all — 5-6 full-width cards stacked back to back while the other 3
+    // sections at least lead with 2 cards + collapsed groups. Weight is the
+    // one number people check daily, so it's the hero; everything else
+    // (composition, recomp signal, VO2 max, body signals, tracking entry)
+    // moves into a horizontal carousel instead of the vertical stack.
 
     @ViewBuilder
     private var bodySection: some View {
         ProgressWeightChart(vm: viewModel)
-        BodyCompositionCard()
-        BodyRecompCard()
-        VO2MaxCard()
 
-        if !bodySignals.isEmpty {
-            BodySignalsCard(insights: bodySignals)
-        }
-
-        Button { showBodyTracking = true } label: {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(Pulse.ai.opacity(0.15))
-                        .frame(width: 40, height: 40)
-                    Image(systemName: "ruler.fill")
-                        .font(.system(size: 16))
-                        .foregroundColor(Pulse.ai)
-                }
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Body Tracking")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Pulse.textPrimary)
-                    Text("Measurements & progress photos")
-                        .font(.system(size: 11))
-                        .foregroundColor(Pulse.textSecondary)
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(Pulse.textTertiary)
+        CardCarousel {
+            CarouselCard { BodyCompositionCard() }
+            CarouselCard { BodyRecompCard() }
+            CarouselCard { VO2MaxCard() }
+            if !bodySignals.isEmpty {
+                CarouselCard { BodySignalsCard(insights: bodySignals) }
             }
-            .pulseSurfaceGlow(color: Pulse.ai, padding: 14)
+            CarouselCard {
+                Button { showBodyTracking = true } label: {
+                    VStack(alignment: .leading, spacing: 10) {
+                        ZStack {
+                            Circle()
+                                .fill(Pulse.ai.opacity(0.15))
+                                .frame(width: 40, height: 40)
+                            Image(systemName: "ruler.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(Pulse.ai)
+                        }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Body Tracking")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(Pulse.textPrimary)
+                            Text("Measurements & progress photos")
+                                .font(.system(size: 11))
+                                .foregroundColor(Pulse.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                        HStack {
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(Pulse.textTertiary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .pulseSurfaceGlow(color: Pulse.ai, padding: 14)
+                }
+                .buttonStyle(PulsePress())
+            }
         }
-        .buttonStyle(PulsePress())
     }
 
     // MARK: - Load Section

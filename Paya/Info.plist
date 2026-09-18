@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>SUPABASE_URL</key>
+	<string>$(SUPABASE_URL)</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Paya connects to your Bluetooth heart rate monitor to track live intensity during training sessions.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
@@ -12,6 +16,8 @@
 	<string>Paya accesses your photo library so you can save and review progress photos over time.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Paya uses your location to show local weather conditions on the Personal Health Management timeline — for example, whether you walked during sunny hours.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>If you turn on air quality alerts in Settings, Paya checks air quality when you move to a new area — even with the app closed — and notifies you if it's poor. This is entirely optional and off by default; your location is only used to look up air quality, never stored or shared.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Paya reads your sleep, steps, heart rate, and weight from Apple Health to personalize your training, recovery, and nutrition targets.</string>
 	<key>NSHealthUpdateUsageDescription</key>

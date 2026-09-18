@@ -37,8 +37,19 @@ struct PayaSessionLiveActivity: Widget {
                                 .frame(width: 40)
                         }
                     } else {
-                        Text(context.state.setLabel)
-                            .font(.caption2.weight(.semibold))
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(context.state.setLabel)
+                                .font(.caption2.weight(.semibold))
+                            // Show current weight × reps so the user sees
+                            // what they entered without opening the app
+                            if let w = context.state.weightKg,
+                               context.state.measurementRaw != "bodyweightReps",
+                               context.state.measurementRaw != "timed" {
+                                Text(setValueLabel(weight: w, reps: context.state.reps))
+                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .foregroundColor(Color(hex: context.attributes.colorHex))
+                            }
+                        }
                     }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
@@ -104,12 +115,38 @@ private struct LockScreenSessionView: View {
                         .frame(width: 56)
                 }
             } else {
-                Text(state.setLabel)
-                    .font(.subheadline.weight(.bold))
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text(state.setLabel)
+                        .font(.subheadline.weight(.bold))
+                    // Show weight × reps — the user's entered values visible
+                    // on the lock screen without opening the app
+                    if let w = state.weightKg,
+                       state.measurementRaw != "bodyweightReps",
+                       state.measurementRaw != "timed" {
+                        Text(setValueLabel(weight: w, reps: state.reps))
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(Color(hex: attributes.colorHex))
+                    } else if let reps = state.reps {
+                        Text("\(reps) reps")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(Color(hex: attributes.colorHex))
+                    }
+                }
             }
         }
         .padding(16)
     }
+}
+
+/// Formats weight × reps for compact display in Live Activity / Lock Screen.
+private func setValueLabel(weight: Double, reps: Int?) -> String {
+    let weightStr = weight.truncatingRemainder(dividingBy: 1) == 0
+        ? "\(Int(weight))"
+        : String(format: "%.1f", weight)
+    if let reps, reps > 0 {
+        return "\(weightStr) kg × \(reps)"
+    }
+    return "\(weightStr) kg"
 }
 
 private extension Color {

@@ -152,7 +152,7 @@ struct OnboardingView: View {
                                     .padding(.vertical, 12)
                                     .background(sexRaw == value
                                         ? Color(hex: "2563EB")
-                                        : Color(.secondarySystemBackground))
+                                        : Pulse.surfaceFallback)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }

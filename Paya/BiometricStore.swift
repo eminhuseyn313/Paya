@@ -571,4 +571,39 @@ class BiometricStore {
         guard let v = value else { return nil }
         return (v - baseline.mean) / baseline.stdDev
     }
+
+    /// Z-scores for the last `days` days (oldest first), against the same
+    /// 14-day baseline `zScoreToday` uses — a short trend window read
+    /// against a longer, more stable reference. Used by FlareForecastEngine
+    /// to detect a signal trending toward the flare zone even on a day its
+    /// same-day z-score isn't elevated yet.
+    func recentZScores(for type: BiometricType, days: Int = 5) -> [(date: Date, z: Double)] {
+        guard let baseline = baseline(for: type), baseline.stdDev > 0 else { return [] }
+        let cutoff = Calendar.current.date(byAdding: .day, value: -days, to: Date()) ?? Date()
+
+        func value(_ day: DailySummary) -> Double? {
+            switch type {
+            case .restingHR:       return day.restingHR
+            case .hrv:             return day.hrv
+            case .sleepHours:      return day.sleepHours
+            case .sleepDeep:       return day.sleepDeep
+            case .sleepREM:        return day.sleepREM
+            case .respiratoryRate: return day.respiratoryRate
+            case .bloodOxygen:     return day.bloodOxygen
+            case .weight:          return day.weight
+            case .steps:           return day.steps.map(Double.init)
+            case .activeEnergy:    return day.activeEnergy
+            case .wristTemp:       return day.wristTemp
+            case .walkingSteadiness: return day.walkingSteadiness
+            }
+        }
+
+        return history
+            .filter { $0.date >= cutoff }
+            .sorted { $0.date < $1.date }
+            .compactMap { day in
+                guard let v = value(day) else { return nil }
+                return (day.date, (v - baseline.mean) / baseline.stdDev)
+            }
+    }
 }

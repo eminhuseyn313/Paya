@@ -19,6 +19,10 @@ struct HealthProfileSummaryView: View {
         HealthContraindicationEngine.generate(for: profile)
     }
 
+    private var recommendations: [HealthContraindicationEngine.Recommendation] {
+        HealthContraindicationEngine.recommendations(for: profile)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -68,6 +72,11 @@ struct HealthProfileSummaryView: View {
                         activeRulesSection
                     }
 
+                    // Personalized recommendations
+                    if !recommendations.isEmpty {
+                        recommendationsSection
+                    }
+
                     // Lifestyle snapshot
                     lifestyleSnapshot
 
@@ -108,7 +117,6 @@ struct HealthProfileSummaryView: View {
                 .padding(.top, 8)
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
-            .preferredColorScheme(.dark)
             .navigationTitle("Health Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -136,7 +144,7 @@ struct HealthProfileSummaryView: View {
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(Pulse.textPrimary)
 
-            Text("\(report.totalCount) personalized rules are guiding your recommendations")
+            Text("\(report.totalCount) safety rules · \(recommendations.count) personalized insights")
                 .font(.system(size: 12))
                 .foregroundColor(Pulse.textTertiary)
                 .multilineTextAlignment(.center)
@@ -227,6 +235,74 @@ struct HealthProfileSummaryView: View {
         case .warning: return Pulse.warning
         case .caution: return Pulse.nutrition
         case .info: return Pulse.hydration
+        }
+    }
+
+    // MARK: - Personalized Recommendations
+
+    private var recommendationsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .foregroundColor(Pulse.positive)
+                Text("Personalized for You")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundColor(Pulse.textPrimary)
+            }
+
+            ForEach(recommendations) { rec in
+                HStack(alignment: .top, spacing: 10) {
+                    ZStack {
+                        Circle()
+                            .fill(domainColor(rec.domain).opacity(0.12))
+                            .frame(width: 28, height: 28)
+                        Image(systemName: rec.icon)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(domainColor(rec.domain))
+                    }
+
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 6) {
+                            Text(rec.title)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(Pulse.textPrimary)
+                            Spacer()
+                            Text(rec.domain)
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundColor(domainColor(rec.domain))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(domainColor(rec.domain).opacity(0.1))
+                                .clipShape(Capsule())
+                        }
+                        Text(rec.detail)
+                            .font(.system(size: 10))
+                            .foregroundColor(Pulse.textSecondary)
+                            .lineSpacing(2)
+                        Text(rec.source)
+                            .font(.system(size: 9))
+                            .foregroundColor(Pulse.textTertiary)
+                            .padding(.top, 1)
+                    }
+                }
+                .padding(.vertical, 4)
+
+                if rec.id != recommendations.last?.id {
+                    Divider().opacity(0.15)
+                }
+            }
+        }
+        .payaCard(padding: 14)
+        .padding(.horizontal, 20)
+    }
+
+    private func domainColor(_ domain: String) -> Color {
+        switch domain {
+        case "Nutrition":   return Pulse.nutrition
+        case "Training":    return Pulse.energy
+        case "Recovery":    return Pulse.recovery
+        case "Supplements": return Pulse.hydration
+        default:            return Pulse.ai
         }
     }
 

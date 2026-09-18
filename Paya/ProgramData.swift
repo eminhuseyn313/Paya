@@ -50,6 +50,14 @@ enum RepRange {
     case tenToTwelve
     case twelveToFifteen
     case fifteenToTwenty
+    // A flat 12-rep target, not a range — established policy for this
+    // program (see TrainViewModel.defaultReps). Without a dedicated case,
+    // repMin==repMax==12 had nowhere accurate to go: matchedRepRange()
+    // bucketed it into .twelveToFifteen (display "12–15") purely because
+    // 12 is that case's own minimum, silently turning a flat target back
+    // into a range everywhere it was shown — the exact thing the
+    // normalization was supposed to eliminate.
+    case twelve
 
     var min: Int {
         switch self {
@@ -57,6 +65,7 @@ enum RepRange {
         case .tenToTwelve: return 10
         case .twelveToFifteen: return 12
         case .fifteenToTwenty: return 15
+        case .twelve: return 12
         }
     }
 
@@ -66,19 +75,21 @@ enum RepRange {
         case .tenToTwelve: return 12
         case .twelveToFifteen: return 15
         case .fifteenToTwenty: return 20
+        case .twelve: return 12
         }
     }
 
-    var display: String { "\(min)–\(max)" }
+    var display: String { min == max ? "\(min)" : "\(min)–\(max)" }
 
-    var increment: Double {
-        switch self {
-        case .eightToTen: return 2.5
-        case .tenToTwelve: return 2.5
-        case .twelveToFifteen: return 1.25
-        case .fifteenToTwenty: return 1.25
-        }
-    }
+    // 2.5kg for every rep range, not a finer 1.25kg step for the
+    // higher-rep/isolation ones — 1.25kg plates (or a matching fractional
+    // dumbbell/machine-pin increment) aren't something every gym stocks.
+    // The user's own gym only offers 2.5kg and 5kg jumps, and a suggestion
+    // the equipment on hand literally can't produce isn't actionable
+    // regardless of how programming-correct the smaller jump would be in
+    // principle. 2.5kg is the finer of the two real increments available,
+    // so it stays the floor everywhere weight progression is computed.
+    var increment: Double { 2.5 }
 }
 
 // MARK: - Exercise Definition
@@ -101,6 +112,32 @@ struct ExerciseDefinition: Identifiable {
     var alternatives: [String] = []
 
     var measurement: ExerciseMeasurement { .infer(name: name, startWeightKg: startWeightKg) }
+    var equipmentTag: ExerciseEquipmentTag { ExerciseEquipmentTag.classify(name) }
+
+    /// True when the exercise uses two separate weights (one per hand),
+    /// so the user enters the per-hand weight and the actual load per
+    /// rep is 2×. Covers bilateral dumbbell and kettlebell movements
+    /// where both hands hold independent implements at the same time.
+    ///
+    /// Single-limb exercises (e.g. "DB Single-Arm Row", "one-arm") are
+    /// excluded — the user works one side at a time, so the entered
+    /// weight IS the actual load for that set.
+    var isDualWeighted: Bool {
+        let tag = equipmentTag
+        guard tag == .dumbbell || tag == .kettlebell else { return false }
+        let n = name.lowercased()
+        let singleArmKeywords = [
+            "single-arm", "single arm", "one-arm", "one arm",
+            "single-leg", "single leg", "one-leg", "one leg",
+            "unilateral", "concentration",
+        ]
+        return !singleArmKeywords.contains(where: { n.contains($0) })
+    }
+
+    /// Multiplier to convert user-entered weight to actual load per rep.
+    /// 2 for bilateral dumbbell/kettlebell exercises (user enters per-hand),
+    /// 1 for everything else.
+    var volumeWeightMultiplier: Double { isDualWeighted ? 2.0 : 1.0 }
 }
 
 // MARK: - Meal Template
@@ -511,12 +548,23 @@ enum ProgramData {
         let allHitTarget = allSetsCompleted.count >= targetSets &&
             allSetsCompleted.allSatisfy { $0.reps >= targetReps }
 
-        var suggested = allHitTarget
-            ? currentWeight + exercise.repRange.increment
-            : currentWeight
+        // Assisted exercises (assisted pull-up, assisted dip) log the
+        // counterweight — less weight is harder, so hitting target means
+        // reducing it, the opposite of every other weighted exercise.
+        let isAssisted = AssistedExerciseDetector.isAssisted(name: exercise.name)
+        var suggested: Double
+        if allHitTarget {
+            suggested = isAssisted
+                ? max(0, currentWeight - exercise.repRange.increment)
+                : currentWeight + exercise.repRange.increment
+        } else {
+            suggested = currentWeight
+        }
 
         if isFlareDay {
-            suggested = (suggested * 0.75).rounded(toNearest: 1.25)
+            // 2.5kg, not 1.25kg — same loadable-increment reasoning as
+            // RepRange.increment above.
+            suggested = (suggested * 0.75).rounded(toNearest: 2.5)
         }
 
         return suggested

@@ -199,15 +199,181 @@ final class WeatherService: NSObject {
     /// starts being called rather than backfilling the past.
     func currentAirQualityIndex() async -> Double? {
         guard let location = await currentLocation() else { return nil }
-        let lat = location.coordinate.latitude
-        let lon = location.coordinate.longitude
-        let urlString = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=\(lat)&longitude=\(lon)&current=european_aqi"
-        guard let url = URL(string: urlString) else { return nil }
+        return await airQualityIndex(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    }
 
+    /// Same Open-Meteo air-quality endpoint, but for an arbitrary
+    /// coordinate rather than the device's current GPS fix — used by
+    /// AirQualityLocationMonitor's significant-location-change callback,
+    /// which already has a CLLocation from CoreLocation and shouldn't
+    /// trigger a second, redundant location request through
+    /// `currentLocation()`.
+    /// PM2.5 at the device's current location — see `pm25(latitude:longitude:)`.
+    func currentPM25() async -> Double? {
+        guard let location = await currentLocation() else { return nil }
+        return await pm25(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    }
+
+    /// Peak pollen count at the device's current location — see
+    /// `peakPollenCount(latitude:longitude:)`.
+    func currentPollen() async -> Double? {
+        guard let location = await currentLocation() else { return nil }
+        return await peakPollenCount(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    }
+
+    func airQualityIndex(latitude: Double, longitude: Double) async -> Double? {
+        let urlString = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=\(latitude)&longitude=\(longitude)&current=european_aqi"
+        guard let url = URL(string: urlString) else { return nil }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let decoded = try JSONDecoder().decode(AirQualityResponse.self, from: data)
             return decoded.current.european_aqi
+        } catch {
+            return nil
+        }
+    }
+
+    /// Fine particulate matter (PM2.5, µg/m³) specifically — the composite
+    /// European AQI blends several pollutants into one score, but the
+    /// actual pollution-inflammation research (Zhao et al. 2020, cited in
+    /// FlareDetectionEngine's air-quality signal) measures PM2.5 directly.
+    /// WHO's 2021 guideline threshold is 15 µg/m³ (24h mean) as the point
+    /// above which health effects become a real concern.
+    func pm25(latitude: Double, longitude: Double) async -> Double? {
+        let urlString = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=\(latitude)&longitude=\(longitude)&current=pm2_5"
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode(PM25Response.self, from: data)
+            return decoded.current.pm2_5
+        } catch {
+            return nil
+        }
+    }
+
+    /// Pollen counts — Open-Meteo's CAMS European regional model only
+    /// (returns nil outside Europe; that's a real coverage limit of the
+    /// free data source, not a bug — callers should treat nil as "not
+    /// available here" and skip the signal, not as an error). Returns the
+    /// highest of the 6 tracked pollen types (grains/m³) as a single
+    /// "how bad is pollen today" number, since most users care about
+    /// overall pollen burden, not which specific plant.
+    func peakPollenCount(latitude: Double, longitude: Double) async -> Double? {
+        let types = "alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen"
+        let urlString = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=\(latitude)&longitude=\(longitude)&current=\(types)"
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode(PollenResponse.self, from: data)
+            let values = [
+                decoded.current.alder_pollen, decoded.current.birch_pollen,
+                decoded.current.grass_pollen, decoded.current.mugwort_pollen,
+                decoded.current.olive_pollen, decoded.current.ragweed_pollen,
+            ].compactMap { $0 }
+            return values.max()
+        } catch {
+            return nil
+        }
+    }
+
+    /// Multi-day barometric pressure forecast (device's current location) —
+    /// extends the same-day pressure-drop signal FlareDetectionEngine
+    /// already uses into a forward-looking one: "a significant drop is
+    /// coming in the next 48h," not just "one already happened." Same
+    /// forecast-vs-snapshot upgrade FlareForecastEngine already applied to
+    /// the biometric signals, applied here to weather specifically.
+    func pressureForecast(hoursAhead: Int = 48) async -> [(date: Date, pressureKPa: Double)]? {
+        guard let location = await currentLocation() else { return nil }
+        let lat = location.coordinate.latitude
+        let lon = location.coordinate.longitude
+        let days = max(1, Int(ceil(Double(hoursAhead) / 24.0))) + 1
+        let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&hourly=surface_pressure&forecast_days=\(days)&timezone=auto"
+        guard let url = URL(string: urlString) else { return nil }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode(PressureForecastResponse.self, from: data)
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+            formatter.timeZone = TimeZone.current
+            let now = Date()
+            let cutoff = now.addingTimeInterval(Double(hoursAhead) * 3600)
+            var results: [(Date, Double)] = []
+            for i in decoded.hourly.time.indices {
+                guard let date = formatter.date(from: decoded.hourly.time[i]),
+                      date >= now, date <= cutoff,
+                      i < decoded.hourly.surface_pressure.count else { continue }
+                // Open-Meteo reports hPa — convert to kPa to match
+                // EnvironmentalReading.barometricPressureKPa's existing unit.
+                results.append((date, decoded.hourly.surface_pressure[i] / 10.0))
+            }
+            return results.isEmpty ? nil : results
+        } catch {
+            return nil
+        }
+    }
+
+    /// Device's current coordinates, if location access is granted — public
+    /// wrapper around the private cached/coalesced `currentLocation()` so
+    /// other services (EnvironmentalReadingCapture, for reverse geocoding)
+    /// can reuse the same caching/timeout behavior instead of standing up
+    /// their own CLLocationManager.
+    func currentCoordinates() async -> (latitude: Double, longitude: Double)? {
+        guard let location = await currentLocation() else { return nil }
+        return (location.coordinate.latitude, location.coordinate.longitude)
+    }
+
+    /// Current relative humidity (%) at the device's location — same free
+    /// Open-Meteo forecast endpoint, one more field. Patient-reported joint
+    /// sensitivity to humidity is common but the evidence for it is mixed
+    /// (unlike barometric pressure, which has firmer research behind it) —
+    /// used for personal pattern-spotting (does YOUR data show it), not
+    /// asserted as a universal effect.
+    func currentHumidity() async -> Double? {
+        guard let location = await currentLocation() else { return nil }
+        let lat = location.coordinate.latitude
+        let lon = location.coordinate.longitude
+        let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&current=relative_humidity_2m"
+        guard let url = URL(string: urlString) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode(HumidityResponse.self, from: data)
+            return decoded.current.relative_humidity_2m
+        } catch {
+            return nil
+        }
+    }
+
+    /// Today's sunrise/sunset (device's current location) and peak UV
+    /// index — both free fields on the same Open-Meteo forecast endpoint
+    /// already used for hourly weather, so no new API integration or key.
+    /// Real local sunrise/sunset replaces whatever fixed-hour estimate
+    /// CircadianEngine was using before; UV max feeds a same-day outdoor-
+    /// time safety check.
+    struct SunAndUV {
+        let sunrise: Date
+        let sunset: Date
+        let uvIndexMax: Double?
+    }
+
+    func todaySunAndUV() async -> SunAndUV? {
+        guard let location = await currentLocation() else { return nil }
+        let lat = location.coordinate.latitude
+        let lon = location.coordinate.longitude
+        let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&daily=sunrise,sunset,uv_index_max&timezone=auto&forecast_days=1"
+        guard let url = URL(string: urlString) else { return nil }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode(SunResponse.self, from: data)
+            guard let sunriseStr = decoded.daily.sunrise.first,
+                  let sunsetStr = decoded.daily.sunset.first else { return nil }
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+            formatter.timeZone = TimeZone.current
+            guard let sunrise = formatter.date(from: sunriseStr),
+                  let sunset = formatter.date(from: sunsetStr) else { return nil }
+            return SunAndUV(sunrise: sunrise, sunset: sunset, uvIndexMax: decoded.daily.uv_index_max.first ?? nil)
         } catch {
             return nil
         }
@@ -219,6 +385,49 @@ private struct AirQualityResponse: Decodable {
         let european_aqi: Double?
     }
     let current: Current
+}
+
+private struct PM25Response: Decodable {
+    struct Current: Decodable {
+        let pm2_5: Double?
+    }
+    let current: Current
+}
+
+private struct PollenResponse: Decodable {
+    struct Current: Decodable {
+        let alder_pollen: Double?
+        let birch_pollen: Double?
+        let grass_pollen: Double?
+        let mugwort_pollen: Double?
+        let olive_pollen: Double?
+        let ragweed_pollen: Double?
+    }
+    let current: Current
+}
+
+private struct HumidityResponse: Decodable {
+    struct Current: Decodable {
+        let relative_humidity_2m: Double?
+    }
+    let current: Current
+}
+
+private struct PressureForecastResponse: Decodable {
+    struct Hourly: Decodable {
+        let time: [String]
+        let surface_pressure: [Double]
+    }
+    let hourly: Hourly
+}
+
+private struct SunResponse: Decodable {
+    struct Daily: Decodable {
+        let sunrise: [String]
+        let sunset: [String]
+        let uv_index_max: [Double?]
+    }
+    let daily: Daily
 }
 
 extension WeatherService: CLLocationManagerDelegate {

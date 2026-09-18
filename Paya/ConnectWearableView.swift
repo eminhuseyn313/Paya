@@ -36,6 +36,7 @@ struct ConnectWearableView: View {
                         .fontWeight(.semibold)
                 }
             }
+            .background(Pulse.canvasFallback.ignoresSafeArea())
         }
     }
 }
@@ -57,7 +58,7 @@ struct WearableHeaderCard: View {
                 .font(.title3.bold())
             Text("Paya reads biometric data from any wearable that syncs to Apple Health — no app-specific integrations needed.")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -88,14 +89,14 @@ struct DetectedSourcesCard: View {
             if sortedSources.isEmpty {
                 HStack(spacing: 10) {
                     Image(systemName: "info.circle")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("No wearable data yet. Follow the walkthrough below to connect your device.")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(12)
-                .background(Color(.tertiarySystemBackground))
+                .background(Pulse.surfaceElevatedFallback)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             } else {
                 VStack(spacing: 8) {
@@ -112,7 +113,7 @@ struct DetectedSourcesCard: View {
                                 .foregroundColor(Color(hex: "059669"))
                         }
                         .padding(10)
-                        .background(Color(.tertiarySystemBackground))
+                        .background(Pulse.surfaceElevatedFallback)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
@@ -135,10 +136,10 @@ struct AmazfitWalkthroughCard: View {
                 Spacer()
                 Text("3 steps")
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(Capsule())
             }
 
@@ -207,7 +208,7 @@ struct WalkthroughStep: View {
                     .font(.subheadline.weight(.semibold))
                 Text(detail)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
@@ -249,13 +250,13 @@ struct OtherWearablesCard: View {
                                 .font(.subheadline.weight(.semibold))
                             Text(pair.1)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Pulse.textTertiary)
                                 .lineLimit(2)
                         }
                         Spacer()
                     }
                     .padding(10)
-                    .background(Color(.tertiarySystemBackground))
+                    .background(Pulse.surfaceElevatedFallback)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
@@ -308,7 +309,7 @@ struct InfoBullet: View {
                 .frame(width: 20)
             Text(text)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

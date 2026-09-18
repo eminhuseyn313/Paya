@@ -19,12 +19,6 @@ struct ContentView: View {
 }
 
 // MARK: - Crown-driven input target
-// The Digital Crown is the one input watchOS users actually reach for
-// mid-set — it replaces the pair of cramped +/- steppers the old layout
-// used, which were genuinely hard to hit accurately with sweaty/moving
-// fingers. Tapping the weight or rep number makes it the crown's target;
-// the active one gets a colored ring so it's obvious which value turning
-// the crown will change.
 
 private enum CrownTarget {
     case weight, reps
@@ -39,10 +33,6 @@ struct SessionView: View {
     @State private var showEndConfirm = false
     @State private var crownTarget: CrownTarget = .weight
     @State private var crownProxy: Double = 20
-    // Ticks once a second so the view re-checks `wc.isResting` on its own —
-    // without this, once the rest countdown hit 0 the view would stay
-    // frozen on the resting screen until some unrelated WCSession update
-    // happened to arrive and force a re-render.
     @State private var now: Date = .now
 
     var color: Color { Color(hex: wc.colorHex) }
@@ -70,6 +60,7 @@ struct SessionView: View {
             }
             .padding(.horizontal, 6)
         }
+        .background(WatchPulse.canvas)
         .digitalCrownRotation(
             $crownProxy,
             from: crownRange.lowerBound,
@@ -107,9 +98,6 @@ struct SessionView: View {
             Button("Cancel", role: .cancel) {}
         }
         .onReceive(ticker) { new in
-            // Haptic pulse for the final 3 seconds of rest — the ring alone
-            // is easy to miss at a glance; a countdown you can feel doesn't
-            // need to be looked at.
             if wc.sessionActive, let restEnd = wc.restEndDate {
                 let remaining = Int(restEnd.timeIntervalSince(new).rounded(.up))
                 if remaining >= 0, remaining <= 3, remaining != Int(restEnd.timeIntervalSince(now).rounded(.up)) {
@@ -122,28 +110,32 @@ struct SessionView: View {
 
     @ViewBuilder
     private var activeSessionContent: some View {
+        // Session header
         VStack(spacing: 2) {
             Text(wc.sessionLabel.uppercased())
-                .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(.secondary)
+                .font(.system(size: 9, weight: .bold))
+                .foregroundColor(WatchPulse.textTertiary)
+                .tracking(0.5)
             if !wc.exerciseProgress.isEmpty {
                 Text(wc.exerciseProgress)
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
                     .foregroundColor(color)
             }
         }
 
         Text(wc.exerciseName)
-            .font(.system(size: 15, weight: .bold))
+            .font(.system(size: 15, weight: .bold, design: .rounded))
+            .foregroundColor(WatchPulse.textPrimary)
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .padding(.bottom, 2)
 
+        // Set badge
         Text(wc.setLabel)
-            .font(.caption2.weight(.semibold))
+            .font(.system(size: 10, weight: .black, design: .rounded))
             .foregroundColor(color)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 2)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 3)
             .background(color.opacity(0.15))
             .clipShape(Capsule())
 
@@ -176,7 +168,7 @@ struct SessionView: View {
             wc.logSet(weightKg: weightKg, reps: reps)
         } label: {
             Text("Log Set")
-                .font(.headline)
+                .font(.system(size: 15, weight: .bold, design: .rounded))
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
@@ -189,7 +181,7 @@ struct SessionView: View {
                 Text("Not sent — phone unreachable")
             }
             .font(.system(size: 10, weight: .semibold))
-            .foregroundColor(Color(hex: "D97706"))
+            .foregroundColor(WatchPulse.warning)
             .multilineTextAlignment(.center)
         }
 
@@ -200,15 +192,12 @@ struct SessionView: View {
                 .font(.caption2)
         }
         .buttonStyle(.plain)
-        .foregroundColor(.secondary)
+        .foregroundColor(WatchPulse.textTertiary)
         .padding(.top, 6)
     }
 }
 
 // MARK: - Crown value field
-// A tappable "which value is the crown driving right now" control — the
-// active field gets the session color as a ring so it's legible at a
-// glance whether turning the crown will change weight or reps.
 
 private struct CrownValueField: View {
     let value: String
@@ -223,15 +212,20 @@ private struct CrownValueField: View {
                 Text(value)
                     .font(.system(size: 26, weight: .bold, design: .rounded))
                     .monospacedDigit()
+                    .foregroundColor(isActive ? tint : WatchPulse.textPrimary)
                 Text(unit)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(WatchPulse.textTertiary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 4)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isActive ? tint.opacity(0.1) : WatchPulse.surface)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(isActive ? tint : .clear, lineWidth: 1.5)
+                    .stroke(isActive ? tint.opacity(0.4) : Color.clear, lineWidth: 1.5)
             )
         }
         .buttonStyle(.plain)
@@ -242,18 +236,24 @@ private struct CrownValueField: View {
 
 private struct IdleView: View {
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: "figure.strengthtraining.traditional")
-                .font(.system(size: 30))
-                .foregroundColor(.secondary)
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(WatchPulse.surface)
+                    .frame(width: 56, height: 56)
+                Image(systemName: "figure.strengthtraining.traditional")
+                    .font(.system(size: 24))
+                    .foregroundColor(WatchPulse.textTertiary)
+            }
             Text("No active session")
-                .font(.subheadline.weight(.semibold))
-            Text("Start a session on your iPhone to log sets from here.")
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .foregroundColor(WatchPulse.textPrimary)
+            Text("Start from your iPhone")
+                .font(.system(size: 11))
+                .foregroundColor(WatchPulse.textSecondary)
                 .multilineTextAlignment(.center)
         }
-        .padding(.top, 20)
+        .padding(.top, 16)
     }
 }
 
@@ -261,17 +261,23 @@ private struct IdleView: View {
 
 private struct LoggedConfirmationView: View {
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 36))
-                .foregroundColor(Color(hex: "059669"))
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(WatchPulse.positive.opacity(0.15))
+                    .frame(width: 52, height: 52)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(WatchPulse.positive)
+            }
             Text("Set logged")
-                .font(.headline)
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundColor(WatchPulse.textPrimary)
             Text("Next set loading…")
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                .font(.system(size: 11))
+                .foregroundColor(WatchPulse.textSecondary)
         }
-        .padding(.top, 16)
+        .padding(.top, 12)
     }
 }
 
@@ -291,30 +297,37 @@ struct RestingView: View {
     }
 
     var body: some View {
-        VStack(spacing: 8) {
-            Text("RESTING")
-                .font(.system(size: 10, weight: .bold))
-                .foregroundColor(.secondary)
+        VStack(spacing: 10) {
+            Text("REST")
+                .font(.system(size: 10, weight: .black, design: .rounded))
+                .foregroundColor(WatchPulse.textTertiary)
+                .tracking(1)
 
             ZStack {
                 Circle()
-                    .stroke(Color(hex: wc.colorHex).opacity(0.2), lineWidth: 8)
+                    .fill(WatchPulse.surface)
+                Circle()
+                    .stroke(Color(hex: wc.colorHex).opacity(0.15), lineWidth: 8)
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(Color(hex: wc.colorHex), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+                    .stroke(
+                        Color(hex: wc.colorHex),
+                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                    )
                     .rotationEffect(.degrees(-90))
                     .animation(.linear(duration: 1), value: progress)
                 Text(remaining >= 60
                      ? String(format: "%d:%02d", remaining / 60, remaining % 60)
                      : "\(remaining)s")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .monospacedDigit()
+                    .foregroundColor(WatchPulse.textPrimary)
             }
-            .frame(width: 90, height: 90)
+            .frame(width: 94, height: 94)
 
             Text(wc.exerciseName)
-                .font(.caption2)
-                .foregroundColor(.secondary)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(WatchPulse.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
 
@@ -322,14 +335,14 @@ struct RestingView: View {
                 WKInterfaceDevice.current().play(.click)
                 wc.skipRest()
             } label: {
-                Text("Skip Rest")
-                    .font(.caption.weight(.semibold))
+                Text("Skip")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)
-            .tint(.secondary)
+            .tint(WatchPulse.textTertiary)
         }
-        .padding(.top, 8)
+        .padding(.top, 4)
     }
 }
 
@@ -337,33 +350,41 @@ struct RestingView: View {
 
 struct WaterView: View {
     @State private var wc = WatchConnectivityManager.shared
-    private let waterColor = Color(hex: "0891B2")
 
     var progress: Double {
         guard wc.waterTargetMl > 0 else { return 0 }
         return min(1.0, Double(wc.waterMl) / Double(wc.waterTargetMl))
     }
 
+    private var stateColor: Color {
+        if progress >= 0.8 { return WatchPulse.positive }
+        if progress >= 0.5 { return WatchPulse.hydration }
+        return WatchPulse.warning
+    }
+
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             ZStack {
                 Circle()
-                    .stroke(waterColor.opacity(0.2), lineWidth: 9)
+                    .fill(WatchPulse.surface)
+                Circle()
+                    .stroke(stateColor.opacity(0.15), lineWidth: 9)
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(waterColor, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                    .stroke(stateColor, style: StrokeStyle(lineWidth: 9, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .animation(.spring(response: 0.4), value: progress)
                 VStack(spacing: 0) {
                     Text("\(wc.waterMl)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                         .monospacedDigit()
+                        .foregroundColor(WatchPulse.textPrimary)
                     Text("of \(wc.waterTargetMl)ml")
-                        .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(WatchPulse.textSecondary)
                 }
             }
-            .frame(width: 84, height: 84)
+            .frame(width: 88, height: 88)
 
             HStack(spacing: 8) {
                 Button {
@@ -371,23 +392,26 @@ struct WaterView: View {
                     wc.addWater(250)
                 } label: {
                     Text("+250")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
-                .tint(waterColor)
+                .tint(WatchPulse.hydration)
 
                 Button {
                     WKInterfaceDevice.current().play(.click)
                     wc.addWater(500)
                 } label: {
                     Text("+500")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(waterColor)
+                .tint(WatchPulse.hydration)
             }
         }
-        .padding(.top, 8)
+        .padding(.top, 4)
+        .background(WatchPulse.canvas)
     }
 }
 

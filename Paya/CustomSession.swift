@@ -72,7 +72,13 @@ class CustomSessionExercise {
         exerciseName: String,
         orderIndex: Int,
         sets: Int = 3,
-        repMin: Int = 8,
+        // A flat 12-rep target, not a range, is established policy for this
+        // user's program (see TrainViewModel.defaultReps) — this default
+        // only covers the FEW call sites that omit repMin/repMax entirely;
+        // ProgramGapEngine.addToProgram and the one-time normalization in
+        // ContentView.swift cover the sites/rows that had explicit
+        // non-12 values.
+        repMin: Int = 12,
         repMax: Int = 12,
         startWeightKg: Double = 20,
         restSeconds: Int = 90,
@@ -131,6 +137,7 @@ class CustomSessionExercise {
     }
 
     private func matchedRepRange() -> RepRange {
+        if repMin == 12 && repMax == 12 { return .twelve }
         if repMin == 8 && repMax == 10 { return .eightToTen }
         if repMin == 10 && repMax == 12 { return .tenToTwelve }
         if repMin == 12 && repMax == 15 { return .twelveToFifteen }
