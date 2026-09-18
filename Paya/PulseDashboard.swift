@@ -619,6 +619,15 @@ struct PulseDashboardView: View {
 
     // MARK: - Vitals Orbs
 
+    private func progressColor(_ progress: Double) -> Color {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let dayFraction = max(0.3, Double(hour) / 24.0)
+        let adjusted = progress / dayFraction
+        if adjusted >= 0.8 { return Pulse.positive }
+        if adjusted >= 0.5 { return Pulse.warning }
+        return Pulse.critical
+    }
+
     private var vitalsOrbs: some View {
         let protein = viewModel.todaysNutrition?.totalProtein ?? 0
         let proteinTarget = viewModel.todaysNutrition?.proteinTarget ?? appState.profile.proteinTargetG
@@ -626,6 +635,9 @@ struct PulseDashboardView: View {
         let calorieTarget = viewModel.todaysNutrition?.calorieTarget ?? 2200
         let waterMl = WaterStore.todayTotal(context: modelContext)
         let waterTarget: Double = Double(WaterStore.dailyTargetMl)
+        let proteinProgress = proteinTarget > 0 ? protein / proteinTarget : 0
+        let calorieProgress = calorieTarget > 0 ? calories / calorieTarget : 0
+        let waterProgress = waterTarget > 0 ? Double(waterMl) / waterTarget : 0
 
         return ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
@@ -633,8 +645,8 @@ struct PulseDashboardView: View {
                     value: "\(Int(protein))",
                     unit: "g",
                     label: "Protein",
-                    color: Pulse.nutrition,
-                    progress: proteinTarget > 0 ? protein / proteinTarget : 0,
+                    color: progressColor(proteinProgress),
+                    progress: proteinProgress,
                     action: { showFoodQuickPicker = true }
                 )
 
@@ -642,8 +654,8 @@ struct PulseDashboardView: View {
                     value: "\(Int(calories))",
                     unit: "kcal",
                     label: "Calories",
-                    color: Pulse.energy,
-                    progress: calorieTarget > 0 ? calories / calorieTarget : 0,
+                    color: progressColor(calorieProgress),
+                    progress: calorieProgress,
                     action: { showFoodQuickPicker = true }
                 )
 
@@ -651,8 +663,8 @@ struct PulseDashboardView: View {
                     value: waterMl >= 1000 ? String(format: "%.1f", Double(waterMl) / 1000) : "\(waterMl)",
                     unit: waterMl >= 1000 ? "L" : "ml",
                     label: "Water",
-                    color: Pulse.hydration,
-                    progress: waterTarget > 0 ? Double(waterMl) / waterTarget : 0,
+                    color: progressColor(waterProgress),
+                    progress: waterProgress,
                     action: { showWaterSheet = true }
                 )
 
@@ -1014,7 +1026,9 @@ struct PulseDashboardView: View {
                     showAskPaya = true
                 }
             }
+            .padding(.horizontal, 20)
         }
+        .padding(.horizontal, -20)
     }
 
     // MARK: - Helpers
