@@ -775,7 +775,7 @@ struct ExerciseCardView: View {
                         Color.clear.frame(width: 44)
                     }
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.secondary.opacity(0.5))
+                    .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 14)
                     .padding(.top, 10)
                     .padding(.bottom, 4)
@@ -800,7 +800,7 @@ struct ExerciseCardView: View {
                                 } label: {
                                     Image(systemName: "xmark")
                                         .font(.system(size: 9, weight: .bold))
-                                        .foregroundColor(.secondary.opacity(0.4))
+                                        .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 20, height: 20)
                                 }
                                 .buttonStyle(PulsePress())

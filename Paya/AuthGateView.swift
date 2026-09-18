@@ -71,17 +71,46 @@ struct AuthGateView: View {
                 }
 
                 // MARK: Sign In with Apple (§ 4.8)
-                SignInWithAppleButton(.continue) { request in
-                    let nonce = randomNonceString()
-                    currentNonce = nonce
-                    request.requestedScopes = [.email, .fullName]
-                    request.nonce = sha256(nonce)
-                } onCompletion: { result in
-                    handleAppleSignIn(result)
+                // Temporarily disabled — provisioning profile not configured.
+                // Re-enable for App Store builds.
+//                SignInWithAppleButton(.continue) { request in
+//                    let nonce = randomNonceString()
+//                    currentNonce = nonce
+//                    request.requestedScopes = [.email, .fullName]
+//                    request.nonce = sha256(nonce)
+//                } onCompletion: { result in
+//                    handleAppleSignIn(result)
+//                }
+//                .signInWithAppleButtonStyle(.white)
+//                .frame(height: 52)
+//                .clipShape(RoundedRectangle(cornerRadius: 14))
+//                .padding(.horizontal, 32)
+
+                Button {
+                    isLoading = true
+                    errorMessage = nil
+                    Task {
+                        await MockAppleAuthService.applyToClient()
+                        isLoading = false
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        if isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                        Image(systemName: "apple.logo")
+                            .font(.body.weight(.semibold))
+                        Text("Continue with Apple")
+                            .font(.headline.weight(.bold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(16)
+                    .background(Color.white)
+                    .foregroundColor(.black)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
-                .signInWithAppleButtonStyle(.white)
-                .frame(height: 52)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .disabled(isLoading)
                 .padding(.horizontal, 32)
 
                 // Divider

@@ -724,7 +724,7 @@ struct PulseTrainView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
-                            .stroke(active ? vm.selectedDayColor.opacity(0.4) : Color.clear, lineWidth: 1.5)
+                            .stroke(active ? vm.selectedDayColor.opacity(0.4) : (done ? Pulse.positive.opacity(0.2) : Color.white.opacity(0.06)), lineWidth: active ? 1.5 : 0.5)
                     )
                 }
                 .buttonStyle(PulsePress())

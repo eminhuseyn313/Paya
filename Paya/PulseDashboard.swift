@@ -32,6 +32,21 @@ import SwiftData
 // 4. Motion: Ring fills, numbers count, orb breathes
 // 5. Progressive: Tap anything for detail sheets
 
+struct WeekDayStatus: Identifiable {
+    let id: Int
+    let label: String
+    let trained: Bool
+    let isToday: Bool
+    let isFuture: Bool
+
+    var dotColor: Color {
+        if trained { return Pulse.positive }
+        if isToday { return Pulse.energy }
+        if isFuture { return .white }
+        return .white
+    }
+}
+
 struct PulseDashboardView: View {
 
     @Environment(AppState.self) private var appState
@@ -58,6 +73,7 @@ struct PulseDashboardView: View {
     @State private var showHealthProfileSummary = false
     @State private var showFoodQuickPicker = false
     @State private var showAskPaya = false
+    @State private var trainingStreak: Int = 0
 
     private var readinessScore: Int {
         viewModel.readiness?.score ?? viewModel.recoveryScore ?? 0
@@ -312,9 +328,25 @@ struct PulseDashboardView: View {
                         Text(greetingText)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
-                        Text(appState.profile.name.isEmpty ? "Athlete" : appState.profile.name.components(separatedBy: " ").first ?? "Athlete")
-                            .font(.system(size: 26, weight: .bold, design: .rounded))
-                            .foregroundColor(Pulse.textPrimary)
+                        HStack(spacing: 8) {
+                            Text(appState.profile.name.isEmpty ? "Athlete" : appState.profile.name.components(separatedBy: " ").first ?? "Athlete")
+                                .font(.system(size: 26, weight: .bold, design: .rounded))
+                                .foregroundColor(Pulse.textPrimary)
+
+                            if trainingStreak >= 2 {
+                                HStack(spacing: 3) {
+                                    Image(systemName: "flame.fill")
+                                        .font(.system(size: 10))
+                                    Text("\(trainingStreak)")
+                                        .font(.system(size: 11, weight: .black, design: .rounded))
+                                }
+                                .foregroundColor(Pulse.energy)
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Pulse.energy.opacity(0.12))
+                                .clipShape(Capsule())
+                            }
+                        }
                     }
                 }
             }
@@ -866,32 +898,79 @@ struct PulseDashboardView: View {
 
     // MARK: - Week Pulse
 
+    @State private var weekDayStatuses: [WeekDayStatus] = []
+
     private var weekPulse: some View {
         VStack(spacing: 12) {
             PulseSectionHeader(title: "This week", icon: "calendar")
 
-            HStack(spacing: 0) {
-                weekStat(
-                    value: "\(viewModel.thisWeekSessions)/\(viewModel.thisWeekPossibleSessions)",
-                    label: "Sessions",
-                    color: Pulse.energy
-                )
-                Divider()
-                    .frame(height: 30)
-                    .overlay(Color.white.opacity(0.1))
-                weekStat(
-                    value: viewModel.thisWeekVolume > 0 ? String(format: "%.1ft", viewModel.thisWeekVolume / 1000) : "—",
-                    label: "Volume",
-                    color: Pulse.positive
-                )
-                Divider()
-                    .frame(height: 30)
-                    .overlay(Color.white.opacity(0.1))
-                weekStat(
-                    value: lastSessionLabel,
-                    label: "Last session",
-                    color: Pulse.recovery
-                )
+            VStack(spacing: 14) {
+                // Day-by-day dot strip (Mon–Sun)
+                if !weekDayStatuses.isEmpty {
+                    HStack(spacing: 0) {
+                        ForEach(weekDayStatuses) { day in
+                            VStack(spacing: 6) {
+                                Text(day.label)
+                                    .font(.system(size: 9, weight: .bold))
+                                    .foregroundColor(day.isToday ? Pulse.textPrimary : Pulse.textTertiary)
+
+                                ZStack {
+                                    Circle()
+                                        .fill(day.dotColor.opacity(day.isToday ? 0.2 : 0.1))
+                                        .frame(width: 28, height: 28)
+
+                                    if day.trained {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 10, weight: .black))
+                                            .foregroundColor(Pulse.positive)
+                                    } else if day.isToday {
+                                        Circle()
+                                            .fill(Pulse.energy)
+                                            .frame(width: 6, height: 6)
+                                    } else if day.isFuture {
+                                        Circle()
+                                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                            .frame(width: 28, height: 28)
+                                    }
+                                }
+
+                                if day.isToday {
+                                    Capsule()
+                                        .fill(Pulse.energy)
+                                        .frame(width: 12, height: 2)
+                                } else {
+                                    Spacer().frame(height: 2)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+
+                // Stats row
+                HStack(spacing: 0) {
+                    weekStat(
+                        value: "\(viewModel.thisWeekSessions)/\(viewModel.thisWeekPossibleSessions)",
+                        label: "Sessions",
+                        color: Pulse.energy
+                    )
+                    Divider()
+                        .frame(height: 30)
+                        .overlay(Color.white.opacity(0.1))
+                    weekStat(
+                        value: viewModel.thisWeekVolume > 0 ? String(format: "%.1ft", viewModel.thisWeekVolume / 1000) : "—",
+                        label: "Volume",
+                        color: Pulse.positive
+                    )
+                    Divider()
+                        .frame(height: 30)
+                        .overlay(Color.white.opacity(0.1))
+                    weekStat(
+                        value: lastSessionLabel,
+                        label: "Last session",
+                        color: Pulse.recovery
+                    )
+                }
             }
             .pulseSurface(padding: 16)
         }
@@ -1280,6 +1359,40 @@ struct PulseDashboardView: View {
                 calorieTarget: viewModel.todaysNutrition?.calorieTarget ?? 0,
                 nextExercises: exerciseNames
             )
+
+            // Training streak: consecutive days with completed sessions ending today or yesterday
+            let streakCalendar = Calendar.current
+            let streakToday = streakCalendar.startOfDay(for: Date())
+            let completed = viewModel.allCompletedSessions
+            var streak = 0
+            for dayOffset in 0...30 {
+                guard let checkDay = streakCalendar.date(byAdding: .day, value: -dayOffset, to: streakToday) else { break }
+                if completed.contains(where: { streakCalendar.isDate($0.date, inSameDayAs: checkDay) }) {
+                    streak += 1
+                } else if dayOffset == 0 {
+                    continue
+                } else {
+                    break
+                }
+            }
+            trainingStreak = streak
+
+            // Week day statuses (Mon–Sun)
+            let weekCalendar = Calendar(identifier: .iso8601)
+            let todayWeekday = weekCalendar.component(.weekday, from: Date())
+            let mondayOffset = (todayWeekday + 5) % 7
+            guard let monday = weekCalendar.date(byAdding: .day, value: -mondayOffset, to: streakCalendar.startOfDay(for: Date())) else { return }
+            let dayLabels = ["M", "T", "W", "T", "F", "S", "S"]
+            var statuses: [WeekDayStatus] = []
+            for i in 0..<7 {
+                guard let day = streakCalendar.date(byAdding: .day, value: i, to: monday) else { continue }
+                let dayStart = streakCalendar.startOfDay(for: day)
+                let isToday = streakCalendar.isDateInToday(day)
+                let isFuture = day > Date()
+                let trained = completed.contains(where: { streakCalendar.isDate($0.date, inSameDayAs: dayStart) })
+                statuses.append(WeekDayStatus(id: i, label: dayLabels[i], trained: trained, isToday: isToday, isFuture: isFuture && !isToday))
+            }
+            weekDayStatuses = statuses
         }
     }
 }
