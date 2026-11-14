@@ -216,6 +216,24 @@ class NotificationManager {
         UserDefaults.standard.string(forKey: "last_daily_briefing_date") == Self.todayStamp()
     }
 
+    /// Sunday 6:30 pm, repeating: "your week in review is ready".
+    func scheduleWeeklyReview(profile: UserProfile) async {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: ["weekly_review"])
+        guard isCategoryEnabled(.weeklyDigest, profile: profile) else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "Your week in review"
+        content.body = "See how training, nutrition and sleep went compared with last week."
+        content.sound = .default
+        content.userInfo = ["destination": NotificationDestination.home.rawValue]
+        var when = DateComponents()
+        when.weekday = 1   // Sunday
+        when.hour = 18
+        when.minute = 30
+        let trigger = UNCalendarNotificationTrigger(dateMatching: when, repeats: true)
+        try? await center.add(UNNotificationRequest(identifier: "weekly_review", content: content, trigger: trigger))
+    }
+
     func scheduleDailyBriefing(
         headline: String,
         context: ModelContext,

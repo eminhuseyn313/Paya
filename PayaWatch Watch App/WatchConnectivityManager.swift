@@ -177,6 +177,17 @@ final class WatchConnectivityManager: NSObject {
         })
     }
 
+    /// Lets the phone show what the watch measured on its post-workout screen.
+    func sendWorkoutSummary(_ s: WorkoutManager.Summary, start: Date, end: Date) {
+        guard WCSession.default.activationState == .activated else { return }
+        var payload: [String: Any] = [
+            "action": "workoutSummary", "kind": s.kind.rawValue, "start": start, "end": end,
+            "durationSec": s.duration, "activeKcal": s.activeKcal, "totalKcal": s.totalKcal,
+        ]
+        if let hr = s.avgHeartRate { payload["avgHR"] = hr }
+        WCSession.default.transferUserInfo(payload)
+    }
+
     func sendOfflineSession(_ payload: [String: Any]) {
         guard WCSession.default.activationState == .activated else { return }
         WCSession.default.transferUserInfo(payload)   // delivered whenever the phone is next available

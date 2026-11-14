@@ -108,6 +108,8 @@ struct PulseDashboardView: View {
     }
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var whyItem: WhyItem?
+    @State private var showWeeklyReview = false
     @AppStorage("home_more_expanded") private var moreExpanded = false
 
     // MARK: - One next action
@@ -117,7 +119,7 @@ struct PulseDashboardView: View {
     // away under "More for today" (progressive disclosure, as Oura's Today tab
     // and WHOOP's tiered home do) instead of stacking ten cards.
 
-    private enum NextAction { case flare, checkIn, focus }
+    private enum NextAction { case flare, checkIn, weekly, focus }
 
     private var flareNeeded: Bool {
         guard appState.flareEngineEnabled, let a = viewModel.flareAssessment else { return false }
@@ -132,6 +134,7 @@ struct PulseDashboardView: View {
     private var nextAction: NextAction {
         if flareNeeded { return .flare }
         if checkInDue { return .checkIn }
+        if WeeklyReviewEngine.isDue { return .weekly }
         return .focus
     }
 
@@ -144,6 +147,8 @@ struct PulseDashboardView: View {
             }
         case .checkIn:
             heroInsightCard
+        case .weekly:
+            WeeklyReviewCard { showWeeklyReview = true }
         case .focus:
             todayFocus
         }
@@ -176,6 +181,7 @@ struct PulseDashboardView: View {
 
             if moreExpanded {
                 VStack(spacing: 24) {
+                    if nextAction != .weekly { WeeklyReviewCard { showWeeklyReview = true } }
                     if nextAction != .checkIn { heroInsightCard }
                     if nextAction != .focus { todayFocus }
                     DailyActionCard()
@@ -201,7 +207,16 @@ struct PulseDashboardView: View {
 
                         // 2. Hero: the one number, with its basis right beneath it
                         heroReadiness
-                        watchConnectionPill
+                        HStack(spacing: 8) {
+                            watchConnectionPill
+                            Spacer(minLength: 0)
+                            Button { whyItem = heroWhy() } label: {
+                                Text("Why this number?")
+                                    .font(.pulse(size: 13, weight: .semibold))
+                                    .foregroundColor(Pulse.hydration)
+                                    .frame(minHeight: 44)
+                            }
+                        }
 
                         // 3. The single next action
                         nextActionCard
@@ -312,6 +327,10 @@ struct PulseDashboardView: View {
             }
             .sheet(isPresented: $showAskPaya) {
                 AskPayaView()
+            }
+            .sheet(isPresented: $showWeeklyReview) { WeeklyReviewView() }
+            .sheet(item: $whyItem) { item in
+                WhySheet(item: item).presentationDetents([.medium, .large])
             }
             .sheet(isPresented: $showWaterSheet) {
                 WaterQuickSheet()
@@ -563,6 +582,31 @@ struct PulseDashboardView: View {
         .scaleEffect(hasAppeared || reduceMotion ? 1 : 0.9)
     }
 
+    // MARK: - Why this number?
+
+    private func heroWhy() -> WhyItem {
+        let watch = WatchSessionManager.shared
+        var rows: [(label: String, text: String)] = [
+            ("How it's calculated", "Today's HRV, resting heart rate and sleep are compared with your own recent baseline, not with other people. Training load and your check-in then adjust the result."),
+            ("What it's based on", readinessEarlyNote ?? (hasReadiness ? "Enough history for a full baseline." : "Not enough data yet.")),
+            ("Latest watch data", watch.hasActivated ? watch.connectionLabel : "No watch connection detected."),
+        ]
+        if let d = viewModel.readiness?.drivers, !d.isEmpty {
+            rows.append(("Each signal", d.map { "\($0.label) \(Int($0.score))" }.joined(separator: " · ")))
+        }
+        return WhyItem(
+            title: "Readiness",
+            value: hasReadiness ? "\(readinessScore) · \(readinessBand)" : "Not available yet",
+            rows: rows,
+            note: "A wellness estimate, not a medical measurement. The weighting of each signal is a design choice, not a clinical standard."
+        )
+    }
+
+    private func whyDate(_ d: Date?) -> String {
+        guard let d else { return "date unknown" }
+        return d.formatted(date: .abbreviated, time: .shortened)
+    }
+
     // MARK: - Held-back line
     // Replaces the four-bar driver strip (10–11 pt text, ~5 numbers competing
     // with the score). One glanceable sentence says what matters; the full
@@ -746,7 +790,13 @@ struct PulseDashboardView: View {
                     label: "Protein",
                     color: progressColor(proteinProgress),
                     progress: proteinProgress,
-                    action: { showFoodQuickPicker = true }
+                    action: { showFoodQuickPicker = true },
+                    onWhy: {
+                        whyItem = WhyItem(title: "Protein today", value: "\(Int(protein)) g of \(Int(proteinTarget)) g",
+                            rows: [("Source", "The meals and snacks you've logged today."),
+                                   ("Target", "\(Int(proteinTarget)) g, set from your goal and body weight during setup. Change it in your profile.")],
+                            note: "Food database and photo entries are estimates, so totals can be off by a margin.")
+                    }
                 )
 
                 MetricOrb(
@@ -755,7 +805,13 @@ struct PulseDashboardView: View {
                     label: "Calories",
                     color: progressColor(calorieProgress),
                     progress: calorieProgress,
-                    action: { showFoodQuickPicker = true }
+                    action: { showFoodQuickPicker = true },
+                    onWhy: {
+                        whyItem = WhyItem(title: "Calories today", value: "\(Int(calories)) of \(Int(calorieTarget)) kcal",
+                            rows: [("Source", "The meals and snacks you've logged today."),
+                                   ("Target", "\(Int(calorieTarget)) kcal for \(appState.isTrainingDay ? "a training day" : "a rest day"), from your goal and body stats during setup.")],
+                            note: "Calorie counts from food databases are estimates.")
+                    }
                 )
 
                 MetricOrb(
@@ -764,7 +820,13 @@ struct PulseDashboardView: View {
                     label: "Water",
                     color: progressColor(waterProgress),
                     progress: waterProgress,
-                    action: { showWaterSheet = true }
+                    action: { showWaterSheet = true },
+                    onWhy: {
+                        whyItem = WhyItem(title: "Water today", value: "\(waterMl) of \(Int(waterTarget)) ml",
+                            rows: [("Source", "Drinks you've logged in Paya, including ones added from your Apple Watch."),
+                                   ("Target", "\(Int(waterTarget)) ml per day.")],
+                            note: "Paya only counts what you log. It can't see water you drink without logging it.")
+                    }
                 )
 
                 MetricOrb(
@@ -772,7 +834,18 @@ struct PulseDashboardView: View {
                     unit: "kg",
                     label: "Weight",
                     color: Pulse.recovery,
-                    action: { showWeightEntry = true }
+                    action: { showWeightEntry = true },
+                    onWhy: {
+                        let src: String
+                        switch viewModel.latestWeightSource {
+                        case .appleHealth: src = "Apple Health (e.g. a smart scale)"
+                        case .manual: src = "You entered it manually"
+                        default: src = "No weight recorded yet"
+                        }
+                        whyItem = WhyItem(title: "Weight", value: viewModel.latestWeight.map { String(format: "%.1f kg", $0) } ?? "No weight yet",
+                            rows: [("Source", src), ("Recorded", whyDate(viewModel.latestWeightDate))],
+                            note: "Day-to-day weight moves with water and food. Look at the trend, not a single reading.")
+                    }
                 )
 
                 // Live HR (BLE/Watch) takes priority over resting HR from HealthKit.
@@ -814,6 +887,15 @@ struct PulseDashboardView: View {
                         freshness: viewModel.appleHealthHRDate.map {
                             let m = max(1, Int(Date().timeIntervalSince($0) / 60))
                             return m < 60 ? "\(m)m ago" : "\(m / 60)h ago"
+                        },
+                        onWhy: {
+                            whyItem = WhyItem(title: viewModel.appleHealthHRIsResting ? "Resting heart rate" : "Last heart rate",
+                                value: "\(hr) bpm",
+                                rows: [("Source", viewModel.appleHealthHRIsResting
+                                    ? "Apple Health's resting heart rate, calculated by your Apple Watch."
+                                    : "The most recent heart-rate reading in Apple Health (not a resting value)."),
+                                       ("Recorded", whyDate(viewModel.appleHealthHRDate))],
+                                note: viewModel.appleHealthHRIsResting ? nil : "Only shown if it's under 3 hours old.")
                         }
                     )
                 }

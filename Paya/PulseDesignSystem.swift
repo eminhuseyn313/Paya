@@ -405,6 +405,8 @@ struct MetricOrb: View {
     var freshness: String? = nil
     /// Whether this reading is fresh — drives a subtle breathing animation on the ring
     var isFresh: Bool = true
+    /// Long-press menu: "Why this number?"
+    var onWhy: (() -> Void)? = nil
 
     @State private var breathe = false
     @State private var animatedProgress: CGFloat = 0
@@ -489,6 +491,11 @@ struct MetricOrb: View {
         }
         .buttonStyle(.plain)
         .disabled(action == nil)
+        .contextMenu {
+            if let onWhy {
+                Button { onWhy() } label: { Label("Why this number?", systemImage: "questionmark.circle") }
+            }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(label), \(value) \(unit)\(freshness.map { ", \($0)" } ?? "")")
         .accessibilityAddTraits(action == nil ? [] : .isButton)

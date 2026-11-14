@@ -44,6 +44,7 @@ struct PayaApp: App {
                             profile: appState.profile,
                             context: ModelContext(SharedModelContainer.shared)
                         )
+                        await NotificationManager.shared.scheduleWeeklyReview(profile: appState.profile)
                     }
                     StepMilestoneObserver.start()
 

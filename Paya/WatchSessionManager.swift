@@ -473,6 +473,8 @@ extension WatchSessionManager {
                 pending.append(message)
                 UserDefaults.standard.set(pending, forKey: Self.pendingOfflineKey)
             }
+        case "workoutSummary":
+            WatchWorkoutSummaryStore.add(from: message)
         case "addWarmups":
             onAddWarmupsRequested?()
         case "medTaken":

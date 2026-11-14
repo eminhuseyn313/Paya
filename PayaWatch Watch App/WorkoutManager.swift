@@ -116,6 +116,7 @@ final class WorkoutManager: NSObject {
     private let healthStore = HKHealthStore()
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
+    private var startedAt: Date?
 
     private override init() { super.init() }
 
@@ -162,6 +163,7 @@ final class WorkoutManager: NSObject {
 
         resetMetrics()
         let start = Date()
+        startedAt = start
         session.startActivity(with: start)
         try await builder.beginCollection(at: start)
         isActive = true
@@ -204,6 +206,9 @@ final class WorkoutManager: NSObject {
             sets: (linkedToPhone || OfflineSessionManager.shared.isActive) && WatchConnectivityManager.shared.setsCompleted > 0 ? WatchConnectivityManager.shared.setsCompleted : nil,
             volumeKg: (linkedToPhone || OfflineSessionManager.shared.isActive) && WatchConnectivityManager.shared.volumeKg > 0 ? WatchConnectivityManager.shared.volumeKg : nil
         )
+        if let summary = lastSummary {
+            WatchConnectivityManager.shared.sendWorkoutSummary(summary, start: startedAt ?? Date().addingTimeInterval(-summary.duration), end: Date())
+        }
         isActive = false
         isPaused = false
         heartRate = nil

@@ -153,6 +153,9 @@ struct SessionCelebrationView: View {
 
                 Spacer().frame(height: 36)
 
+                WatchRecordedCard(sessionStart: session.date, durationMinutes: session.durationMinutes)
+                    .padding(.horizontal, 24)
+
                 // Comparison card — only for weighted sessions
                 if hasVolume {
                     LiftEquivalentCard(volumeKg: totalVolume, prefersLbs: appState.profile.prefersLbs)
