@@ -69,12 +69,14 @@ enum Pulse {
         )
     }
 
-    static func radialGlow(_ color: Color, intensity: CGFloat = 0.3) -> RadialGradient {
+    /// `radius` must be the radius of the view the glow fills — otherwise the
+    /// gradient is cut off while still visible and reads as a flat disc.
+    static func radialGlow(_ color: Color, intensity: CGFloat = 0.3, radius: CGFloat = 200) -> RadialGradient {
         RadialGradient(
             colors: [color.opacity(intensity), .clear],
             center: .center,
             startRadius: 0,
-            endRadius: 200
+            endRadius: radius
         )
     }
 
@@ -187,7 +189,7 @@ struct PulseRing: View {
             // Ambient glow
             if showGlow {
                 Circle()
-                    .fill(Pulse.radialGlow(color, intensity: glowPulse ? 0.2 : 0.1))
+                    .fill(Pulse.radialGlow(color, intensity: glowPulse ? 0.2 : 0.1, radius: (size + 60) / 2))
                     .frame(width: size + 60, height: size + 60)
                     .animation(Pulse.Motion.glow, value: glowPulse)
             }

@@ -29,7 +29,10 @@ enum WatchHealthPush {
         assessment: FlareRiskAssessment?,
         forecast: FlareForecastEngine.Forecast?,
         flareEnabled: Bool,
-        weightKg: Double?
+        weightKg: Double?,
+        sleepHours: Double? = nil,
+        hrvMs: Double? = nil,
+        restingHR: Int? = nil
     ) {
         var v: [String: Any] = [:]
         if flareEnabled, let assessment {
@@ -56,7 +59,70 @@ enum WatchHealthPush {
         } else {
             v["postWorkoutProteinG"] = 0
         }
+        // Last night's numbers — only sent when they exist (0 = none).
+        v["sleepHours"] = (sleepHours ?? 0) > 0 ? sleepHours! : 0.0
+        v["hrvMs"] = hrvMs ?? 0.0
+        v["restingHR"] = restingHR ?? 0
+        v["latestWeightKg"] = weightKg ?? 0.0
         WatchSessionManager.shared.pushHealth(v)
+    }
+
+    /// Your most-used saved meals, for one-tap logging from the wrist.
+    static func pushQuickMeals(context: ModelContext) {
+        let pid = ActiveProfile.id
+        var d = FetchDescriptor<SavedMealTemplate>(
+            predicate: #Predicate { $0.profileId == pid },
+            sortBy: [SortDescriptor(\.useCount, order: .reverse)]
+        )
+        d.fetchLimit = 5
+        let rows: [[String: Any]] = ((try? context.fetch(d)) ?? []).map {
+            ["id": $0.id.uuidString, "name": $0.name, "kcal": Int($0.calories), "protein": Int($0.protein)]
+        }
+        WatchSessionManager.shared.pushHealth(["quickMeals": rows])
+    }
+
+    /// Logs a saved meal tapped on the watch (ignores an identical tap within 60 s).
+    static func handleMealRequested(id: String, context: ModelContext) {
+        guard let uuid = UUID(uuidString: id) else { return }
+        let stampKey = "paya_watch_last_meal_\(id)"
+        if Date().timeIntervalSince1970 - UserDefaults.standard.double(forKey: stampKey) < 60 { return }
+        let pid = ActiveProfile.id
+        guard let template = ((try? context.fetch(FetchDescriptor<SavedMealTemplate>(
+            predicate: #Predicate { $0.profileId == pid && $0.id == uuid }))) ?? []).first else { return }
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: stampKey)
+
+        let today = Calendar.current.startOfDay(for: .now)
+        let existing = ((try? context.fetch(FetchDescriptor<NutritionLog>(
+            predicate: #Predicate { $0.profileId == pid && $0.date >= today }))) ?? []).first
+        let log: NutritionLog
+        if let existing { log = existing } else {
+            log = NutritionLog(date: today)
+            log.profileId = pid
+            context.insert(log)
+        }
+        let meal = MealLog(name: template.mealSlot, food: template.food, protein: template.protein,
+                           calories: template.calories, fatG: template.fatG, carbsG: template.carbsG, fiberG: template.fiberG)
+        context.insert(meal)
+        meal.nutritionLog = log
+        log.recalculateTotals()
+        template.useCount += 1
+        template.lastUsed = Date()
+        try? context.save()
+    }
+
+    /// Logs a weight entered on the watch (kg), also writing to Apple Health.
+    static func handleWeightRequested(kg: Double, context: ModelContext) {
+        guard kg > 20, kg < 400 else { return }
+        let key = "paya_watch_last_weight"
+        let stamp = UserDefaults.standard.double(forKey: key + "_t")
+        if Date().timeIntervalSince1970 - stamp < 60, UserDefaults.standard.double(forKey: key) == kg { return }
+        UserDefaults.standard.set(kg, forKey: key)
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key + "_t")
+        let log = BodyWeightLog(weightKg: kg)
+        log.profileId = ActiveProfile.id
+        context.insert(log)
+        try? context.save()
+        Task { _ = await HealthKitManager.shared.saveBodyWeight(kg) }
     }
 
     /// Medications that are due today or were already taken today.

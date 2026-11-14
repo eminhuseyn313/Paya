@@ -1469,6 +1469,16 @@ class TrainViewModel {
             isAssisted: AssistedExerciseDetector.isAssisted(name: exercise.name)
         )
         let adjustPct = Int(((adjustment.multiplier - 1.0) * 100).rounded())
+        // Superset members alternate A1, B1, A2, B2… — tell the wrist which round
+        // it is, which letter this is, and what comes next.
+        var round: (label: String?, next: String?) = (nil, nil)
+        if let group = exercise.supersetGroup {
+            let members = effectiveExercises.filter { $0.supersetGroup == group }
+            if members.count > 1, let i = members.firstIndex(where: { $0.id == exercise.id }) {
+                let letter = String(UnicodeScalar(UInt8(65 + min(i, 25))))
+                round = ("Round \(current.setIndex + 1) of \(state.sets.count) · \(letter)", members[(i + 1) % members.count].name)
+            }
+        }
         let set = state.sets[current.setIndex]
         let completedExercises = effectiveExercises.filter { exerciseStates[$0.id]?.allSetsCompleted == true }.count
         let restTimer = RestTimerManager.shared
@@ -1494,7 +1504,9 @@ class TrainViewModel {
             volumeKg: workingSets.reduce(0) { $0 + $1.weightKg * Double($1.reps) },
             adjustPct: adjustPct,
             isFlareDay: isFlareDay,
-            flareEnabled: appStateRef?.flareEngineEnabled ?? false
+            flareEnabled: appStateRef?.flareEngineEnabled ?? false,
+            roundLabel: round.label,
+            supersetNext: round.next
         ))
 
         let activityState = PayaSessionActivityAttributes.ContentState(

@@ -30,6 +30,8 @@ struct WatchSessionSnapshot {
     var adjustPct: Int = 0          // signed recovery/progression nudge on the suggested weight
     var isFlareDay: Bool = false
     var flareEnabled: Bool = false
+    var roundLabel: String? = nil        // "Round 2 of 3 · B" for superset members
+    var supersetNext: String? = nil      // partner exercise that follows
 }
 
 @MainActor
@@ -50,6 +52,8 @@ final class WatchSessionManager: NSObject {
     var onAddWarmupsRequested: (() -> Void)?
     var onNoteReceived: ((String) -> Void)?
     var onMedTaken: ((String) -> Void)?
+    var onMealRequested: ((String) -> Void)?
+    var onWeightRequested: ((Double) -> Void)?
     var onOfflineSessionReceived: (([String: Any]) -> Void)? {
         didSet { if onOfflineSessionReceived != nil { drainPendingOfflineSessions() } }
     }
@@ -211,6 +215,8 @@ final class WatchSessionManager: NSObject {
             context["adjustPct"] = snapshot.adjustPct
             context["isFlareDay"] = snapshot.isFlareDay
             context["flareEnabled"] = snapshot.flareEnabled
+            if let r = snapshot.roundLabel { context["roundLabel"] = r } else { context.removeValue(forKey: "roundLabel") }
+            if let n = snapshot.supersetNext { context["supersetNext"] = n } else { context.removeValue(forKey: "supersetNext") }
             context["volumeKg"] = snapshot.volumeKg
             context["prefersLbs"] = prefersLbs
             context["repOffset"] = WatchTelemetryStore.repOffset
@@ -477,6 +483,10 @@ extension WatchSessionManager {
             WatchWorkoutSummaryStore.add(from: message)
         case "addWarmups":
             onAddWarmupsRequested?()
+        case "logMeal":
+            if let id = message["id"] as? String { onMealRequested?(id) }
+        case "logWeight":
+            if let kg = message["kg"] as? Double { onWeightRequested?(kg) }
         case "medTaken":
             if let id = message["id"] as? String { onMedTaken?(id) }
         case "exerciseNote":

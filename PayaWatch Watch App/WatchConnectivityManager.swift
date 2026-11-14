@@ -42,6 +42,15 @@ final class WatchConnectivityManager: NSObject {
     var flareAlertBanner: String?
     private var lastSeenFlareAlert: String? = UserDefaults.standard.string(forKey: "paya_watch_last_flare_alert")
 
+    struct QuickMeal: Identifiable { var id: String; var name: String; var kcal: Int; var protein: Int }
+    var quickMeals: [QuickMeal] = []
+    var sleepHours: Double = 0
+    var hrvMs: Double = 0
+    var restingHR: Int = 0
+    var latestWeightKg: Double = 0
+    var roundLabel: String?
+    var supersetNext: String?
+
     var prefersLbs: Bool = false
     var maxHR: Int? = nil
     var previousWeightKg: Double? = nil
@@ -294,6 +303,16 @@ final class WatchConnectivityManager: NSObject {
         flareSummary = c["flareSummary"] as? String ?? flareSummary
         briefing = c["briefing"] as? String ?? briefing
         postWorkoutProteinG = c["postWorkoutProteinG"] as? Int ?? postWorkoutProteinG
+        sleepHours = c["sleepHours"] as? Double ?? sleepHours
+        hrvMs = c["hrvMs"] as? Double ?? hrvMs
+        restingHR = c["restingHR"] as? Int ?? restingHR
+        latestWeightKg = c["latestWeightKg"] as? Double ?? latestWeightKg
+        if let rows = c["quickMeals"] as? [[String: Any]] {
+            quickMeals = rows.compactMap { r in
+                guard let id = r["id"] as? String, let name = r["name"] as? String else { return nil }
+                return QuickMeal(id: id, name: name, kcal: r["kcal"] as? Int ?? 0, protein: r["protein"] as? Int ?? 0)
+            }
+        }
         if let rows = c["meds"] as? [[String: Any]] {
             meds = rows.compactMap { r in
                 guard let id = r["id"] as? String, let name = r["name"] as? String else { return nil }
@@ -320,6 +339,20 @@ final class WatchConnectivityManager: NSObject {
             WCSession.default.transferUserInfo(payload)
         }
     }
+
+    /// Sends a quick log (meal / weight) with guaranteed delivery if the phone is away.
+    private func sendQuick(_ payload: [String: Any]) {
+        guard WCSession.default.activationState == .activated else { return }
+        if WCSession.default.isReachable {
+            WCSession.default.sendMessage(payload, replyHandler: nil, errorHandler: { _ in
+                WCSession.default.transferUserInfo(payload)
+            })
+        } else {
+            WCSession.default.transferUserInfo(payload)
+        }
+    }
+    func logMeal(_ id: String) { sendQuick(["action": "logMeal", "id": id]) }
+    func logWeight(kg: Double) { sendQuick(["action": "logWeight", "kg": kg]) }
 
     func logSymptomFromAlert() {
         sendCheckIn(["energy": 2, "soreness": 1, "hasSymptom": true])
@@ -371,6 +404,8 @@ final class WatchConnectivityManager: NSObject {
             prBanner = text
         }
         adjustPct = context["adjustPct"] as? Int ?? 0
+        roundLabel = context["roundLabel"] as? String
+        supersetNext = context["supersetNext"] as? String
         repOffset = context["repOffset"] as? Int ?? repOffset
         isFlareDay = context["isFlareDay"] as? Bool ?? isFlareDay
         flareEnabled = context["flareEnabled"] as? Bool ?? flareEnabled

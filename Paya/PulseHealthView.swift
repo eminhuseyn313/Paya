@@ -240,9 +240,10 @@ struct PulseHealthView: View {
                 ZStack {
                     PulseRing(
                         progress: hasAnyWellnessInput ? wellnessScore / 100 : 0,
-                        size: 140,
-                        lineWidth: 12,
-                        color: wellnessColor
+                        size: hasAnyWellnessInput ? 140 : 104,
+                        lineWidth: hasAnyWellnessInput ? 12 : 10,
+                        color: wellnessColor,
+                        showGlow: hasAnyWellnessInput
                     )
 
                     VStack(spacing: 2) {
@@ -289,9 +290,10 @@ struct PulseHealthView: View {
                     .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             } else if !hasAnyWellnessInput {
-                Text("Needs ~7 days of Apple Watch data, or log pain/energy today")
-                    .font(.pulse(size: 10, weight: .medium))
-                    .foregroundColor(Pulse.textTertiary)
+                Text("Appears after about 7 days of Apple Watch data, or once you log pain or energy today.")
+                    .font(.pulse(size: 13, weight: .medium))
+                    .foregroundColor(Pulse.textSecondary)
+                    .multilineTextAlignment(.center)
             }
 
             // Score source context

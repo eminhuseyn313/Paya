@@ -180,6 +180,7 @@ struct PulseTrainView: View {
                             .background(Pulse.surfaceFallback)
                             .clipShape(Circle())
                     }
+                    .accessibilityLabel("Program check-up")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -204,13 +205,19 @@ struct PulseTrainView: View {
                         }
                         .disabled(vm?.isSessionActive == true)
                     } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .font(.pulse(size: 16))
-                            .foregroundColor(Pulse.textSecondary)
-                            .frame(width: 36, height: 36)
-                            .background(Pulse.surfaceFallback)
-                            .clipShape(Circle())
+                        HStack(spacing: 5) {
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.pulse(size: 13, weight: .semibold))
+                            Text("Program")
+                                .font(.pulse(size: 13, weight: .semibold))
+                        }
+                        .foregroundColor(Pulse.textPrimary)
+                        .padding(.horizontal, 12)
+                        .frame(height: 36)
+                        .background(Pulse.surfaceFallback)
+                        .clipShape(Capsule())
                     }
+                    .accessibilityLabel("Program options")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     if appState.flareEngineEnabled {
@@ -222,6 +229,7 @@ struct PulseTrainView: View {
                                 .background(Pulse.surfaceFallback)
                                 .clipShape(Circle())
                         }
+                        .accessibilityLabel(appState.isFlareDay ? "Flare day is on" : "Flare day")
                     }
                 }
             }

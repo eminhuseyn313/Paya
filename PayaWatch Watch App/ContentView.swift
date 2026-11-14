@@ -21,6 +21,7 @@ struct ContentView: View {
                     ReadinessGlanceView()
                     if !wc.meds.isEmpty { MedsView() }
                     WaterView()
+                    QuickLogView()
                     BreathworkView()
                     QuickCheckInView()
                 }
@@ -112,6 +113,18 @@ struct TodayView: View {
 
                 if let score = wc.phoneReadinessScore {
                     chip("bolt.heart.fill", "Readiness \(score)\(wc.phoneReadinessBand.map { " · \($0)" } ?? "")", WatchPulse.recovery)
+                    if let verdict = verdict(for: wc.phoneReadinessBand) {
+                        Text(verdict)
+                            .font(.pulse(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(WatchPulse.textPrimary)
+                    }
+                }
+                if wc.sleepHours > 0 || wc.hrvMs > 0 || wc.restingHR > 0 {
+                    HStack(spacing: 10) {
+                        if wc.sleepHours > 0 { vital("moon.fill", String(format: "%.1fh", wc.sleepHours), "Sleep", WatchPulse.ai) }
+                        if wc.hrvMs > 0 { vital("waveform.path.ecg", "\(Int(wc.hrvMs.rounded()))", "HRV ms", WatchPulse.recovery) }
+                        if wc.restingHR > 0 { vital("heart.fill", "\(wc.restingHR)", "Rest HR", WatchPulse.vitals) }
+                    }
                 }
                 if !wc.flareLevel.isEmpty {
                     chip("exclamationmark.triangle.fill",
@@ -125,6 +138,27 @@ struct TodayView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 8)
         }
+    }
+
+    /// A plain-language read of the readiness band — wording only, no new calculation.
+    private func verdict(for band: String?) -> String? {
+        switch band?.lowercased() {
+        case "primed": return "Good day to push"
+        case "steady": return "Train as planned"
+        case "caution": return "Go a bit lighter"
+        case "recover": return "Prioritise rest today"
+        default: return nil
+        }
+    }
+
+    private func vital(_ symbol: String, _ value: String, _ label: String, _ color: Color) -> some View {
+        VStack(spacing: 1) {
+            Image(systemName: symbol).font(.system(size: 11)).foregroundColor(color)
+            Text(value).font(.pulse(size: 15, weight: .bold, design: .rounded)).monospacedDigit()
+            Text(label).font(.pulse(size: 9)).foregroundColor(WatchPulse.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
     }
 
     private func chip(_ symbol: String, _ text: String, _ color: Color) -> some View {
@@ -222,6 +256,91 @@ private struct FlareAlertView: View {
             .padding(.horizontal, 6)
         }
         .background(WatchPulse.canvas)
+    }
+}
+
+// MARK: - Quick log (weight + saved meals)
+
+struct QuickLogView: View {
+    @State private var wc = WatchConnectivityManager.shared
+    @State private var weight: Double = 70
+    @State private var weightSent = false
+    @State private var loggedMeal: String?
+
+    private var lbs: Bool { wc.prefersLbs }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 8) {
+                Text("QUICK LOG")
+                    .font(.pulse(size: 10, weight: .black, design: .rounded))
+                    .foregroundColor(WatchPulse.textTertiary)
+                    .tracking(1)
+
+                // Weight — turn the Crown, then Save.
+                VStack(spacing: 4) {
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text(String(format: "%.1f", weight))
+                            .font(.pulse(size: 26, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                        Text(lbs ? "lb" : "kg").font(.pulse(size: 11)).foregroundColor(WatchPulse.textSecondary)
+                    }
+                    Button {
+                        WKInterfaceDevice.current().play(.success)
+                        wc.logWeight(kg: lbs ? weight / 2.20462262 : weight)
+                        weightSent = true
+                        Task { try? await Task.sleep(for: .seconds(2)); weightSent = false }
+                    } label: {
+                        Text(weightSent ? "✓ Saved" : "Save weight")
+                            .font(.pulse(size: 13, weight: .bold, design: .rounded))
+                            .frame(maxWidth: .infinity, minHeight: 34)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(weightSent ? WatchPulse.positive : WatchPulse.recovery)
+                }
+                .padding(8)
+                .background(RoundedRectangle(cornerRadius: 12).fill(WatchPulse.surface))
+                .focusable()
+                .digitalCrownRotation($weight, from: lbs ? 60 : 30, through: lbs ? 660 : 300, by: 0.1,
+                                      sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: true)
+                .onAppear {
+                    // Start from your last recorded weight, not a made-up number.
+                    if wc.latestWeightKg > 0 { weight = (wc.latestWeightKg * (lbs ? 2.20462262 : 1) * 10).rounded() / 10 }
+                }
+
+                if wc.quickMeals.isEmpty {
+                    Text("Save meals in Paya → Nutrition → Quick meals to log them here in one tap.")
+                        .font(.pulse(size: 10))
+                        .foregroundColor(WatchPulse.textSecondary)
+                        .multilineTextAlignment(.center)
+                } else {
+                    ForEach(wc.quickMeals) { meal in
+                        Button {
+                            WKInterfaceDevice.current().play(.success)
+                            wc.logMeal(meal.id)
+                            loggedMeal = meal.id
+                            Task { try? await Task.sleep(for: .seconds(2)); loggedMeal = nil }
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(meal.name).font(.pulse(size: 13, weight: .semibold, design: .rounded)).lineLimit(1)
+                                    Text("\(meal.kcal) kcal · \(meal.protein) g protein")
+                                        .font(.pulse(size: 10)).foregroundColor(WatchPulse.textSecondary)
+                                }
+                                Spacer(minLength: 0)
+                                Image(systemName: loggedMeal == meal.id ? "checkmark.circle.fill" : "plus.circle.fill")
+                                    .foregroundColor(loggedMeal == meal.id ? WatchPulse.positive : WatchPulse.energy)
+                            }
+                            .padding(.horizontal, 10)
+                            .frame(maxWidth: .infinity, minHeight: 46)
+                            .background(RoundedRectangle(cornerRadius: 12).fill(WatchPulse.surface))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .padding(.horizontal, 4)
+        }
     }
 }
 
@@ -467,6 +586,14 @@ private struct ControlsPage: View {
                         showNote = true
                     }
                 }
+                PillButton(symbol: "metronome.fill",
+                           title: detector.tempoSeconds == 0 ? "Tempo taps · off" : "Tempo taps · \(detector.tempoSeconds) s",
+                           tint: WatchPulse.positive) {
+                    let order = [0, 2, 3, 4]
+                    let i = order.firstIndex(of: detector.tempoSeconds) ?? 0
+                    detector.tempoSeconds = order[(i + 1) % order.count]
+                    WKInterfaceDevice.current().play(.click)
+                }
                 PillToggle(symbol: "waveform.path",
                            title: "Auto sets · beta",
                            isOn: detector.enabled,
@@ -657,6 +784,12 @@ private struct LogSetPage: View {
         if let end = wc.restEndDate { return end > now }
         return false
     }
+    /// "Set 4 of 4" → true. Gets a different haptic when it appears.
+    private var isLastSet: Bool {
+        let parts = wc.setLabel.components(separatedBy: " ")
+        guard parts.count >= 4, let n = Int(parts[1]), let total = Int(parts[3]) else { return false }
+        return total > 1 && n == total
+    }
     private var lbs: Bool { wc.prefersLbs }
     private var factor: Double { lbs ? 2.20462262 : 1 }
     private var unitLabel: String { lbs ? "lb" : "kg" }
@@ -719,6 +852,9 @@ private struct LogSetPage: View {
             detector.suspended = isResting
             detector.start()
         }
+        .onChange(of: wc.setLabel) { _, _ in
+            if isLastSet { WKInterfaceDevice.current().play(.directionUp) }   // heads-up: final set
+        }
         .onChange(of: wc.prBanner) { _, text in
             guard text != nil else { return }
             WKInterfaceDevice.current().play(.success)
@@ -763,7 +899,7 @@ private struct LogSetPage: View {
     private var logContent: some View {
         VStack(spacing: 5) {
             HStack(spacing: 4) {
-                Text(wc.setLabel.replacingOccurrences(of: " of ", with: "/")
+                Text((wc.roundLabel ?? wc.setLabel).replacingOccurrences(of: " of ", with: "/")
                      + (detector.detectedReps.map { " · ≈\(max(1, $0 + wc.repOffset)) detected" } ?? lastHint.map { " · \($0)" } ?? ""))
                     .font(.pulse(size: 10, weight: .black, design: .rounded))
                     .foregroundColor(color)
@@ -784,6 +920,16 @@ private struct LogSetPage: View {
                 .foregroundColor(WatchPulse.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
+            if let next = wc.supersetNext {
+                Text("then → \(next)")
+                    .font(.pulse(size: 10, weight: .semibold))
+                    .foregroundColor(WatchPulse.textSecondary)
+                    .lineLimit(1)
+            } else if isLastSet {
+                Text("LAST SET")
+                    .font(.pulse(size: 10, weight: .black, design: .rounded))
+                    .foregroundColor(WatchPulse.warning)
+            }
 
             if wc.adjustPct != 0 && wc.showsWeightField {
                 Text(wc.adjustPct < 0 ? "↓ \(abs(wc.adjustPct))% for recovery" : "↑ \(wc.adjustPct)% progression")

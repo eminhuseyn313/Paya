@@ -17,6 +17,13 @@ final class MotionSetDetector {
     var detectedReps: Int?
     private(set) var isRunning = false
 
+    /// Tempo taps while a set is in progress: 0 = off, otherwise seconds per tap
+    /// (a pacing metronome for the lift/lower cadence, e.g. 3 = a tap every 3 s).
+    var tempoSeconds: Int {
+        didSet { UserDefaults.standard.set(tempoSeconds, forKey: "paya_tempo_seconds") }
+    }
+    private var lastTap = Date.distantPast
+
     var enabled: Bool {
         didSet {
             UserDefaults.standard.set(enabled, forKey: "paya_auto_set_detection")
@@ -34,6 +41,7 @@ final class MotionSetDetector {
 
     private init() {
         enabled = UserDefaults.standard.object(forKey: "paya_auto_set_detection") as? Bool ?? true
+        tempoSeconds = UserDefaults.standard.integer(forKey: "paya_tempo_seconds")
     }
 
     func start() {
@@ -60,6 +68,10 @@ final class MotionSetDetector {
 
     private func handle(_ x: Double, _ y: Double, _ z: Double) {
         guard !suspended else { return }
+        if tempoSeconds > 0, detector.isInSet, Date().timeIntervalSince(lastTap) >= Double(tempoSeconds) {
+            lastTap = Date()
+            WKInterfaceDevice.current().play(.click)
+        }
         if let result = detector.feed(x, y, z) {
             detectedReps = result.reps
             WKInterfaceDevice.current().play(.notification)

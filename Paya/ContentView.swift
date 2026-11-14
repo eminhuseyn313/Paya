@@ -88,7 +88,17 @@ struct ContentView: View {
             WatchSessionManager.shared.onMedTaken = { id in
                 WatchHealthPush.handleMedTaken(id: id, context: modelContext)
             }
+            WatchSessionManager.shared.onMealRequested = { id in
+                WatchHealthPush.handleMealRequested(id: id, context: modelContext)
+                WatchHealthPush.pushQuickMeals(context: modelContext)
+                appState.dataRefreshTrigger = UUID()
+            }
+            WatchSessionManager.shared.onWeightRequested = { kg in
+                WatchHealthPush.handleWeightRequested(kg: kg, context: modelContext)
+                appState.dataRefreshTrigger = UUID()
+            }
             WatchHealthPush.pushMeds(context: modelContext)
+            WatchHealthPush.pushQuickMeals(context: modelContext)
             refreshWatchPlan()
             WatchSessionManager.shared.pushWaterTotal(WaterStore.todayTotal(context: modelContext))
             Task { await ExternalWorkoutImporter.importRecent(context: modelContext) }

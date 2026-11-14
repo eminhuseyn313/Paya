@@ -210,11 +210,13 @@ struct PulseDashboardView: View {
                         HStack(spacing: 8) {
                             watchConnectionPill
                             Spacer(minLength: 0)
-                            Button { whyItem = heroWhy() } label: {
-                                Text("Why this number?")
-                                    .font(.pulse(size: 13, weight: .semibold))
-                                    .foregroundColor(Pulse.hydration)
-                                    .frame(minHeight: 44)
+                            if hasReadiness {
+                                Button { whyItem = heroWhy() } label: {
+                                    Text("Why this number?")
+                                        .font(.pulse(size: 13, weight: .semibold))
+                                        .foregroundColor(Pulse.hydration)
+                                        .frame(minHeight: 44)
+                                }
                             }
                         }
 
@@ -502,20 +504,22 @@ struct PulseDashboardView: View {
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     } else {
-                        // No real readiness input — empty ring, never a number
+                        // No real readiness input — a small, quiet ring (never a number),
+                        // so an empty state doesn't take half the screen.
                         PulseRing(
                             progress: 0,
-                            size: 180,
-                            lineWidth: 14,
-                            color: Pulse.textTertiary.opacity(0.3)
+                            size: 104,
+                            lineWidth: 10,
+                            color: Pulse.textTertiary.opacity(0.3),
+                            showGlow: false
                         )
-                        VStack(spacing: 6) {
-                            Image(systemName: "applewatch.slash")
-                                .font(.pulse(size: 28))
+                        VStack(spacing: 4) {
+                            Image(systemName: "heart.text.square")
+                                .font(.pulse(size: 24))
                                 .foregroundColor(Pulse.textTertiary)
                             Text("Readiness")
                                 .font(.pulse(size: 12, weight: .medium))
-                                .foregroundColor(Pulse.textTertiary)
+                                .foregroundColor(Pulse.textSecondary)
                         }
                     }
                 }
@@ -553,18 +557,10 @@ struct PulseDashboardView: View {
                         heldBackLine(drivers: drivers)
                     }
                 } else {
-                    // No wearable explanation
-                    Text("—")
-                        .font(.pulse(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(Pulse.textSecondary)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 6)
-                        .background(Pulse.surfaceFallback)
-                        .clipShape(Capsule())
-
-                    Text("Needs ~7 days of Apple Watch data, or log a morning check-in, to estimate readiness.")
+                    // No wearable explanation — one clear line, no placeholder dash.
+                    Text("Readiness appears after about 7 days of Apple Watch data, or once you log a check-in.")
                         .font(.pulse(size: 13, weight: .medium))
-                        .foregroundColor(Pulse.textTertiary)
+                        .foregroundColor(Pulse.textSecondary)
                         .multilineTextAlignment(.center)
                         .lineLimit(3)
                         .padding(.horizontal, 20)
@@ -761,6 +757,7 @@ struct PulseDashboardView: View {
     // MARK: - Vitals Orbs
 
     private func progressColor(_ progress: Double) -> Color {
+        if progress <= 0 { return Pulse.textTertiary }   // nothing logged yet is neutral, not "failing"
         let hour = Calendar.current.component(.hour, from: Date())
         let dayFraction = max(0.3, Double(hour) / 24.0)
         let adjusted = progress / dayFraction
@@ -901,7 +898,9 @@ struct PulseDashboardView: View {
                 }
             }
             .padding(.horizontal, 4)
+            .padding(.vertical, 14)
         }
+        .scrollClipDisabled()
         .opacity(hasAppeared ? 1 : 0)
         .offset(y: hasAppeared ? 0 : 20)
     }
@@ -1539,8 +1538,12 @@ struct PulseDashboardView: View {
                 assessment: viewModel.flareAssessment,
                 forecast: viewModel.flareForecast,
                 flareEnabled: appState.flareEngineEnabled,
-                weightKg: viewModel.latestWeight
+                weightKg: viewModel.latestWeight,
+                sleepHours: viewModel.appleHealthSleep,
+                hrvMs: viewModel.appleHealthHRV,
+                restingHR: viewModel.appleHealthHRIsResting ? viewModel.appleHealthHR : nil
             )
+            WatchHealthPush.pushQuickMeals(context: modelContext)
             if appState.isTrainingDay {
                 let day = Calendar.current.startOfDay(for: Date()).timeIntervalSince1970
                 NotificationManager.shared.recordInInbox(
