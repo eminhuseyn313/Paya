@@ -63,7 +63,8 @@ class AIService {
     /// Checked before every external call. On-device Apple Intelligence
     /// bypasses this — data never leaves the device.
     var externalAIAllowed: Bool {
-        UserDefaults.standard.bool(forKey: "hasConsentedToExternalAI")
+        guard FeatureFlags.externalAI else { return false }  // v1: no external AI regardless of stored consent
+        return UserDefaults.standard.bool(forKey: "hasConsentedToExternalAI")
     }
 
     func generate(
@@ -98,7 +99,7 @@ class AIService {
         }
 
         guard !apiKey.isEmpty else {
-            lastError = "AI is unavailable on this device. Add your Claude API key in Settings to use AI features, or update to a newer iPhone with Apple Intelligence."
+            lastError = "This AI feature isn't available in this version of Paya."
             return nil
         }
 

@@ -421,19 +421,19 @@ struct RestTimerBar: View {
                         .fill(displayColor.opacity(0.15))
                         .frame(width: 40, height: 40)
                     Image(systemName: isComplete ? "checkmark" : "timer")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.pulse(size: 16, weight: .semibold))
                         .foregroundColor(displayColor)
                 }
 
                 // Time — the star of the card, always readable
                 VStack(alignment: .leading, spacing: 1) {
                     Text(isComplete ? "Ready for next set" : "Resting")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.pulse(size: 11, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                         .lineLimit(1)
                         .fixedSize()
                     Text(isComplete ? "Go" : timeText)
-                        .font(.system(size: 28, weight: .bold, design: .rounded).monospacedDigit())
+                        .font(.pulse(size: 28, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundColor(displayColor)
                         .lineLimit(1)
                         .fixedSize()
@@ -451,7 +451,7 @@ struct RestTimerBar: View {
                     manager.skip()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.pulse(size: 13, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                         .frame(width: 36, height: 36)
                         .background(Pulse.surfaceElevatedFallback)
@@ -471,7 +471,7 @@ struct RestTimerBar: View {
                     Button { manager.add(-15) } label: {
                         Label("−15", systemImage: "minus")
                             .labelStyle(.titleOnly)
-                            .font(.system(size: 13, weight: .bold, design: .rounded).monospacedDigit())
+                            .font(.pulse(size: 13, weight: .bold, design: .rounded).monospacedDigit())
                             .foregroundColor(Pulse.textTertiary)
                             .frame(width: 52, height: 32)
                             .background(Pulse.surfaceElevatedFallback)
@@ -481,7 +481,7 @@ struct RestTimerBar: View {
                     Button { manager.add(15) } label: {
                         Label("+15", systemImage: "plus")
                             .labelStyle(.titleOnly)
-                            .font(.system(size: 13, weight: .bold, design: .rounded).monospacedDigit())
+                            .font(.pulse(size: 13, weight: .bold, design: .rounded).monospacedDigit())
                             .foregroundColor(manager.sessionColor)
                             .frame(width: 52, height: 32)
                             .background(manager.sessionColor.opacity(0.12))
@@ -494,17 +494,17 @@ struct RestTimerBar: View {
                     if let peak = manager.peakBPM, let current = hr.currentBPM {
                         HStack(spacing: 6) {
                             Text("\(peak)")
-                                .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
+                                .font(.pulse(size: 12, weight: .bold, design: .rounded).monospacedDigit())
                                 .foregroundColor(Pulse.textTertiary)
                             Image(systemName: "arrow.right")
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.pulse(size: 8, weight: .bold))
                                 .foregroundColor(.secondary.opacity(0.6))
                             Text("\(current)")
-                                .font(.system(size: 12, weight: .bold, design: .rounded).monospacedDigit())
+                                .font(.pulse(size: 12, weight: .bold, design: .rounded).monospacedDigit())
 
                             if let drop = recoveryDrop, drop > 0 {
                                 Text("↓\(drop)")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded).monospacedDigit())
+                                    .font(.pulse(size: 11, weight: .bold, design: .rounded).monospacedDigit())
                                     .foregroundColor(Pulse.positive)
                             }
                         }

@@ -141,7 +141,7 @@ private struct PlateBar: View {
                 .fill(color.opacity(weightKg >= 10 ? 0.85 : 0.5))
                 .frame(width: width, height: height)
             Text(weightKg.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(weightKg))" : String(format: "%.1f", weightKg))
-                .font(.system(size: 8, weight: .bold))
+                .font(.pulse(size: 8, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

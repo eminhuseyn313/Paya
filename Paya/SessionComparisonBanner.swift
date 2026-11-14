@@ -56,21 +56,21 @@ struct SessionComparisonBanner: View {
                                   : Pulse.nutrition.opacity(0.12))
                             .frame(width: 36, height: 36)
                         Image(systemName: volumeDelta >= 0 ? "arrow.up.right" : "arrow.down.right")
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.pulse(size: 14, weight: .bold))
                             .foregroundColor(volumeDelta >= 0 ? Pulse.positive : Pulse.nutrition)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("vs last session")
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.pulse(size: 10, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                         HStack(spacing: 6) {
                             Text(volumeDelta >= 0 ? "+\(displayVol(abs(volumeDelta)))" : "-\(displayVol(abs(volumeDelta)))")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 14, weight: .bold, design: .rounded))
                                 .foregroundColor(volumeDelta >= 0 ? Pulse.positive : Pulse.nutrition)
                             if abs(volumePercent) >= 1 {
                                 Text(String(format: "%+.0f%%", volumePercent))
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.pulse(size: 10, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                                     .padding(.horizontal, 5)
                                     .padding(.vertical, 2)
@@ -84,10 +84,10 @@ struct SessionComparisonBanner: View {
 
                     VStack(alignment: .trailing, spacing: 2) {
                         Text("\(completedExerciseCount)/\(totalExerciseCount)")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                         Text("exercises")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }

@@ -70,13 +70,13 @@ private struct PictureStat: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(color)
                 Text(value)
                     .font(.caption.weight(.bold))
             }
             Text(label)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

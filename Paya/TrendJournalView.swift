@@ -76,7 +76,7 @@ struct TrendJournalView: View {
         VStack(spacing: 12) {
             Spacer()
             Image(systemName: "book.pages")
-                .font(.system(size: 40))
+                .font(.pulse(size: 40))
                 .foregroundColor(Pulse.textTertiary)
             Text("No entries yet")
                 .font(.headline)
@@ -97,20 +97,20 @@ struct TrendJournalView: View {
                     .fill(Color(hex: entry.colorHex).opacity(0.15))
                     .frame(width: 28, height: 28)
                 Image(systemName: entry.icon)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.pulse(size: 11, weight: .semibold))
                     .foregroundColor(Color(hex: entry.colorHex))
             }
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(entry.date.formatted(.dateTime.weekday(.abbreviated).day()))
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                     Text(entry.source)
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.pulse(size: 9, weight: .semibold))
                         .foregroundColor(Color(hex: entry.colorHex))
                 }
                 Text(entry.headline)
-                    .font(.system(size: 12.5))
+                    .font(.pulse(size: 12.5))
                     .foregroundColor(Pulse.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
             }

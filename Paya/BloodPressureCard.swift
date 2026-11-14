@@ -186,7 +186,7 @@ struct BloodPressureCard: View {
     /// Stage 1 number is a one-off or a real pattern; a trend can.
     private var trendChart: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("LAST 30 DAYS").font(.system(size: 9, weight: .bold)).foregroundColor(Pulse.textTertiary)
+            Text("LAST 30 DAYS").font(.pulse(size: 9, weight: .bold)).foregroundColor(Pulse.textTertiary)
             GeometryReader { geo in
                 let systolics = history.map { Double($0.systolic) }
                 let diastolics = history.map { Double($0.diastolic) }
@@ -203,11 +203,11 @@ struct BloodPressureCard: View {
             }
             .frame(height: 40)
             HStack {
-                Text("Systolic").font(.system(size: 9)).foregroundColor(Pulse.critical)
-                Text("Diastolic").font(.system(size: 9)).foregroundColor(Pulse.critical.opacity(0.6))
+                Text("Systolic").font(.pulse(size: 9)).foregroundColor(Pulse.critical)
+                Text("Diastolic").font(.pulse(size: 9)).foregroundColor(Pulse.critical.opacity(0.6))
                 Spacer()
                 Text("\(history.count) readings")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
         }

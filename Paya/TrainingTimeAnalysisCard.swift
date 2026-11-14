@@ -54,7 +54,7 @@ struct TrainingTimeAnalysisCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(totalSessions) sessions analyzed")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -72,16 +72,16 @@ struct TrainingTimeAnalysisCard: View {
                         .annotation(position: .top) {
                             VStack(spacing: 1) {
                                 Text(String(format: "%.0f", appState.profile.prefersLbs ? bracket.avgVolume * 2.20462 : bracket.avgVolume))
-                                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 9, weight: .bold, design: .rounded))
                                 Text(appState.profile.prefersLbs ? "lbs" : "kg")
-                                    .font(.system(size: 7))
+                                    .font(.pulse(size: 7))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
                     .frame(height: 100)
                     .chartXAxis {
-                        AxisMarks { AxisValueLabel().font(.system(size: 10)) }
+                        AxisMarks { AxisValueLabel().font(.pulse(size: 10)) }
                     }
                     .chartYAxis(.hidden)
 
@@ -96,18 +96,18 @@ struct TrainingTimeAnalysisCard: View {
                     if !insight.isEmpty {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(insight)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text("Sedliak et al. (2009): consistent training time → 22% better gains. Grgic et al. (2019): afternoon shows small maximal strength advantage.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -119,17 +119,17 @@ struct TrainingTimeAnalysisCard: View {
     private func bracketRow(_ bracket: TimeBracket) -> some View {
         HStack(spacing: 8) {
             Image(systemName: bracket.icon)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(bracket.color)
                 .frame(width: 16)
 
             VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 4) {
                     Text(bracket.name)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                     if bracket.name == bestBracket {
                         Text("BEST")
-                            .font(.system(size: 7, weight: .black))
+                            .font(.pulse(size: 7, weight: .black))
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
@@ -138,7 +138,7 @@ struct TrainingTimeAnalysisCard: View {
                     }
                 }
                 Text(bracket.timeRange)
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -146,11 +146,11 @@ struct TrainingTimeAnalysisCard: View {
 
             VStack(alignment: .trailing, spacing: 1) {
                 Text("\(bracket.sessionCount) sessions")
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.pulse(size: 9, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
                 if let rpe = bracket.avgRPE {
                     Text(String(format: "RPE %.1f", rpe))
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }

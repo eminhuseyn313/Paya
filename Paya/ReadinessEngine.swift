@@ -43,6 +43,9 @@ enum ReadinessEngine {
         let drivers: [Driver]
         let recommendation: String
         let journeyNotes: [String]   // plain-language synthesis across biometrics + subjective check-in
+        /// Non-nil when the score rests on thin data (a single signal, or a
+        /// personal baseline under 7 days) — UI shows it as a qualifier.
+        var earlyEstimateNote: String? = nil
     }
 
     enum Band: String {
@@ -165,12 +168,23 @@ enum ReadinessEngine {
         }
 
         let sortedDrivers = drivers.sorted { $0.score < $1.score }
+        // Thin-data honesty: baseline z-scores need several days of history to
+        // mean anything, and a single input is not a composite.
+        let baselineSamples = [BiometricType.hrv, .restingHR].compactMap { store.baseline(for: $0)?.samples }
+        let minBaseline = baselineSamples.min()
+        let isThin = weighted.count < 2 || (minBaseline.map { $0 < 7 } ?? false)
+        var earlyNote: String? = nil
+        if isThin {
+            earlyNote = "Early estimate · \(weighted.count) signal\(weighted.count == 1 ? "" : "s")"
+                + (minBaseline.map { " · \($0)-day baseline" } ?? "")
+        }
         return Report(
             score: score,
             band: band,
             drivers: sortedDrivers,
             recommendation: recommendation(band: band, drivers: drivers),
-            journeyNotes: journeyNotes(band: band, drivers: sortedDrivers, checkIn: checkIn, hasSymptomFlag: hasSymptomFlag)
+            journeyNotes: journeyNotes(band: band, drivers: sortedDrivers, checkIn: checkIn, hasSymptomFlag: hasSymptomFlag),
+            earlyEstimateNote: earlyNote
         )
     }
 
@@ -260,6 +274,9 @@ enum ReadinessEngine {
         guard !sessions.isEmpty else { return nil }
 
         let weekTrimp = sessions.reduce(0.0) { $0 + ($1.sessionTrimpScore ?? 0) }
+        // No session has a TRIMP (no heart-rate data) → no load signal at all;
+        // don't award a "rest day" bonus for load we never measured.
+        guard weekTrimp > 0 else { return nil }
         let dailyAvg = weekTrimp / 7.0
 
         guard let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) else { return nil }

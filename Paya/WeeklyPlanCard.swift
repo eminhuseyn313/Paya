@@ -28,7 +28,7 @@ struct WeeklyPlanCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("auto-planned")
-                            .font(.system(size: 8, weight: .medium))
+                            .font(.pulse(size: 8, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -41,7 +41,7 @@ struct WeeklyPlanCard: View {
                         ForEach(dayPlans) { plan in
                             VStack(spacing: 4) {
                                 Text(plan.dayLabel)
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .foregroundColor(plan.isToday ? .white : .secondary)
 
                                 ZStack {
@@ -51,12 +51,12 @@ struct WeeklyPlanCard: View {
 
                                     VStack(spacing: 2) {
                                         Image(systemName: plan.icon)
-                                            .font(.system(size: plan.isRest ? 11 : 13))
+                                            .font(.pulse(size: plan.isRest ? 11 : 13))
                                             .foregroundColor(plan.iconColor)
 
                                         if let label = plan.shortLabel {
                                             Text(label)
-                                                .font(.system(size: 7, weight: .bold))
+                                                .font(.pulse(size: 7, weight: .bold))
                                                 .foregroundColor(plan.iconColor)
                                                 .lineLimit(1)
                                         }
@@ -65,7 +65,7 @@ struct WeeklyPlanCard: View {
 
                                 if plan.isCompleted {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                         .foregroundColor(Pulse.positive)
                                 } else {
                                     Color.clear.frame(height: 10)
@@ -91,20 +91,20 @@ struct WeeklyPlanCard: View {
                         HStack(spacing: 4) {
                             Circle().fill(Pulse.hydration).frame(width: 6, height: 6)
                             Text("\(trainingDays) training")
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 4) {
                             Circle().fill(Pulse.surfaceElevatedFallback).frame(width: 6, height: 6)
                             Text("\(restDays) rest")
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         if completed > 0 {
                             HStack(spacing: 4) {
                                 Circle().fill(Pulse.positive).frame(width: 6, height: 6)
                                 Text("\(completed) done")
-                                    .font(.system(size: 9, weight: .semibold))
+                                    .font(.pulse(size: 9, weight: .semibold))
                                     .foregroundColor(Pulse.positive)
                             }
                         }

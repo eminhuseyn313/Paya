@@ -9,8 +9,9 @@ enum WatchPulse {
     static let surfaceElevated = Color(red: 0.12, green: 0.135, blue: 0.18)
 
     static let textPrimary = Color.white
-    static let textSecondary = Color.white.opacity(0.55)
-    static let textTertiary = Color.white.opacity(0.35)
+    // Raised for legibility on the small display (tertiary was ~3:1 contrast).
+    static let textSecondary = Color.white.opacity(0.72)
+    static let textTertiary = Color.white.opacity(0.52)
 
     static let positive = Color(hex: "059669")
     static let warning = Color(hex: "F59E0B")
@@ -20,4 +21,14 @@ enum WatchPulse {
     static let vitals = Color(hex: "EC4899")
     static let recovery = Color(hex: "8B5CF6")
     static let ai = Color(hex: "818CF8")
+}
+
+// Dynamic Type-aware fixed sizes for the watch: identical at the default size,
+// scales with the user's text size, capped tightly so the small display holds.
+extension Font {
+    static func pulse(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> Font {
+        let scaled = UIFontMetrics(forTextStyle: size >= 24 ? .title2 : .footnote).scaledValue(for: size)
+        let cap: CGFloat = size >= 30 ? 1.1 : 1.25
+        return .system(size: min(scaled, size * cap), weight: weight, design: design)
+    }
 }

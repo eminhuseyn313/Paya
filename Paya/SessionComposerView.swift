@@ -294,7 +294,7 @@ struct ComposerExerciseCard: View {
                             .foregroundColor(Pulse.textTertiary)
                         if exercise.source == .library {
                             Text("Library")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 2)
                                 .background(Pulse.hydration.opacity(0.15))
@@ -303,7 +303,7 @@ struct ComposerExerciseCard: View {
                         }
                         if exercise.isJointSensitive {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.warning)
                         }
                     }
@@ -402,9 +402,9 @@ struct ParamPill: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
             Text(label)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.pulse(size: 10, weight: .semibold))
                 .monospacedDigit()
         }
         .foregroundColor(Pulse.textTertiary)

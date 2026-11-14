@@ -373,7 +373,7 @@ struct ProgramScienceView: View {
                 ForEach(recommendation.rationale, id: \.self) { line in
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.recovery)
                             .padding(.top, 2)
                         Text(line)
@@ -484,13 +484,13 @@ struct ProgramScienceView: View {
     private func sourceEntry(_ authors: String, _ title: String, _ journal: String) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(authors)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.pulse(size: 10, weight: .semibold))
             Text(title)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textPrimary)
                 .italic()
             Text(journal)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .padding(.vertical, 2)
@@ -514,7 +514,7 @@ private struct ScienceSection<Content: View>: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: icon)
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Color(hex: accentHex))
                         .frame(width: 28, height: 28)
                         .background(Color(hex: accentHex).opacity(0.12))
@@ -547,11 +547,11 @@ private struct CitationRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 6) {
             Image(systemName: "doc.text.fill")
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
                 .foregroundColor(Pulse.ai.opacity(0.6))
                 .padding(.top, 3)
             Text(text)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .italic()
                 .fixedSize(horizontal: false, vertical: true)

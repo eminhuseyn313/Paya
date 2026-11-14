@@ -24,11 +24,35 @@ struct SleepDebtCard: View {
 
     var body: some View {
         Group {
-            if loaded, !recentSleep.isEmpty {
-                cardView
+            if loaded {
+                if recentSleep.count >= 3 {
+                    cardView
+                } else {
+                    emptyView
+                }
             }
         }
         .onAppear { compute() }
+    }
+
+    /// Not enough nights with real sleep data — say so instead of showing a debt number.
+    private var emptyView: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "moon.zzz.fill")
+                .font(.pulse(size: 12))
+                .foregroundColor(Pulse.textTertiary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("SLEEP DEBT · —")
+                    .font(.pulse(size: 8, weight: .bold))
+                    .foregroundColor(Pulse.textTertiary)
+                Text("Needs ~3 nights of sleep data (wear your Apple Watch to bed)")
+                    .font(.caption)
+                    .foregroundColor(Pulse.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .payaCard(padding: 14)
     }
 
     private var cardView: some View {
@@ -39,12 +63,12 @@ struct SleepDebtCard: View {
                         .fill(debtColor.opacity(0.15))
                         .frame(width: 28, height: 28)
                     Image(systemName: "moon.zzz.fill")
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(debtColor)
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     Text("SLEEP DEBT")
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.pulse(size: 8, weight: .bold))
                         .foregroundColor(debtColor)
                     Text(debtLabel)
                         .font(.caption.weight(.semibold))
@@ -52,10 +76,10 @@ struct SleepDebtCard: View {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 0) {
                     Text(String(format: "%.1fh", abs(sleepDebt)))
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(debtColor)
                     Text(sleepDebt <= 0 ? "surplus" : "debt")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -69,7 +93,7 @@ struct SleepDebtCard: View {
                             .frame(width: 18, height: max(4, CGFloat(entry.hours / 12.0) * 40))
 
                         Text(entry.day)
-                            .font(.system(size: 7))
+                            .font(.pulse(size: 7))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -82,12 +106,18 @@ struct SleepDebtCard: View {
                     .fill(Pulse.positive.opacity(0.4))
                     .frame(width: 12, height: 1)
                 Text("8h target")
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
+                    .foregroundColor(Pulse.textTertiary)
+            }
+
+            if recentSleep.count < 7 {
+                Text("Early estimate · \(recentSleep.count) nights of data")
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
 
             Text(recommendation)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(1)
@@ -113,12 +143,16 @@ struct SleepDebtCard: View {
         var debt: Double = 0
         var entries: [(day: String, hours: Double)] = []
 
-        for (index, summary) in history.enumerated() {
+        // Only nights with a real reading count. A nil night used to be coerced
+        // to 0h (= 8h of phantom debt), and < 3h is almost always a partial
+        // night (watch off), not real sleep.
+        let nights = history.filter { ($0.sleepHours ?? 0) >= 3 }
+        for (index, summary) in nights.enumerated() {
             let hours = summary.sleepHours ?? 0
             let deficit = targetHours - hours
 
             // Decay: older nights contribute less (half-life ~5 days)
-            let daysAgo = Double(history.count - 1 - index)
+            let daysAgo = Double(nights.count - 1 - index)
             let weight = pow(0.87, daysAgo) // ~50% decay at 5 days
 
             debt += deficit * weight

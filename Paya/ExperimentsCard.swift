@@ -27,7 +27,7 @@ struct ExperimentsCard: View {
                 Spacer()
                 Button { showAdd = true } label: {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 20))
+                        .font(.pulse(size: 20))
                         .foregroundColor(Pulse.ai)
                 }
             }
@@ -91,17 +91,17 @@ private struct ExperimentRow: View {
                     .fill(resultColor.opacity(0.15))
                     .frame(width: 30, height: 30)
                 Image(systemName: comparison.metric.icon)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.pulse(size: 12, weight: .semibold))
                     .foregroundColor(resultColor)
             }
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
                     Text(title)
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.pulse(size: 13, weight: .bold))
                         .lineLimit(1)
                     if isPassive {
                         Text("MEDICATION")
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.pulse(size: 8, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
@@ -110,18 +110,18 @@ private struct ExperimentRow: View {
                     }
                 }
                 Text(comparison.summary)
-                    .font(.system(size: 11.5))
+                    .font(.pulse(size: 11.5))
                     .foregroundColor(Pulse.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Text("Since \(startDate.formatted(.dateTime.month(.abbreviated).day()))")
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textTertiary)
             }
             Spacer(minLength: 0)
             if let onDismiss {
                 Button(action: onDismiss) {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 15))
+                        .font(.pulse(size: 15))
                         .foregroundColor(Pulse.textTertiary.opacity(0.6))
                 }
             }

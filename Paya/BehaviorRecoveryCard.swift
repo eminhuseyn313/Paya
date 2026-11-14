@@ -22,7 +22,7 @@ struct BehaviorTagPicker: View {
             HStack(spacing: 6) {
                 Image(systemName: "tag.fill")
                     .foregroundColor(Pulse.ai)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text("Today's behaviors")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -32,14 +32,14 @@ struct BehaviorTagPicker: View {
             }
 
             Text("Tag what you did today — Paya correlates these with your recovery.")
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
 
             ForEach(BehaviorCategory.allCases) { category in
                 let tags = BehaviorTags.all.filter { $0.category == category }
                 VStack(alignment: .leading, spacing: 6) {
                     Text(category.displayName.uppercased())
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
 
                     FlowLayout(spacing: 6) {
@@ -58,9 +58,9 @@ struct BehaviorTagPicker: View {
                             } label: {
                                 HStack(spacing: 4) {
                                     Image(systemName: tag.icon)
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                     Text(tag.label)
-                                        .font(.system(size: 11, weight: .medium))
+                                        .font(.pulse(size: 11, weight: .medium))
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 7)
@@ -115,7 +115,7 @@ struct BehaviorRecoveryCard: View {
             HStack {
                 Image(systemName: "arrow.triangle.branch")
                     .foregroundColor(Pulse.ai)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text("Behavior ↔ Recovery")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -148,7 +148,7 @@ struct BehaviorRecoveryCard: View {
                     Text("Not enough data yet")
                         .font(.caption.weight(.semibold))
                     Text("Tag your daily behaviors for 2+ weeks to see how they affect your recovery.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
@@ -176,9 +176,9 @@ struct BehaviorRecoveryCard: View {
             // Footer
             HStack(spacing: 4) {
                 Image(systemName: "info.circle")
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                 Text("Correlation, not causation. Based on your data only.")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
             }
             .foregroundColor(Pulse.textTertiary)
         }
@@ -198,7 +198,7 @@ struct BehaviorRecoveryCard: View {
                     .fill(Color(hex: insight.tag.colorHex).opacity(0.15))
                     .frame(width: 32, height: 32)
                 Image(systemName: insight.tag.icon)
-                    .font(.system(size: 13))
+                    .font(.pulse(size: 13))
                     .foregroundColor(Color(hex: insight.tag.colorHex))
             }
 
@@ -206,7 +206,7 @@ struct BehaviorRecoveryCard: View {
                 Text(insight.tag.label)
                     .font(.caption.weight(.semibold))
                 Text(insight.text)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -216,9 +216,9 @@ struct BehaviorRecoveryCard: View {
             // Delta badge
             VStack(spacing: 1) {
                 Image(systemName: insight.isPositive ? "arrow.up.right" : "arrow.down.right")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.pulse(size: 10, weight: .bold))
                 Text("\(Int(abs(insight.delta)))%")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 11, weight: .bold, design: .rounded))
             }
             .foregroundColor(insight.isPositive ? Pulse.positive : Pulse.critical)
             .padding(.horizontal, 8)

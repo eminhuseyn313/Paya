@@ -31,7 +31,7 @@ struct NarrativeCard: View {
             ProgressView()
                 .tint(Pulse.ai)
             Text("Reading today's signals…")
-                .font(.system(size: 12, weight: .medium))
+                .font(.pulse(size: 12, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
             Spacer()
         }
@@ -50,16 +50,16 @@ struct NarrativeCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 6) {
                         Image(systemName: "sparkles")
-                            .font(.system(size: 11))
+                            .font(.pulse(size: 11))
                             .foregroundColor(Pulse.ai)
                         Text("Today's story")
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.pulse(size: 11, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                             .textCase(.uppercase)
                         Spacer()
                         if narrative.sourceCount > 1 {
                             Text("from \(narrative.sourceCount) signals")
-                                .font(.system(size: 10, weight: .medium))
+                                .font(.pulse(size: 10, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -70,17 +70,17 @@ struct NarrativeCard: View {
                                 .fill(Color(hex: narrative.headline.colorHex).opacity(0.15))
                                 .frame(width: 36, height: 36)
                             Image(systemName: narrative.headline.icon)
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.pulse(size: 15, weight: .semibold))
                                 .foregroundColor(Color(hex: narrative.headline.colorHex))
                         }
 
                         VStack(alignment: .leading, spacing: 3) {
                             Text(narrative.headline.source)
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                                 .foregroundColor(Color(hex: narrative.headline.colorHex))
                                 .textCase(.uppercase)
                             Text(narrative.headline.text)
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.pulse(size: 14, weight: .semibold))
                                 .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -89,7 +89,7 @@ struct NarrativeCard: View {
 
                         if !narrative.supporting.isEmpty {
                             Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                                 .padding(.top, 2)
                         }
@@ -104,16 +104,16 @@ struct NarrativeCard: View {
                     ForEach(narrative.supporting) { point in
                         HStack(alignment: .top, spacing: 10) {
                             Image(systemName: point.icon)
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                                 .foregroundColor(Color(hex: point.colorHex))
                                 .frame(width: 20)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(point.source)
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                                     .textCase(.uppercase)
                                 Text(point.text)
-                                    .font(.system(size: 12, weight: .medium))
+                                    .font(.pulse(size: 12, weight: .medium))
                                     .foregroundColor(Pulse.textSecondary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -122,7 +122,7 @@ struct NarrativeCard: View {
                 }
             } else if !narrative.supporting.isEmpty {
                 Text("+\(narrative.supporting.count) more signal\(narrative.supporting.count == 1 ? "" : "s") — tap to expand")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
                     .padding(.top, 8)
             }

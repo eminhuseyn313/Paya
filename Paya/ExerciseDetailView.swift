@@ -45,14 +45,14 @@ struct ExerciseDetailView: View {
                     // Header info
                     VStack(alignment: .leading, spacing: 8) {
                         Text(exercise.name)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 22, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
 
                         HStack(spacing: 6) {
                             LevelBadge(level: exercise.level)
                             if let category = exercise.category as String? {
                                 Text(category.capitalized)
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
                                     .background(Pulse.hydration.opacity(0.12))
@@ -61,7 +61,7 @@ struct ExerciseDetailView: View {
                             }
                             if let mechanic = exercise.mechanic {
                                 Text(mechanic.capitalized)
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
                                     .background(Pulse.positive.opacity(0.12))
@@ -70,7 +70,7 @@ struct ExerciseDetailView: View {
                             }
                             if let force = exercise.force {
                                 Text(force.capitalized)
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
                                     .background(Pulse.warning.opacity(0.12))
@@ -92,7 +92,7 @@ struct ExerciseDetailView: View {
                             if !exercise.primaryMuscles.isEmpty {
                                 HStack(alignment: .top, spacing: 6) {
                                     Text("PRIMARY")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                         .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 62, alignment: .leading)
                                     ForEach(Array(Set(exercise.primaryMuscles)).sorted(), id: \.self) { m in                                        Text(m.capitalized)
@@ -109,7 +109,7 @@ struct ExerciseDetailView: View {
                             if !exercise.secondaryMuscles.isEmpty {
                                 HStack(alignment: .top, spacing: 6) {
                                     Text("SECONDARY")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                         .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 62, alignment: .leading)
                                     ForEach(exercise.secondaryMuscles, id: \.self) { m in
@@ -127,7 +127,7 @@ struct ExerciseDetailView: View {
                             if let equipment = exercise.equipment {
                                 HStack(alignment: .top, spacing: 6) {
                                     Text("EQUIPMENT")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                         .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 62, alignment: .leading)
                                     HStack(spacing: 4) {
@@ -179,7 +179,7 @@ struct ExerciseDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text(exercise.name)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                         .lineLimit(1)
                 }
@@ -202,7 +202,7 @@ struct ExerciseDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .font(.system(size: 13))
+                    .font(.pulse(size: 13))
                     .foregroundColor(Pulse.positive)
                 Text("Your history")
                     .font(.subheadline.weight(.semibold))
@@ -218,14 +218,14 @@ struct ExerciseDetailView: View {
             if let pr = exerciseHistory.first(where: { $0.isPersonalBest }) ?? exerciseHistory.max(by: { $0.bestWeight < $1.bestWeight }) {
                 HStack(spacing: 10) {
                     Image(systemName: "trophy.fill")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Pulse.warning)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Personal best")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                             .foregroundColor(Pulse.warning)
                         Text("\(formatWeight(pr.bestWeight))kg × \(pr.bestReps) reps")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                             .monospacedDigit()
                     }
@@ -249,18 +249,18 @@ struct ExerciseDetailView: View {
                 ForEach(exerciseHistory.prefix(6)) { entry in
                     HStack(spacing: 10) {
                         Text(entry.date.formatted(.dateTime.month(.abbreviated).day()))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.pulse(size: 11, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                             .frame(width: 50, alignment: .leading)
 
                         Text("\(formatWeight(entry.bestWeight))kg")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 12, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                             .monospacedDigit()
                             .frame(width: 55, alignment: .trailing)
 
                         Text("×\(entry.bestReps)")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.pulse(size: 11, weight: .medium))
                             .foregroundColor(Pulse.textSecondary)
                             .frame(width: 30, alignment: .leading)
 
@@ -275,7 +275,7 @@ struct ExerciseDetailView: View {
 
                         if entry.isPersonalBest {
                             Image(systemName: "trophy.fill")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.warning)
                         }
                     }
@@ -349,7 +349,7 @@ struct ExerciseImageCarousel: View {
                         .fill(Pulse.surfaceElevatedFallback)
                         .aspectRatio(1.4, contentMode: .fit)
                     Image(systemName: "photo.on.rectangle")
-                        .font(.system(size: 40))
+                        .font(.pulse(size: 40))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.horizontal, 16)

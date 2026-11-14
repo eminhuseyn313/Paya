@@ -32,7 +32,7 @@ struct TrainingFrequencyCard: View {
                 // Day of week distribution
                 VStack(alignment: .leading, spacing: 4) {
                     Text("BY DAY")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
 
                     HStack(spacing: 4) {
@@ -44,7 +44,7 @@ struct TrainingFrequencyCard: View {
                                     .fill(Pulse.hydration.opacity(max(0.08, intensity)))
                                     .frame(height: max(4, 30 * intensity))
                                 Text(dayNames[i])
-                                    .font(.system(size: 8, weight: dayOfWeekCounts[i] == dayOfWeekCounts.max() ? .bold : .regular))
+                                    .font(.pulse(size: 8, weight: dayOfWeekCounts[i] == dayOfWeekCounts.max() ? .bold : .regular))
                                     .foregroundColor(dayOfWeekCounts[i] == dayOfWeekCounts.max() ? .primary : .secondary)
                             }
                             .frame(maxWidth: .infinity)
@@ -56,7 +56,7 @@ struct TrainingFrequencyCard: View {
                 // Time of day distribution
                 VStack(alignment: .leading, spacing: 4) {
                     Text("BY TIME")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
 
                     let timeBlocks = groupedHours
@@ -69,7 +69,7 @@ struct TrainingFrequencyCard: View {
                                     .fill(Pulse.ai.opacity(max(0.08, intensity)))
                                     .frame(height: max(4, 24 * intensity))
                                 Text(block.label)
-                                    .font(.system(size: 7))
+                                    .font(.pulse(size: 7))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                             .frame(maxWidth: .infinity)
@@ -81,17 +81,17 @@ struct TrainingFrequencyCard: View {
                 HStack(spacing: 16) {
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.hydration)
                         Text("Favorite: \(favoriteDay)")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                     }
                     HStack(spacing: 4) {
                         Image(systemName: "clock")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.ai)
                         Text("Peak: \(favoriteTime)")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                     }
                     Spacer()
                 }

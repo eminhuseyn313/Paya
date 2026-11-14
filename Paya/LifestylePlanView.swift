@@ -78,12 +78,12 @@ struct LifestylePlanView: View {
                     // Recovery & lifestyle
                     recoverySection
 
-                    // AI Coach Notes
-                    coachNotesSection
+                    // AI Coach Notes — hidden while external AI is off (v1)
+                    if FeatureFlags.externalAI { coachNotesSection }
 
                     // Disclaimer
                     Text("Based on ACSM/NSCA position stands & ISSN nutrition guidance. Not medical advice.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 30)
@@ -110,9 +110,9 @@ struct LifestylePlanView: View {
             // Goal badge
             HStack(spacing: 6) {
                 Image(systemName: profile.goal.icon)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text(profile.goal.displayName)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.pulse(size: 12, weight: .bold))
                     .textCase(.uppercase)
                     .tracking(0.8)
             }
@@ -142,16 +142,16 @@ struct LifestylePlanView: View {
         VStack(spacing: 2) {
             HStack(spacing: 2) {
                 Text(value)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                 if !unit.isEmpty {
                     Text(unit)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.pulse(size: 10, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
             Text(label)
-                .font(.system(size: 9, weight: .medium))
+                .font(.pulse(size: 9, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -181,16 +181,16 @@ struct LifestylePlanView: View {
             // Protein target
             HStack(spacing: 10) {
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(Pulse.energy)
                     .frame(width: 20)
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Protein: \(Int(profile.proteinTargetG))g/day")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                         .foregroundColor(Pulse.textPrimary)
                     Text("\(String(format: "%.1f", profile.proteinTargetG / max(1, profile.currentWeightKg)))g per kg body weight — Morton et al. 2018")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
@@ -206,13 +206,13 @@ struct LifestylePlanView: View {
     private func calorieCard(label: String, calories: Int, icon: String, color: Color) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.pulse(size: 14))
                 .foregroundColor(color)
             Text("\(calories)")
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(.pulse(size: 20, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textPrimary)
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -259,11 +259,11 @@ struct LifestylePlanView: View {
             ForEach(tips, id: \.text) { tip in
                 HStack(spacing: 8) {
                     Image(systemName: tip.icon)
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.nutrition.opacity(0.6))
                         .frame(width: 16)
                     Text(tip.text)
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(Pulse.textSecondary)
                     Spacer()
                 }
@@ -278,30 +278,30 @@ struct LifestylePlanView: View {
             sectionHeader(icon: "flame.fill", title: "Your Protein Sources", color: Pulse.energy)
 
             Text("Best options for \(profile.dietPreference.displayName.lowercased()) diet")
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(Pulse.textTertiary)
 
             let proteins = FoodDatabase.highProteinFoods(for: profile.dietPreference)
             ForEach(proteins.prefix(5)) { food in
                 HStack(spacing: 10) {
                     Text(food.emoji)
-                        .font(.system(size: 18))
+                        .font(.pulse(size: 18))
                         .frame(width: 28)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(food.name)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.pulse(size: 13, weight: .medium))
                             .foregroundColor(Pulse.textPrimary)
                         Text(food.servingSize)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     VStack(alignment: .trailing, spacing: 1) {
                         Text("\(Int(food.proteinG))g")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 13, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.energy)
                         Text("\(food.calories) kcal")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -324,17 +324,17 @@ struct LifestylePlanView: View {
             ForEach(recommendedSupplements, id: \.name) { supp in
                 HStack(spacing: 10) {
                     Text(supp.emoji)
-                        .font(.system(size: 18))
+                        .font(.pulse(size: 18))
                         .frame(width: 28)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(supp.name)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.pulse(size: 13, weight: .medium))
                             .foregroundColor(Pulse.textPrimary)
                         Text(supp.dosage)
-                            .font(.system(size: 11))
+                            .font(.pulse(size: 11))
                             .foregroundColor(Pulse.textSecondary)
                         Text(supp.evidence)
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
@@ -460,14 +460,14 @@ struct LifestylePlanView: View {
     private func recoveryRow(emoji: String, title: String, detail: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Text(emoji)
-                .font(.system(size: 18))
+                .font(.pulse(size: 18))
                 .frame(width: 28)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.pulse(size: 13, weight: .semibold))
                     .foregroundColor(Pulse.textPrimary)
                 Text(detail)
-                    .font(.system(size: 11))
+                    .font(.pulse(size: 11))
                     .foregroundColor(Pulse.textSecondary)
             }
             Spacer()
@@ -517,7 +517,7 @@ struct LifestylePlanView: View {
             if let plan = profile.cachedLifestylePlan, !plan.isEmpty {
                 DisclosureGroup(isExpanded: $showCoachNotes) {
                     Text(plan)
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(Pulse.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 8)
@@ -531,7 +531,7 @@ struct LifestylePlanView: View {
                         if let date = profile.lifestylePlanGeneratedAt {
                             Spacer()
                             Text(date.formatted(date: .abbreviated, time: .omitted))
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -555,7 +555,7 @@ struct LifestylePlanView: View {
                     Text(profile.cachedLifestylePlan == nil
                          ? "Get personalized AI coaching"
                          : "Refresh AI coaching")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                 }
                 .foregroundColor(Pulse.ai)
                 .frame(maxWidth: .infinity)

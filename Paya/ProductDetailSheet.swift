@@ -65,7 +65,7 @@ struct ProductDetailSheet: View {
                 // Portion controls
                 VStack(spacing: 10) {
                     Text("\(Int(grams))g")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 40, weight: .bold, design: .rounded))
                         .monospacedDigit()
 
                     Slider(value: $grams, in: 10...500, step: 5)

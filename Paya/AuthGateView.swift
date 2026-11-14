@@ -57,61 +57,42 @@ struct AuthGateView: View {
 
                 // Logo + tagline
                 VStack(spacing: 12) {
-                    Image(systemName: "figure.strengthtraining.traditional")
-                        .font(.system(size: 48, weight: .medium))
-                        .foregroundColor(Pulse.hydration)
+                    PayaMark(size: 96)
 
                     Text("Paya")
-                        .font(.system(size: 42, weight: .black, design: .rounded))
+                        .font(.pulse(size: 42, weight: .black, design: .rounded))
                         .foregroundColor(.white)
 
                     Text("Fitness, done right.")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .font(.pulse(size: 17, weight: .medium))
+                        .foregroundColor(Pulse.textSecondary)
                 }
 
                 // MARK: Sign In with Apple (§ 4.8)
-                // Temporarily disabled — provisioning profile not configured.
-                // Re-enable for App Store builds.
-//                SignInWithAppleButton(.continue) { request in
-//                    let nonce = randomNonceString()
-//                    currentNonce = nonce
-//                    request.requestedScopes = [.email, .fullName]
-//                    request.nonce = sha256(nonce)
-//                } onCompletion: { result in
-//                    handleAppleSignIn(result)
-//                }
-//                .signInWithAppleButtonStyle(.white)
-//                .frame(height: 52)
-//                .clipShape(RoundedRectangle(cornerRadius: 14))
-//                .padding(.horizontal, 32)
-
-                Button {
-                    isLoading = true
-                    errorMessage = nil
-                    Task {
-                        await MockAppleAuthService.applyToClient()
-                        isLoading = false
-                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        if isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        }
-                        Image(systemName: "apple.logo")
-                            .font(.body.weight(.semibold))
-                        Text("Continue with Apple")
-                            .font(.headline.weight(.bold))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(16)
-                    .background(Color.white)
-                    .foregroundColor(.black)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                SignInWithAppleButton(.continue) { request in
+                    let nonce = randomNonceString()
+                    currentNonce = nonce
+                    request.requestedScopes = [.email, .fullName]
+                    request.nonce = sha256(nonce)
+                } onCompletion: { result in
+                    handleAppleSignIn(result)
                 }
-                .disabled(isLoading)
+                .signInWithAppleButtonStyle(.white)
+                .frame(height: 52)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
                 .padding(.horizontal, 32)
+                .disabled(isLoading)
+
+                // Surface Apple sign-in problems right under the button — the
+                // generic error banner sits below the fold and looked like
+                // "nothing happened".
+                if let error = errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(Pulse.critical)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
 
                 // Divider
                 HStack(spacing: 12) {
@@ -217,29 +198,35 @@ struct AuthGateView: View {
                 Button {
                     client.enterGuestMode()
                 } label: {
-                    Text("Continue without account")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundColor(.white.opacity(0.7))
+                    Text("Try it without an account")
+                        .font(.pulse(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.white.opacity(0.28), lineWidth: 1.2)
+                        )
                 }
                 .padding(.top, 4)
+                .accessibilityHint("Starts Paya with data kept on this device only")
 
                 Text("Your data stays on this device. You can create an account later.")
-                    .font(.caption2)
-                    .foregroundColor(.secondary.opacity(0.6))
+                    .font(.footnote)
+                    .foregroundColor(Pulse.textTertiary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, 32)
 
                 Spacer()
 
                 // Legal links
                 HStack(spacing: 16) {
                     Link("Privacy Policy", destination: URL(string: "https://eminhuseyn313.github.io/Paya/privacy")!)
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(.secondary)
                     Text("·")
                         .foregroundColor(.secondary.opacity(0.5))
                     Link("Terms of Service", destination: URL(string: "https://eminhuseyn313.github.io/Paya/terms")!)
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(.secondary)
                 }
                 .padding(.bottom, 20)
@@ -260,7 +247,7 @@ struct AuthGateView: View {
                         .fill(Pulse.positive.opacity(0.15))
                         .frame(width: 80, height: 80)
                     Image(systemName: "envelope.badge.fill")
-                        .font(.system(size: 34))
+                        .font(.pulse(size: 34))
                         .foregroundColor(Pulse.positive)
                 }
 
@@ -348,7 +335,7 @@ struct AuthGateView: View {
                         .fill(Pulse.hydration.opacity(0.15))
                         .frame(width: 80, height: 80)
                     Image(systemName: "key.fill")
-                        .font(.system(size: 34))
+                        .font(.pulse(size: 34))
                         .foregroundColor(Pulse.hydration)
                 }
 

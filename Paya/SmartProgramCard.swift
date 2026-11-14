@@ -30,7 +30,7 @@ struct SmartProgramCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("AI-free, on-device")
-                            .font(.system(size: 8, weight: .medium))
+                            .font(.pulse(size: 8, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -54,10 +54,10 @@ struct SmartProgramCard: View {
                                 Text(isExpanded
                                     ? "Show less"
                                     : "\(recommendations.count - 1) more recommendation\(recommendations.count - 1 > 1 ? "s" : "")")
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(.pulse(size: 11, weight: .semibold))
                                     .foregroundColor(Pulse.ai)
                                 Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .foregroundColor(Pulse.ai)
                             }
                         }
@@ -71,7 +71,7 @@ struct SmartProgramCard: View {
                     }
 
                     Text("Based on your last 4 weeks of training data. Grounded in Helms et al. (2015) and Schoenfeld & Grgic (2018) evidence-based programming recommendations.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -93,16 +93,16 @@ struct SmartProgramCard: View {
     private func recommendationRow(_ rec: SmartRecommendation, isTop: Bool) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: rec.icon)
-                .font(.system(size: isTop ? 16 : 13))
+                .font(.pulse(size: isTop ? 16 : 13))
                 .foregroundColor(rec.color)
                 .frame(width: 24)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(rec.title)
-                    .font(.system(size: isTop ? 13 : 12, weight: .bold))
+                    .font(.pulse(size: isTop ? 13 : 12, weight: .bold))
                     .foregroundColor(Pulse.textPrimary)
                 Text(rec.detail)
-                    .font(.system(size: isTop ? 11 : 10))
+                    .font(.pulse(size: isTop ? 11 : 10))
                     .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }

@@ -115,9 +115,9 @@ struct DynamicWarmUpCard: View {
                         Spacer()
                         HStack(spacing: 3) {
                             Image(systemName: "clock")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                             Text("~\(estimatedMinutes) min")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                         }
                         .foregroundColor(Pulse.positive)
                         .padding(.horizontal, 7)
@@ -130,11 +130,11 @@ struct DynamicWarmUpCard: View {
                     if !muscleGroups.isEmpty {
                         HStack(spacing: 4) {
                             Text("Targeting:")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                             ForEach(muscleGroups, id: \.self) { group in
                                 Text(group.capitalized)
-                                    .font(.system(size: 9, weight: .semibold))
+                                    .font(.pulse(size: 9, weight: .semibold))
                                     .foregroundColor(Pulse.positive)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -152,7 +152,7 @@ struct DynamicWarmUpCard: View {
                     }
 
                     Text("Fradkin et al. (2010): targeted warm-ups reduce injury risk. Dynamic drills > static stretching pre-resistance training (Behm & Chaouachi 2011).")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -164,16 +164,16 @@ struct DynamicWarmUpCard: View {
     private func drillRow(_ drill: WarmUpDrill) -> some View {
         HStack(spacing: 8) {
             Image(systemName: drill.icon)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(drillTypeColor(drill.type))
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 6) {
                     Text(drill.name)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                     Text(drill.type.rawValue)
-                        .font(.system(size: 7, weight: .bold))
+                        .font(.pulse(size: 7, weight: .bold))
                         .foregroundColor(drillTypeColor(drill.type))
                         .padding(.horizontal, 4)
                         .padding(.vertical, 1)
@@ -181,14 +181,14 @@ struct DynamicWarmUpCard: View {
                         .clipShape(Capsule())
                 }
                 Text(drill.muscleTarget)
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer()
 
             Text(drill.sets)
-                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .font(.pulse(size: 10, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textTertiary)
         }
         .padding(6)

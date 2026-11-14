@@ -62,13 +62,13 @@ struct ProgramGapCard: View {
                     withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
                 } label: {
                     Text(expanded ? "Show less" : "+\(rest.count) more gap\(rest.count == 1 ? "" : "s")")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.pulse(size: 11, weight: .semibold))
                         .foregroundColor(Pulse.ai)
                 }
             }
 
             Text("Based on Renaissance Periodization's published hypertrophy volume guidance, weighed against your equipment, experience, and any joint areas you've flagged — not a diagnosis, a starting point.")
-                .font(.system(size: 9.5))
+                .font(.pulse(size: 9.5))
                 .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
@@ -78,7 +78,7 @@ struct ProgramGapCard: View {
     private func gapRow(_ gap: ProgramGapEngine.Gap) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(gap.reason)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Pulse.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -88,14 +88,14 @@ struct ProgramGapCard: View {
                         .fill(Pulse.ai.opacity(0.15))
                         .frame(width: 32, height: 32)
                     Image(systemName: "plus")
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.pulse(size: 13, weight: .bold))
                         .foregroundColor(Pulse.ai)
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     Text(gap.recommendedExercise.name)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                     Text("Add to \(gap.targetDayName)")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
@@ -106,7 +106,7 @@ struct ProgramGapCard: View {
                     onAdded()
                 } label: {
                     Text("Add")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.pulse(size: 12, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)

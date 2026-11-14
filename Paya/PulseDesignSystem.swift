@@ -55,8 +55,10 @@ enum Pulse {
 
     // ━━━ Text ━━━
     static let textPrimary = Color.white
-    static let textSecondary = Color.white.opacity(0.6)
-    static let textTertiary = Color.white.opacity(0.35)
+    // Contrast on the dark canvas (WCAG 2.x AA needs 4.5:1 for body text):
+    // secondary ≈ 7:1, tertiary ≈ 5:1. Tertiary was 0.35 (~3.1:1) — below AA.
+    static let textSecondary = Color.white.opacity(0.7)
+    static let textTertiary = Color.white.opacity(0.5)
 
     // ━━━ Gradients ━━━
     static func stateGradient(_ color: Color) -> LinearGradient {
@@ -254,7 +256,7 @@ struct PulseRing: View {
 /// Number that counts up with spring animation
 struct PulseCounter: View {
     let value: Int
-    var font: Font = .system(size: 56, weight: .bold, design: .rounded)
+    var font: Font = .pulse(size: 56, weight: .bold, design: .rounded)
     var color: Color = Pulse.textPrimary
 
     @State private var displayValue: Int = 0
@@ -350,7 +352,7 @@ struct HeroInsight: View {
             HStack(spacing: 14) {
                 // Compact emoji badge
                 Text(emoji)
-                    .font(.system(size: 22))
+                    .font(.pulse(size: 22))
                     .frame(width: 40, height: 40)
                     .background(accentColor.opacity(0.12))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -359,11 +361,11 @@ struct HeroInsight: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(headline)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
 
                     Text(detail)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.pulse(size: 12, weight: .medium))
                         .foregroundColor(Pulse.textSecondary)
                         .lineLimit(2)
                 }
@@ -372,7 +374,7 @@ struct HeroInsight: View {
 
                 if action != nil {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.pulse(size: 12, weight: .bold))
                         .foregroundColor(accentColor)
                 }
             }
@@ -413,43 +415,45 @@ struct MetricOrb: View {
                 ZStack {
                     // Ambient glow — pulses gently when fresh
                     Circle()
-                        .fill(color.opacity(isFresh ? 0.08 : 0.04))
-                        .frame(width: size + 8, height: size + 8)
-                        .blur(radius: 8)
-                        .scaleEffect(isFresh && breathe ? 1.12 : 1.0)
+                        .fill(color.opacity(isFresh ? 0.12 : 0.05))
+                        .frame(width: size + 12, height: size + 12)
+                        .blur(radius: 10)
+                        .scaleEffect(isFresh && breathe ? 1.15 : 1.0)
                         .animation(.easeInOut(duration: 2.5).repeatForever(autoreverses: true), value: breathe)
 
                     // Background circle
                     Circle()
-                        .fill(color.opacity(isFresh ? 0.1 : 0.05))
+                        .fill(color.opacity(isFresh ? 0.12 : 0.06))
                         .frame(width: size, height: size)
 
-                    // Progress ring (optional) — animates on appear
+                    // Progress ring — Whoop/Oura-weight ring that reads
+                    // as an active gauge, not decoration.
                     if progress != nil {
                         Circle()
-                            .stroke(color.opacity(0.15), lineWidth: 3)
-                            .frame(width: size, height: size)
+                            .stroke(color.opacity(0.2), lineWidth: 4)
+                            .frame(width: size - 2, height: size - 2)
                         Circle()
                             .trim(from: 0, to: animatedProgress)
                             .stroke(
                                 AngularGradient(
-                                    colors: [color, color.opacity(0.6), color],
+                                    colors: [color.opacity(0.5), color, color],
                                     center: .center,
                                     startAngle: .degrees(-90),
-                                    endAngle: .degrees(270)
+                                    endAngle: .degrees(-90 + 360 * animatedProgress)
                                 ),
-                                style: StrokeStyle(lineWidth: 3, lineCap: .round)
+                                style: StrokeStyle(lineWidth: 4, lineCap: .round)
                             )
-                            .frame(width: size, height: size)
+                            .frame(width: size - 2, height: size - 2)
                             .rotationEffect(.degrees(-90))
+                            .shadow(color: color.opacity(0.35), radius: 4, x: 0, y: 0)
 
-                        // Ring end-cap dot — subtle breathing glow
+                        // Ring end-cap dot — breathing glow at the leading edge
                         if animatedProgress > 0.02 {
                             Circle()
                                 .fill(color)
-                                .frame(width: 5, height: 5)
-                                .shadow(color: color.opacity(breathe ? 0.8 : 0.3), radius: breathe ? 6 : 3)
-                                .offset(y: -(size / 2))
+                                .frame(width: 6, height: 6)
+                                .shadow(color: color.opacity(breathe ? 0.9 : 0.4), radius: breathe ? 8 : 4)
+                                .offset(y: -((size - 2) / 2))
                                 .rotationEffect(.degrees(animatedProgress * 360 - 90))
                         }
                     }
@@ -457,13 +461,13 @@ struct MetricOrb: View {
                     // Value
                     VStack(spacing: 0) {
                         Text(value)
-                            .font(.system(size: size * 0.28, weight: .bold, design: .rounded))
+                            .font(.pulse(size: size * 0.28, weight: .bold, design: .rounded))
                             .foregroundColor(isFresh ? Pulse.textPrimary : Pulse.textTertiary)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                         if !unit.isEmpty {
                             Text(unit)
-                                .font(.system(size: size * 0.14, weight: .medium))
+                                .font(.pulse(size: size * 0.14, weight: .medium))
                                 .foregroundColor(color.opacity(isFresh ? 1.0 : 0.5))
                         }
                     }
@@ -471,13 +475,13 @@ struct MetricOrb: View {
                 .frame(minWidth: 44, minHeight: 44) // Accessibility touch target
 
                 Text(label)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
 
                 // Freshness timestamp
                 if let freshness = freshness {
                     Text(freshness)
-                        .font(.system(size: 8, weight: .semibold))
+                        .font(.pulse(size: 8, weight: .semibold))
                         .foregroundColor(isFresh ? color.opacity(0.6) : Pulse.warning.opacity(0.7))
                 }
             }
@@ -485,6 +489,9 @@ struct MetricOrb: View {
         }
         .buttonStyle(.plain)
         .disabled(action == nil)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(label), \(value) \(unit)\(freshness.map { ", \($0)" } ?? "")")
+        .accessibilityAddTraits(action == nil ? [] : .isButton)
         .onAppear {
             // Animate progress ring fill on appear
             if let p = progress, !UIAccessibility.isReduceMotionEnabled {
@@ -494,7 +501,7 @@ struct MetricOrb: View {
             } else {
                 animatedProgress = min(progress ?? 0, 1.0)
             }
-            guard isFresh else { return }
+            guard isFresh, !UIAccessibility.isReduceMotionEnabled else { return }
             breathe = true
         }
         .onChange(of: progress) { _, new in
@@ -522,11 +529,11 @@ struct PulseSectionHeader: View {
         HStack {
             if let icon = icon {
                 Image(systemName: icon)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.pulse(size: 13, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
             }
             Text(title)
-                .font(.system(size: 15, weight: .semibold))
+                .font(.pulse(size: 15, weight: .semibold))
                 .foregroundColor(Pulse.textSecondary)
 
             Spacer()
@@ -535,9 +542,9 @@ struct PulseSectionHeader: View {
                 Button(action: action) {
                     HStack(spacing: 3) {
                         Text(actionLabel)
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.pulse(size: 12, weight: .medium))
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                     }
                     .foregroundColor(Pulse.textTertiary)
                 }
@@ -565,11 +572,11 @@ struct PulseExpandable: View {
             } label: {
                 HStack {
                     Text(summary)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.pulse(size: 14, weight: .medium))
                         .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
@@ -579,7 +586,7 @@ struct PulseExpandable: View {
 
             if isExpanded {
                 Text(detail)
-                    .font(.system(size: 13))
+                    .font(.pulse(size: 13))
                     .foregroundColor(Pulse.textSecondary)
                     .padding(.top, 10)
                     .transition(.opacity.combined(with: .move(edge: .top)))
@@ -648,17 +655,17 @@ struct PulseStatRow: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(label)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.pulse(size: 13, weight: .medium))
                     .foregroundColor(Pulse.textSecondary)
                 Spacer()
                 HStack(spacing: 2) {
                     Text(value)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                         .monospacedDigit()
                     if let target = target {
                         Text("/ \(target)")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.pulse(size: 12, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -685,9 +692,9 @@ struct PulseChip: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.pulse(size: 11, weight: .bold))
                 Text(label)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.pulse(size: 12, weight: .semibold))
             }
             .foregroundColor(color)
             .padding(.horizontal, 14)
@@ -748,7 +755,7 @@ extension View {
 /// A number that animates smoothly when its value changes — for health metrics
 struct PulseMetricText: View {
     let value: String
-    var font: Font = .system(size: 18, weight: .bold, design: .rounded)
+    var font: Font = .pulse(size: 18, weight: .bold, design: .rounded)
     var color: Color = Pulse.textPrimary
 
     var body: some View {
@@ -866,17 +873,17 @@ struct PulseEmptyState: View {
                     .fill(accentColor.opacity(0.04))
                     .frame(width: 100, height: 100)
                 Image(systemName: icon)
-                    .font(.system(size: 32, weight: .light))
+                    .font(.pulse(size: 32, weight: .light))
                     .foregroundColor(accentColor.opacity(0.6))
             }
 
             VStack(spacing: 6) {
                 Text(title)
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 17, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
 
                 Text(message)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.pulse(size: 13, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
@@ -888,10 +895,10 @@ struct PulseEmptyState: View {
                     HStack(spacing: 6) {
                         if let ctaIcon = ctaIcon {
                             Image(systemName: ctaIcon)
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.pulse(size: 13, weight: .bold))
                         }
                         Text(label)
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.pulse(size: 14, weight: .bold))
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, 24)
@@ -990,7 +997,7 @@ struct PulseSuccessCheck: View {
 
             // Checkmark
             Image(systemName: "checkmark")
-                .font(.system(size: size * 0.4, weight: .bold))
+                .font(.pulse(size: size * 0.4, weight: .bold))
                 .foregroundColor(color)
                 .scaleEffect(checkScale)
         }
@@ -1023,9 +1030,9 @@ struct PulsePRBadge: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "trophy.fill")
-                .font(.system(size: 13))
+                .font(.pulse(size: 13))
             Text("\(count) PR\(count > 1 ? "s" : "")")
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.pulse(size: 14, weight: .bold, design: .rounded))
         }
         .foregroundColor(Pulse.nutrition)
         .padding(.horizontal, 16)
@@ -1055,9 +1062,9 @@ struct PulseVolumeDelta: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: delta >= 0 ? "arrow.up.right" : "arrow.down.right")
-                .font(.system(size: 10, weight: .bold))
+                .font(.pulse(size: 10, weight: .bold))
             Text(String(format: "%+.0f%% vs last", delta))
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.pulse(size: 13, weight: .bold, design: .rounded))
         }
         .foregroundColor(delta >= 0 ? Pulse.positive : Pulse.critical)
         .padding(.horizontal, 14)
@@ -1066,5 +1073,41 @@ struct PulseVolumeDelta: View {
             Capsule()
                 .fill((delta >= 0 ? Pulse.positive : Pulse.critical).opacity(0.1))
         )
+    }
+}
+
+// MARK: - Dynamic Type–aware fixed-size fonts
+// The app uses ~1,700 `.system(size:)` fonts, which ignore the user's Text
+// Size setting (accessibility + App Review exposure). `.pulse(size:)` keeps the
+// designed size at the default setting (scale factor 1.0 -> pixel-identical) and
+// scales with the user's setting otherwise, capped so dense layouts and hero
+// numbers can't explode: small text up to 1.35x, headings 1.2x, hero numbers 1.12x.
+
+/// The scale factor per text style is computed once and only recomputed when the
+/// user changes their Text Size — `.pulse` is called thousands of times per
+/// redraw, so it must be nearly free.
+private enum PulseFontScale {
+    nonisolated(unsafe) static var cache: [UIFont.TextStyle: CGFloat] = [:]
+    nonisolated(unsafe) static var observer: NSObjectProtocol? = {
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: .main) { _ in
+            cache.removeAll()
+        }
+    }()
+
+    static func factor(_ style: UIFont.TextStyle) -> CGFloat {
+        _ = observer
+        if let f = cache[style] { return f }
+        let f = UIFontMetrics(forTextStyle: style).scaledValue(for: 100) / 100
+        cache[style] = f
+        return f
+    }
+}
+
+extension Font {
+    static func pulse(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .default) -> Font {
+        let style: UIFont.TextStyle = size >= 28 ? .title1 : (size >= 17 ? .body : .footnote)
+        let scaled = size * PulseFontScale.factor(style)
+        let cap: CGFloat = size >= 40 ? 1.12 : (size >= 24 ? 1.2 : 1.35)
+        return .system(size: min(scaled, size * cap), weight: weight, design: design)
     }
 }

@@ -70,9 +70,9 @@ struct WeeklyVolumeTrendCard: View {
                 if let trend {
                     HStack(spacing: 3) {
                         Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                         Text(String(format: "%+.0f%%", trend))
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.pulse(size: 11, weight: .bold))
                     }
                     .foregroundColor(trend >= 0 ? Pulse.positive : Pulse.critical)
                     .padding(.horizontal, 8)
@@ -106,7 +106,7 @@ struct WeeklyVolumeTrendCard: View {
                     AxisValueLabel {
                         if let v = value.as(Double.self) {
                             Text(formatAxisValue(v))
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -115,7 +115,7 @@ struct WeeklyVolumeTrendCard: View {
             .chartXAxis {
                 AxisMarks { value in
                     AxisValueLabel()
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                 }
             }
             .frame(height: 140)
@@ -123,11 +123,11 @@ struct WeeklyVolumeTrendCard: View {
             if metric == .volume {
                 HStack {
                     Text("Total: \(formatVolume(weeklyData.last?.value ?? 0))")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     Text("8-week avg: \(formatVolume(weeklyData.map(\.value).reduce(0, +) / max(1, Double(weeklyData.filter { $0.value > 0 }.count))))")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }

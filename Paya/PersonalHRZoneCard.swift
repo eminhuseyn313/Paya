@@ -31,6 +31,9 @@ struct PersonalHRZoneCard: View {
     @State private var genericMaxHR = 0
     @State private var hrDifference = 0
     @State private var hasData = false
+    /// Where the resting HR came from; "" = nothing measured (assumed value).
+    @State private var restingSource = ""
+    @State private var restingIsAssumed = false
 
     struct PersonalZone: Identifiable {
         let name: String
@@ -52,12 +55,12 @@ struct PersonalHRZoneCard: View {
                         Text("Your HR zones")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
-                        Text("Personalized")
-                            .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(Pulse.critical)
+                        Text(restingIsAssumed ? "Estimated" : "Personalized")
+                            .font(.pulse(size: 9, weight: .bold))
+                            .foregroundColor(restingIsAssumed ? Pulse.textTertiary : Pulse.critical)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Pulse.critical.opacity(0.1))
+                            .background((restingIsAssumed ? Pulse.textTertiary : Pulse.critical).opacity(0.1))
                             .clipShape(Capsule())
                     }
 
@@ -65,12 +68,12 @@ struct PersonalHRZoneCard: View {
                     HStack(spacing: 16) {
                         VStack(spacing: 2) {
                             Text("\(estimatedMaxHR)")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 22, weight: .bold, design: .rounded))
                             Text("Max HR")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                             Text(maxSource)
-                                .font(.system(size: 7))
+                                .font(.pulse(size: 7))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
@@ -80,12 +83,12 @@ struct PersonalHRZoneCard: View {
 
                         VStack(spacing: 2) {
                             Text("\(restingHR)")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 22, weight: .bold, design: .rounded))
                             Text("Resting HR")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
-                            Text("Apple Health")
-                                .font(.system(size: 7))
+                            Text(restingSource)
+                                .font(.pulse(size: 7))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
@@ -95,12 +98,12 @@ struct PersonalHRZoneCard: View {
 
                         VStack(spacing: 2) {
                             Text("\(estimatedMaxHR - restingHR)")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 22, weight: .bold, design: .rounded))
                             Text("HR Reserve")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                             Text("Karvonen")
-                                .font(.system(size: 7))
+                                .font(.pulse(size: 7))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
@@ -114,7 +117,7 @@ struct PersonalHRZoneCard: View {
                         ForEach(zones) { zone in
                             HStack(spacing: 6) {
                                 Text(zone.name)
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.pulse(size: 10, weight: .bold))
                                     .foregroundColor(zone.color)
                                     .frame(width: 48, alignment: .leading)
 
@@ -134,7 +137,7 @@ struct PersonalHRZoneCard: View {
                                 .frame(height: 12)
 
                                 Text(zone.range)
-                                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 9, weight: .bold, design: .rounded))
                                     .monospacedDigit()
                                     .foregroundColor(Pulse.textTertiary)
                                     .frame(width: 60, alignment: .trailing)
@@ -147,10 +150,10 @@ struct PersonalHRZoneCard: View {
                         ForEach(zones.prefix(3)) { zone in
                             VStack(spacing: 1) {
                                 Text(zone.name)
-                                    .font(.system(size: 7, weight: .bold))
+                                    .font(.pulse(size: 7, weight: .bold))
                                     .foregroundColor(zone.color)
                                 Text(zone.purpose)
-                                    .font(.system(size: 7))
+                                    .font(.pulse(size: 7))
                                     .foregroundColor(Pulse.textTertiary)
                                     .lineLimit(1)
                             }
@@ -161,29 +164,32 @@ struct PersonalHRZoneCard: View {
                     if hrDifference != 0 {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text("Generic 220-age gives \(genericMaxHR) bpm — \(abs(hrDifference)) bpm \(hrDifference > 0 ? "lower" : "higher") than your actual data. Using generic zones would put you in the wrong zone \(abs(hrDifference) > 5 ? "significantly" : "slightly").")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text("Tanaka et al. (2001): HRmax = 208 - 0.7×age. Karvonen (1957): target HR uses heart rate reserve. Robergs & Landwehr (2002): 220-age has ±10-12 bpm error.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
             }
         }
-        .onAppear { compute() }
+        .task {
+            let apple = await HealthKitManager.shared.fetchRestingHR()
+            compute(appleRestingHR: apple)
+        }
     }
 
     // MARK: - Compute
 
-    private func compute() {
+    private func compute(appleRestingHR: Int?) {
         let age = appState.profile.age
         guard age > 0 else { return }
 
@@ -217,15 +223,25 @@ struct PersonalHRZoneCard: View {
 
         hrDifference = estimatedMaxHR - genericMaxHR
 
-        // Get resting HR from recent session HR data or default
+        // Resting HR: Apple Health measurement first, then the low end of
+        // in-session HR, and only then an explicitly-labelled assumption —
+        // the old code silently used 65 and labelled it "Apple Health".
         let hrSamples = sessions.flatMap { $0.hrSamples ?? [] }.filter { $0 > 40 && $0 < 100 }
-        if !hrSamples.isEmpty {
+        if let apple = appleRestingHR, apple > 0 {
+            restingHR = apple
+            restingSource = "Apple Health"
+            restingIsAssumed = false
+        } else if !hrSamples.isEmpty {
             // Use the 5th percentile as resting HR estimate
             let sorted = hrSamples.sorted()
             let p5Index = max(0, sorted.count * 5 / 100)
             restingHR = sorted[p5Index]
+            restingSource = "Session lows"
+            restingIsAssumed = false
         } else {
-            restingHR = 65 // default
+            restingHR = 65
+            restingSource = "Assumed · no data"
+            restingIsAssumed = true
         }
 
         guard estimatedMaxHR > restingHR else { return }

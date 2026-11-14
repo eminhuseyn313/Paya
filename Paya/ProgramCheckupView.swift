@@ -45,7 +45,7 @@ struct ProgramCheckupView: View {
                     } else if recommendations.isEmpty && visibleGaps.isEmpty {
                         VStack(spacing: 10) {
                             Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 34))
+                                .font(.pulse(size: 34))
                                 .foregroundColor(Pulse.positive)
                             Text("Nothing to flag right now")
                                 .font(.headline)
@@ -75,7 +75,7 @@ struct ProgramCheckupView: View {
                         }
 
                         Text("Ready-to-progress and plateau checks use your last 4 weeks of logged sets, grounded in Helms et al. (2015) and Schoenfeld & Grgic (2018). Volume gaps use Renaissance Periodization's published hypertrophy landmarks (see Progress tab for the full breakdown). All on-device — nothing here calls out to an AI service.")
-                            .font(.system(size: 9.5))
+                            .font(.pulse(size: 9.5))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.top, 4)
                     }
@@ -117,12 +117,12 @@ struct ProgramCheckupView: View {
     private func recommendationRow(_ rec: SmartRecommendation) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Image(systemName: rec.icon)
-                .font(.system(size: 15))
+                .font(.pulse(size: 15))
                 .foregroundColor(rec.color)
                 .frame(width: 22)
             VStack(alignment: .leading, spacing: 3) {
-                Text(rec.title).font(.system(size: 13, weight: .bold)).foregroundColor(Pulse.textPrimary)
-                Text(rec.detail).font(.system(size: 11)).foregroundColor(Pulse.textTertiary)
+                Text(rec.title).font(.pulse(size: 13, weight: .bold)).foregroundColor(Pulse.textPrimary)
+                Text(rec.detail).font(.pulse(size: 11)).foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -135,13 +135,13 @@ struct ProgramCheckupView: View {
     private func gapRow(_ gap: ProgramGapEngine.Gap) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(gap.reason)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Pulse.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(gap.recommendedExercise.name).font(.system(size: 13, weight: .semibold))
-                    Text("Add to \(gap.targetDayName)").font(.system(size: 10)).foregroundColor(Pulse.textTertiary)
+                    Text(gap.recommendedExercise.name).font(.pulse(size: 13, weight: .semibold))
+                    Text("Add to \(gap.targetDayName)").font(.pulse(size: 10)).foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Button {
@@ -149,7 +149,7 @@ struct ProgramCheckupView: View {
                     addedGapIds.insert(gap.id + gap.targetDayCode)
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
                 } label: {
-                    Text("Add").font(.system(size: 12, weight: .bold)).foregroundColor(.white)
+                    Text("Add").font(.pulse(size: 12, weight: .bold)).foregroundColor(.white)
                         .padding(.horizontal, 14).padding(.vertical, 7)
                         .background(Pulse.ai).clipShape(Capsule())
                 }

@@ -73,9 +73,9 @@ struct QuickSavedMealTemplatesCard: View {
                 } label: {
                     HStack(spacing: 3) {
                         Image(systemName: "plus")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                         Text("Save meal")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                     }
                     .foregroundColor(Pulse.nutrition)
                 }
@@ -84,10 +84,10 @@ struct QuickSavedMealTemplatesCard: View {
             if templates.isEmpty {
                 VStack(spacing: 8) {
                     Text("No saved meals yet")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.pulse(size: 13, weight: .medium))
                         .foregroundColor(Pulse.textSecondary)
                     Text("Save your common meals to log them with one tap. Most people eat the same 10–15 meals — templates eliminate repeat typing.")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.pulse(size: 11, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
@@ -109,23 +109,23 @@ struct QuickSavedMealTemplatesCard: View {
                             HStack(spacing: 6) {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(template.name)
-                                        .font(.system(size: 11, weight: .bold))
+                                        .font(.pulse(size: 11, weight: .bold))
                                         .foregroundColor(Pulse.textPrimary)
                                         .lineLimit(1)
                                     HStack(spacing: 4) {
                                         Text("\(Int(template.protein))g P")
-                                            .font(.system(size: 9, weight: .bold))
+                                            .font(.pulse(size: 9, weight: .bold))
                                             .foregroundColor(Pulse.hydration)
                                         Text("·")
                                             .foregroundColor(.secondary.opacity(0.4))
                                         Text("\(Int(template.calories)) cal")
-                                            .font(.system(size: 9))
+                                            .font(.pulse(size: 9))
                                             .foregroundColor(Pulse.textTertiary)
                                     }
                                 }
                                 Spacer(minLength: 0)
                                 Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 16))
+                                    .font(.pulse(size: 16))
                                     .foregroundColor(Pulse.positive)
                             }
                             .padding(8)
@@ -138,7 +138,7 @@ struct QuickSavedMealTemplatesCard: View {
 
                 if templates.count > 4 {
                     Text("\(templates.count - 4) more saved meals")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }

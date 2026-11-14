@@ -46,27 +46,27 @@ struct StrengthRadarCard: View {
                         if !strongest.isEmpty {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.up.circle.fill")
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(Pulse.positive)
                                 Text("Strongest: \(strongest)")
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                     .foregroundColor(Pulse.positive)
                             }
                         }
                         if !weakest.isEmpty {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.down.circle.fill")
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(Pulse.critical)
                                 Text("Weakest: \(weakest)")
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                     .foregroundColor(Pulse.critical)
                             }
                         }
                     }
 
                     Text("Relative strength across 6 movement patterns. Based on estimated 1RM (Epley). A balanced hexagon means balanced development.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
@@ -227,9 +227,9 @@ private struct RadarChartView: View {
                     let pt = pointAt(center: center, radius: labelR, angle: angle)
                     VStack(spacing: 1) {
                         Text(axes[i].label)
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.pulse(size: 8, weight: .bold))
                         Text(String(format: "%.0f", axes[i].rawValue))
-                            .font(.system(size: 7, weight: .semibold, design: .rounded))
+                            .font(.pulse(size: 7, weight: .semibold, design: .rounded))
                             .foregroundColor(Pulse.hydration)
                     }
                     .foregroundColor(Pulse.textTertiary)

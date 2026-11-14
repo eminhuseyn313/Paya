@@ -38,7 +38,7 @@ struct WeeklySummaryShareCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("Accountability")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.ai)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
@@ -55,7 +55,7 @@ struct WeeklySummaryShareCard: View {
                     }
 
                     Text("Send your training buddy a summary card to keep each other accountable. 40% better adherence with a training partner.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
 
                     Button {
@@ -64,9 +64,9 @@ struct WeeklySummaryShareCard: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                             Text("Share weekly summary")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -89,12 +89,12 @@ struct WeeklySummaryShareCard: View {
     private func miniStat(value: String, label: String, icon: String, color: Color) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(color)
             Text(value)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.pulse(size: 14, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 7, weight: .semibold))
+                .font(.pulse(size: 7, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -188,24 +188,24 @@ struct WeeklySummaryShareCard: View {
             VStack(spacing: 6) {
                 HStack {
                     Text("Paya")
-                        .font(.system(size: 14, weight: .black))
+                        .font(.pulse(size: 14, weight: .black))
                         .foregroundColor(.white.opacity(0.6))
                     Spacer()
                     Text("Weekly Report")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(.white.opacity(0.6))
                 }
                 HStack(alignment: .firstTextBaseline) {
                     Text(name)
-                        .font(.system(size: 24, weight: .black))
+                        .font(.pulse(size: 24, weight: .black))
                         .foregroundColor(.white)
                     Spacer()
                     if currentStreak > 0 {
                         HStack(spacing: 3) {
                             Image(systemName: "flame.fill")
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                             Text("\(currentStreak)w streak")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.pulse(size: 12, weight: .bold))
                         }
                         .foregroundColor(Pulse.nutrition)
                     }
@@ -265,11 +265,11 @@ struct WeeklySummaryShareCard: View {
             // Footer
             HStack {
                 Text("Tracked with Paya — 100% on-device")
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.pulse(size: 9, weight: .semibold))
                     .foregroundColor(.white.opacity(0.5))
                 Spacer()
                 Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(.white.opacity(0.3))
             }
             .padding(.horizontal, 20)
@@ -287,14 +287,14 @@ struct WeeklySummaryShareCard: View {
     private func shareStatBox(value: String, label: String, icon: String, color: Color) -> some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.pulse(size: 14))
                 .foregroundColor(color)
                 .frame(width: 20)
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 16, weight: .bold, design: .rounded))
                 Text(label)
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.pulse(size: 9, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
             }
             Spacer()

@@ -33,7 +33,7 @@ struct PersonalBestTimelineCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(prs.count) records")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.nutrition)
                     }
 
@@ -59,11 +59,11 @@ struct PersonalBestTimelineCard: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 6) {
                                     Text(pr.exerciseName)
-                                        .font(.system(size: 12, weight: .bold))
+                                        .font(.pulse(size: 12, weight: .bold))
                                         .lineLimit(1)
                                     if pr.isRecent {
                                         Text("NEW")
-                                            .font(.system(size: 7, weight: .black))
+                                            .font(.pulse(size: 7, weight: .black))
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 4)
                                             .padding(.vertical, 1)
@@ -74,17 +74,17 @@ struct PersonalBestTimelineCard: View {
 
                                 HStack(spacing: 8) {
                                     Text(String(format: "%.0f %@ × %d", convert(pr.weightKg), unit, pr.reps))
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .font(.pulse(size: 11, weight: .semibold))
                                         .foregroundColor(Pulse.textPrimary)
 
                                     Text("e1RM \(String(format: "%.0f", convert(pr.e1rm)))")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.pulse(size: 10, weight: .bold))
                                         .foregroundColor(Pulse.hydration)
 
                                     Spacer()
 
                                     Text(pr.dateLabel)
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -100,9 +100,9 @@ struct PersonalBestTimelineCard: View {
                         } label: {
                             HStack(spacing: 4) {
                                 Text(showAll ? "Show less" : "Show all \(prs.count) PRs")
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(.pulse(size: 11, weight: .semibold))
                                 Image(systemName: showAll ? "chevron.up" : "chevron.down")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                             }
                             .foregroundColor(Pulse.nutrition)
                         }

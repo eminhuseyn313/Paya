@@ -239,9 +239,9 @@ struct MorningLightDetailView: View {
                                     .foregroundColor(Color(hex: "D97706"))
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Today's sunrise: \(sunrise.formatted(date: .omitted, time: .shortened))")
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .font(.pulse(size: 12, weight: .semibold))
                                     Text("Tap to set your reminder for 30 min after sunrise")
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                                 Spacer()

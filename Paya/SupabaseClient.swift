@@ -61,10 +61,10 @@ final class SupabaseClient {
     var pendingConfirmationEmail: String? = nil
 
     private var accessToken: String? {
-        didSet { UserDefaults.standard.set(accessToken, forKey: "supabase_access_token") }
+        didSet { KeychainStore.set(accessToken, for: "supabase_access_token") }
     }
     private var refreshToken: String? {
-        didSet { UserDefaults.standard.set(refreshToken, forKey: "supabase_refresh_token") }
+        didSet { KeychainStore.set(refreshToken, for: "supabase_refresh_token") }
     }
 
     private let session: URLSession = {
@@ -98,8 +98,15 @@ final class SupabaseClient {
     }()
 
     private init() {
-        accessToken = UserDefaults.standard.string(forKey: "supabase_access_token")
-        refreshToken = UserDefaults.standard.string(forKey: "supabase_refresh_token")
+        // One-time move of tokens from UserDefaults (legacy) into the Keychain.
+        for key in ["supabase_access_token", "supabase_refresh_token"] {
+            if let legacy = UserDefaults.standard.string(forKey: key) {
+                KeychainStore.set(legacy, for: key)
+                UserDefaults.standard.removeObject(forKey: key)
+            }
+        }
+        accessToken = KeychainStore.get("supabase_access_token")
+        refreshToken = KeychainStore.get("supabase_refresh_token")
         if UserDefaults.standard.bool(forKey: "paya_guest_mode") {
             // User previously chose "Continue without account" — restore
             // that choice so they land on the home screen, not the auth gate.
@@ -255,26 +262,26 @@ final class SupabaseClient {
     ///
     /// Apple requires apps with account creation to offer account deletion.
     func deleteAccount() async throws {
-        // GoTrue v2.60+ supports user self-deletion when enabled in the
-        // project settings (Authentication → User Management → Allow users to
-        // delete their own account). This calls DELETE /auth/v1/user.
+        // GoTrue has no self-delete endpoint; deletion runs in the
+        // `delete-account` Edge Function (service role: wipes the user's
+        // rows + storage, revokes the auth user). See
+        // supabase/functions/delete-account.
         guard let token = accessToken else { throw SyncError.auth("Not signed in") }
-        let url = URL(string: "\(baseURL)/auth/v1/user")!
+        let url = URL(string: "\(baseURL)/functions/v1/delete-account")!
         var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(anonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let (data, response) = try await session.data(for: request)
+        let (_, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw SyncError.networkError }
-
-        if http.statusCode >= 400 {
-            let authErr = try? decoder.decode(AuthError.self, from: data)
-            throw SyncError.auth(authErr?.message ?? "Account deletion failed (\(http.statusCode))")
+        guard http.statusCode < 400 else {
+            throw SyncError.auth("Account deletion failed (\(http.statusCode)). Please try again or contact support.")
         }
-
-        // Clear local session
+        // Account is gone server-side. Keep the last-user marker so the NEXT
+        // account to sign in on this device triggers the different-user wipe
+        // instead of inheriting the deleted user's local health data.
         signOut()
     }
 
@@ -335,8 +342,8 @@ final class SupabaseClient {
         userId = nil
         userEmail = nil
         pendingConfirmationEmail = nil
-        UserDefaults.standard.removeObject(forKey: "supabase_access_token")
-        UserDefaults.standard.removeObject(forKey: "supabase_refresh_token")
+        KeychainStore.set(nil, for: "supabase_access_token")
+        KeychainStore.set(nil, for: "supabase_refresh_token")
         UserDefaults.standard.removeObject(forKey: "paya_guest_mode")
     }
 
@@ -490,8 +497,20 @@ final class SupabaseClient {
             "refresh_token": refresh
         ])
 
+        // Network failure (offline launch with an expired token) must NOT sign
+        // the user out — only a server rejection of the refresh token does.
         guard let (data, response) = try? await session.data(for: request),
-              let http = response as? HTTPURLResponse, http.statusCode < 400 else {
+              let http = response as? HTTPURLResponse else {
+            if let uid = userId ?? (UserDefaults.standard.string(forKey: "paya_last_signed_in_user").flatMap(UUID.init(uuidString:))) {
+                userId = uid
+                isSignedIn = true
+                authState = .signedIn   // offline: stay in, sync later
+            } else {
+                authState = .signedOut
+            }
+            return
+        }
+        guard http.statusCode < 400 else {
             signOut()
             return
         }
@@ -582,6 +601,24 @@ final class SupabaseClient {
         }
 
         return try decoder.decode([T].self, from: data)
+    }
+
+    /// Untyped paged GET used by CloudRestore. Returns raw JSON objects.
+    /// Retries once after a token refresh on 401.
+    func fetchRaw(table: String, query: String = "") async throws -> [[String: Any]] {
+        let urlStr = "\(baseURL)/rest/v1/\(table)?\(query)&select=*"
+        guard let url = URL(string: urlStr) else { throw SyncError.networkError }
+
+        var (data, response) = try await session.data(for: authorizedRequest(url: url, method: "GET"))
+        if let http = response as? HTTPURLResponse, http.statusCode == 401 {
+            await refreshAccessToken()
+            guard isSignedIn else { throw SyncError.auth("Session expired") }
+            (data, response) = try await session.data(for: authorizedRequest(url: url, method: "GET"))
+        }
+        guard let http = response as? HTTPURLResponse, http.statusCode < 400 else {
+            throw SyncError.download("Fetch \(table) failed")
+        }
+        return (try JSONSerialization.jsonObject(with: data) as? [[String: Any]]) ?? []
     }
 
     private func authorizedRequest(url: URL, method: String) -> URLRequest {

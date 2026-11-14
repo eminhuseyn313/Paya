@@ -64,15 +64,15 @@ struct WeeklyStatsCard: View {
         VStack(spacing: 4) {
             HStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(color)
                 Text(value)
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 17, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(color)
             }
             Text(label)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)

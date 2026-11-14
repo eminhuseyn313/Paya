@@ -122,11 +122,11 @@ struct DrinkManagementView: View {
                                               : Pulse.surfaceElevatedFallback)
                                         .frame(width: 44, height: 44)
                                     Image(systemName: type.icon)
-                                        .font(.system(size: 15))
+                                        .font(.pulse(size: 15))
                                         .foregroundColor(selectedDrink == type ? Color(hex: type.colorHex) : .secondary)
                                 }
                                 Text(type.displayName)
-                                    .font(.system(size: 9, weight: selectedDrink == type ? .bold : .medium))
+                                    .font(.pulse(size: 9, weight: selectedDrink == type ? .bold : .medium))
                                     .foregroundColor(selectedDrink == type ? .primary : .secondary)
                                     .lineLimit(1)
                             }
@@ -194,13 +194,13 @@ struct DrinkManagementView: View {
         return VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Image(systemName: selectedDrink.icon)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(drinkColor)
                 Text("What's in \(selectedDrink.displayName.lowercased())")
                     .font(.caption.weight(.semibold))
                 Spacer()
                 Text("per 250ml")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -208,12 +208,12 @@ struct DrinkManagementView: View {
                 ForEach(comps, id: \.label) { comp in
                     VStack(spacing: 3) {
                         Image(systemName: comp.icon)
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                             .foregroundColor(Color(hex: comp.hex))
                         Text(comp.value)
-                            .font(.system(size: 10, weight: .bold).monospacedDigit())
+                            .font(.pulse(size: 10, weight: .bold).monospacedDigit())
                         Text(comp.label)
-                            .font(.system(size: 8, weight: .medium))
+                            .font(.pulse(size: 8, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                             .lineLimit(1)
                     }
@@ -274,17 +274,17 @@ struct DrinkManagementView: View {
 
                     if caffeineMg > 400 {
                         Text("FDA considers 400mg/day a safe upper bound for most healthy adults. Consider cutting back, especially after 2pm.")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.critical)
                     } else if caffeineMg > 200 {
                         Text("Moderate intake. Avoid caffeine 6+ hours before bed — Gardiner et al. (J Clin Sleep Med 2023) found it measurably shortens deep sleep even at this level.")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
                     if drinkSugar > 50 {
                         Text("WHO recommends keeping added sugar under 25g/day. Your drink sugar alone is \(Int(drinkSugar))g — consider switching to water or unsweetened alternatives.")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.warning)
                     }
                 }
@@ -300,17 +300,17 @@ struct DrinkManagementView: View {
                     .fill(Color(hex: hex).opacity(0.12))
                     .frame(width: 36, height: 36)
                 Image(systemName: icon)
-                    .font(.system(size: 14))
+                    .font(.pulse(size: 14))
                     .foregroundColor(Color(hex: hex))
             }
             Text(value)
-                .font(.system(size: 14, weight: .bold).monospacedDigit())
+                .font(.pulse(size: 14, weight: .bold).monospacedDigit())
             Text(label)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
             if let badge {
                 Text(badge)
-                    .font(.system(size: 8, weight: .bold))
+                    .font(.pulse(size: 8, weight: .bold))
                     .foregroundColor(Color(hex: hex))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -373,7 +373,7 @@ struct DrinkManagementView: View {
                                 .fill(eventColor.opacity(0.12))
                                 .frame(width: 28, height: 28)
                             Image(systemName: type.icon)
-                                .font(.system(size: 11))
+                                .font(.pulse(size: 11))
                                 .foregroundColor(eventColor)
                         }
                         VStack(alignment: .leading, spacing: 1) {
@@ -392,7 +392,7 @@ struct DrinkManagementView: View {
                                         .foregroundColor(Pulse.nutrition)
                                 }
                             }
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
@@ -443,7 +443,7 @@ struct DrinkManagementView: View {
                         AxisValueLabel {
                             if let d = val.as(Date.self) {
                                 Text(d.formatted(.dateTime.weekday(.abbreviated)))
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                             }
                         }
                     }
@@ -463,7 +463,7 @@ struct DrinkManagementView: View {
     private func legendDot(_ label: String, color: String) -> some View {
         HStack(spacing: 4) {
             Circle().fill(Color(hex: color)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 9)).foregroundColor(Pulse.textTertiary)
         }
     }
 

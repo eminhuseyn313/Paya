@@ -11,12 +11,17 @@ struct PayaApp: App {
         WindowGroup {
             ContentView()
                 .environment(appState)
-                .onTapGesture {
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder),
-                        to: nil, from: nil, for: nil
-                    )
-                }
+                // simultaneousGesture (not onTapGesture): a window-level tap
+                // recognizer competed with UIKit-backed controls such as the
+                // Sign in with Apple button and intermittently swallowed taps.
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil
+                        )
+                    }
+                )
                 .onOpenURL { url in
                     // Supabase auth callback: paya://auth/callback#access_token=...
                     if url.scheme == "paya" && url.host == "auth" {
@@ -31,6 +36,9 @@ struct PayaApp: App {
                     // Re-schedule training reminders on every launch so they persist
                     // across app updates and settings changes.
                     if appState.profile.reminderEnabled {
+                        // Ask once (no-op after the first answer) so a user who
+                        // never touched the Settings toggle still gets reminders.
+                        _ = await NotificationManager.shared.requestAuthorization()
                         await NotificationManager.shared.scheduleTrainingReminders(
                             at: appState.profile.reminderTime,
                             profile: appState.profile,

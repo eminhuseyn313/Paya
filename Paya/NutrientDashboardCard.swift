@@ -17,14 +17,20 @@ struct NutrientDashboardCard: View {
                             .fill(Pulse.positive.opacity(0.15))
                             .frame(width: 36, height: 36)
                         Image(systemName: "leaf.fill")
-                            .font(.system(size: 14))
+                            .font(.pulse(size: 14))
                             .foregroundColor(Pulse.positive)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Nutrient Balance")
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(Pulse.textPrimary)
-                        if let report {
+                        if let report, !hasIntake(report) {
+                            // Zero logged food would score every nutrient "low" —
+                            // that's missing data, not a deficiency.
+                            Text("Log a meal to see your nutrient balance")
+                                .font(.caption2)
+                                .foregroundColor(Pulse.textTertiary)
+                        } else if let report {
                             let defCount = report.deficits.count
                             Text(defCount == 0 ? "All nutrients on track" : "\(defCount) nutrient\(defCount == 1 ? "" : "s") running low")
                                 .font(.caption2)
@@ -41,7 +47,7 @@ struct NutrientDashboardCard: View {
                         .foregroundColor(Pulse.textTertiary)
                 }
 
-                if let report, !report.nutrients.isEmpty {
+                if let report, !report.nutrients.isEmpty, hasIntake(report) {
                     nutrientPreviewBars(report)
                 }
             }
@@ -55,6 +61,11 @@ struct NutrientDashboardCard: View {
                 NutrientDetailView(report: report, age: appState.profile.age, sex: appState.profile.sexRaw)
             }
         }
+    }
+
+    private func hasIntake(_ report: NutrientDeficitEngine.Report) -> Bool {
+        !report.todaysMeals.isEmpty
+            || report.nutrients.contains { $0.todayIntake > 0 || $0.weekAvgIntake > 0 }
     }
 
     private func loadReport() {
@@ -75,12 +86,12 @@ struct NutrientDashboardCard: View {
                         .fill(Color(hex: nutrient.level.color))
                         .frame(width: 6, height: 6)
                     Text(nutrient.target.name)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.pulse(size: 10, weight: .medium))
                         .foregroundColor(Pulse.textPrimary)
                         .lineLimit(1)
                     Spacer()
                     Text("\(Int(nutrient.percentRDA))%")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
+                        .font(.pulse(size: 10, weight: .bold, design: .monospaced))
                         .foregroundColor(Color(hex: nutrient.level.color))
                 }
             }
@@ -134,7 +145,7 @@ struct NutrientDetailView: View {
                         .fill(Pulse.positive.opacity(0.15))
                         .frame(width: 52, height: 52)
                     Image(systemName: "leaf.fill")
-                        .font(.system(size: 20))
+                        .font(.pulse(size: 20))
                         .foregroundColor(Pulse.positive)
                 }
                 VStack(alignment: .leading, spacing: 4) {
@@ -161,7 +172,7 @@ struct NutrientDetailView: View {
     private func legendPill(_ label: String, color: String) -> some View {
         HStack(spacing: 4) {
             Circle().fill(Color(hex: color)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 9, weight: .medium)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 9, weight: .medium)).foregroundColor(Pulse.textTertiary)
         }
     }
 
@@ -190,7 +201,7 @@ struct NutrientDetailView: View {
             ForEach(Array(report.supplementRecommendations.enumerated()), id: \.offset) { _, rec in
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Pulse.positive)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 3) {
@@ -216,7 +227,7 @@ struct NutrientDetailView: View {
             ForEach(Array(report.supplementStopSuggestions.enumerated()), id: \.offset) { _, stop in
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: "minus.circle.fill")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Pulse.warning)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 3) {
@@ -253,12 +264,12 @@ struct NutrientDetailView: View {
                                 ForEach(sources, id: \.food) { src in
                                     HStack(spacing: 8) {
                                         Text(src.emoji)
-                                            .font(.system(size: 16))
+                                            .font(.pulse(size: 16))
                                         VStack(alignment: .leading, spacing: 1) {
                                             Text(src.food)
                                                 .font(.caption.weight(.medium))
                                             Text(src.portion)
-                                                .font(.system(size: 9))
+                                                .font(.pulse(size: 9))
                                                 .foregroundColor(Pulse.textTertiary)
                                         }
                                         Spacer()
@@ -284,7 +295,7 @@ struct NutrientDetailView: View {
                 .font(.caption.weight(.bold))
                 .foregroundColor(Pulse.textTertiary)
             Text("RDA values from the Institute of Medicine / National Academies \"Dietary Reference Intakes\" (2019 consolidated tables), adjusted for your age (\(age)) and sex (\(sex.lowercased())). Nutrient amounts are AI-estimated from food descriptions — not lab-measured. Use as directional guidance, not clinical data.")
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -319,14 +330,14 @@ struct NutrientRow: View {
                 VStack(spacing: 6) {
                     HStack {
                         Image(systemName: nutrient.level.icon)
-                            .font(.system(size: 11))
+                            .font(.pulse(size: 11))
                             .foregroundColor(Color(hex: nutrient.level.color))
                         Text(nutrient.target.name)
                             .font(.subheadline.weight(.semibold))
 
                         if nutrient.isSupplemented {
                             Image(systemName: "pills.fill")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.ai)
                         }
 
@@ -334,16 +345,16 @@ struct NutrientRow: View {
 
                         if hasFoodData {
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .foregroundColor(Pulse.textTertiary)
                                 .rotationEffect(.degrees(isExpanded ? 180 : 0))
                         }
 
                         VStack(alignment: .trailing, spacing: 1) {
                             Text("\(formatted(nutrient.todayIntake))/\(formatted(nutrient.target.rda))\(nutrient.target.unit)")
-                                .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                                .font(.pulse(size: 11, weight: .semibold, design: .monospaced))
                             Text("\(Int(nutrient.percentRDA))% of RDA")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Color(hex: nutrient.level.color))
                         }
                     }
@@ -376,10 +387,10 @@ struct NutrientRow: View {
                     if nutrient.weekPercentRDA > 0 && nutrient.weekPercentRDA != nutrient.percentRDA {
                         HStack(spacing: 4) {
                             Text("7-day avg:")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                             Text("\(formatted(nutrient.weekAvgIntake))\(nutrient.target.unit) (\(Int(nutrient.weekPercentRDA))%)")
-                                .font(.system(size: 9, weight: .medium))
+                                .font(.pulse(size: 9, weight: .medium))
                                 .foregroundColor(Color(hex: nutrient.level.color))
                             Spacer()
                         }
@@ -400,7 +411,7 @@ struct NutrientRow: View {
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("FROM YOUR FOOD LOG")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.top, 4)
 
@@ -418,7 +429,7 @@ struct NutrientRow: View {
                                             .foregroundColor(Pulse.textPrimary)
                                             .lineLimit(2)
                                         Text(item.mealName)
-                                            .font(.system(size: 9))
+                                            .font(.pulse(size: 9))
                                             .foregroundColor(Pulse.textTertiary)
                                     }
 
@@ -426,11 +437,11 @@ struct NutrientRow: View {
 
                                     VStack(alignment: .trailing, spacing: 1) {
                                         Text("\(formatted(item.amount))\(item.unit)")
-                                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                                            .font(.pulse(size: 11, weight: .semibold, design: .monospaced))
                                             .foregroundColor(Pulse.textPrimary)
                                         let pct = nutrient.target.rda > 0 ? (item.amount / nutrient.target.rda) * 100 : 0
                                         Text("\(Int(pct))% of RDA")
-                                            .font(.system(size: 9, weight: .medium))
+                                            .font(.pulse(size: 9, weight: .medium))
                                             .foregroundColor(Color(hex: nutrient.level.color))
                                     }
                                 }
@@ -443,7 +454,7 @@ struct NutrientRow: View {
                                             HStack(spacing: 6) {
                                                 ForEach(extras, id: \.label) { extra in
                                                     Text("\(extra.label) \(extra.value)")
-                                                        .font(.system(size: 9, weight: .medium))
+                                                        .font(.pulse(size: 9, weight: .medium))
                                                         .foregroundColor(Pulse.textTertiary)
                                                         .padding(.horizontal, 7)
                                                         .padding(.vertical, 3)

@@ -136,20 +136,20 @@ struct DashboardView: View {
                                     .fill(Pulse.ai.opacity(0.1))
                                     .frame(width: 36, height: 36)
                                 Image(systemName: "chart.bar.xaxis.ascending")
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .font(.pulse(size: 15, weight: .semibold))
                                     .foregroundColor(Pulse.ai)
                             }
                             VStack(alignment: .leading, spacing: 1) {
                                 Text("Insights & analytics")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.pulse(size: 14, weight: .semibold))
                                     .foregroundColor(Pulse.textPrimary)
                                 Text("Training, nutrition, recovery deep-dives")
-                                    .font(.system(size: 11))
+                                    .font(.pulse(size: 11))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.pulse(size: 12, weight: .semibold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(14)
@@ -347,10 +347,10 @@ struct StatusHeader: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(appState.greeting + ",")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Pulse.textTertiary)
                     Text(appState.profile.name)
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.pulse(size: 22, weight: .bold))
                 }
                 Spacer()
 
@@ -375,10 +375,10 @@ struct StatusHeader: View {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 6) {
                                 Text(viewModel.readiness != nil ? "Readiness" : "Recovery")
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .font(.pulse(size: 13, weight: .semibold))
                                 if let band = viewModel.readiness?.band {
                                     Text(band.rawValue)
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.pulse(size: 10, weight: .bold))
                                         .foregroundColor(Color(hex: band.colorHex))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -388,7 +388,7 @@ struct StatusHeader: View {
                             }
                             if let rec = viewModel.readiness?.recommendation {
                                 Text(rec)
-                                    .font(.system(size: 11))
+                                    .font(.pulse(size: 11))
                                     .foregroundColor(Pulse.textTertiary)
                                     .lineLimit(2)
                             }
@@ -397,7 +397,7 @@ struct StatusHeader: View {
                         Spacer()
 
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     .padding(12)
@@ -429,7 +429,7 @@ struct StatusHeader: View {
                 .animation(PayaAnimation.dataChange, value: viewModel.recoveryScore)
             VStack(spacing: 0) {
                 Text("\(viewModel.recoveryScore ?? 0)")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 18, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(scoreColor)
                     .contentTransition(.numericText())
@@ -464,10 +464,10 @@ struct StatusHeader: View {
     private func biometricChip(icon: String, value: String, color: String) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Color(hex: color))
             Text(value)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.pulse(size: 10, weight: .semibold))
                 .monospacedDigit()
         }
         .padding(.horizontal, 8)
@@ -485,7 +485,7 @@ struct StatusHeader: View {
                     .fill(Pulse.hydration.opacity(0.12))
                     .frame(width: 34, height: 34)
                 Text(String(appState.profile.name.prefix(1)).uppercased())
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.pulse(size: 13, weight: .bold))
                     .foregroundColor(Pulse.hydration)
             }
         }
@@ -505,7 +505,7 @@ struct StatusHeader: View {
     private var settingsButton: some View {
         Button(action: onSettings) {
             Image(systemName: "gearshape.fill")
-                .font(.system(size: 14))
+                .font(.pulse(size: 14))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 34, height: 34)
                 .background(Pulse.surfaceFallback)
@@ -518,9 +518,9 @@ struct StatusHeader: View {
     private var flareDayBadge: some View {
         HStack(spacing: 3) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
             Text("Flare")
-                .font(.system(size: 10, weight: .bold))
+                .font(.pulse(size: 10, weight: .bold))
         }
         .foregroundColor(Pulse.warning)
         .padding(.horizontal, 8)
@@ -560,20 +560,20 @@ struct TodayFocusCard: View {
                                 .fill(day.color.opacity(0.15))
                                 .frame(width: 48, height: 48)
                             Text(day.code)
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.pulse(size: 20, weight: .bold))
                                 .foregroundColor(day.color)
                         }
                         VStack(alignment: .leading, spacing: 2) {
                             Text(day.name)
-                                .font(.system(size: 16, weight: .bold))
+                                .font(.pulse(size: 16, weight: .bold))
                                 .foregroundColor(Pulse.textPrimary)
                             Text(day.focus)
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.pulse(size: 12, weight: .medium))
                                 .foregroundColor(day.color)
                         }
                         Spacer()
                         Text("Start")
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.pulse(size: 13, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
@@ -585,15 +585,15 @@ struct TodayFocusCard: View {
                                 .fill(Pulse.positive.opacity(0.15))
                                 .frame(width: 48, height: 48)
                             Image(systemName: "leaf.fill")
-                                .font(.system(size: 20))
+                                .font(.pulse(size: 20))
                                 .foregroundColor(Pulse.positive)
                         }
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Rest day")
-                                .font(.system(size: 16, weight: .bold))
+                                .font(.pulse(size: 16, weight: .bold))
                                 .foregroundColor(Pulse.textPrimary)
                             Text("Recovery + nutrition focus")
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()
@@ -608,7 +608,7 @@ struct TodayFocusCard: View {
                     HStack(spacing: 6) {
                         ForEach(exercises, id: \.self) { name in
                             Text(shortName(name))
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                                 .foregroundColor(Pulse.textTertiary)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -628,17 +628,17 @@ struct TodayFocusCard: View {
                 ForEach(Array(actions.prefix(2))) { action in
                     HStack(spacing: 8) {
                         Image(systemName: action.icon)
-                            .font(.system(size: 11))
+                            .font(.pulse(size: 11))
                             .foregroundColor(action.color)
                             .frame(width: 22, height: 22)
                             .background(action.color.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                         Text(action.title)
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.pulse(size: 12, weight: .semibold))
                             .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Text(action.domain)
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.pulse(size: 8, weight: .bold))
                             .foregroundColor(action.color)
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
@@ -864,25 +864,25 @@ struct VitalsStrip: View {
                             .animation(PayaAnimation.dataChange, value: prog)
                     }
                     Image(systemName: icon)
-                        .font(.system(size: progress != nil ? 10 : 13))
+                        .font(.pulse(size: progress != nil ? 10 : 13))
                         .foregroundColor(Color(hex: color))
                 }
                 .frame(height: 32)
 
                 HStack(spacing: 1) {
                     Text(value)
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 14, weight: .bold, design: .rounded))
                         .monospacedDigit()
                         .foregroundColor(Pulse.textPrimary)
                     if !unit.isEmpty {
                         Text(unit)
-                            .font(.system(size: 9, weight: .medium))
+                            .font(.pulse(size: 9, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
 
                 Text(label)
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
             .frame(maxWidth: .infinity)
@@ -918,10 +918,10 @@ struct RecoveryBrief: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: "heart.text.clipboard")
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(Pulse.positive)
                     Text("Recovery notes")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                 }
 
                 ForEach(items, id: \.title) { item in
@@ -932,9 +932,9 @@ struct RecoveryBrief: View {
                             .padding(.top, 5)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(item.title)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.pulse(size: 12, weight: .semibold))
                             Text(item.detail)
-                                .font(.system(size: 11))
+                                .font(.pulse(size: 11))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -997,20 +997,20 @@ struct FlareAlertBanner: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: assessment.level.icon)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(assessment.level.color)
             Text("Flare risk \(assessment.level.displayName.lowercased())")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.pulse(size: 12, weight: .semibold))
                 .foregroundColor(assessment.level.color)
             Text("·")
                 .foregroundColor(Pulse.textTertiary)
             Text(assessment.recommendation)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(Pulse.textTertiary)
                 .lineLimit(1)
             Spacer()
             Image(systemName: "chevron.right")
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .padding(.horizontal, 12)
@@ -1042,17 +1042,17 @@ struct WeekSummary: View {
             // Header
             HStack(spacing: 6) {
                 Image(systemName: "calendar")
-                    .font(.system(size: 11))
+                    .font(.pulse(size: 11))
                     .foregroundColor(Pulse.hydration)
                 Text("This week")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.pulse(size: 13, weight: .semibold))
                 Spacer()
                 if viewModel.weekStreak > 1 {
                     HStack(spacing: 3) {
                         Image(systemName: "flame.fill")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                         Text("\(viewModel.weekStreak)w streak")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                     }
                     .foregroundColor(Pulse.critical)
                     .padding(.horizontal, 7)
@@ -1118,11 +1118,11 @@ struct WeekSummary: View {
     private func statCell(value: String, label: String, color: Color) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(.pulse(size: 15, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundColor(color)
             Text(label)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -1143,18 +1143,18 @@ extension DashboardView {
             Button(action: action) {
                 HStack(spacing: 10) {
                     Text(greetingEmoji)
-                        .font(.system(size: 24))
+                        .font(.pulse(size: 24))
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Morning check-in")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.pulse(size: 13, weight: .semibold))
                             .foregroundColor(Pulse.textPrimary)
                         Text("Rate body, energy & sleep — adjusts training loads")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 12)
@@ -1187,7 +1187,7 @@ extension DashboardView {
                         TextField("Weight", text: $weightInput)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.center)
-                            .font(.system(size: 44, weight: .bold))
+                            .font(.pulse(size: 44, weight: .bold))
                             .padding()
                             .background(Pulse.surfaceElevatedFallback)
                             .clipShape(RoundedRectangle(cornerRadius: 12))

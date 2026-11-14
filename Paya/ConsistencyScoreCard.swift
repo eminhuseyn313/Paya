@@ -7,6 +7,8 @@ struct ConsistencyScoreCard: View {
 
     @State private var score: Int = 0
     @State private var weekData: [WeekBar] = []
+    /// Weeks of real history the score is based on (capped at 8).
+    @State private var weeksOfHistory: Int = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -25,8 +27,8 @@ struct ConsistencyScoreCard: View {
                         .stroke(scoreColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                         .frame(width: 36, height: 36)
                         .rotationEffect(.degrees(-90))
-                    Text("\(score)")
-                        .font(.system(size: 12, weight: .black, design: .rounded))
+                    Text(weeksOfHistory == 0 || plannedPerWeek == 0 ? "—" : "\(score)")
+                        .font(.pulse(size: 12, weight: .black, design: .rounded))
                         .foregroundColor(scoreColor)
                 }
             }
@@ -34,6 +36,12 @@ struct ConsistencyScoreCard: View {
             Text(scoreMessage)
                 .font(.caption)
                 .foregroundColor(Pulse.textTertiary)
+
+            if weeksOfHistory > 0 && weeksOfHistory < 4 {
+                Text("Early estimate · \(weeksOfHistory) week\(weeksOfHistory == 1 ? "" : "s") of history")
+                    .font(.pulse(size: 10, weight: .medium))
+                    .foregroundColor(Pulse.textTertiary)
+            }
 
             HStack(alignment: .bottom, spacing: 3) {
                 ForEach(weekData) { week in
@@ -50,7 +58,7 @@ struct ConsistencyScoreCard: View {
                             .frame(height: min(30, max(4, CGFloat(week.sessions) / CGFloat(max(1, plannedPerWeek)) * 30)))
 
                         Text(week.label)
-                            .font(.system(size: 7))
+                            .font(.pulse(size: 7))
                             .foregroundColor(week.isCurrent ? .primary : .secondary)
                             .fontWeight(week.isCurrent ? .bold : .regular)
                     }
@@ -63,14 +71,14 @@ struct ConsistencyScoreCard: View {
                 HStack(spacing: 4) {
                     Circle().fill(scoreColor).frame(width: 5, height: 5)
                     Text("Target: \(plannedPerWeek)/week")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 HStack(spacing: 4) {
                     let avg = weekData.isEmpty ? 0 : weekData.map(\.sessions).reduce(0, +) / max(1, weekData.count)
                     Circle().fill(scoreColor.opacity(0.4)).frame(width: 5, height: 5)
                     Text("Avg: \(avg)/week")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -86,6 +94,7 @@ struct ConsistencyScoreCard: View {
     }
 
     private var scoreMessage: String {
+        if weeksOfHistory == 0 { return "Log a workout to see your consistency." }
         if score >= 90 { return "Elite consistency. You're building a real habit." }
         if score >= 75 { return "Strong consistency. Keep showing up." }
         if score >= 50 { return "Decent, but there's room to improve." }
@@ -98,8 +107,19 @@ struct ConsistencyScoreCard: View {
         let now = Date()
         let completed = sessions.filter(\.isCompleted)
 
+        // Only weeks since the first logged session count — weeks before the
+        // user started aren't "missed", they're outside the data.
+        guard let firstDate = completed.map(\.date).min() else {
+            weekData = []; weeksOfHistory = 0; score = 0; return
+        }
+        let firstWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: firstDate)) ?? firstDate
+        let nowWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now)) ?? now
+        let weeksSinceFirst = (calendar.dateComponents([.weekOfYear], from: firstWeek, to: nowWeek).weekOfYear ?? 0) + 1
+        let span = max(1, min(8, weeksSinceFirst))
+        weeksOfHistory = span
+
         var weeks: [WeekBar] = []
-        for i in (0..<8).reversed() {
+        for i in (0..<span).reversed() {
             let weekStart = calendar.date(byAdding: .weekOfYear, value: -i, to: now)!
             let ws = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: weekStart))!
             let we = calendar.date(byAdding: .day, value: 7, to: ws)!

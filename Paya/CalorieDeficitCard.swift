@@ -195,7 +195,7 @@ struct CalorieDeficitCard: View {
                     if let report, report.streakDays > 0 {
                         HStack(spacing: 3) {
                             Image(systemName: "flame.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(.orange)
                             Text("\(report.streakDays)d streak")
                                 .font(.caption2.weight(.bold))
@@ -242,38 +242,40 @@ struct CalorieDeficitCard: View {
             HStack(spacing: 0) {
                 VStack(spacing: 2) {
                     Text("\(inVal)")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.positive)
                     Text("eaten")
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
 
                 Text("−")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.pulse(size: 16, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
 
                 VStack(spacing: 2) {
                     Text("\(outVal)")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.critical)
-                    Text("burned")
-                        .font(.system(size: 9, weight: .medium))
+                    Text("burned (est.)")
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
 
                 Text("=")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.pulse(size: 16, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
 
                 VStack(spacing: 2) {
-                    Text(bal >= 0 ? "+\(bal)" : "\(bal)")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                    // Nothing eaten yet → "−2200 deficit" would just be the
+                    // estimated burn echoed back as if it were a result.
+                    Text(inVal == 0 ? "—" : (bal >= 0 ? "+\(bal)" : "\(bal)"))
+                        .font(.pulse(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(balanceColor(day))
-                    Text(bal >= 0 ? "surplus" : "deficit")
-                        .font(.system(size: 9, weight: .medium))
+                    Text(inVal == 0 ? "log food" : (bal >= 0 ? "surplus" : "deficit"))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .frame(maxWidth: .infinity)
@@ -338,7 +340,7 @@ struct CalorieDeficitCard: View {
 
                     if day.caloriesIn > 0 {
                         Text(day.balance >= 0 ? "+\(Int(day.balance))" : "\(Int(day.balance))")
-                            .font(.system(size: 7, weight: .bold))
+                            .font(.pulse(size: 7, weight: .bold))
                             .foregroundColor(barFill(day))
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
@@ -349,7 +351,7 @@ struct CalorieDeficitCard: View {
                         .frame(height: barHeight)
 
                     Text(day.date.formatted(.dateTime.weekday(.narrow)))
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.pulse(size: 9, weight: .semibold))
                         .foregroundColor(Calendar.current.isDateInToday(day.date) ? .primary : .secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -410,10 +412,10 @@ struct CalorieDeficitDetailView: View {
                         .rotationEffect(.degrees(-90))
                     VStack(spacing: 0) {
                         Text("\(Int(today.balance))")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 18, weight: .bold, design: .rounded))
                             .foregroundColor(balanceColor(today))
                         Text("kcal")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -428,7 +430,7 @@ struct CalorieDeficitDetailView: View {
                                 .font(.subheadline.weight(.bold))
                                 .foregroundColor(Pulse.positive)
                             Text("Calories in")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         VStack(alignment: .leading, spacing: 1) {
@@ -436,7 +438,7 @@ struct CalorieDeficitDetailView: View {
                                 .font(.subheadline.weight(.bold))
                                 .foregroundColor(Pulse.critical)
                             Text("Calories out")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -520,13 +522,13 @@ struct CalorieDeficitDetailView: View {
                     .frame(height: 16)
 
                     Text(day.caloriesIn > 0 ? "\(Int(day.balance))" : "—")
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .font(.pulse(size: 10, weight: .semibold, design: .monospaced))
                         .foregroundColor(barFill(day))
                         .frame(width: 44, alignment: .trailing)
 
                     if day.isOnTarget && day.caloriesIn > 0 {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.positive)
                     } else {
                         Color.clear.frame(width: 10)

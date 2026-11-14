@@ -136,7 +136,7 @@ struct WeeklyBodyMapCard: View {
     private func legendDot(_ hex: String, _ label: String) -> some View {
         HStack(spacing: 4) {
             Circle().fill(Color(hex: hex)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 9)).foregroundColor(Pulse.textTertiary)
         }
     }
 

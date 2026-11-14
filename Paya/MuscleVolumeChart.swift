@@ -39,13 +39,13 @@ struct MuscleVolumeChart: View {
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 4)) {
                             AxisValueLabel()
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
                     .chartYAxis {
                         AxisMarks {
                             AxisValueLabel()
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                         }
                     }
 
@@ -68,9 +68,9 @@ struct MuscleVolumeChart: View {
     private func miniStat(label: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.pulse(size: 11, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

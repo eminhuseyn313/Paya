@@ -33,15 +33,15 @@ struct DailyCheckInView: View {
                     // MARK: - Header
                     VStack(spacing: 10) {
                         Text(greetingEmoji)
-                            .font(.system(size: 56))
+                            .font(.pulse(size: 56))
                             .id(greetingEmoji)
                             .transition(.scale.combined(with: .opacity))
                             .shadow(color: Pulse.recovery.opacity(0.3), radius: 20)
                         Text(greetingText)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 22, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                         Text("Takes 10 seconds · shapes your readiness score")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.pulse(size: 12, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     .padding(.top, 16)
@@ -110,7 +110,7 @@ struct DailyCheckInView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "tag.fill")
                                 .foregroundColor(Pulse.ai)
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                             Text("Yesterday's behaviors")
                                 .font(.subheadline.weight(.semibold))
                             Spacer()
@@ -120,7 +120,7 @@ struct DailyCheckInView: View {
                         }
 
                         Text("What did you do yesterday? This helps Paya learn what helps your recovery.")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
 
                         FlowLayout(spacing: 6) {
@@ -133,9 +133,9 @@ struct DailyCheckInView: View {
                                 } label: {
                                     HStack(spacing: 4) {
                                         Image(systemName: tag.icon)
-                                            .font(.system(size: 10))
+                                            .font(.pulse(size: 10))
                                         Text(tag.label)
-                                            .font(.system(size: 11, weight: .medium))
+                                            .font(.pulse(size: 11, weight: .medium))
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 7)
@@ -168,7 +168,7 @@ struct DailyCheckInView: View {
                                 } label: {
                                     HStack(spacing: 5) {
                                         Text(flag.emoji)
-                                            .font(.system(size: 13))
+                                            .font(.pulse(size: 13))
                                         Text(flag.label)
                                             .font(.caption.weight(.semibold))
                                     }
@@ -202,11 +202,11 @@ struct DailyCheckInView: View {
                             HStack(spacing: 8) {
                                 if didSave {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 18, weight: .bold))
+                                        .font(.pulse(size: 18, weight: .bold))
                                         .transition(.scale.combined(with: .opacity))
                                 }
                                 Text(didSave ? "Logged" : "Log check-in")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 16, weight: .bold, design: .rounded))
                             }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -227,7 +227,7 @@ struct DailyCheckInView: View {
                             dismiss()
                         } label: {
                             Text("Skip today")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.pulse(size: 13, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
@@ -244,7 +244,7 @@ struct DailyCheckInView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Morning check-in")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
             }
@@ -344,10 +344,10 @@ struct MoodRow: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                 Text(subtitle)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.pulse(size: 11, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -362,11 +362,11 @@ struct MoodRow: View {
                     } label: {
                         VStack(spacing: 4) {
                             Text(opt.emoji)
-                                .font(.system(size: isSelected ? 28 : 22))
+                                .font(.pulse(size: isSelected ? 28 : 22))
                                 .scaleEffect(isSelected ? 1.15 : 1.0)
                                 .shadow(color: isSelected ? accentColor.opacity(0.4) : .clear, radius: 8)
                             Text(opt.label)
-                                .font(.system(size: 9, weight: isSelected ? .bold : .medium))
+                                .font(.pulse(size: 9, weight: isSelected ? .bold : .medium))
                                 .foregroundColor(isSelected ? Pulse.textPrimary : Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)

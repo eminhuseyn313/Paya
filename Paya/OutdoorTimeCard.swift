@@ -152,7 +152,7 @@ struct OutdoorTimeCard: View {
                             .font(.caption2.weight(.semibold))
                         Spacer()
                         Image(systemName: "arrow.up.right")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                     }
                     .foregroundColor(green)
                 }
@@ -186,7 +186,7 @@ struct OutdoorTimeCard: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "plus")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                             Text("\(Int(minutes))m")
                                 .font(.caption.weight(.bold))
                         }
@@ -219,7 +219,7 @@ struct OutdoorTimeCard: View {
                 .chartXAxis {
                     AxisMarks { _ in
                         AxisValueLabel()
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundStyle(.secondary)
                     }
                 }

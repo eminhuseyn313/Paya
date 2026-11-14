@@ -57,14 +57,14 @@ struct CareTeamPromptCard: View {
                         .fill(Pulse.warning.opacity(0.15))
                         .frame(width: 36, height: 36)
                     Image(systemName: "doc.text.fill")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.pulse(size: 15, weight: .semibold))
                         .foregroundColor(Pulse.warning)
                 }
                 VStack(alignment: .leading, spacing: 4) {
                     Text("A rough couple of weeks")
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.pulse(size: 13, weight: .bold))
                     Text("Several flare days recently — want a doctor-ready summary of what's been happening, in case it's worth bringing to an appointment?")
-                        .font(.system(size: 11.5))
+                        .font(.pulse(size: 11.5))
                         .foregroundColor(Pulse.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                     Button {
@@ -72,7 +72,7 @@ struct CareTeamPromptCard: View {
                         CareTeamPromptDetector.markShown()
                     } label: {
                         Text("Generate report")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                             .foregroundColor(Pulse.warning)
                     }
                     .padding(.top, 2)
@@ -83,7 +83,7 @@ struct CareTeamPromptCard: View {
                     CareTeamPromptDetector.markShown()
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }

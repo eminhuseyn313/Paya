@@ -33,3 +33,6 @@ Screenshots/
 
 # Claude Code
 .claude/
+
+# Internal QA/security audit notes — never publish (docs/ is served by GitHub Pages)
+docs/release-review/

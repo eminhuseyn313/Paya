@@ -28,15 +28,15 @@ struct WorkoutMilestonesCard: View {
                                         : Pulse.surfaceElevatedFallback)
                                     .frame(width: 32, height: 32)
                                 Text(ms.emoji)
-                                    .font(.system(size: 16))
+                                    .font(.pulse(size: 16))
                             }
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(ms.title)
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .font(.pulse(size: 12, weight: .semibold))
                                     .foregroundColor(ms.isAchieved ? .primary : .secondary)
                                 Text(ms.subtitle)
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                             }
 
@@ -45,10 +45,10 @@ struct WorkoutMilestonesCard: View {
                             if ms.isAchieved {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(Pulse.positive)
-                                    .font(.system(size: 16))
+                                    .font(.pulse(size: 16))
                             } else {
                                 Text(ms.progressLabel)
-                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 10, weight: .bold, design: .rounded))
                                     .foregroundColor(Pulse.nutrition)
                             }
                         }
@@ -68,7 +68,7 @@ struct WorkoutMilestonesCard: View {
                             }
                             .frame(height: 6)
                             Text(String(format: "%.0f%%", next.progress * 100))
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.nutrition)
                                 .frame(width: 30)
                         }

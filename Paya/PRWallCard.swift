@@ -53,7 +53,7 @@ struct PRWallCard: View {
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(prs.count) lifts")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.pulse(size: 10, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -95,11 +95,11 @@ private struct PRRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 5) {
                     Text(pr.name)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                         .lineLimit(1)
                     if isRecent {
                         Text("NEW")
-                            .font(.system(size: 7, weight: .black))
+                            .font(.pulse(size: 7, weight: .black))
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
@@ -108,7 +108,7 @@ private struct PRRow: View {
                     }
                 }
                 Text(pr.date.formatted(.dateTime.day().month(.abbreviated)))
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -118,11 +118,11 @@ private struct PRRow: View {
                 let displayWeight = appState.profile.prefersLbs ? pr.weight * 2.20462 : pr.weight
                 let unit = appState.profile.prefersLbs ? "lbs" : "kg"
                 Text("\(String(format: "%.0f", displayWeight)) \(unit) × \(pr.reps)")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.pulse(size: 12, weight: .bold))
                     .monospacedDigit()
                 let displayE1RM = appState.profile.prefersLbs ? pr.e1rm * 2.20462 : pr.e1rm
                 Text("e1RM \(String(format: "%.0f", displayE1RM))")
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.pulse(size: 9, weight: .semibold))
                     .foregroundColor(Pulse.hydration)
             }
         }

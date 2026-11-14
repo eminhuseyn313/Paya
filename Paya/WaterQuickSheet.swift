@@ -47,10 +47,10 @@ struct WaterQuickSheet: View {
                             .animation(.spring(response: 0.5), value: progress)
                         VStack(spacing: 0) {
                             Text(String(format: "%.1f", Double(waterMl) / 1000.0))
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 18, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
                             Text("L")
-                                .font(.system(size: 10, weight: .medium))
+                                .font(.pulse(size: 10, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -62,18 +62,18 @@ struct WaterQuickSheet: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(Pulse.positive)
-                                    .font(.system(size: 14))
+                                    .font(.pulse(size: 14))
                                 Text("Target reached!")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.pulse(size: 14, weight: .semibold))
                                     .foregroundColor(Pulse.positive)
                             }
                         } else {
                             Text("\(remaining)ml to go")
-                                .font(.system(size: 14, weight: .medium))
+                                .font(.pulse(size: 14, weight: .medium))
                                 .foregroundColor(Pulse.textSecondary)
                         }
                         Text("of \(String(format: "%.1fL", Double(WaterStore.dailyTargetMl) / 1000.0)) target")
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -91,7 +91,7 @@ struct WaterQuickSheet: View {
                 // MARK: Drink type selector
                 VStack(alignment: .leading, spacing: 8) {
                     Text("OTHER DRINKS")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                         .tracking(1)
 
@@ -110,7 +110,7 @@ struct WaterQuickSheet: View {
                             ForEach(amounts, id: \.self) { amount in
                                 Button { add(amount, drinkType: selectedDrink) } label: {
                                     Text("+\(amount)ml")
-                                        .font(.system(size: 12, weight: .bold))
+                                        .font(.pulse(size: 12, weight: .bold))
                                         .foregroundColor(drinkColor)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 10)
@@ -133,11 +133,11 @@ struct WaterQuickSheet: View {
                 } label: {
                     HStack {
                         Image(systemName: "list.bullet.below.rectangle")
-                            .font(.system(size: 13))
+                            .font(.pulse(size: 13))
                         Text("All drinks & details")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.pulse(size: 13, weight: .medium))
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                     }
                     .foregroundColor(Pulse.textSecondary)
                     .frame(maxWidth: .infinity)
@@ -175,9 +175,9 @@ struct WaterQuickSheet: View {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: "plus")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.pulse(size: 11, weight: .bold))
                 Text("\(ml)ml")
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 14, weight: .bold, design: .rounded))
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
@@ -201,9 +201,9 @@ struct WaterQuickSheet: View {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: type.icon)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                 Text(type.displayName)
-                    .font(.system(size: 11, weight: isSelected ? .bold : .medium))
+                    .font(.pulse(size: 11, weight: isSelected ? .bold : .medium))
             }
             .foregroundColor(isSelected ? .white : color)
             .padding(.horizontal, 12)

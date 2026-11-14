@@ -80,6 +80,8 @@ struct MedicationsView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section { MedicalDisclaimerFooter(kind: .medication).listRowInsets(EdgeInsets()) }
+                    .listRowBackground(Color.clear)
                 if !medications.isEmpty {
                     // Real supply tracking (pills remaining, refill dates)
                     // doesn't exist yet — this is a plain convenience, not
@@ -112,7 +114,7 @@ struct MedicationsView: View {
                     Section {
                         VStack(spacing: 10) {
                             Image(systemName: "pills")
-                                .font(.system(size: 32))
+                                .font(.pulse(size: 32))
                                 .foregroundColor(.secondary.opacity(0.4))
                             Text("No medications tracked yet")
                                 .font(.subheadline)

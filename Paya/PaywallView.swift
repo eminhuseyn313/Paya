@@ -21,15 +21,9 @@ struct PaywallView: View {
     @State private var heroGlow: Bool = false
 
     private let features: [(icon: String, title: String, description: String, color: String)] = [
-        ("brain.head.profile.fill", "AI coaching",
-         "Personalized insights powered by Claude — nutrition advice, training recommendations, and weekly digests.",
-         "8B5CF6"),
         ("chart.xyaxis.line", "Advanced analytics",
-         "Correlations, trend analysis, exercise preference learning, and readiness scoring.",
+         "Correlations, trend analysis and readiness insights built from your own logs.",
          "2563EB"),
-        ("infinity", "Unlimited history",
-         "Access your full training, nutrition, and health history — no 30-day cap.",
-         "059669"),
         ("checklist.checked", "Daily routines",
          "Context-aware reminders — sunscreen (UV-based), hydration, eye drops, and custom routines.",
          "F59E0B"),
@@ -65,7 +59,7 @@ struct PaywallView: View {
                                 .frame(width: 80, height: 80)
 
                             Image(systemName: "star.fill")
-                                .font(.system(size: 32, weight: .semibold))
+                                .font(.pulse(size: 32, weight: .semibold))
                                 .foregroundColor(.white)
                         }
                         .padding(.top, 24)
@@ -74,7 +68,7 @@ struct PaywallView: View {
                         }
 
                         Text("Paya Pro")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.pulse(size: 28, weight: .bold))
                             .foregroundColor(Pulse.textPrimary)
 
                         Text("Unlock everything. Once, forever.")
@@ -88,7 +82,7 @@ struct PaywallView: View {
                         ForEach(Array(features.enumerated()), id: \.offset) { idx, feature in
                             HStack(spacing: 14) {
                                 Image(systemName: feature.icon)
-                                    .font(.system(size: 18))
+                                    .font(.pulse(size: 18))
                                     .foregroundColor(Color(hex: feature.color))
                                     .frame(width: 40, height: 40)
                                     .background(Color(hex: feature.color).opacity(0.1))
@@ -96,9 +90,9 @@ struct PaywallView: View {
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(feature.title)
-                                        .font(.system(size: 15, weight: .semibold))
+                                        .font(.pulse(size: 15, weight: .semibold))
                                     Text(feature.description)
-                                        .font(.system(size: 12))
+                                        .font(.pulse(size: 12))
                                         .foregroundColor(Pulse.textTertiary)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
@@ -125,19 +119,19 @@ struct PaywallView: View {
                     VStack(spacing: 8) {
                         HStack(spacing: 6) {
                             Image(systemName: "shield.checkered")
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                                 .foregroundColor(Pulse.positive)
                             Text("No subscription. No recurring charges.")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.pulse(size: 13, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
 
                         HStack(spacing: 6) {
                             Image(systemName: "lock.shield.fill")
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                                 .foregroundColor(Pulse.positive)
-                            Text("All data stays on your device — never sold or shared.")
-                                .font(.system(size: 13, weight: .medium))
+                            Text("Your data is never sold or shared. Optional cloud backup is encrypted.")
+                                .font(.pulse(size: 13, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -147,16 +141,16 @@ struct PaywallView: View {
                     VStack(spacing: 12) {
                         if let product = purchaseManager.product {
                             Text(product.displayPrice)
-                                .font(.system(size: 36, weight: .bold))
+                                .font(.pulse(size: 36, weight: .bold))
                             Text("one-time purchase")
-                                .font(.system(size: 14))
+                                .font(.pulse(size: 14))
                                 .foregroundColor(Pulse.textTertiary)
                                 .offset(y: -6)
                         } else {
                             Text("$14.99")
-                                .font(.system(size: 36, weight: .bold))
+                                .font(.pulse(size: 36, weight: .bold))
                             Text("one-time purchase")
-                                .font(.system(size: 14))
+                                .font(.pulse(size: 14))
                                 .foregroundColor(Pulse.textTertiary)
                                 .offset(y: -6)
                         }
@@ -170,7 +164,7 @@ struct PaywallView: View {
                                         .tint(.white)
                                 } else {
                                     Text("Upgrade to Pro")
-                                        .font(.system(size: 17, weight: .bold))
+                                        .font(.pulse(size: 17, weight: .bold))
                                 }
                             }
                             .frame(maxWidth: .infinity)
@@ -191,7 +185,7 @@ struct PaywallView: View {
                         // Error state
                         if case .failed(let message) = purchaseManager.purchaseState {
                             Text(message)
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                                 .foregroundColor(Pulse.critical)
                                 .multilineTextAlignment(.center)
                         }
@@ -203,7 +197,7 @@ struct PaywallView: View {
                                     TextField("Enter promo code", text: $promoCode)
                                         .textInputAutocapitalization(.characters)
                                         .autocorrectionDisabled()
-                                        .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                        .font(.pulse(size: 14, weight: .medium, design: .monospaced))
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 10)
                                         .background(Pulse.surfaceElevatedFallback)
@@ -218,7 +212,7 @@ struct PaywallView: View {
                                         }
                                     } label: {
                                         Text("Redeem")
-                                            .font(.system(size: 13, weight: .bold))
+                                            .font(.pulse(size: 13, weight: .bold))
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 14)
                                             .padding(.vertical, 10)
@@ -231,7 +225,7 @@ struct PaywallView: View {
 
                                 if promoError {
                                     Text("Invalid promo code")
-                                        .font(.system(size: 12))
+                                        .font(.pulse(size: 12))
                                         .foregroundColor(Pulse.critical)
                                 }
                             }
@@ -243,30 +237,32 @@ struct PaywallView: View {
                             Button("Restore purchase") {
                                 Task { await purchaseManager.restore() }
                             }
-                            .font(.system(size: 13))
+                            .font(.pulse(size: 13))
                             .foregroundColor(Pulse.textTertiary)
 
+                            #if DEBUG
                             Text("·")
                                 .foregroundColor(.secondary.opacity(0.5))
 
                             Button("Promo code") {
                                 withAnimation { showPromoField.toggle() }
                             }
-                            .font(.system(size: 13))
+                            .font(.pulse(size: 13))
                             .foregroundColor(Pulse.textTertiary)
+                            #endif
 
                             Text("·")
                                 .foregroundColor(.secondary.opacity(0.5))
 
                             Link("Privacy", destination: URL(string: "https://eminhuseyn313.github.io/Paya/privacy")!)
-                                .font(.system(size: 13))
+                                .font(.pulse(size: 13))
                                 .foregroundColor(Pulse.textTertiary)
 
                             Text("·")
                                 .foregroundColor(.secondary.opacity(0.5))
 
                             Link("Terms", destination: URL(string: "https://eminhuseyn313.github.io/Paya/terms")!)
-                                .font(.system(size: 13))
+                                .font(.pulse(size: 13))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(.top, 4)
@@ -283,7 +279,7 @@ struct PaywallView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 24))
+                            .font(.pulse(size: 24))
                             .foregroundColor(.secondary.opacity(0.5))
                     }
                 }

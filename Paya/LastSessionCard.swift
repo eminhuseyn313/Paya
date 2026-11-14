@@ -79,7 +79,7 @@ struct LastSessionCard: View {
                 HStack(spacing: 6) {
                     ForEach(topExercises, id: \.self) { name in
                         Text(name)
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.pulse(size: 9, weight: .semibold))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 3)
@@ -97,14 +97,14 @@ struct LastSessionCard: View {
         VStack(spacing: 2) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                     .foregroundColor(Color(hex: color))
                 Text(value)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 15, weight: .bold, design: .rounded))
                     .monospacedDigit()
             }
             Text(unit)
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

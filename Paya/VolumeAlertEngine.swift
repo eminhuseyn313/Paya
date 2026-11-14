@@ -142,27 +142,27 @@ struct VolumeAlertCard: View {
                         .fill(Color(hex: colorHex).opacity(0.15))
                         .frame(width: 28, height: 28)
                     Image(systemName: icon)
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(Color(hex: colorHex))
                 }
                 Text(title)
                     .font(.caption.weight(.semibold))
                 Spacer()
                 Text("VOLUME")
-                    .font(.system(size: 8, weight: .bold))
+                    .font(.pulse(size: 8, weight: .bold))
                     .foregroundColor(Color(hex: colorHex))
             }
 
             Text(message)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .fixedSize(horizontal: false, vertical: true)
                 .lineSpacing(1.5)
 
             HStack(spacing: 3) {
                 Image(systemName: "lightbulb.fill")
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                 Text(source)
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
             }
             .foregroundColor(.secondary)
         }

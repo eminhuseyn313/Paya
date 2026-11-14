@@ -43,9 +43,9 @@ struct PrivacyBadgeCard: View {
                 Spacer()
                 HStack(spacing: 3) {
                     Image(systemName: "checkmark.shield.fill")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                     Text("100% local")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                 }
                 .foregroundColor(Pulse.positive)
                 .padding(.horizontal, 7)
@@ -86,9 +86,9 @@ struct PrivacyBadgeCard: View {
             } label: {
                 HStack(spacing: 4) {
                     Text(showFullDashboard ? "Less detail" : "Full data breakdown")
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.pulse(size: 10, weight: .medium))
                     Image(systemName: showFullDashboard ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                 }
                 .foregroundColor(Pulse.positive)
             }
@@ -98,10 +98,10 @@ struct PrivacyBadgeCard: View {
                 let days = Calendar.current.dateComponents([.day], from: oldest, to: Date()).day ?? 0
                 HStack(spacing: 4) {
                     Image(systemName: "calendar")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                     Text("\(totalDataPoints) data points across \(days) days — all stored locally on this device.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -109,11 +109,11 @@ struct PrivacyBadgeCard: View {
             // Differentiator callout
             HStack(alignment: .top, spacing: 6) {
                 Image(systemName: "info.circle.fill")
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.hydration)
                     .padding(.top, 1)
                 Text("No account, no cloud sync, no subscription wall. Your training, nutrition, and health data never leaves your iPhone. Export anytime — it's yours.")
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textPrimary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -125,9 +125,9 @@ struct PrivacyBadgeCard: View {
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                     Text("Export all my data")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                 }
                 .foregroundColor(Pulse.positive)
                 .frame(maxWidth: .infinity)
@@ -146,9 +146,9 @@ struct PrivacyBadgeCard: View {
     private func dataStat(value: String, label: String, icon: String) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.pulse(size: 16, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 8, weight: .semibold))
+                .font(.pulse(size: 8, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -350,7 +350,7 @@ struct DataExportSheet: View {
                         .foregroundColor(Pulse.textTertiary)
 
                     Text(String(json.prefix(5000)))
-                        .font(.system(size: 9, design: .monospaced))
+                        .font(.pulse(size: 9, design: .monospaced))
                         .foregroundColor(Pulse.textTertiary)
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -359,7 +359,7 @@ struct DataExportSheet: View {
 
                     if json.count > 5000 {
                         Text("… \(json.count - 5000) more characters (full data in shared file)")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }

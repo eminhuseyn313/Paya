@@ -49,6 +49,7 @@ struct AskPayaView: View {
                     }
                 }
 
+                MedicalDisclaimerFooter(kind: .ai)
                 inputBar
             }
             .background(Pulse.canvasFallback.ignoresSafeArea())
@@ -77,7 +78,7 @@ struct AskPayaView: View {
         VStack(spacing: 14) {
             Spacer()
             Image(systemName: "sparkles")
-                .font(.system(size: 40))
+                .font(.pulse(size: 40))
                 .foregroundColor(Pulse.ai)
             Text("Ask about your own data")
                 .font(.headline)
@@ -111,7 +112,7 @@ struct AskPayaView: View {
                 speech.toggle()
             } label: {
                 Image(systemName: speech.isRecording ? "mic.fill" : "mic")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.pulse(size: 16, weight: .semibold))
                     .foregroundColor(speech.isRecording ? .white : Pulse.ai)
                     .frame(width: 36, height: 36)
                     .background(speech.isRecording ? Pulse.ai : Pulse.ai.opacity(0.12))
@@ -129,7 +130,7 @@ struct AskPayaView: View {
                 send()
             } label: {
                 Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 30))
+                    .font(.pulse(size: 30))
                     .foregroundColor(inputText.trimmingCharacters(in: .whitespaces).isEmpty ? Pulse.textTertiary : Pulse.ai)
             }
             .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isThinking)

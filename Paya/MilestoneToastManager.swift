@@ -71,15 +71,15 @@ private struct MilestoneToastCard: View {
                     .frame(width: 52, height: 52)
                     .blur(radius: 6)
                 Image(systemName: "trophy.fill")
-                    .font(.system(size: 20))
+                    .font(.pulse(size: 20))
                     .foregroundColor(Pulse.nutrition)
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(milestone.title)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                 Text(milestone.body)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.pulse(size: 12, weight: .medium))
                     .foregroundColor(Pulse.textSecondary)
                     .lineLimit(2)
             }

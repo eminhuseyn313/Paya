@@ -33,13 +33,13 @@ struct PersonalHealthNarrativeCard: View {
             HStack {
                 Image(systemName: "text.book.closed.fill")
                     .foregroundColor(Pulse.hydration)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text("Your health story")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 if lastGenerated != nil {
                     Text("Monthly")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.hydration)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
@@ -61,7 +61,7 @@ struct PersonalHealthNarrativeCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     let displayText = isExpanded ? narrative : String(narrative.prefix(200)) + "…"
                     Text(displayText)
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(Pulse.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineSpacing(2)
@@ -77,7 +77,7 @@ struct PersonalHealthNarrativeCard: View {
                     if let date = lastGenerated {
                         let formatter = RelativeDateTimeFormatter()
                         Text("Generated \(formatter.localizedString(for: date, relativeTo: .now))")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -89,7 +89,7 @@ struct PersonalHealthNarrativeCard: View {
                     Text("Generate your monthly health narrative")
                         .font(.caption.weight(.semibold))
                     Text("AI synthesizes 30 days of training, nutrition, sleep, and recovery into one coherent story.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
 
@@ -111,9 +111,9 @@ struct PersonalHealthNarrativeCard: View {
 
             HStack(spacing: 4) {
                 Image(systemName: AIService.shared.providerIcon)
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                 Text("Powered by \(AIService.shared.providerName) · Your data stays \(AIService.shared.isAppleIntelligenceAvailable ? "on-device" : "encrypted in transit")")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
             }
             .foregroundColor(Pulse.textTertiary)
         }

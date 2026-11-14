@@ -22,7 +22,7 @@ struct SmartWarmUpCard: View {
                             .fill(Pulse.nutrition.opacity(0.12))
                             .frame(width: 32, height: 32)
                         Image(systemName: "figure.flexibility")
-                            .font(.system(size: 14))
+                            .font(.pulse(size: 14))
                             .foregroundColor(Pulse.nutrition)
                     }
                     VStack(alignment: .leading, spacing: 1) {
@@ -46,28 +46,28 @@ struct SmartWarmUpCard: View {
                     ForEach(warmupSets) { set in
                         HStack(spacing: 10) {
                             Text(set.label)
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                                 .foregroundColor(Pulse.nutrition)
                                 .frame(width: 52, alignment: .leading)
 
                             Text(set.exercise)
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.pulse(size: 12, weight: .medium))
                                 .lineLimit(1)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             if set.weightKg > 0 {
                                 let w = useLbs ? set.weightKg * 2.20462 : set.weightKg
                                 Text(String(format: "%.0f %@", w, useLbs ? "lbs" : "kg"))
-                                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                    .font(.pulse(size: 11, weight: .semibold, design: .rounded))
                                     .foregroundColor(Pulse.textPrimary)
                             } else {
                                 Text("BW")
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(.pulse(size: 11, weight: .semibold))
                                     .foregroundColor(Pulse.textTertiary)
                             }
 
                             Text("×\(set.reps)")
-                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .font(.pulse(size: 11, weight: .semibold, design: .rounded))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(.vertical, 6)
@@ -82,7 +82,7 @@ struct SmartWarmUpCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Text("Based on your working weights. Lighter sets prime the nervous system without fatiguing muscles.")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
                     .padding(.top, 2)
             }

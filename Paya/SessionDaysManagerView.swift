@@ -158,7 +158,7 @@ struct DayConfigCard: View {
                         Text(day.weekdayName)
                             .font(.caption.weight(.semibold))
                         Image(systemName: "chevron.down")
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.pulse(size: 8, weight: .bold))
                     }
                     .foregroundColor(Pulse.textPrimary)
                     .padding(.horizontal, 10)

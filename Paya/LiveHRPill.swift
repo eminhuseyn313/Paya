@@ -10,7 +10,7 @@ struct LiveHRPill: View {
         if let bpm = hr.currentBPM {
             HStack(spacing: 5) {
                 Image(systemName: "heart.fill")
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(.red)
                     .scaleEffect(pulse ? 1.2 : 1.0)
                     .animation(
@@ -18,11 +18,11 @@ struct LiveHRPill: View {
                         value: pulse
                     )
                 Text("\(bpm)")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.pulse(size: 12, weight: .bold))
                     .monospacedDigit()
                 if let zone = hr.currentZone {
                     Text(zone.shortName)
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(zone.color)
                 }
             }
@@ -72,15 +72,15 @@ struct LiveHRPanel: View {
                         )
 
                     Text("\(bpm)")
-                        .font(.system(size: 42, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 42, weight: .bold, design: .rounded))
                         .monospacedDigit()
 
                     VStack(alignment: .leading, spacing: 0) {
                         Text("BPM")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                         Text(zone.shortName)
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                             .foregroundColor(zone.color)
                     }
                 }
@@ -98,7 +98,7 @@ struct LiveHRPanel: View {
                     HStack(spacing: 8) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text("PEAK")
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.pulse(size: 8, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                             Text("\(peak)")
                                 .font(.subheadline.weight(.bold))
@@ -111,7 +111,7 @@ struct LiveHRPanel: View {
 
                         VStack(alignment: .leading, spacing: 1) {
                             Text("NOW")
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.pulse(size: 8, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                             Text("\(bpm)")
                                 .font(.subheadline.weight(.bold))

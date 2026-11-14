@@ -142,17 +142,17 @@ struct InsightsHubView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: icon)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                         .foregroundColor(Color(hex: color))
                         .frame(width: 28, height: 28)
                         .background(Color(hex: color).opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 7))
                     Text(title)
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.pulse(size: 15, weight: .bold))
                         .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: isExpanded.wrappedValue ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.pulse(size: 11, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }

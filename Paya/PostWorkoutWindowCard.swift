@@ -40,14 +40,14 @@ struct PostWorkoutWindowCard: View {
                         if minutesSinceSession < 120 {
                             HStack(spacing: 3) {
                                 Image(systemName: "clock.fill")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                 Text("\(120 - minutesSinceSession)min window left")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                             }
                             .foregroundColor(minutesSinceSession < 60 ? Pulse.positive : Pulse.nutrition)
                         } else {
                             Text("Window closed")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -73,17 +73,17 @@ struct PostWorkoutWindowCard: View {
                     // Suggestion
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "lightbulb.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.nutrition)
                             .padding(.top, 1)
                         Text(suggestion)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
                     Text("Schoenfeld & Aragon (2018): total daily protein > timing, but protein within 2h post-training slightly enhances MPS.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -95,14 +95,14 @@ struct PostWorkoutWindowCard: View {
     private func macroGauge(label: String, remaining: Double, target: Double, unit: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.system(size: 9, weight: .bold))
+                .font(.pulse(size: 9, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
 
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(String(format: "%.0f", max(0, remaining)))
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 20, weight: .bold, design: .rounded))
                 Text(unit)
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.pulse(size: 10, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -119,7 +119,7 @@ struct PostWorkoutWindowCard: View {
             .frame(height: 6)
 
             Text(String(format: "%.0f/%.0f %@", max(0, target - remaining), target, unit))
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

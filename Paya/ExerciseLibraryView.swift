@@ -114,7 +114,7 @@ struct ExerciseLibraryView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Exercise Library")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -285,7 +285,7 @@ struct ChipLabel: View {
             Text(text)
                 .font(.caption.weight(.semibold))
             Image(systemName: "chevron.down")
-                .font(.system(size: 8, weight: .bold))
+                .font(.pulse(size: 8, weight: .bold))
         }
         .foregroundColor(isActive ? .white : Pulse.textPrimary)
         .padding(.horizontal, 10)
@@ -317,7 +317,7 @@ struct ExerciseRow: View {
                     HStack(spacing: 4) {
                         if exercise.isRecommended {
                             Image(systemName: "star.fill")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.warning)
                         }
                         Text(exercise.name)
@@ -336,7 +336,7 @@ struct ExerciseRow: View {
                         LevelBadge(level: exercise.level)
                         if let eq = exercise.equipment {
                             Text(eq.capitalized)
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
                                 .background(Pulse.surfaceElevatedFallback)
@@ -372,7 +372,7 @@ struct LevelBadge: View {
 
     var body: some View {
         Text(level.capitalized)
-            .font(.system(size: 9, weight: .bold))
+            .font(.pulse(size: 9, weight: .bold))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(color.opacity(0.15))
@@ -399,7 +399,7 @@ struct LibraryEmptyState: View {
                     .foregroundColor(Pulse.textTertiary)
             } else if hasError {
                 Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 44))
+                    .font(.pulse(size: 44))
                     .foregroundColor(Pulse.textTertiary)
                 Text("Couldn't load exercises")
                     .font(.headline)
@@ -410,7 +410,7 @@ struct LibraryEmptyState: View {
                     .padding(.horizontal, 40)
             } else if !filter.query.isEmpty || !filter.isEmpty {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 44))
+                    .font(.pulse(size: 44))
                     .foregroundColor(Pulse.textTertiary)
                 Text("No exercises match")
                     .font(.headline)

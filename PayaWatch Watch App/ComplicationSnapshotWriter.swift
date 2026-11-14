@@ -20,6 +20,9 @@ struct WatchComplicationSnapshot: Codable {
     var waterMl: Int
     var waterTargetMl: Int
     var updatedAt: Date
+    /// "Squat · 60kg×8" while a session is running, else nil.
+    var nextSetText: String? = nil
+    var briefing: String? = nil
 }
 
 enum ComplicationSnapshotWriter {
@@ -31,7 +34,9 @@ enum ComplicationSnapshotWriter {
         readinessBand: String?,
         sessionLabel: String?,
         waterMl: Int,
-        waterTargetMl: Int
+        waterTargetMl: Int,
+        nextSetText: String? = nil,
+        briefing: String? = nil
     ) {
         let snapshot = WatchComplicationSnapshot(
             readinessScore: readinessScore,
@@ -39,7 +44,9 @@ enum ComplicationSnapshotWriter {
             sessionLabel: sessionLabel,
             waterMl: waterMl,
             waterTargetMl: waterTargetMl,
-            updatedAt: .now
+            updatedAt: .now,
+            nextSetText: nextSetText,
+            briefing: briefing
         )
         guard let defaults = UserDefaults(suiteName: appGroupId),
               let data = try? JSONEncoder().encode(snapshot) else { return }

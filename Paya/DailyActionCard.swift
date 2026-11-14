@@ -49,7 +49,7 @@ struct DailyActionCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(actions.count) actions")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.hydration)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
@@ -68,9 +68,9 @@ struct DailyActionCard: View {
                         } label: {
                             HStack(spacing: 4) {
                                 Text(expanded ? "Show less" : "\(actions.count - 3) more")
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                 Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                                    .font(.system(size: 8, weight: .bold))
+                                    .font(.pulse(size: 8, weight: .bold))
                             }
                             .foregroundColor(Pulse.hydration)
                             .frame(maxWidth: .infinity)
@@ -78,7 +78,7 @@ struct DailyActionCard: View {
                     }
 
                     Text("Personalized from your sleep, nutrition, training, and recovery data. On-device, no cloud.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -94,16 +94,16 @@ struct DailyActionCard: View {
                     .fill(action.color.opacity(0.12))
                     .frame(width: 30, height: 30)
                 Image(systemName: action.icon)
-                    .font(.system(size: 13))
+                    .font(.pulse(size: 13))
                     .foregroundColor(action.color)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(action.title)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.pulse(size: 12, weight: .bold))
                     .foregroundColor(Pulse.textPrimary)
                 Text(action.detail)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -112,7 +112,7 @@ struct DailyActionCard: View {
 
             // Domain pill
             Text(action.domain)
-                .font(.system(size: 8, weight: .bold))
+                .font(.pulse(size: 8, weight: .bold))
                 .foregroundColor(action.color)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)

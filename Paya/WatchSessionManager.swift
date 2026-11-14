@@ -1,5 +1,6 @@
 import Foundation
 import WatchConnectivity
+import HealthKit
 
 // MARK: - Watch Session Manager (iOS side)
 // Bridges the active training session and water intake to PayaWatch.
@@ -22,6 +23,13 @@ struct WatchSessionSnapshot {
     // if a message is dropped.
     let restEndDate: Date?
     let restTotalSeconds: Int?
+    var previousWeightKg: Double? = nil
+    var previousReps: Int? = nil
+    var setsCompleted: Int = 0
+    var volumeKg: Double = 0
+    var adjustPct: Int = 0          // signed recovery/progression nudge on the suggested weight
+    var isFlareDay: Bool = false
+    var flareEnabled: Bool = false
 }
 
 @MainActor
@@ -38,6 +46,32 @@ final class WatchSessionManager: NSObject {
     var onSkipRestRequested: (() -> Void)?
     /// Set by TrainViewModel; invoked when the watch asks to end the session.
     var onEndSessionRequested: (() -> Void)?
+    var onFlareDayRequested: ((Bool) -> Void)?
+    var onAddWarmupsRequested: (() -> Void)?
+    var onNoteReceived: ((String) -> Void)?
+    var onMedTaken: ((String) -> Void)?
+    var onOfflineSessionReceived: (([String: Any]) -> Void)? {
+        didSet { if onOfflineSessionReceived != nil { drainPendingOfflineSessions() } }
+    }
+    private static let pendingOfflineKey = "paya_pending_offline_sessions"
+
+    /// The watch delivers finished offline workouts whenever the phone next
+    /// wakes — possibly before any view has registered a handler. Park them
+    /// on disk so they are imported (never dropped) once a handler exists.
+    private func drainPendingOfflineSessions() {
+        guard let handler = onOfflineSessionReceived,
+              let pending = UserDefaults.standard.array(forKey: Self.pendingOfflineKey) as? [[String: Any]],
+              !pending.isEmpty else { return }
+        UserDefaults.standard.removeObject(forKey: Self.pendingOfflineKey)
+        pending.forEach(handler)
+    }
+    /// Auto-detect suggestion + HR recovery that came with the last watch set.
+    var lastSetMeta: (detected: Int?, recovery: Int?) = (nil, nil)
+    /// Set by the Train view model when a watch-logged set beats the lift's history.
+    var latestPR: (id: String, text: String)?
+    private var processedSetIds: [String] = []
+    /// Returns true if a session was actually started (Train screen loaded + idle).
+    var onStartSessionRequested: (() -> Bool)?
     /// Set by ContentView; invoked when the watch sends a quick check-in.
     var onCheckInReceived: ((_ energy: Int, _ soreness: Int, _ hasSymptom: Bool) -> Void)?
 
@@ -63,17 +97,52 @@ final class WatchSessionManager: NSObject {
     /// state is unknown and the UI should not claim "not connected."
     var hasActivated: Bool = false
 
-    /// Human-readable connection status for the UI.
+    /// Most recent heart-rate sample written by an Apple Watch (HealthKit).
+    /// A watch only records HR while it is on a wrist, so this — not
+    /// WCSession reachability (which just means "app awake & in range") — is
+    /// the honest signal for "is the user wearing it".
+    var lastWatchSampleDate: Date? = nil
+
+    enum WearState { case unknown, noWatch, worn, notWorn }
+
+    var wearState: WearState {
+        guard WCSession.isSupported(), hasActivated else { return .unknown }
+        guard isWatchPaired else { return .noWatch }
+        let freshest = [lastWatchSampleDate, watchHeartRateTimestamp].compactMap { $0 }.max()
+        if let freshest, Date().timeIntervalSince(freshest) < 20 * 60 { return .worn }
+        return .notWorn
+    }
+
+    /// Query HealthKit for the newest watch-sourced HR sample. Safe to call
+    /// repeatedly; silently leaves the previous value if access is denied.
+    func refreshWearSignal() {
+        guard HKHealthStore.isHealthDataAvailable(),
+              let type = HKQuantityType.quantityType(forIdentifier: .heartRate) else { return }
+        let store = HKHealthStore()
+        let since = Date().addingTimeInterval(-6 * 3600)
+        let predicate = HKQuery.predicateForSamples(withStart: since, end: nil, options: [])
+        let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+        let q = HKSampleQuery(sampleType: type, predicate: predicate, limit: 25, sortDescriptors: [sort]) { [weak self] _, samples, _ in
+            let watchSample = (samples ?? []).first {
+                ($0.sourceRevision.productType ?? "").hasPrefix("Watch")
+            }
+            let date = watchSample?.endDate
+            Task { @MainActor in self?.lastWatchSampleDate = date }
+        }
+        store.execute(q)
+    }
+
+    /// Human-readable connection status for the UI. Never claims the watch
+    /// is on a wrist unless a watch actually produced a recent reading.
     var connectionLabel: String {
         guard WCSession.isSupported() else { return "Not supported" }
         guard hasActivated else { return "Checking…" }
-        if !isWatchPaired { return "No watch paired" }
-        // Show reachability even without companion app — the watch is
-        // physically there and HealthKit syncs HR/HRV/etc. regardless.
-        if isWatchReachable && isWatchAppInstalled { return "Connected" }
-        if isWatchReachable && !isWatchAppInstalled { return "Watch connected · install Paya for live HR" }
-        if isWatchAppInstalled { return "Paired · not on wrist" }
-        return "Paired · HealthKit syncing"
+        switch wearState {
+        case .noWatch: return "No watch paired"
+        case .worn: return "Watch on wrist · live"
+        case .notWorn, .unknown:
+            return isWatchAppInstalled ? "Watch not worn — no recent readings" : "Watch paired — Paya not installed on it"
+        }
     }
 
     /// Whether the watch is paired at all — used for UI indicators.
@@ -106,6 +175,7 @@ final class WatchSessionManager: NSObject {
         isWatchPaired = WCSession.default.isPaired
         isWatchAppInstalled = WCSession.default.isWatchAppInstalled
         isWatchReachable = WCSession.default.isReachable
+        refreshWearSignal()
     }
 
     // MARK: - Push state to watch
@@ -129,6 +199,22 @@ final class WatchSessionManager: NSObject {
             context["colorHex"] = snapshot.colorHex
             context["measurementRaw"] = snapshot.measurementRaw
             context["exerciseProgress"] = snapshot.exerciseProgress
+            if let w = snapshot.previousWeightKg, let r = snapshot.previousReps {
+                context["previousWeightKg"] = w
+                context["previousReps"] = r
+            } else {
+                context.removeValue(forKey: "previousWeightKg")
+                context.removeValue(forKey: "previousReps")
+            }
+            context["setsCompleted"] = snapshot.setsCompleted
+            if let pr = latestPR { context["prId"] = pr.id; context["prText"] = pr.text }
+            context["adjustPct"] = snapshot.adjustPct
+            context["isFlareDay"] = snapshot.isFlareDay
+            context["flareEnabled"] = snapshot.flareEnabled
+            context["volumeKg"] = snapshot.volumeKg
+            context["prefersLbs"] = prefersLbs
+            context["repOffset"] = WatchTelemetryStore.repOffset
+            context["maxHR"] = LiveHRManager.shared.maxHR
             // WCSession application context is plist-serialized — Date
             // survives, but only set the keys when there's an active rest
             // window so a stale rest end-date doesn't leak into the next
@@ -143,6 +229,43 @@ final class WatchSessionManager: NSObject {
         } else {
             context["sessionActive"] = false
         }
+        try? WCSession.default.updateApplicationContext(context)
+    }
+
+    /// Unit + max-HR preferences the watch needs even before a session starts
+    /// (standalone watch workouts show HR zones too).
+    var prefersLbs = false
+    func pushPreferences(prefersLbs: Bool) {
+        self.prefersLbs = prefersLbs
+        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        var context = currentApplicationContext()
+        context["prefersLbs"] = prefersLbs
+        context["maxHR"] = LiveHRManager.shared.maxHR
+        context["repOffset"] = WatchTelemetryStore.repOffset
+        try? WCSession.default.updateApplicationContext(context)
+    }
+
+    /// Today's exercises, so the watch can run the session without the phone.
+    func pushPlan(dayName: String, colorHex: String, exercises: [[String: Any]]) {
+        guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        var context = currentApplicationContext()
+        context["planDayName"] = dayName
+        context["planColorHex"] = colorHex
+        context["planExercises"] = exercises
+        try? WCSession.default.updateApplicationContext(context)
+    }
+
+    /// Generic merge of health keys into the application context.
+    private var pendingHealth: [String: Any] = [:]
+    func pushHealth(_ values: [String: Any]) {
+        guard isFullyConnected, WCSession.default.activationState == .activated else {
+            pendingHealth.merge(values) { _, new in new }
+            return
+        }
+        var context = currentApplicationContext()
+        pendingHealth.merge(values) { _, new in new }
+        pendingHealth.forEach { context[$0.key] = $0.value }
+        pendingHealth = [:]
         try? WCSession.default.updateApplicationContext(context)
     }
 
@@ -187,6 +310,7 @@ final class WatchSessionManager: NSObject {
     /// Retry any queued pushes — called when reachability flips to true.
     private func flushPendingPushes() {
         guard isFullyConnected, WCSession.default.activationState == .activated else { return }
+        if !pendingHealth.isEmpty { pushHealth([:]) }
         if let snapshot = pendingSnapshot {
             pendingSnapshot = nil
             pushSessionSnapshot(snapshot)
@@ -276,10 +400,24 @@ extension WatchSessionManager: WCSessionDelegate {
         didReceiveMessage message: [String: Any],
         replyHandler: @escaping ([String: Any]) -> Void
     ) {
+        nonisolated(unsafe) let reply = replyHandler
         Task { @MainActor in
-            WatchSessionManager.shared.handleIncomingMessage(message)
+            if (message["action"] as? String) == "startSession" {
+                let started = WatchSessionManager.shared.onStartSessionRequested?() ?? false
+                reply(["status": started ? "started" : "unavailable"])
+            } else {
+                WatchSessionManager.shared.handleIncomingMessage(message)
+                reply(["status": "ok"])
+            }
         }
-        replyHandler(["status": "ok"])
+    }
+
+    // MARK: - Guaranteed-delivery user info (watch queued while phone was away)
+
+    nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        Task { @MainActor in
+            WatchSessionManager.shared.handleIncomingMessage(userInfo)
+        }
     }
 
     // MARK: - Incoming application context
@@ -316,9 +454,31 @@ extension WatchSessionManager {
         guard let action = message["action"] as? String else { return }
         switch action {
         case "logSet":
+            // Sets can arrive twice (live message + guaranteed-delivery retry);
+            // the watch tags each with a unique id so only one is applied.
+            if let id = message["setId"] as? String {
+                guard !processedSetIds.contains(id) else { return }
+                processedSetIds.append(id)
+                if processedSetIds.count > 60 { processedSetIds.removeFirst(30) }
+            }
             let weight = message["weightKg"] as? Double ?? 0
             let reps = message["reps"] as? Int ?? 0
+            lastSetMeta = (message["detectedReps"] as? Int, message["hrRecovery"] as? Int)
             onSetLogged?(weight, reps)
+        case "offlineSession":
+            if let handler = onOfflineSessionReceived {
+                handler(message)
+            } else {
+                var pending = (UserDefaults.standard.array(forKey: Self.pendingOfflineKey) as? [[String: Any]]) ?? []
+                pending.append(message)
+                UserDefaults.standard.set(pending, forKey: Self.pendingOfflineKey)
+            }
+        case "addWarmups":
+            onAddWarmupsRequested?()
+        case "medTaken":
+            if let id = message["id"] as? String { onMedTaken?(id) }
+        case "exerciseNote":
+            onNoteReceived?(message["text"] as? String ?? "")
         case "addWater":
             let ml = message["ml"] as? Int ?? 0
             onWaterAdded?(ml)
@@ -326,6 +486,8 @@ extension WatchSessionManager {
             onSkipRestRequested?()
         case "endSession":
             onEndSessionRequested?()
+        case "setFlareDay":
+            onFlareDayRequested?(message["value"] as? Bool ?? false)
         case "quickCheckIn":
             let energy = message["energy"] as? Int ?? 2
             let soreness = message["soreness"] as? Int ?? 1

@@ -372,11 +372,11 @@ struct WaterIntakeCard: View {
                                               : Pulse.surfaceElevatedFallback)
                                         .frame(width: 36, height: 36)
                                     Image(systemName: type.icon)
-                                        .font(.system(size: 12))
+                                        .font(.pulse(size: 12))
                                         .foregroundColor(selectedDrink == type ? Color(hex: type.colorHex) : .secondary)
                                 }
                                 Text(type.displayName)
-                                    .font(.system(size: 8, weight: selectedDrink == type ? .bold : .medium))
+                                    .font(.pulse(size: 8, weight: selectedDrink == type ? .bold : .medium))
                                     .foregroundColor(selectedDrink == type ? .primary : .secondary)
                                     .lineLimit(1)
                             }
@@ -393,15 +393,15 @@ struct WaterIntakeCard: View {
                     ForEach(selectedDrink.components, id: \.label) { comp in
                         HStack(spacing: 3) {
                             Image(systemName: comp.icon)
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                                 .foregroundColor(Color(hex: comp.hex))
                             Text("\(comp.value)")
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                         }
                     }
                     Spacer()
                     Text("per 250ml")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }

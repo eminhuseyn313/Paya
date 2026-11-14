@@ -22,9 +22,9 @@ struct RPETrendCard: View {
                         if let t = trend {
                             HStack(spacing: 3) {
                                 Image(systemName: t >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                 Text(String(format: "%+.1f", t))
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.pulse(size: 10, weight: .bold))
                             }
                             .foregroundColor(t > 0.5 ? Pulse.critical : Pulse.positive)
                         }
@@ -51,13 +51,13 @@ struct RPETrendCard: View {
                     .chartXAxis {
                         AxisMarks(values: .stride(by: .day, count: 7)) {
                             AxisValueLabel(format: .dateTime.day().month())
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
                     .chartYAxis {
                         AxisMarks(values: [4, 6, 8, 10]) {
                             AxisValueLabel()
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
 
@@ -65,19 +65,19 @@ struct RPETrendCard: View {
                         HStack(spacing: 4) {
                             Circle().fill(Pulse.critical).frame(width: 5, height: 5)
                             Text(String(format: "Avg: %.1f RPE", avgRPE))
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 4) {
                             Circle().fill(Pulse.positive).frame(width: 5, height: 5)
                             Text("\(data.count) rated sessions")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
                     Text("Session RPE from your post-workout reflection. Sustained RPE > 9 increases injury risk.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)

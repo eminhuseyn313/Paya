@@ -24,9 +24,11 @@ struct PrivacyPolicyView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Group {
                         sectionHeader("Privacy policy")
-                        Text("Last updated: August 9, 2026")
+                        Text("Last updated: November 15, 2026")
                             .font(.caption)
                             .foregroundColor(.secondary)
+                        Link("Read the latest version online", destination: URL(string: "https://eminhuseyn313.github.io/Paya/privacy")!)
+                            .font(.caption.weight(.semibold))
 
                         bodyText("""
                         Paya ("we", "our", "the app") is a personal fitness and health tracking application. \
@@ -36,36 +38,27 @@ struct PrivacyPolicyView: View {
 
                         sectionHeader("Data we collect")
                         bodyText("""
-                        All data listed below is stored locally on your device using Apple's SwiftData framework. \
-                        We do not operate servers that store your personal data.
+                        Your data is stored on your device using Apple's SwiftData framework. If you create an \
+                        account, a backup copy is also stored in our cloud database (Supabase) so you can restore \
+                        it on a new device. You can use Paya without an account.
+
+                        • Account — your email address or Sign in with Apple identifier.
 
                         • Health & fitness data — workouts, exercise logs, sets, reps, weights, body measurements, \
                         sleep data, heart rate, and steps (via Apple HealthKit with your permission).
                         • Nutrition data — meals, calories, macronutrients, and supplement schedules you enter.
                         • Profile information — name, age, height, weight, and fitness goals you provide during setup.
-                        • Progress photos — photos you take within the app, stored only on your device.
-                        • Location data — used solely to fetch local weather and UV index from Open-Meteo \
-                        (a free, open-source weather API). Your coordinates are sent to Open-Meteo to retrieve \
-                        weather data; we do not store or transmit your location elsewhere.
+                        • Progress photos — stay on your device.
+                        • Location data — used to fetch local weather, UV, air quality, pollen and pressure \
+                        (Open-Meteo) and, if you opt in, background air-quality alerts. Coordinates are sent to \
+                        those services; we do not store your location history.
                         """)
 
                         sectionHeader("AI features")
                         bodyText("""
-                        Paya offers optional AI-powered coaching and nutrition analysis. These features may use \
-                        on-device Apple Intelligence (data never leaves your device) or cloud-based AI services \
-                        (Anthropic Claude or Google Gemini) that require your own API key.
-
-                        Cloud-based AI requires your explicit consent:
-                        • You must enable "Allow External AI" in Settings before any data is sent to external AI services.
-                        • When enabled, fitness and nutrition context is sent to the AI provider you configured.
-                        • We do not store, log, or have access to your API keys — they are saved in your \
-                        device's secure Keychain.
-                        • The AI provider's own privacy policy governs how they handle your data. We encourage \
-                        you to review Anthropic's (anthropic.com/privacy) or Google's (ai.google/privacy) \
-                        privacy policies.
-                        • You can revoke consent at any time by disabling "Allow External AI" in Settings.
-                        • You can use Paya fully without cloud AI — on-device Apple Intelligence and all \
-                        non-AI features work without this consent.
+                        This version of Paya does not send your data to any AI service. If AI features \
+                        are added in a future version, we will update this policy and ask for your \
+                        explicit consent before any data is sent.
                         """)
 
                         sectionHeader("Third-party services")
@@ -76,7 +69,8 @@ struct PrivacyPolicyView: View {
                         to retrieve local conditions. Open-Meteo is open-source and does not track users.
                         • OpenFoodFacts (openfoodfacts.org) — barcode lookup for nutrition data. Only the \
                         barcode number is sent.
-                        • Anthropic / Google Gemini — AI features, only when you provide your own API key.
+                        • USDA FoodData Central — food search text. OpenStreetMap — place lookups.
+                        • Supabase — account authentication and cloud backup.
                         • GitHub raw content — exercise demonstration images.
 
                         We do not use any analytics SDKs, advertising networks, crash reporting services, \
@@ -96,28 +90,30 @@ struct PrivacyPolicyView: View {
 
                         sectionHeader("Data storage and security")
                         bodyText("""
-                        • All personal data is stored locally on your device.
-                        • API keys are stored in the iOS Keychain (hardware-encrypted).
-                        • All network communication uses HTTPS (TLS 1.2+).
-                        • We do not have a backend server — there is nothing to breach.
-                        • Deleting the app removes all Paya data from your device.
+                        • Data is stored on your device; signed-in accounts also keep an encrypted cloud backup \
+                        protected by per-account row-level security.
+                        • Sign-in tokens and API keys are stored in the iOS Keychain.
+                        • All network communication uses HTTPS (TLS).
+                        • Deleting the app removes local data. Deleting your account (Settings) permanently \
+                        removes your cloud data.
                         """)
 
                         sectionHeader("Data sharing")
                         bodyText("""
-                        We do not sell, rent, or share your personal data with anyone. Period.
+                        We do not sell or rent your personal data and use no advertising or analytics SDKs. Data goes only to the service providers needed for features you use (Supabase for your account backup; Open-Meteo, OpenFoodFacts and USDA for lookups).
                         """)
 
                         sectionHeader("Children's privacy")
                         bodyText("""
-                        Paya is not directed at children under 13. We do not knowingly collect data from children.
+                        Paya is not directed at children under 16. We do not knowingly collect data from children.
                         """)
 
                         sectionHeader("Your rights")
                         bodyText("""
-                        Since all data is stored on your device, you have full control:
-                        • View all your data within the app at any time.
-                        • Delete any or all data by removing entries or uninstalling the app.
+                        • View and edit your data within the app at any time.
+                        • Delete entries, or delete your account in Settings (permanent, immediate).
+                        • Request access, export or deletion by email; EEA/UK users also have portability, \
+                        objection and complaint rights.
                         • Revoke HealthKit permissions in Settings → Privacy → Health.
                         • Remove API keys from Settings within the app.
                         """)
@@ -148,13 +144,13 @@ struct PrivacyPolicyView: View {
 
     private func sectionHeader(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 17, weight: .bold))
+            .font(.pulse(size: 17, weight: .bold))
             .padding(.top, 8)
     }
 
     private func bodyText(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 14))
+            .font(.pulse(size: 14))
             .foregroundColor(.secondary)
             .fixedSize(horizontal: false, vertical: true)
     }
@@ -171,9 +167,11 @@ struct TermsOfServiceView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Group {
                         sectionHeader("Terms of service")
-                        Text("Last updated: August 9, 2026")
+                        Text("Last updated: November 15, 2026")
                             .font(.caption)
                             .foregroundColor(.secondary)
+                        Link("Read the latest version online", destination: URL(string: "https://eminhuseyn313.github.io/Paya/terms")!)
+                            .font(.caption.weight(.semibold))
 
                         bodyText("""
                         By using Paya ("the app"), you agree to these terms. If you do not agree, \
@@ -183,8 +181,16 @@ struct TermsOfServiceView: View {
                         sectionHeader("1. Description of service")
                         bodyText("""
                         Paya is a personal fitness and health tracking application for iOS. It provides \
-                        workout logging, nutrition tracking, health data visualization, and optional \
-                        AI-powered coaching features.
+                        workout logging, nutrition tracking, health data visualization, and \
+                        personalized insights.
+                        """)
+
+                        sectionHeader("Paya Pro (one-time purchase)")
+                        bodyText("""
+                        Paya Pro is a one-time, non-consumable purchase through the Apple App Store. \
+                        It is not a subscription and never renews. Payment is charged to your Apple ID. \
+                        You can restore a previous purchase from Settings. Refunds are handled by Apple. \
+                        Apple's Standard End User License Agreement also applies to your use of the app.
                         """)
 
                         sectionHeader("2. Not medical advice")
@@ -192,7 +198,7 @@ struct TermsOfServiceView: View {
                         Paya is a fitness tracking tool, not a medical device. Nothing in the app \
                         constitutes medical advice, diagnosis, or treatment. Always consult a qualified \
                         healthcare professional before starting any exercise program or making dietary \
-                        changes. The AI coaching feature provides general fitness suggestions only.
+                        changes.
                         """)
 
                         sectionHeader("3. In-app purchase")
@@ -203,14 +209,11 @@ struct TermsOfServiceView: View {
                         by Apple and subject to Apple's refund policies.
                         """)
 
-                        sectionHeader("4. AI features and API keys")
+                        sectionHeader("4. AI features")
                         bodyText("""
-                        Certain features require you to provide your own API key from Anthropic or \
-                        Google. You are responsible for:
-                        • Obtaining and paying for your own API key.
-                        • Complying with the API provider's terms of service.
-                        • Any costs incurred from API usage through the app.
-                        We do not provide API keys or subsidize API costs.
+                        This version of Paya does not send your data to any AI service. If AI features \
+                        are added in a future version, we will update these terms and our Privacy \
+                        Policy and ask for your explicit consent first.
                         """)
                     }
 
@@ -240,7 +243,7 @@ struct TermsOfServiceView: View {
                         To the maximum extent permitted by law, we shall not be liable for any \
                         indirect, incidental, or consequential damages arising from your use of the \
                         app, including but not limited to injury from exercise, dietary changes, or \
-                        reliance on AI-generated advice.
+                        reliance on in-app suggestions.
                         """)
 
                         sectionHeader("9. Changes to terms")
@@ -269,13 +272,13 @@ struct TermsOfServiceView: View {
 
     private func sectionHeader(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 17, weight: .bold))
+            .font(.pulse(size: 17, weight: .bold))
             .padding(.top, 8)
     }
 
     private func bodyText(_ text: String) -> some View {
         Text(text)
-            .font(.system(size: 14))
+            .font(.pulse(size: 14))
             .foregroundColor(.secondary)
             .fixedSize(horizontal: false, vertical: true)
     }

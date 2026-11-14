@@ -8,6 +8,8 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
     @State private var needsOnboarding = false
+    @State private var isRestoringFromCloud = false
+    @State private var restoreIsSlow = false
 
     private var client = SupabaseClient.shared
 
@@ -33,7 +35,9 @@ struct ContentView: View {
             case .signedIn, .guest:
                 // .guest = local-only mode, all features work, no cloud sync.
                 // User can create an account later from Settings.
-                if needsOnboarding {
+                if isRestoringFromCloud {
+                    restoringView
+                } else if needsOnboarding {
                     OnboardingView(onComplete: {
                         needsOnboarding = false
                     })
@@ -77,6 +81,15 @@ struct ContentView: View {
                     appState.dataRefreshTrigger = UUID()
                 }
             }
+            WatchSessionManager.shared.onOfflineSessionReceived = { payload in
+                TrainViewModel.importOfflineSession(payload, context: modelContext)
+                appState.dataRefreshTrigger = UUID()
+            }
+            WatchSessionManager.shared.onMedTaken = { id in
+                WatchHealthPush.handleMedTaken(id: id, context: modelContext)
+            }
+            WatchHealthPush.pushMeds(context: modelContext)
+            refreshWatchPlan()
             WatchSessionManager.shared.pushWaterTotal(WaterStore.todayTotal(context: modelContext))
             Task { await ExternalWorkoutImporter.importRecent(context: modelContext) }
             applyPendingIntentNavigation()
@@ -103,6 +116,9 @@ struct ContentView: View {
                 // Re-check Pro access on every foreground — catches cases where
                 // the developer email check didn't fire during initial launch
                 PurchaseManager.shared.checkDeveloperAccess()
+                refreshWatchPlan()
+                WatchHealthPush.pushMeds(context: modelContext)
+                WatchSessionManager.shared.refreshStatus()   // re-check paired / worn state
             case .background:
                 // Tell the active session (if any) to persist immediately
                 NotificationCenter.default.post(name: .payaWillBackground, object: nil)
@@ -123,13 +139,88 @@ struct ContentView: View {
             // inherits the previous person's local health data. Only fires
             // on a real signedIn→signedOut transition, not on launch's
             // unknown→signedOut resolution (nothing to wipe there anyway).
-            if oldValue == .signedIn && newValue == .signedOut {
-                // Wipe local data on sign-out from a real account so a
-                // different account never inherits the previous person's
-                // data. Don't wipe on guest→signedOut (that's just
-                // "create an account" from Settings, keep their data).
-                LocalDataWiper.wipeAll(context: modelContext)
+            // Data-loss fix: the cloud has no restore path yet, so wiping on
+            // every sign-out destroyed the user's only copy. Now local data is
+            // kept on sign-out and wiped only when a DIFFERENT account signs
+            // in on this device (the original isolation goal).
+            if newValue == .signedIn, let uid = client.userId?.uuidString {
+                let key = "paya_last_signed_in_user"
+                if let last = UserDefaults.standard.string(forKey: key), last != uid {
+                    LocalDataWiper.wipeAll(context: modelContext)
+                    // New person on this device: reset in-memory profile and
+                    // show onboarding (restore below flips it off if the
+                    // account has cloud data).
+                    appState.profile = UserProfile()
+                    needsOnboarding = true
+                }
+                UserDefaults.standard.set(uid, forKey: key)
+                runCloudRestore()
+            }
+        }
+        .task {
+            // Already signed in at launch (no authState transition to observe).
+            if client.authState == .signedIn {
+                // Users signed in before the different-account check shipped
+                // never had this key written — record it now.
+                if let uid = client.userId?.uuidString,
+                   UserDefaults.standard.string(forKey: "paya_last_signed_in_user") == nil {
+                    UserDefaults.standard.set(uid, forKey: "paya_last_signed_in_user")
+                }
+                runCloudRestore()
+            }
+        }
+    }
+
+    /// Fresh install / new device: pull the user's data from Supabase before
+    /// onboarding is shown. No-op when local profiles exist. Failures are
+    /// non-fatal and leave local data untouched.
+    private func runCloudRestore() {
+        guard !isRestoringFromCloud else { return }
+        let hasLocal = ((try? modelContext.fetchCount(FetchDescriptor<PersonProfile>())) ?? 0) > 0
+        guard !hasLocal else { return }
+        isRestoringFromCloud = true
+        restoreIsSlow = false
+        // Never leave the user staring at a spinner: after 20 s offer a way forward.
+        Task {
+            try? await Task.sleep(for: .seconds(20))
+            if isRestoringFromCloud { restoreIsSlow = true }
+        }
+        Task {
+            let result = await CloudRestore.restoreIfNeeded(context: modelContext)
+            // Applies even if the user already chose to continue, as long as they
+            // haven't finished onboarding — restored data should win over a blank start.
+            if let profile = result.restoredProfile ?? ProfileStore.current(context: modelContext),
+               result.profiles > 0, needsOnboarding || isRestoringFromCloud {
+                appState.syncFromPersonProfile(profile)
                 needsOnboarding = false
+            }
+            isRestoringFromCloud = false
+            restoreIsSlow = false
+        }
+    }
+
+    private var restoringView: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VStack(spacing: 16) {
+                ProgressView().tint(Pulse.hydration)
+                Text("Restoring your data…")
+                    .font(.subheadline)
+                    .foregroundColor(Pulse.textSecondary)
+                if restoreIsSlow {
+                    Text("This is taking longer than usual. Check your connection — or continue and set up fresh. Your cloud backup stays safe.")
+                        .font(.footnote)
+                        .foregroundColor(Pulse.textTertiary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 36)
+                    Button("Continue without restoring") {
+                        isRestoringFromCloud = false
+                        restoreIsSlow = false
+                    }
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundColor(Pulse.hydration)
+                    .frame(minHeight: 44)
+                }
             }
         }
     }
@@ -141,7 +232,7 @@ struct ContentView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             Image(systemName: "figure.strengthtraining.traditional")
-                .font(.system(size: 48, weight: .medium))
+                .font(.pulse(size: 48, weight: .medium))
                 .foregroundColor(Pulse.hydration)
         }
     }
@@ -210,6 +301,25 @@ struct ContentView: View {
     /// "open today's workout" leaves a UserDefaults flag here instead of
     /// holding a Binding — this reads and clears it whenever the app
     /// becomes active.
+    /// Keeps the watch's offline plan current without the Train tab being
+    /// opened. Throttled; skipped while a session is running.
+    private func refreshWatchPlan() {
+        guard !ActiveSessionStore.hasPendingSession else { return }
+        let key = "paya_watch_plan_pushed_at"
+        let last = UserDefaults.standard.double(forKey: key)
+        guard Date().timeIntervalSince1970 - last > 30 * 60 else { return }
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
+        // Heavy (loads training history on the main thread): wait until the app
+        // has finished launching and the first screen is interactive.
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(8))
+            guard !ActiveSessionStore.hasPendingSession else { return }
+            let vm = TrainViewModel(appState: appState)
+            vm.configure(context: modelContext)
+            WatchSessionManager.shared.pushPlan(dayName: vm.selectedDay.name, colorHex: vm.selectedDay.colorHex, exercises: vm.watchPlanPayload())
+        }
+    }
+
     private func applyPendingIntentNavigation() {
         let key = PayaIntentNavigation.requestedTabKey
         guard UserDefaults.standard.object(forKey: key) != nil else { return }

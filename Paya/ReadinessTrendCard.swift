@@ -24,10 +24,10 @@ struct ReadinessTrendCard: View {
                 if let avg = averageScore {
                     HStack(spacing: 4) {
                         Text("avg")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                         Text("\(avg)")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(scoreColor(avg))
                     }
                 }
@@ -53,7 +53,7 @@ struct ReadinessTrendCard: View {
                                     .frame(height: 6)
                             }
                             Text(day.label)
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                                 .foregroundColor(day.isToday ? .primary : .secondary)
                                 .fontWeight(day.isToday ? .bold : .regular)
                         }
@@ -67,7 +67,7 @@ struct ReadinessTrendCard: View {
                     legendDot(color: Pulse.nutrition, label: "40-69 OK")
                     legendDot(color: Pulse.critical, label: "<40 Low")
                 }
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
             }
         }
         .payaCard(padding: 14)

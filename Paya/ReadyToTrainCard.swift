@@ -40,10 +40,10 @@ struct ReadyToTrainCard: View {
                 if let score = readinessScore {
                     HStack(spacing: 4) {
                         Text("\(score)")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 20, weight: .bold, design: .rounded))
                             .foregroundColor(readinessColor)
                         Text("/100")
-                            .font(.system(size: 11))
+                            .font(.pulse(size: 11))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -52,7 +52,7 @@ struct ReadyToTrainCard: View {
             if readinessScore != nil {
                 HStack(spacing: 8) {
                     Text(readinessLabel)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.pulse(size: 12, weight: .semibold))
                         .foregroundColor(readinessColor)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
@@ -67,7 +67,7 @@ struct ReadyToTrainCard: View {
                                     .frame(width: 6, height: 6)
                             }
                             Text("soreness")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -77,12 +77,12 @@ struct ReadyToTrainCard: View {
             if !freshMuscles.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("FULLY RECOVERED")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                     HStack(spacing: 6) {
                         ForEach(freshMuscles.prefix(5), id: \.self) { muscle in
                             Text(muscle)
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                                 .foregroundColor(Pulse.positive)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -91,7 +91,7 @@ struct ReadyToTrainCard: View {
                         }
                         if freshMuscles.count > 5 {
                             Text("+\(freshMuscles.count - 5)")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }

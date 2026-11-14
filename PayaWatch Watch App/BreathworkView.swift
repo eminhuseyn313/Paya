@@ -64,16 +64,16 @@ struct BreathworkView: View {
                     .fill(breathColor.opacity(0.12))
                     .frame(width: 52, height: 52)
                 Image(systemName: "wind")
-                    .font(.system(size: 24))
+                    .font(.pulse(size: 24))
                     .foregroundColor(breathColor)
             }
 
             Text("Breathwork")
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(.pulse(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(WatchPulse.textPrimary)
 
             Text("4s in, 6s out\nOptimal for HRV recovery")
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(WatchPulse.textSecondary)
                 .multilineTextAlignment(.center)
 
@@ -81,7 +81,7 @@ struct BreathworkView: View {
                 startPreMeasurement()
             } label: {
                 Text("Begin")
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 15, weight: .bold, design: .rounded))
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -106,11 +106,11 @@ struct BreathworkView: View {
                 .tint(breathColor)
 
             Text(phase == .measuring ? "Measuring baseline HRV…" : "Measuring post HRV…")
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(.pulse(size: 12, weight: .bold, design: .rounded))
                 .foregroundColor(WatchPulse.textPrimary)
 
             Text("Stay still for 15 seconds")
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(WatchPulse.textSecondary)
         }
         .padding(.top, 20)
@@ -121,7 +121,7 @@ struct BreathworkView: View {
     private var breathingView: some View {
         VStack(spacing: 6) {
             Text(isInhaling ? "BREATHE IN" : "BREATHE OUT")
-                .font(.system(size: 10, weight: .black, design: .rounded))
+                .font(.pulse(size: 10, weight: .black, design: .rounded))
                 .foregroundColor(breathColor)
                 .tracking(0.5)
 
@@ -142,10 +142,10 @@ struct BreathworkView: View {
 
                 VStack(spacing: 0) {
                     Text("\(breathCount)")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(WatchPulse.textPrimary)
                     Text("of \(totalBreaths)")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(WatchPulse.textSecondary)
                 }
             }
@@ -153,7 +153,7 @@ struct BreathworkView: View {
 
             if let pre = preHRV {
                 Text(String(format: "Baseline: %.0fms", pre))
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.pulse(size: 9, weight: .medium))
                     .foregroundColor(WatchPulse.textTertiary)
             }
 
@@ -178,32 +178,32 @@ struct BreathworkView: View {
                     .fill(WatchPulse.positive.opacity(0.15))
                     .frame(width: 48, height: 48)
                 Image(systemName: "checkmark")
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.pulse(size: 20, weight: .bold))
                     .foregroundColor(WatchPulse.positive)
             }
 
             Text("Complete")
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(.pulse(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(WatchPulse.textPrimary)
 
             if let pre = preHRV, let post = postHRV {
                 VStack(spacing: 4) {
                     HStack {
                         Text("Before:")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(WatchPulse.textSecondary)
                         Spacer()
                         Text(String(format: "%.0f ms", pre))
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 11, weight: .bold, design: .rounded))
                             .foregroundColor(WatchPulse.textPrimary)
                     }
                     HStack {
                         Text("After:")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(WatchPulse.textSecondary)
                         Spacer()
                         Text(String(format: "%.0f ms", post))
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 11, weight: .bold, design: .rounded))
                             .foregroundColor(post > pre ? WatchPulse.positive : WatchPulse.textPrimary)
                     }
 
@@ -211,9 +211,9 @@ struct BreathworkView: View {
                     let pct = pre > 0 ? abs(delta) / pre * 100 : 0
                     HStack(spacing: 4) {
                         Image(systemName: delta >= 0 ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                         Text(String(format: "%+.0f ms (%.0f%%)", delta, pct))
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 11, weight: .bold, design: .rounded))
                     }
                     .foregroundColor(delta >= 0 ? WatchPulse.positive : WatchPulse.warning)
                     .padding(.top, 2)
@@ -224,7 +224,7 @@ struct BreathworkView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 Text("HRV data unavailable — wear watch snugly for accurate readings.")
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(WatchPulse.textSecondary)
                     .multilineTextAlignment(.center)
             }
@@ -236,7 +236,7 @@ struct BreathworkView: View {
                 postHRV = nil
             } label: {
                 Text("Done")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 13, weight: .bold, design: .rounded))
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.bordered)

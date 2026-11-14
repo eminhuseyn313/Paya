@@ -30,7 +30,7 @@ struct EstimatedOneRMCard: View {
                                     withAnimation(.easeInOut(duration: 0.2)) { selectedIndex = i }
                                 } label: {
                                     Text(exercises[i].name)
-                                        .font(.system(size: 10, weight: .semibold))
+                                        .font(.pulse(size: 10, weight: .semibold))
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 5)
                                         .background(selectedIndex == i
@@ -53,9 +53,9 @@ struct EstimatedOneRMCard: View {
                             VStack(spacing: 2) {
                                 let current = useLbs ? ex.currentE1RM * 2.20462 : ex.currentE1RM
                                 Text(String(format: "%.0f", current))
-                                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 22, weight: .bold, design: .rounded))
                                 Text(useLbs ? "lbs" : "kg")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                             }
 
@@ -63,13 +63,13 @@ struct EstimatedOneRMCard: View {
                                 VStack(spacing: 2) {
                                     HStack(spacing: 2) {
                                         Image(systemName: change >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                            .font(.system(size: 9, weight: .bold))
+                                            .font(.pulse(size: 9, weight: .bold))
                                         Text(String(format: "%+.1f%%", change))
-                                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                                            .font(.pulse(size: 12, weight: .bold, design: .rounded))
                                     }
                                     .foregroundColor(change >= 0 ? Pulse.positive : Pulse.critical)
                                     Text("trend")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -78,12 +78,12 @@ struct EstimatedOneRMCard: View {
 
                             VStack(alignment: .trailing, spacing: 2) {
                                 Text("\(ex.dataPoints.count) sessions")
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(Pulse.textTertiary)
                                 if let best = ex.allTimeBest {
                                     let bestDisplay = useLbs ? best * 2.20462 : best
                                     Text(String(format: "Best: %.0f %@", bestDisplay, useLbs ? "lbs" : "kg"))
-                                        .font(.system(size: 10, weight: .semibold))
+                                        .font(.pulse(size: 10, weight: .semibold))
                                         .foregroundColor(Pulse.nutrition)
                                 }
                             }
@@ -122,20 +122,20 @@ struct EstimatedOneRMCard: View {
                             .chartXAxis {
                                 AxisMarks(values: .stride(by: .day, count: 14)) {
                                     AxisValueLabel(format: .dateTime.day().month())
-                                        .font(.system(size: 8))
+                                        .font(.pulse(size: 8))
                                 }
                             }
                             .chartYAxis {
                                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                                     AxisValueLabel()
-                                        .font(.system(size: 8))
+                                        .font(.pulse(size: 8))
                                 }
                             }
                         }
                     }
 
                     Text("Epley formula: weight × (1 + reps ÷ 30). Tracks your strength ceiling over time.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)

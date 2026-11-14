@@ -62,7 +62,7 @@ struct MuscleRecoveryStatusCard: View {
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(muscleStatuses.filter { $0.recoveryPercent >= 1.0 }.count)/\(muscleStatuses.count) ready")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.pulse(size: 10, weight: .bold))
                     .foregroundColor(Pulse.positive)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
@@ -114,10 +114,10 @@ private struct MuscleRecoveryRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(status.name)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.pulse(size: 11, weight: .semibold))
                     .lineLimit(1)
                 Text(statusLabel)
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.pulse(size: 9, weight: .medium))
                     .foregroundColor(statusColor)
             }
 
@@ -146,7 +146,7 @@ private struct CircularRecoveryGauge: View {
                 .stroke(color, style: StrokeStyle(lineWidth: 3, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             Text("\(Int(percent * 100))")
-                .font(.system(size: 8, weight: .bold))
+                .font(.pulse(size: 8, weight: .bold))
                 .monospacedDigit()
         }
     }

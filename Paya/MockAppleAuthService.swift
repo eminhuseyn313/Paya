@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 // MARK: - Mock Apple Auth Service
@@ -37,3 +38,5 @@ enum MockAppleAuthService {
         PurchaseManager.shared.checkDeveloperAccess(email: credential.email)
     }
 }
+
+#endif

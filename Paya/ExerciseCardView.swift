@@ -49,7 +49,7 @@ struct ExerciseInfoSheet: View {
                     // Title + tags
                     VStack(alignment: .leading, spacing: 10) {
                         Text(exercise.name)
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 24, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                             .padding(.horizontal)
                         HStack(spacing: 8) {
@@ -96,11 +96,11 @@ struct ExerciseInfoSheet: View {
                             HStack(spacing: 16) {
                                 VStack(spacing: 4) {
                                     BodyFigureView(isFront: true, regionColors: regionColors)
-                                    Text("Front").font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
+                                    Text("Front").font(.pulse(size: 9)).foregroundColor(Pulse.textTertiary)
                                 }
                                 VStack(spacing: 4) {
                                     BodyFigureView(isFront: false, regionColors: regionColors)
-                                    Text("Back").font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
+                                    Text("Back").font(.pulse(size: 9)).foregroundColor(Pulse.textTertiary)
                                 }
                             }
                             .frame(maxWidth: .infinity)
@@ -125,22 +125,22 @@ struct ExerciseInfoSheet: View {
                                     .foregroundColor(Pulse.warning)
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text("\(prW.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", prW) : String(format: "%.1f", prW))kg × \(prR) reps")
-                                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                                        .font(.pulse(size: 18, weight: .bold, design: .rounded))
                                         .foregroundColor(Pulse.textPrimary)
                                         .monospacedDigit()
                                     HStack(spacing: 4) {
                                         Text("Personal best")
-                                            .font(.system(size: 11, weight: .semibold))
+                                            .font(.pulse(size: 11, weight: .semibold))
                                             .foregroundColor(Pulse.warning)
                                         Text("·")
                                             .foregroundColor(Pulse.textTertiary)
                                         Text(prD.formatted(.dateTime.month(.abbreviated).day()))
-                                            .font(.system(size: 11))
+                                            .font(.pulse(size: 11))
                                             .foregroundColor(Pulse.textTertiary)
                                         Text("·")
                                             .foregroundColor(Pulse.textTertiary)
                                         Text("\(sessionCount) session\(sessionCount == 1 ? "" : "s") total")
-                                            .font(.system(size: 11))
+                                            .font(.pulse(size: 11))
                                             .foregroundColor(Pulse.textTertiary)
                                     }
                                 }
@@ -274,7 +274,7 @@ struct ExerciseInfoSheet: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Exercise Info")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -359,7 +359,7 @@ struct InfoSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title.uppercased())
-                .font(.system(size: 11, weight: .semibold))
+                .font(.pulse(size: 11, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
                 .padding(.horizontal)
             content()
@@ -391,7 +391,7 @@ struct TagBadge: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .bold))
+            .font(.pulse(size: 11, weight: .bold))
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(color.opacity(0.12))
@@ -444,7 +444,7 @@ struct ExerciseCardView: View {
 
                 if exerciseNumber > 0 {
                     Text("\(exerciseNumber)")
-                        .font(.system(size: 9, weight: .black))
+                        .font(.pulse(size: 9, weight: .black))
                         .foregroundColor(.white)
                         .frame(width: 16, height: 16)
                         .background(state.allSetsCompleted ? Pulse.positive : vm.selectedDayColor)
@@ -460,7 +460,7 @@ struct ExerciseCardView: View {
                     .strikethrough(state.allSetsCompleted)
                 HStack(spacing: 6) {
                     Text(exercise.muscleGroup)
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(Pulse.ai)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -492,7 +492,7 @@ struct ExerciseCardView: View {
                             : Pulse.surfaceElevatedFallback)
                         .frame(width: 56, height: 48)
                     Image(systemName: state.allSetsCompleted ? "checkmark" : "circle")
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.pulse(size: 22, weight: .bold))
                         .foregroundColor(state.allSetsCompleted ? .white : .secondary)
                 }
             }
@@ -545,7 +545,7 @@ struct ExerciseCardView: View {
 
                     if exerciseNumber > 0 {
                         Text("\(exerciseNumber)")
-                            .font(.system(size: 9, weight: .black))
+                            .font(.pulse(size: 9, weight: .black))
                             .foregroundColor(.white)
                             .frame(width: 16, height: 16)
                             .background(state.allSetsCompleted ? Pulse.positive : vm.selectedDayColor)
@@ -562,7 +562,7 @@ struct ExerciseCardView: View {
                             .lineLimit(2)
                         if exercise.supersetGroup != nil {
                             Text("SS")
-                                .font(.system(size: 8, weight: .black))
+                                .font(.pulse(size: 8, weight: .black))
                                 .foregroundColor(Pulse.ai)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 2)
@@ -572,18 +572,18 @@ struct ExerciseCardView: View {
                     }
                     HStack(spacing: 6) {
                         Text(exercise.muscleGroup)
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                             .foregroundColor(vm.selectedDayColor)
                         Text("·")
                             .foregroundColor(.secondary.opacity(0.4))
                         Text("\(exercise.sets)×\(exercise.repRange.display)")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                         if !state.isExpanded && state.completedSetsCount > 0 {
                             Text("·")
                                 .foregroundColor(.secondary.opacity(0.4))
                             Text("\(state.completedSetsCount)/\(exercise.sets)")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                                 .foregroundColor(state.allSetsCompleted ? Pulse.positive : vm.selectedDayColor)
                         }
                     }
@@ -629,6 +629,14 @@ struct ExerciseCardView: View {
                             }
                         }
                     }
+                    if exerciseNumber < totalExercises {
+                        Button {
+                            vm.toggleSupersetWithNext(exerciseId: exercise.id)
+                        } label: {
+                            Label(vm.isSupersetWithNext(exerciseId: exercise.id) ? "Unlink superset" : "Superset with next",
+                                  systemImage: vm.isSupersetWithNext(exerciseId: exercise.id) ? "link.badge.plus" : "link")
+                        }
+                    }
                     Button {
                         showInfoSheet = true
                     } label: {
@@ -636,7 +644,7 @@ struct ExerciseCardView: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.pulse(size: 14, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                         .frame(width: 32, height: 32)
                 }
@@ -654,7 +662,7 @@ struct ExerciseCardView: View {
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
                             Image(systemName: "chevron.up")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(exerciseNumber > 1 ? Pulse.textTertiary : .clear)
                         }
                         .disabled(exerciseNumber <= 1)
@@ -666,7 +674,7 @@ struct ExerciseCardView: View {
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(exerciseNumber < totalExercises ? Pulse.textTertiary : .clear)
                         }
                         .disabled(exerciseNumber >= totalExercises)
@@ -674,7 +682,7 @@ struct ExerciseCardView: View {
                     .frame(width: 22)
                 } else {
                     Image(systemName: state.isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.pulse(size: 11, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                         .frame(width: 20)
                 }
@@ -712,13 +720,13 @@ struct ExerciseCardView: View {
                         if prev.cableAttachment != nil || prev.cablePosition != nil {
                             HStack(spacing: 6) {
                                 Image(systemName: "cable.connector")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                 let parts = [
                                     prev.cableAttachment?.displayName,
                                     prev.cablePosition.map { "\($0.displayName) cable" }
                                 ].compactMap { $0 }
                                 Text("Last: \(parts.joined(separator: " · "))")
-                                    .font(.system(size: 11))
+                                    .font(.pulse(size: 11))
                             }
                             .foregroundColor(vm.selectedDayColor.opacity(0.7))
                             .padding(.horizontal, 14)
@@ -728,9 +736,9 @@ struct ExerciseCardView: View {
                         if !prev.note.isEmpty {
                             HStack(spacing: 6) {
                                 Image(systemName: "note.text")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                 Text("Last: \(prev.note)")
-                                    .font(.system(size: 11))
+                                    .font(.pulse(size: 11))
                                     .lineLimit(2)
                             }
                             .foregroundColor(Pulse.textTertiary)
@@ -774,7 +782,7 @@ struct ExerciseCardView: View {
                         }
                         Color.clear.frame(width: 44)
                     }
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.pulse(size: 10, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
                     .padding(.horizontal, 14)
                     .padding(.top, 10)
@@ -799,7 +807,7 @@ struct ExerciseCardView: View {
                                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 } label: {
                                     Image(systemName: "xmark")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                         .foregroundColor(Pulse.textTertiary)
                                         .frame(width: 20, height: 20)
                                 }
@@ -817,9 +825,9 @@ struct ExerciseCardView: View {
                         } label: {
                             HStack(spacing: 4) {
                                 Image(systemName: "plus")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.pulse(size: 10, weight: .bold))
                                 Text("Set")
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .font(.pulse(size: 12, weight: .semibold))
                             }
                             .foregroundColor(vm.selectedDayColor)
                         }
@@ -832,9 +840,9 @@ struct ExerciseCardView: View {
                             } label: {
                                 HStack(spacing: 3) {
                                     Image(systemName: "arrow.down.right")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                     Text("Drop")
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .font(.pulse(size: 11, weight: .semibold))
                                 }
                                 .foregroundColor(Pulse.critical)
                             }
@@ -846,9 +854,9 @@ struct ExerciseCardView: View {
                             } label: {
                                 HStack(spacing: 3) {
                                     Image(systemName: "flame")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                     Text("AMRAP")
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .font(.pulse(size: 11, weight: .semibold))
                                 }
                                 .foregroundColor(Pulse.ai)
                             }
@@ -864,9 +872,9 @@ struct ExerciseCardView: View {
                             } label: {
                                 HStack(spacing: 3) {
                                     Image(systemName: "arrow.down.to.line")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                     Text("Copy")
-                                        .font(.system(size: 11, weight: .medium))
+                                        .font(.pulse(size: 11, weight: .medium))
                                 }
                                 .foregroundColor(Pulse.textTertiary)
                             }
@@ -887,13 +895,13 @@ struct ExerciseCardView: View {
                     if vm.isSessionActive {
                         HStack(spacing: 6) {
                             Image(systemName: "note.text")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                             TextField("Add a note…", text: Binding(
                                 get: { state.note },
                                 set: { vm.updateNote(exerciseId: exercise.id, note: $0) }
                             ))
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                             .foregroundColor(Pulse.textPrimary)
                         }
                         .padding(.horizontal, 14)
@@ -937,24 +945,24 @@ struct ExerciseCardView: View {
 
         HStack(spacing: 4) {
             Image(systemName: hasProgression ? "arrow.up.right" : "arrow.right")
-                .font(.system(size: 7, weight: .black))
+                .font(.pulse(size: 7, weight: .black))
                 .foregroundColor(hasProgression ? Pulse.positive : Pulse.textTertiary)
 
             if prev.rawWeightKg > 0 {
                 Text("\(formatWeight(displayWeight))\(weightUnit) × \(prev.reps)")
-                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .font(.pulse(size: 9, weight: .semibold, design: .rounded))
                     .foregroundColor(hasProgression ? Pulse.positive : Pulse.textSecondary)
                     .monospacedDigit()
             } else {
                 // Bodyweight / timed exercises — show reps only
                 Text("\(prev.reps) reps")
-                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .font(.pulse(size: 9, weight: .semibold, design: .rounded))
                     .foregroundColor(hasProgression ? Pulse.positive : Pulse.textSecondary)
             }
 
             if hasProgression {
                 Text("↑")
-                    .font(.system(size: 8, weight: .black))
+                    .font(.pulse(size: 8, weight: .black))
                     .foregroundColor(Pulse.positive)
             }
         }
@@ -1057,7 +1065,7 @@ struct SetRowView: View {
                 } label: {
                     VStack(spacing: 1) {
                         Text(setTypeLabel)
-                            .font(.system(size: setState.setType == .working ? 14 : 10, weight: .bold))
+                            .font(.pulse(size: setState.setType == .working ? 14 : 10, weight: .bold))
                             .monospacedDigit()
                             .foregroundColor(setTypeColor)
                     }
@@ -1073,14 +1081,14 @@ struct SetRowView: View {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     } label: {
                         Text(prevText)
-                            .font(.system(size: 13))
+                            .font(.pulse(size: 13))
                             .foregroundColor(.secondary.opacity(0.6))
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(PulsePress())
                 } else {
                     Text("—")
-                        .font(.system(size: 13))
+                        .font(.pulse(size: 13))
                         .foregroundColor(.secondary.opacity(0.3))
                         .frame(maxWidth: .infinity)
                 }
@@ -1096,14 +1104,14 @@ struct SetRowView: View {
                         if vm.showsWeightField(for: exercise) {
                             HStack(spacing: 2) {
                                 Text(formatWeight(displayWeight(setState.weightKg)))
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .font(.pulse(size: 15, weight: .semibold))
                                     .monospacedDigit()
                                     .foregroundColor(setState.isCompleted ? .secondary : .primary)
                                 // "×2" badge for bilateral dumbbell/kettlebell exercises
                                 // so users understand the volume calc accounts for both hands
                                 if exercise.isDualWeighted {
                                     Text("×2")
-                                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                                        .font(.pulse(size: 9, weight: .bold, design: .rounded))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -1118,7 +1126,7 @@ struct SetRowView: View {
                         }
 
                         Text("\(setState.reps)")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.pulse(size: 15, weight: .semibold))
                             .monospacedDigit()
                             .foregroundColor(setState.isCompleted ? .secondary : .primary)
                             .frame(maxWidth: .infinity)
@@ -1149,7 +1157,7 @@ struct SetRowView: View {
                         vm.pushWatchSnapshot()
                     } label: {
                         Image(systemName: "arrow.counterclockwise.circle.fill")
-                            .font(.system(size: 20, weight: .medium))
+                            .font(.pulse(size: 20, weight: .medium))
                             .foregroundColor(sessionColor.opacity(0.5))
                             .frame(width: 28, height: 44)
                     }
@@ -1185,7 +1193,7 @@ struct SetRowView: View {
                     }
                 } label: {
                     Image(systemName: setState.isCompleted ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 24, weight: .medium))
+                        .font(.pulse(size: 24, weight: .medium))
                         .foregroundColor(setState.isCompleted ? sessionColor : .secondary.opacity(0.4))
                         .frame(width: 44, height: 44)
                 }
@@ -1197,7 +1205,7 @@ struct SetRowView: View {
                 HStack(spacing: 8) {
                     if isPR {
                         Text("PR")
-                            .font(.system(size: 9, weight: .black))
+                            .font(.pulse(size: 9, weight: .black))
                             .foregroundColor(.white)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -1210,22 +1218,22 @@ struct SetRowView: View {
                         let oneRM = setState.weightKg * (1 + Double(setState.reps) / 30.0)
                         let displayRM = displayWeight(oneRM)
                         Text("e1RM \(String(format: "%.0f", displayRM)) \(useLbs ? "lbs" : "kg")")
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.pulse(size: 9, weight: .semibold))
                             .foregroundColor(Pulse.hydration)
                     }
                     if setState.peakHR != nil || setState.avgHR != nil {
                         HStack(spacing: 4) {
                             Image(systemName: "heart.fill")
-                                .font(.system(size: 7))
+                                .font(.pulse(size: 7))
                                 .foregroundColor(.red)
                             if let peak = setState.peakHR {
                                 Text("\(peak)")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .monospacedDigit()
                             }
                             if let avg = setState.avgHR {
                                 Text("avg \(avg)")
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -1254,9 +1262,9 @@ struct SetRowView: View {
                     Pulse.positive
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.pulse(size: 14, weight: .bold))
                         Text("Done")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                     }
                     .foregroundColor(.white)
                     .padding(.leading, 12)
@@ -1374,7 +1382,7 @@ struct RPEChipSelector: View {
     var body: some View {
         HStack(spacing: 3) {
             Text("RPE")
-                .font(.system(size: 8, weight: .bold))
+                .font(.pulse(size: 8, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
 
             ForEach(options, id: \.self) { value in
@@ -1383,7 +1391,7 @@ struct RPEChipSelector: View {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 } label: {
                     Text("\(value)")
-                        .font(.system(size: 9, weight: rpe == value ? .black : .medium))
+                        .font(.pulse(size: 9, weight: rpe == value ? .black : .medium))
                         .foregroundColor(rpe == value ? .white : rpeColor(value))
                         .frame(width: 18, height: 16)
                         .background(
@@ -1428,10 +1436,10 @@ struct CableVariantPicker: View {
             // Attachment row
             HStack(spacing: 6) {
                 Image(systemName: "wrench.and.screwdriver")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
                 Text("ATTACH")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
                     .tracking(0.5)
 
@@ -1455,10 +1463,10 @@ struct CableVariantPicker: View {
             // Position row
             HStack(spacing: 6) {
                 Image(systemName: "slider.vertical.3")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
                 Text("HEIGHT")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
                     .tracking(0.5)
 
@@ -1486,9 +1494,9 @@ struct CableVariantPicker: View {
         Button(action: action) {
             HStack(spacing: 3) {
                 Image(systemName: icon)
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                 Text(label)
-                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
+                    .font(.pulse(size: 10, weight: isSelected ? .bold : .medium))
             }
             .foregroundColor(isSelected ? .white : Pulse.textSecondary)
             .padding(.horizontal, 8)

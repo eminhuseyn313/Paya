@@ -37,44 +37,35 @@ Everything you need to fill in App Store Connect for submission.
 
 **Description (4000 chars max):**
 
-Paya is a personal fitness companion that tracks your training, nutrition, and health — all in one place, all on your device.
+Paya brings your training, nutrition and recovery into one calm place — and it starts working the moment you open it.
 
-No subscriptions. No cloud accounts. No data harvesting. Just a focused tool that helps you get stronger, eat better, and understand your body.
+TRAIN
+• Log sets, reps and weight with a fast, gym-friendly screen and a smart rest timer
+• Customizable A/B/C programs, exercise library with muscle-map illustrations
+• Progressive overload suggestions in real gym increments (2.5 / 5 kg)
+• Volume, personal records and history at a glance
+• Apple Watch companion: log sets from your wrist, live heart rate
 
-TRAINING
-• Log workouts with sets, reps, and weights — fully customizable A/B/C programs
-• Smart rest timer with heart rate recovery tracking (Bluetooth HR monitors)
-• Progressive overload tracking with precise weight increments (0.5kg/1.25lb)
-• Warm-up builder based on your working weights
-• Session history with volume, tonnage, and PR tracking
+EAT
+• Log meals with calories, protein, carbs and fat
+• Barcode scanner and food search
+• Macro targets that adapt to training and rest days
+• Water and supplement tracking
 
-NUTRITION
-• Meal logging with calories, protein, carbs, and fat
-• Barcode scanner with OpenFoodFacts database
-• AI-powered meal analysis — photograph your plate for instant estimates
-• Macro targets that adjust for training vs rest days
-• Supplement timing tracker
+RECOVER
+• Apple Health sleep, heart rate, HRV and steps feed a readiness score — with the reason shown
+• Body weight and measurement trends, progress photos
+• Optional symptom, soreness and medication-reminder tracking
 
-HEALTH & RECOVERY
-• Apple HealthKit integration — sleep, steps, heart rate, weight
-• Readiness scoring based on sleep, HRV, and training load
-• Symptom tracking and correlation analysis
-• Body measurements and progress photos
-• Daily routines — UV-based sunscreen reminders, hydration, and more
+YOURS
+• Works without an account. Create one to back up and restore on a new phone
+• Sign in with Apple supported
+• No ads, no tracking, no analytics SDKs
+• Delete your account and cloud data any time from Settings
 
-AI COACHING (Pro)
-• Personalized training recommendations
-• Weekly health digest with actionable insights
-• Nutrition suggestions based on your goals and logged data
-• Powered by your own API key (Claude or Gemini) — your data, your key
+Paya is a wellness and fitness tool, not a medical device, and does not provide medical advice.
 
-PRIVACY FIRST
-• All data stored locally on your device
-• No accounts, no cloud sync, no analytics SDKs
-• API keys stored in the iOS Keychain
-• Your data never leaves your phone unless you explicitly use AI features
-
-Paya Pro unlocks AI coaching, advanced analytics, unlimited history, daily routines, progress photos, and data export — all for a one-time $14.99 purchase. No subscription, ever.
+Paya Pro is a one-time purchase that unlocks advanced analytics, unlimited history, progress photos and data export. No subscription.
 
 ---
 
@@ -89,7 +80,7 @@ fitness,workout,tracker,nutrition,calories,protein,health,gym,training,weightlif
 **Promotional Text (170 chars, can be updated without review):**
 
 ```
-Track training, nutrition & health — all on-device, no subscription. Upgrade once to Pro for AI coaching and advanced analytics.
+Train, eat and recover with one app. Log workouts fast, track macros, and see a readiness score built from your Apple Watch data. One-time Pro upgrade, no subscription.
 ```
 
 ---
@@ -97,14 +88,12 @@ Track training, nutrition & health — all on-device, no subscription. Upgrade o
 **What's New (for v1.0.0):**
 
 ```
-Welcome to Paya! Your personal fitness companion is here.
+Welcome to Paya!
 
-• Full workout tracking with smart rest timer and progressive overload
-• Nutrition logging with barcode scanner and AI meal analysis
-• HealthKit integration for sleep, steps, heart rate, and weight
-• Readiness scoring and recovery insights
-• Daily routine reminders with UV-based sunscreen alerts
-• Optional AI coaching powered by Claude or Gemini
+• Fast workout logging with smart rest timer and progressive overload
+• Nutrition logging with barcode scanner and macro targets
+• Apple Health + Apple Watch readiness and recovery insights
+• Sign in with Apple, cloud backup and restore
 • One-time Pro upgrade — no subscriptions
 ```
 
@@ -112,32 +101,32 @@ Welcome to Paya! Your personal fitness companion is here.
 
 ## App Review Information
 
+**Sign-in required:** Yes (optional account). The app is fully usable without an account via "Continue without an account"; an account enables cloud backup/restore.
+
+**Demo account** (create it first — see docs/release-review/DEMO_ACCOUNT.md):
+- Username: `review@<your-domain>`  ← replace
+- Password: `<generated password>`  ← replace
+
 **Review Notes:**
 
 ```
-Paya is a personal fitness and health tracking app. Here's what reviewers should know:
+Paya is a fitness, nutrition and wellness tracker. It is not a medical device.
 
-1. HEALTHKIT: The app reads sleep, steps, heart rate, active energy, and body weight from HealthKit to power readiness scoring and health insights. It writes body weight and workouts back. All HealthKit usage descriptions are in Info.plist.
+1. ACCOUNT: Use the demo account above, or tap "Continue without an account". Sign in with Apple is also offered. Delete Account is in Settings → Account (permanent; removes cloud data).
 
-2. AI FEATURES: AI coaching is optional and requires the user to provide their own API key (Anthropic Claude or Google Gemini) in Settings. The app does not include or bundle any API keys. Without an API key, the app works fully — AI features simply show "Set up API key in Settings" prompts.
+2. HEALTHKIT: Reads sleep, steps, heart rate, HRV, resting HR, respiratory rate, blood oxygen, wrist temperature and weight to compute a readiness score and trends. Writes body weight and workouts. Background delivery is used only for step-milestone notifications. The app works without Health access (manual logging).
 
-3. IN-APP PURCHASE: One non-consumable IAP — "Paya Pro — Lifetime" at $14.99. Unlocks AI coaching, advanced analytics, unlimited history, daily routines, progress photos, and data export. The free tier includes full workout tracking, basic nutrition logging, and HealthKit sync.
+3. IN-APP PURCHASE: One non-consumable, "Paya Pro — Lifetime". Free tier includes full workout and nutrition tracking. Use a sandbox account to test; "Restore Purchases" is in the paywall.
 
-4. BLUETOOTH: Used for connecting to Bluetooth Low Energy heart rate monitors (chest straps, arm bands). The app acts as a BLE central.
+4. BLUETOOTH: Optional, for BLE heart-rate straps during workouts (central role).
 
-5. CAMERA: Used for barcode scanning (nutrition lookup via OpenFoodFacts) and meal photography (AI calorie estimation). Also used for progress photos.
+5. CAMERA/PHOTOS: Barcode and nutrition-label scanning; progress photos stored on-device.
 
-6. LOCATION: Used only to fetch local weather/UV data from Open-Meteo (free, open-source API) for sunscreen reminders. Location is not stored or transmitted elsewhere.
+6. LOCATION: When-in-use only for local weather/UV/air-quality context. An optional, off-by-default "air quality alerts" setting uses Always location to notify when air quality is poor.
 
-7. DATA PRIVACY: All personal data is stored locally using SwiftData. No analytics SDKs, no crash reporting services, no advertising. API keys are stored in the iOS Keychain.
+7. NETWORK: Supabase (account + backup), Open-Meteo (weather/air quality), OpenFoodFacts and USDA (food data), OpenStreetMap (place names), GitHub raw (exercise images). No analytics, advertising or tracking SDKs. External AI features are not included in this version.
 
-8. NETWORK CALLS: 
-   - Open-Meteo (weather/UV) — no API key needed
-   - OpenFoodFacts (barcode lookup) — no API key needed  
-   - Anthropic API / Google Gemini — user-provided API key
-   - GitHub raw content — exercise demonstration images
-
-Test account: Not needed — the app has no login/account system.
+8. HEALTH CLAIMS: Scores, forecasts and flare-risk figures are informational estimates and are labelled as not medical advice in onboarding, Settings and on the screens that show them.
 ```
 
 **Contact:** eminhuseyn313@gmail.com
@@ -146,24 +135,21 @@ Test account: Not needed — the app has no login/account system.
 
 ## App Privacy (Nutrition Labels)
 
-Fill these in App Store Connect under "App Privacy":
+Declare in App Store Connect → App Privacy. Paya does not track users. Everything below is **Linked to You** (it syncs to an account), used for **App Functionality** only, **not used for tracking**:
 
-### Data Used to Track You
-**None** — Paya does not track users.
+| Data Type (Apple category) | Notes |
+|---|---|
+| Contact Info → Email Address | account |
+| Identifiers → User ID | account id |
+| Health & Fitness → Health, Fitness | HealthKit-derived + logs |
+| Body → (weight, height, measurements) under Health & Fitness/Sensitive Info | profile and trends |
+| Sensitive Info → health conditions entered by the user | symptoms, medications |
+| Photos or Videos | progress photos (on-device; declare if ever synced) |
+| Location → Precise & Coarse | weather/air quality (sent to Open-Meteo, not stored) |
+| User Content → Other User Content | notes, logs |
+| Purchases → Purchase History | Pro status via StoreKit |
 
-### Data Linked to You
-**None** — no accounts, no user identification.
-
-### Data Not Linked to You
-
-| Data Type | Purpose |
-|-----------|---------|
-| Health & Fitness | App Functionality |
-| Body (weight, height, measurements) | App Functionality |
-| Photos (progress photos, meal camera) | App Functionality |
-| Precise Location | App Functionality (weather/UV only) |
-| Name (profile first name) | App Functionality |
-| Usage Data (exercise selection patterns) | App Functionality |
+Audio is NOT collected in this version (voice logging is hidden).
 
 ---
 
@@ -188,33 +174,13 @@ Prepare screenshots for:
 
 ## URLs Required
 
-| Field | URL | Status |
-|-------|-----|--------|
-| Privacy Policy | https://getpaya.app/privacy | ⚠️ Need to host |
-| Terms of Service | https://getpaya.app/terms | ⚠️ Need to host |
-| Support URL | mailto:eminhuseyn313@gmail.com | ✅ Ready |
-| Marketing URL | https://getpaya.app | ⚠️ Optional |
+Host the `website/` folder (see docs/release-review/HOSTING.md) and use:
 
-**Quick hosting option:** Create a free GitHub Pages site at `yourusername.github.io/paya` with the privacy policy and terms text from LegalDocuments.swift.
+| Field | URL |
+|-------|-----|
+| Privacy Policy | https://eminhuseyn313.github.io/Paya/privacy.html |
+| Terms of Use | https://eminhuseyn313.github.io/Paya/terms.html |
+| Support URL | https://eminhuseyn313.github.io/Paya/support.html |
+| Marketing URL | https://eminhuseyn313.github.io/Paya/ (optional) |
 
----
-
-## Pre-Submission Checklist
-
-- [x] PrivacyInfo.xcprivacy created
-- [x] StoreKit configuration created
-- [x] PurchaseManager + PaywallView implemented
-- [x] Privacy Policy + Terms of Service (in-app)
-- [x] health-records entitlement removed (was unused)
-- [x] FamilyControls wrapped in #if canImport
-- [x] Legal links in Settings
-- [x] Restore purchase in Settings
-- [x] App review notes prepared
-- [x] Privacy nutrition labels documented
-- [ ] Host privacy policy + terms at public URLs
-- [ ] Create App Store screenshots
-- [ ] Register app in App Store Connect
-- [ ] Create IAP "com.paya.pro.lifetime" in App Store Connect
-- [ ] Upload build via Xcode (requires paid Apple Developer account)
-- [ ] Fill in App Privacy in App Store Connect
-- [ ] Submit for review
+The same URLs must be reachable from the in-app Settings → Privacy Policy / Terms rows (currently in-app text; keep it in sync with website/privacy.html).

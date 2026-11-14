@@ -18,7 +18,7 @@ struct MuscleBalanceCard: View {
                         Spacer()
                         if let worstRatio = pairs.map(\.ratio).min(), worstRatio < 0.7 {
                             Text("Imbalance")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
@@ -31,11 +31,11 @@ struct MuscleBalanceCard: View {
                         VStack(spacing: 4) {
                             HStack {
                                 Text(pair.pushGroup)
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(.pulse(size: 11, weight: .semibold))
                                     .foregroundColor(Pulse.textPrimary)
                                 Spacer()
                                 Text(pair.pullGroup)
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(.pulse(size: 11, weight: .semibold))
                                     .foregroundColor(Pulse.textPrimary)
                             }
 
@@ -72,22 +72,22 @@ struct MuscleBalanceCard: View {
 
                             HStack {
                                 Text(String(format: "%.0f sets", pair.pushSets))
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.hydration)
                                 Spacer()
                                 Text(ratioLabel(pair.ratio))
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .foregroundColor(ratioColor(pair.ratio))
                                 Spacer()
                                 Text(String(format: "%.0f sets", pair.pullSets))
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.positive)
                             }
                         }
                     }
 
                     Text("Push:Pull set ratio over last 4 weeks. Aim for 0.8–1.2 to prevent imbalances.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)

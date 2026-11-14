@@ -19,7 +19,7 @@ struct TrainingSplitCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text(detectedSplit)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
@@ -31,7 +31,7 @@ struct TrainingSplitCard: View {
                         ForEach(splitDays) { day in
                             VStack(spacing: 4) {
                                 Text(day.dayLabel)
-                                    .font(.system(size: 8, weight: .bold))
+                                    .font(.pulse(size: 8, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
 
                                 RoundedRectangle(cornerRadius: 4)
@@ -39,7 +39,7 @@ struct TrainingSplitCard: View {
                                     .frame(height: 32)
                                     .overlay(
                                         Text(day.muscleLabel)
-                                            .font(.system(size: 7, weight: .semibold))
+                                            .font(.pulse(size: 7, weight: .semibold))
                                             .foregroundColor(day.color)
                                             .lineLimit(2)
                                             .multilineTextAlignment(.center)
@@ -57,7 +57,7 @@ struct TrainingSplitCard: View {
                     }
 
                     Text("Based on your last 4 weeks of training. The split is detected from the primary muscle groups trained each session day.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
@@ -69,9 +69,9 @@ struct TrainingSplitCard: View {
     private func splitStat(label: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.pulse(size: 11, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

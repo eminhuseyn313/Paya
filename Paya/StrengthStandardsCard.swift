@@ -148,14 +148,14 @@ struct StrengthStandardsCard: View {
 
                 HStack(spacing: 4) {
                     Text("Based on bodyweight ratios")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     ForEach(StrengthLevel.allCases, id: \.self) { level in
                         HStack(spacing: 2) {
                             Circle().fill(level.color).frame(width: 4, height: 4)
                             Text(level.short)
-                                .font(.system(size: 7, weight: .medium))
+                                .font(.pulse(size: 7, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -174,16 +174,16 @@ private struct StandardRow: View {
         HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(standard.name)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.pulse(size: 13, weight: .semibold))
                     .foregroundColor(Pulse.textPrimary)
                 HStack(spacing: 4) {
                     Text(standard.level.rawValue)
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(standard.level.color)
                     Text("·")
                         .foregroundColor(Pulse.textTertiary)
                     Text(String(format: "%.1f× BW", standard.bwRatio))
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -193,14 +193,14 @@ private struct StandardRow: View {
             VStack(alignment: .trailing, spacing: 2) {
                 let display = useLbs ? standard.e1rm * 2.20462 : standard.e1rm
                 Text(String(format: "%.0f %@", display, useLbs ? "lbs" : "kg"))
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.pulse(size: 13, weight: .bold))
                     .foregroundColor(Pulse.textPrimary)
                     .monospacedDigit()
                 if let next = standard.nextThreshold {
                     let nextDisplay = useLbs ? next * 2.20462 : next
                     let gap = nextDisplay - display
                     Text(String(format: "+%.0f to next", gap))
-                        .font(.system(size: 8, weight: .medium))
+                        .font(.pulse(size: 8, weight: .medium))
                         .foregroundColor(Pulse.nutrition)
                 }
             }

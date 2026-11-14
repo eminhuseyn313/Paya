@@ -10,7 +10,9 @@ enum EffortEngine {
 
     struct WeeklyReport {
         let goal: TrainingGoal
-        let score: Int                    // 0-100
+        let score: Int                    // 0-100 (meaningless when !hasScore)
+        /// False when no component had real inputs — UI must show "—", not `score`.
+        let hasScore: Bool
         let components: [Component]
         let headline: String
 
@@ -30,6 +32,9 @@ enum EffortEngine {
         let score: Int          // 0-100
         let weight: Double      // fraction of total
         let icon: String
+        /// False when the inputs were missing and `score` is only a
+        /// placeholder — excluded from the weighted total, shown as "—".
+        var measured: Bool = true
     }
 
     enum Grade {
@@ -114,12 +119,19 @@ enum EffortEngine {
             ]
         }
 
-        let total = components.reduce(0.0) { $0 + Double($1.score) * $1.weight }
+        // Placeholder (unmeasured) components are dropped and the remaining
+        // weights renormalized, so a missing input never drags in a made-up 50.
+        let measuredComponents = components.filter(\.measured)
+        let measuredWeight = measuredComponents.reduce(0.0) { $0 + $1.weight }
+        let total = measuredWeight > 0
+            ? measuredComponents.reduce(0.0) { $0 + Double($1.score) * $1.weight } / measuredWeight
+            : 0
         let score = Int(total.rounded())
 
         return WeeklyReport(
             goal: goal,
             score: score,
+            hasScore: !measuredComponents.isEmpty,
             components: components,
             headline: headline(for: score, goal: goal)
         )
@@ -158,9 +170,11 @@ enum EffortEngine {
 
         let score: Int
         let detail: String
+        var unmeasured = false
         if baselineWeekly < 100 {
-            score = thisWeek.isEmpty ? 0 : 70
-            detail = "Building baseline — keep logging"
+            score = 0
+            detail = "Building baseline — needs a few weeks of logged volume"
+            unmeasured = true
         } else {
             let ratio = weekVolume / baselineWeekly
             // >= baseline is good; +5% or more is excellent
@@ -173,7 +187,8 @@ enum EffortEngine {
             detail: detail,
             score: score,
             weight: weight,
-            icon: "chart.bar.fill"
+            icon: "chart.bar.fill",
+            measured: !unmeasured
         )
     }
 
@@ -182,8 +197,8 @@ enum EffortEngine {
         let score: Int
         let detail: String
         if reflected.isEmpty {
-            score = 50
-            detail = "No reflections this week — add RPE after sessions"
+            score = 0
+            detail = "No RPE logged this week — add RPE after sessions"
         } else {
             let inRange = reflected.filter { (7...9).contains($0) }.count
             score = Int(Double(inRange) / Double(reflected.count) * 100)
@@ -194,7 +209,8 @@ enum EffortEngine {
             detail: detail,
             score: score,
             weight: weight,
-            icon: "bolt.fill"
+            icon: "bolt.fill",
+            measured: !reflected.isEmpty
         )
     }
 
@@ -204,8 +220,8 @@ enum EffortEngine {
         guard sorted.count >= 4 else {
             return Component(
                 name: "Load trend",
-                detail: "Need more sessions to measure",
-                score: 60, weight: weight, icon: "arrow.up.right"
+                detail: "Need ~4 sessions in 4 weeks to measure",
+                score: 0, weight: weight, icon: "arrow.up.right", measured: false
             )
         }
         let mid = sorted.count / 2
@@ -227,7 +243,7 @@ enum EffortEngine {
             return Component(
                 name: "Load trend",
                 detail: "Not enough overlapping lifts yet",
-                score: 60, weight: weight, icon: "arrow.up.right"
+                score: 0, weight: weight, icon: "arrow.up.right", measured: false
             )
         }
         let score = Int(Double(improved) / Double(compared) * 100)
@@ -248,8 +264,8 @@ enum EffortEngine {
         let score = min(100, Int(weekTrimp / target * 100))
         return Component(
             name: "Training load",
-            detail: "TRIMP \(Int(weekTrimp)) / \(Int(target)) target",
-            score: score, weight: weight, icon: "flame.fill"
+            detail: weekTrimp > 0 ? "TRIMP \(Int(weekTrimp)) / \(Int(target)) target" : "No heart-rate data this week",
+            score: score, weight: weight, icon: "flame.fill", measured: weekTrimp > 0
         )
     }
 
@@ -270,8 +286,8 @@ enum EffortEngine {
         let score = min(100, Int(Double(minutes) / Double(targetMinutes) * 100))
         return Component(
             name: "Zone minutes",
-            detail: "\(minutes)/\(targetMinutes) min in Z2+",
-            score: score, weight: weight, icon: "heart.fill"
+            detail: minutes > 0 ? "\(minutes)/\(targetMinutes) min in Z2+" : "No heart-rate data this week",
+            score: score, weight: weight, icon: "heart.fill", measured: minutes > 0
         )
     }
 
@@ -291,7 +307,7 @@ enum EffortEngine {
             return Component(
                 name: "Calorie adherence",
                 detail: "No nutrition logs this week",
-                score: 30, weight: weight, icon: "fork.knife"
+                score: 0, weight: weight, icon: "fork.knife", measured: false
             )
         }
 

@@ -33,7 +33,7 @@ struct PeriodizationCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text(phase.label)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
@@ -45,7 +45,7 @@ struct PeriodizationCard: View {
                         ForEach(weeklyData) { week in
                             VStack(spacing: 4) {
                                 Text(week.label)
-                                    .font(.system(size: 7, weight: .bold))
+                                    .font(.pulse(size: 7, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
 
                                 ZStack(alignment: .bottom) {
@@ -85,29 +85,29 @@ struct PeriodizationCard: View {
                     HStack(spacing: 12) {
                         HStack(spacing: 3) {
                             Circle().fill(phase.color).frame(width: 5, height: 5)
-                            Text("Volume").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
+                            Text("Volume").font(.pulse(size: 8)).foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 3) {
                             Circle().fill(Pulse.nutrition).frame(width: 5, height: 5)
-                            Text("Intensity").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
+                            Text("Intensity").font(.pulse(size: 8)).foregroundColor(Pulse.textTertiary)
                         }
                     }
 
                     if !recommendation.isEmpty {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(phase.color)
                                 .padding(.top, 1)
                             Text(recommendation)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text("Phase detection based on Bompa & Haff (2009) periodization model. Volume = total tonnage, intensity = average weight per set.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)

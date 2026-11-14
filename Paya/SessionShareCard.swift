@@ -41,12 +41,12 @@ struct SessionShareCard: View {
                             .fill(profileColor)
                             .frame(width: 10, height: 10)
                         Text("Paya")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 15, weight: .bold, design: .rounded))
                             .foregroundColor(.white.opacity(0.9))
                     }
                     Spacer()
                     Text(session.date.formatted(.dateTime.day().month(.abbreviated)))
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.pulse(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
                 }
 
@@ -54,10 +54,10 @@ struct SessionShareCard: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(sessionType?.focus ?? "Training Session")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.pulse(size: 15, weight: .semibold))
                         .foregroundColor(profileColor.opacity(0.95))
                     Text(sessionType?.displayName ?? "Session")
-                        .font(.system(size: 34, weight: .heavy, design: .rounded))
+                        .font(.pulse(size: 34, weight: .heavy, design: .rounded))
                         .foregroundColor(.white)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -73,15 +73,15 @@ struct SessionShareCard: View {
                 if let rpe = session.subjectiveRPE {
                     HStack(spacing: 6) {
                         Image(systemName: "bolt.fill")
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                             .foregroundColor(profileColor)
                         Text("RPE \(rpe)/10 · \(exerciseCount) exercises")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.pulse(size: 13, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
                 } else {
                     Text("\(exerciseCount) exercises")
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.pulse(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.7))
                 }
             }
@@ -101,11 +101,11 @@ struct SessionShareCard: View {
     private func statBlock(value: String, unit: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .font(.pulse(size: 26, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .monospacedDigit()
             Text(unit)
-                .font(.system(size: 11, weight: .medium))
+                .font(.pulse(size: 11, weight: .medium))
                 .foregroundColor(.white.opacity(0.55))
         }
     }

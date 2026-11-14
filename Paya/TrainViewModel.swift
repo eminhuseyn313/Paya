@@ -269,6 +269,7 @@ class TrainViewModel {
                 forCode: selectedDay.code,
                 context: ctx
             )
+            applySupersetPreferences()
             fullExerciseCountBeforeQuickMode = nil
         }
 
@@ -619,8 +620,13 @@ class TrainViewModel {
             // means heavy relative to THIS person's own recent training,
             // not an arbitrary fixed TRIMP number that means something
             // different for a beginner vs. an advanced lifter.
-            let chronicAvgTrimp = sessions.isEmpty ? nil :
-                sessions.reduce(0.0) { $0 + ($1.sessionTrimpScore ?? 0) } / 28.0
+            // Needs ≥ 3 HR-measured sessions in the window — with fewer, the
+            // "chronic average" is just yesterday's own TRIMP over 28, which
+            // would flag ANY first sessions as a spike (ACWR > 2) and trim loads.
+            let trimpSessions = sessions.filter { ($0.sessionTrimpScore ?? 0) > 0 }
+            let chronicAvgTrimp: Double? = trimpSessions.count >= 3
+                ? trimpSessions.reduce(0.0) { $0 + ($1.sessionTrimpScore ?? 0) } / 28.0
+                : nil
 
         self.recoveryContext = RecoveryContext(
                     recoveryScore: recovery,
@@ -1394,11 +1400,28 @@ class TrainViewModel {
     private func currentIncompleteSet() -> (exerciseId: String, setIndex: Int)? {
         for exercise in effectiveExercises {
             guard let state = exerciseStates[exercise.id] else { continue }
-            if let idx = state.sets.firstIndex(where: { !$0.isCompleted }) {
-                return (exercise.id, idx)
+            if state.sets.contains(where: { !$0.isCompleted }) {
+                let pickId = supersetAlternate(from: exercise.id)
+                if let s = exerciseStates[pickId], let idx = s.sets.firstIndex(where: { !$0.isCompleted }) {
+                    return (pickId, idx)
+                }
             }
         }
         return nil
+    }
+
+    /// Superset groups alternate A1, B1, A2, B2… instead of finishing every
+    /// set of A first: pick the group member with the fewest completed sets
+    /// (ties → program order) among those that still have sets left.
+    private func supersetAlternate(from exerciseId: String) -> String {
+        guard let ex = effectiveExercises.first(where: { $0.id == exerciseId }),
+              let group = ex.supersetGroup else { return exerciseId }
+        let members = effectiveExercises.filter { $0.supersetGroup == group }
+        let candidates = members.compactMap { m -> (String, Int)? in
+            guard let st = exerciseStates[m.id], st.sets.contains(where: { !$0.isCompleted }) else { return nil }
+            return (m.id, st.sets.filter(\.isCompleted).count)
+        }
+        return candidates.min(by: { $0.1 < $1.1 })?.0 ?? exerciseId
     }
 
     /// The exercise the user is **actively working on** — determined by:
@@ -1409,9 +1432,12 @@ class TrainViewModel {
     private func activeExerciseForDisplay() -> (exerciseId: String, setIndex: Int)? {
         // Prefer the focused exercise if it still has incomplete sets
         if let focusedId = focusedExerciseId,
-           let state = exerciseStates[focusedId],
-           let idx = state.sets.firstIndex(where: { !$0.isCompleted }) {
-            return (focusedId, idx)
+           let focused = exerciseStates[focusedId],
+           focused.sets.contains(where: { !$0.isCompleted }) {
+            let pickId = supersetAlternate(from: focusedId)
+            if let state = exerciseStates[pickId], let idx = state.sets.firstIndex(where: { !$0.isCompleted }) {
+                return (pickId, idx)
+            }
         }
         // Fallback: first exercise in order with an incomplete set
         for exercise in effectiveExercises {
@@ -1436,6 +1462,13 @@ class TrainViewModel {
             LiveActivityManager.shared.end()
             return
         }
+        let workingSets = exerciseStates.values.flatMap { $0.sets }.filter { $0.isCompleted && !$0.isWarmup }
+        let adjustment = RecoveryAdjuster.compute(
+            baseWeight: previousData(for: exercise)?.rawWeightKg ?? exercise.startWeightKg,
+            context: recoveryContext,
+            isAssisted: AssistedExerciseDetector.isAssisted(name: exercise.name)
+        )
+        let adjustPct = Int(((adjustment.multiplier - 1.0) * 100).rounded())
         let set = state.sets[current.setIndex]
         let completedExercises = effectiveExercises.filter { exerciseStates[$0.id]?.allSetsCompleted == true }.count
         let restTimer = RestTimerManager.shared
@@ -1454,7 +1487,14 @@ class TrainViewModel {
             measurementRaw: exercise.measurement.rawValue,
             exerciseProgress: exerciseProgress,
             restEndDate: restEndDate,
-            restTotalSeconds: restTotalSeconds
+            restTotalSeconds: restTotalSeconds,
+            previousWeightKg: previousData(for: exercise)?.rawWeightKg,
+            previousReps: previousData(for: exercise)?.reps,
+            setsCompleted: workingSets.count,
+            volumeKg: workingSets.reduce(0) { $0 + $1.weightKg * Double($1.reps) },
+            adjustPct: adjustPct,
+            isFlareDay: isFlareDay,
+            flareEnabled: appStateRef?.flareEngineEnabled ?? false
         ))
 
         let activityState = PayaSessionActivityAttributes.ContentState(
@@ -1476,11 +1516,225 @@ class TrainViewModel {
 
     /// Logs a completed set from a message sent by the watch app, against
     /// whichever exercise/set is currently next up.
-    func logSetFromWatch(weightKg: Double, reps: Int) {
-        guard isSessionActive, let current = currentIncompleteSet() else { return }
+    func logSetFromWatch(weightKg: Double, reps: Int, context: ModelContext? = nil) {
+        guard isSessionActive,
+              let current = currentIncompleteSet(),
+              let exercise = effectiveExercises.first(where: { $0.id == current.exerciseId }),
+              let before = exerciseStates[current.exerciseId],
+              before.sets.indices.contains(current.setIndex) else { return }
+
+        // PR check must run BEFORE this set is written into the session state.
+        let isWarmup = before.sets[current.setIndex].isWarmup
+        let isPR = !isWarmup && weightKg > 0 && isPersonalRecord(
+            exerciseId: exercise.id, weightKg: weightKg, reps: reps, context: context
+        )
+
         updateWeight(exerciseId: current.exerciseId, setIndex: current.setIndex, weight: weightKg)
         updateReps(exerciseId: current.exerciseId, setIndex: current.setIndex, reps: reps)
         toggleSet(exerciseId: current.exerciseId, setIndex: current.setIndex)
+
+        let meta = WatchSessionManager.shared.lastSetMeta
+        WatchSessionManager.shared.lastSetMeta = (nil, nil)
+        WatchTelemetryStore.append(WatchSetEvent(
+            date: .now, exerciseName: exercise.name, loggedReps: reps,
+            detectedReps: meta.detected, hrRecovery: meta.recovery
+        ))
+
+        // Sets logged on the wrist used to skip the rest timer entirely (only
+        // the phone's own tap path started it), so the watch never showed REST.
+        if !skipsRestTimer(afterExerciseId: exercise.id),
+           let state = exerciseStates[current.exerciseId],
+           state.sets.indices.contains(current.setIndex) {
+            let logged = state.sets[current.setIndex]
+            let smartRest = RestTimerManager.smartRest(
+                for: exercise,
+                history: RestTimerManager.shared.restHistory[exercise.id],
+                currentHR: LiveHRManager.shared.currentBPM,
+                peakHR: RestTimerManager.shared.peakBPM,
+                lastSetRPE: logged.rpe,
+                lastSetWeightKg: logged.weightKg
+            )
+            RestTimerManager.shared.start(
+                seconds: smartRest,
+                exerciseName: exercise.name,
+                sessionColor: Color(hex: selectedDay.colorHex),
+                profile: appStateRef?.profile,
+                exerciseId: exercise.id
+            )
+        }
+
+        if isPR {
+            let w = weightKg.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", weightKg) : String(format: "%.1f", weightKg)
+            WatchSessionManager.shared.latestPR = (UUID().uuidString, "\(exercise.name): \(w) kg × \(reps)")
+        }
+        pushWatchSnapshot()
+    }
+
+    /// Epley estimated 1RM (reps capped at 12 — the formula drifts beyond
+    /// that). A PR needs prior history for the lift; a first-ever log isn't one.
+    private func isPersonalRecord(exerciseId: String, weightKg: Double, reps: Int, context: ModelContext?) -> Bool {
+        guard let context, reps > 0, reps <= 12 else { return false }
+        func e1rm(_ w: Double, _ r: Int) -> Double { w * (1 + Double(r) / 30) }
+        let descriptor = FetchDescriptor<ExerciseLog>(predicate: #Predicate<ExerciseLog> { $0.exerciseId == exerciseId })
+        let logs = (try? context.fetch(descriptor)) ?? []
+        var best = 0.0
+        for log in logs {
+            for s in log.sets where s.isCompleted && s.reps > 0 && s.reps <= 12 { best = max(best, e1rm(s.weightKg, s.reps)) }
+        }
+        if let st = exerciseStates[exerciseId] {
+            for s in st.sets where s.isCompleted && !s.isWarmup && s.reps > 0 && s.reps <= 12 { best = max(best, e1rm(s.weightKg, s.reps)) }
+        }
+        return best > 0 && e1rm(weightKg, reps) > best + 0.01
+    }
+
+    // MARK: Watch: warm-ups + notes
+
+    /// Common ramp (≈50/70/85 % of the first working set for 5/3/2 reps) —
+    /// a coaching convention, not a research-derived prescription. Only added
+    /// to a weighted exercise that hasn't been started or warmed up yet.
+    func addWarmupsFromWatch() {
+        guard isSessionActive,
+              let current = currentIncompleteSet(),
+              var state = exerciseStates[current.exerciseId],
+              state.definition.measurement == .weightedReps,
+              !state.sets.contains(where: { $0.isCompleted || $0.isWarmup }),
+              let working = state.sets.first?.weightKg, working >= 20 else { return }
+        func round25(_ v: Double) -> Double { (v / 2.5).rounded() * 2.5 }
+        let ramp: [(Double, Int)] = [(0.5, 5), (0.7, 3), (0.85, 2)]
+        var warm: [SetState] = []
+        for (pct, reps) in ramp {
+            var s = SetState(setNumber: 0, weightKg: round25(working * pct), reps: reps)
+            s.isWarmup = true
+            s.setType = .warmup
+            warm.append(s)
+        }
+        state.sets = warm + state.sets
+        for i in state.sets.indices { state.sets[i].setNumber = i + 1 }
+        exerciseStates[current.exerciseId] = state
+        pushWatchSnapshot()
+    }
+
+    /// Today's plan for the watch, so it can run the workout with no phone nearby.
+    func watchPlanPayload() -> [[String: Any]] {
+        effectiveExercises.map { ex in
+            [
+                "id": ex.id,
+                "name": ex.name,
+                "sets": exerciseStates[ex.id]?.sets.count ?? ex.sets,
+                "weightKg": suggestedWeight(for: ex),
+                "reps": suggestedReps(for: ex),
+                "measurementRaw": ex.measurement.rawValue,
+                "muscle": ex.muscleGroup,
+            ]
+        }
+    }
+
+    /// Imports a workout the watch ran fully offline. Idempotent by session id.
+    static func importOfflineSession(_ p: [String: Any], context: ModelContext) {
+        guard let sid = p["sessionId"] as? String,
+              let rows = p["sets"] as? [[String: Any]], !rows.isEmpty else { return }
+        let key = "paya_imported_offline_sessions"
+        var seen = UserDefaults.standard.stringArray(forKey: key) ?? []
+        guard !seen.contains(sid) else { return }
+        seen.append(sid)
+        UserDefaults.standard.set(Array(seen.suffix(50)), forKey: key)
+
+        let start = p["start"] as? Date ?? .now
+        let session = TrainingSession(
+            sessionType: p["dayName"] as? String ?? "Workout",
+            date: start,
+            durationMinutes: Int((p["durationSec"] as? Double ?? 0) / 60),
+            isCompleted: true,
+            notes: "Logged on Apple Watch without the phone.",
+            sessionAvgHR: p["avgHR"] as? Int
+        )
+        session.profileId = ActiveProfile.id
+        context.insert(session)
+
+        var order: [String: ExerciseLog] = [:]
+        var idx = 0
+        for row in rows {
+            let exId = row["exerciseId"] as? String ?? UUID().uuidString
+            let log: ExerciseLog
+            if let existing = order[exId] { log = existing } else {
+                log = ExerciseLog(
+                    exerciseId: exId,
+                    exerciseName: row["name"] as? String ?? "Exercise",
+                    orderIndex: idx,
+                    muscleGroup: row["muscle"] as? String ?? ""
+                )
+                context.insert(log)
+                log.session = session
+                order[exId] = log
+                idx += 1
+            }
+            let set = SetLog(
+                setNumber: row["setNumber"] as? Int ?? (log.sets.count + 1),
+                weightKg: row["weightKg"] as? Double ?? 0,
+                reps: row["reps"] as? Int ?? 0,
+                isCompleted: true,
+                rpe: 0, peakHR: nil, avgHR: nil, endHR: nil
+            )
+            context.insert(set)
+            set.exercise = log
+        }
+        try? context.save()
+    }
+
+    // MARK: Supersets (user-created, remembered per training day)
+
+    private func supersetKey() -> String { "paya_superset_pairs_\(selectedDay.code)" }
+
+    /// Re-applies the user's saved pairings for this day on top of the program.
+    private func applySupersetPreferences() {
+        guard let saved = UserDefaults.standard.dictionary(forKey: supersetKey()) as? [String: Int], !saved.isEmpty else { return }
+        for i in effectiveExercises.indices {
+            if let g = saved[effectiveExercises[i].id] { effectiveExercises[i].supersetGroup = g }
+        }
+    }
+
+    func isSupersetWithNext(exerciseId: String) -> Bool {
+        guard let i = effectiveExercises.firstIndex(where: { $0.id == exerciseId }),
+              i + 1 < effectiveExercises.count,
+              let g = effectiveExercises[i].supersetGroup else { return false }
+        return effectiveExercises[i + 1].supersetGroup == g
+    }
+
+    /// Links this exercise with the next one (alternating sets, no rest between
+    /// the pair) or unlinks them. Remembered for this training day.
+    func toggleSupersetWithNext(exerciseId: String) {
+        guard let i = effectiveExercises.firstIndex(where: { $0.id == exerciseId }),
+              i + 1 < effectiveExercises.count else { return }
+        var saved = (UserDefaults.standard.dictionary(forKey: supersetKey()) as? [String: Int]) ?? [:]
+        if isSupersetWithNext(exerciseId: exerciseId) {
+            let g = effectiveExercises[i].supersetGroup
+            effectiveExercises[i].supersetGroup = nil
+            saved[effectiveExercises[i].id] = nil
+            // Drop the partner too if it was only in this pair.
+            if let g, effectiveExercises.filter({ $0.supersetGroup == g }).count == 1,
+               let j = effectiveExercises.firstIndex(where: { $0.supersetGroup == g }) {
+                effectiveExercises[j].supersetGroup = nil
+                saved[effectiveExercises[j].id] = nil
+            }
+        } else {
+            let g = effectiveExercises[i].supersetGroup
+                ?? effectiveExercises[i + 1].supersetGroup
+                ?? ((effectiveExercises.compactMap(\.supersetGroup).max() ?? 0) + 1)
+            effectiveExercises[i].supersetGroup = g
+            effectiveExercises[i + 1].supersetGroup = g
+            saved[effectiveExercises[i].id] = g
+            saved[effectiveExercises[i + 1].id] = g
+        }
+        UserDefaults.standard.set(saved, forKey: supersetKey())
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        if isSessionActive { pushWatchSnapshot() }
+    }
+
+    func appendWatchNote(_ text: String) {
+        let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard isSessionActive, !clean.isEmpty, let current = activeExerciseForDisplay(),
+              let state = exerciseStates[current.exerciseId] else { return }
+        updateNote(exerciseId: current.exerciseId, note: state.note.isEmpty ? clean : state.note + "\n" + clean)
     }
 
     // MARK: - Complete Session
@@ -1516,6 +1770,7 @@ class TrainViewModel {
             sessionTrimpScore: report.trimpScore > 0 ? report.trimpScore : nil,
             hrRecovery60: SessionStrainCalculator.hrRecovery60(samples: samples, intervalSeconds: interval)
         )
+        if session.profileId == nil { session.profileId = ActiveProfile.id }
         context.insert(session)
 
         // Sort exercises by actual completion time so the saved order
@@ -1659,6 +1914,7 @@ class TrainViewModel {
             forCode: snapshot.sessionTypeCode,
             context: context
         )
+        applySupersetPreferences()
 
         // Restore session state
         isSessionActive = true

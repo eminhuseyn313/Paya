@@ -97,12 +97,12 @@ struct ExerciseProgressionCard: View {
                 if let pr {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(selectedExercise?.name.uppercased() ?? "")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                             .tracking(0.5)
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
                             Text(String(format: "%.1f", pr.bestE1RM))
-                                .font(.system(size: 36, weight: .bold))
+                                .font(.pulse(size: 36, weight: .bold))
                                 .foregroundColor(Pulse.textPrimary)
                                 .contentTransition(.numericText())
                             Text("kg e1RM")
@@ -250,7 +250,7 @@ struct PRStat: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
-                .font(.system(size: 9, weight: .semibold))
+                .font(.pulse(size: 9, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -309,7 +309,7 @@ struct RecentPRsCard: View {
                                     .font(.caption.weight(.semibold))
                                     .lineLimit(1)
                                 Text(event.kind.label)
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                             Spacer()
@@ -324,7 +324,7 @@ struct RecentPRsCard: View {
                                         .monospacedDigit()
                                 }
                                 Text(event.date.formatted(.dateTime.day().month(.abbreviated)))
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -389,7 +389,7 @@ struct VolumeLandmarkCard: View {
     private func legendDot(color: String, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(Color(hex: color)).frame(width: 6, height: 6)
-            Text(label).font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 8)).foregroundColor(Pulse.textTertiary)
         }
     }
 }
@@ -404,7 +404,7 @@ private struct VolumeLandmarkRow: View {
                     .font(.caption.weight(.semibold))
                 Spacer()
                 Text("\(mv.sets) sets · \(mv.zone.rawValue)")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.pulse(size: 10, weight: .semibold))
                     .foregroundColor(Color(hex: mv.zone.colorHex))
             }
             GeometryReader { geo in
@@ -457,7 +457,7 @@ struct PlateauCard: View {
                                 Text(flag.exerciseName)
                                     .font(.caption.weight(.semibold))
                                 Text(flag.suggestion)
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(Pulse.textTertiary)
                                     .fixedSize(horizontal: false, vertical: true)
                             }

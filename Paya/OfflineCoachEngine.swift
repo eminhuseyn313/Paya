@@ -35,24 +35,24 @@ struct OfflineCoachCard: View {
                             .fill(Color(hex: s.colorHex).opacity(0.15))
                             .frame(width: 28, height: 28)
                         Image(systemName: s.icon)
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                             .foregroundColor(Color(hex: s.colorHex))
                     }
                     VStack(alignment: .leading, spacing: 1) {
                         Text(s.category.uppercased())
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.pulse(size: 8, weight: .bold))
                             .foregroundColor(Color(hex: s.colorHex))
                         Text(s.title)
                             .font(.caption.weight(.semibold))
                     }
                     Spacer()
                     Image(systemName: "brain.filled.head.profile")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(.secondary)
                 }
 
                 Text(s.message)
-                    .font(.system(size: 11))
+                    .font(.pulse(size: 11))
                     .foregroundColor(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                     .lineSpacing(1.5)
@@ -60,9 +60,9 @@ struct OfflineCoachCard: View {
                 if let source = s.source {
                     HStack(spacing: 3) {
                         Image(systemName: "lightbulb.fill")
-                            .font(.system(size: 8))
+                            .font(.pulse(size: 8))
                         Text(source)
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                     }
                     .foregroundColor(.secondary)
                 }

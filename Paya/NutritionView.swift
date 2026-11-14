@@ -271,10 +271,10 @@ struct NutritionProgressCard: View {
     private func macroStat(label: String, value: String, hex: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                .font(.pulse(size: 13, weight: .bold, design: .monospaced))
                 .foregroundColor(Color(hex: hex))
             Text(label)
-                .font(.system(size: 9, weight: .medium))
+                .font(.pulse(size: 9, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -439,10 +439,10 @@ struct QuickActionChip: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 if let emoji {
-                    Text(emoji).font(.system(size: 14))
+                    Text(emoji).font(.pulse(size: 14))
                 } else if let icon {
                     Image(systemName: icon)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                         .foregroundColor(color)
                 }
                 Text(label)
@@ -919,7 +919,7 @@ struct FoodSearchSheet: View {
                                             .multilineTextAlignment(.leading)
                                         if product.source == "USDA" {
                                             Text("USDA")
-                                                .font(.system(size: 8, weight: .bold))
+                                                .font(.pulse(size: 8, weight: .bold))
                                                 .foregroundColor(Pulse.positive)
                                                 .padding(.horizontal, 5)
                                                 .padding(.vertical, 1)
@@ -940,12 +940,12 @@ struct FoodSearchSheet: View {
                                         HStack(spacing: 6) {
                                             if product.isHighSodium {
                                                 Text("High sodium")
-                                                    .font(.system(size: 9, weight: .bold))
+                                                    .font(.pulse(size: 9, weight: .bold))
                                                     .foregroundColor(Pulse.warning)
                                             }
                                             if product.isHighSugar {
                                                 Text("High sugar")
-                                                    .font(.system(size: 9, weight: .bold))
+                                                    .font(.pulse(size: 9, weight: .bold))
                                                     .foregroundColor(Pulse.warning)
                                             }
                                         }
@@ -1296,7 +1296,7 @@ struct DrinkQuickCard: View {
                         .frame(width: 40, height: 40)
                         .rotationEffect(.degrees(-90))
                     Image(systemName: "drop.fill")
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(Pulse.recovery)
                 }
                 VStack(alignment: .leading, spacing: 2) {
@@ -1325,7 +1325,7 @@ struct DrinkQuickCard: View {
                         ForEach(DrinkType.allCases) { type in
                             Button { selectedDrink = type } label: {
                                 Image(systemName: type.icon)
-                                    .font(.system(size: 11))
+                                    .font(.pulse(size: 11))
                                     .foregroundColor(selectedDrink == type ? Pulse.recovery : .secondary)
                                     .frame(width: 28, height: 28)
                                     .background(selectedDrink == type ? Pulse.recovery.opacity(0.12) : Pulse.surfaceElevatedFallback)
@@ -1338,7 +1338,7 @@ struct DrinkQuickCard: View {
                 ForEach([250, 500], id: \.self) { amount in
                     Button { add(amount) } label: {
                         Text("+\(amount)ml")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.pulse(size: 11, weight: .semibold))
                             .foregroundColor(Pulse.recovery)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 5)

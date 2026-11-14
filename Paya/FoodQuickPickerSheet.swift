@@ -30,7 +30,7 @@ struct FoodQuickPickerSheet: View {
                     } label: {
                         HStack(spacing: 14) {
                             Image(systemName: icon)
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.pulse(size: 18, weight: .semibold))
                                 .foregroundColor(Pulse.nutrition)
                                 .frame(width: 36, height: 36)
                                 .background(Pulse.nutrition.opacity(0.12))

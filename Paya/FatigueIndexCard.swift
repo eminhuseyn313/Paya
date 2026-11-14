@@ -5,7 +5,7 @@ struct FatigueIndexCard: View {
     var sessions: [TrainingSession]
 
     @State private var fatigueScore: Int = 0
-    @State private var trend: FatigueTrend = .stable
+    @State private var trend: FatigueTrend? = nil
     @State private var factors: [FatigueFactor] = []
 
     var body: some View {
@@ -19,7 +19,7 @@ struct FatigueIndexCard: View {
                         .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Text(fatigueLabel)
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
@@ -39,10 +39,10 @@ struct FatigueIndexCard: View {
                             .rotationEffect(.degrees(-90))
                         VStack(spacing: 0) {
                             Text("\(fatigueScore)")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 18, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
                             Text("/100")
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -51,11 +51,11 @@ struct FatigueIndexCard: View {
                         ForEach(factors) { factor in
                             HStack(spacing: 6) {
                                 Image(systemName: factor.icon)
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(factor.color)
                                     .frame(width: 14)
                                 Text(factor.text)
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(Pulse.textPrimary)
                                     .lineLimit(1)
                             }
@@ -63,32 +63,39 @@ struct FatigueIndexCard: View {
                     }
                 }
 
-                HStack(spacing: 6) {
-                    Image(systemName: trend.icon)
-                        .font(.system(size: 9, weight: .bold))
-                    Text(trend.message)
-                        .font(.system(size: 10))
+                if let trend {
+                    HStack(spacing: 6) {
+                        Image(systemName: trend.icon)
+                            .font(.pulse(size: 9, weight: .bold))
+                        Text(trend.message)
+                            .font(.pulse(size: 10))
+                    }
+                    .foregroundColor(trend.color)
+                } else {
+                    // No prior week logged → no trend to claim.
+                    Text("Early estimate · \(thisWeekCountLabel) — trend needs a prior week of sessions")
+                        .font(.pulse(size: 10))
+                        .foregroundColor(Pulse.textTertiary)
                 }
-                .foregroundColor(trend.color)
 
                 Text("Accumulated training stress from volume, frequency, and RPE over the past 7 days. Above 70 suggests a deload may help.")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             } else {
                 // Empty state — no recent sessions
                 HStack {
                     Image(systemName: "battery.75percent")
-                        .foregroundColor(Pulse.positive)
+                        .foregroundColor(Pulse.textTertiary)
                     Text("Fatigue Index")
                         .font(.subheadline.weight(.semibold))
                         .foregroundColor(Pulse.textPrimary)
                     Spacer()
-                    Text("Fresh")
-                        .font(.system(size: 9, weight: .bold))
+                    Text("No data")
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
-                        .background(Pulse.positive)
+                        .background(Pulse.textTertiary)
                         .clipShape(Capsule())
                 }
 
@@ -98,21 +105,18 @@ struct FatigueIndexCard: View {
                             .stroke(Pulse.surfaceFallback, lineWidth: 6)
                             .frame(width: 56, height: 56)
                         VStack(spacing: 0) {
-                            Text("0")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
-                                .foregroundColor(Pulse.positive)
-                            Text("/100")
-                                .font(.system(size: 8))
+                            Text("—")
+                                .font(.pulse(size: 18, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("No accumulated fatigue")
-                            .font(.system(size: 13, weight: .semibold))
+                        Text("No sessions in the last 7 days")
+                            .font(.pulse(size: 13, weight: .semibold))
                             .foregroundColor(Pulse.textPrimary)
-                        Text("Complete training sessions this week to start tracking fatigue accumulation, recovery needs, and deload timing.")
-                            .font(.system(size: 10))
+                        Text("Log a workout to see this — fatigue is estimated from your recent volume, frequency and RPE.")
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -121,6 +125,11 @@ struct FatigueIndexCard: View {
         }
         .payaCard(padding: 14)
         .onAppear { compute() }
+    }
+
+    private var thisWeekCountLabel: String {
+        let n = sessions.filter { $0.isCompleted && $0.date >= Calendar.current.date(byAdding: .day, value: -7, to: Date())! }.count
+        return "\(n) session\(n == 1 ? "" : "s")"
     }
 
     private var fatigueColor: Color {
@@ -189,6 +198,7 @@ struct FatigueIndexCard: View {
         fatigueScore = min(100, Int(score))
         factors = Array(factorList.prefix(4))
 
+        guard !lastWeek.isEmpty else { trend = nil; return }
         let lastWeekScore = computeScore(for: lastWeek)
         if fatigueScore > lastWeekScore + 15 {
             trend = .rising

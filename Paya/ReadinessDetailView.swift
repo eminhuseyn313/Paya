@@ -48,7 +48,7 @@ struct ReadinessDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Readiness")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 ToolbarItem(placement: .topBarLeading) {
@@ -154,7 +154,7 @@ struct ReadinessDetailView: View {
                 .foregroundColor(Pulse.textTertiary)
 
             Text("Each driver is scored against YOUR rolling 30-day baseline via z-score (standard deviations from your mean), not a population average — the same methodology WHOOP's Recovery and Oura's Readiness scores use. Weights: HRV 40%, Resting HR 25%, Sleep 25%, Training Load 10%, Check-in 15%. A flagged symptom caps the band regardless of biometrics.")
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -186,7 +186,7 @@ struct DriverCard: View {
                         .fill(driverColor.opacity(0.15))
                         .frame(width: 36, height: 36)
                     Image(systemName: icon)
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(driverColor)
                 }
                 VStack(alignment: .leading, spacing: 3) {
@@ -223,7 +223,7 @@ struct DriverCard: View {
 
             // Context explanation
             Text(explanation)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -231,7 +231,7 @@ struct DriverCard: View {
             if driver.score < 60 {
                 HStack(spacing: 6) {
                     Image(systemName: "lightbulb.fill")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.nutrition)
                     Text(actionAdvice)
                         .font(.caption)

@@ -54,7 +54,7 @@ struct RetroactiveWorkoutView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Log Past Workout")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 ToolbarItem(placement: .topBarLeading) {
@@ -63,7 +63,7 @@ struct RetroactiveWorkoutView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") { saveSession() }
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.pulse(size: 15, weight: .bold))
                         .foregroundColor(exercises.isEmpty ? Pulse.textTertiary : Pulse.energy)
                         .disabled(exercises.isEmpty)
                 }
@@ -95,10 +95,10 @@ struct RetroactiveWorkoutView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "calendar")
-                    .font(.system(size: 11))
+                    .font(.pulse(size: 11))
                     .foregroundColor(Pulse.energy)
                 Text("DATE")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 11, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -113,7 +113,7 @@ struct RetroactiveWorkoutView: View {
             .labelsHidden()
 
             Text(selectedDate.formatted(.dateTime.weekday(.wide).month(.wide).day()))
-                .font(.system(size: 14, weight: .semibold))
+                .font(.pulse(size: 14, weight: .semibold))
                 .foregroundColor(Pulse.textPrimary)
         }
         .payaCard(padding: 14)
@@ -125,21 +125,21 @@ struct RetroactiveWorkoutView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: "info.circle.fill")
-                    .font(.system(size: 11))
+                    .font(.pulse(size: 11))
                     .foregroundColor(Pulse.recovery)
                 Text("SESSION")
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 11, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textTertiary)
             }
 
             HStack {
                 Text("Duration")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.pulse(size: 14, weight: .medium))
                     .foregroundColor(Pulse.textPrimary)
                 Spacer()
                 Stepper(value: $durationMinutes, in: 10...240, step: 5) {
                     Text("\(durationMinutes) min")
-                        .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                        .font(.pulse(size: 14, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundColor(Pulse.textPrimary)
                 }
                 .tint(Pulse.energy)
@@ -148,12 +148,12 @@ struct RetroactiveWorkoutView: View {
 
             HStack {
                 Text("Notes")
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.pulse(size: 14, weight: .medium))
                     .foregroundColor(Pulse.textPrimary)
                 Spacer()
             }
             TextField("Optional session notes", text: $sessionNotes)
-                .font(.system(size: 13))
+                .font(.pulse(size: 13))
                 .foregroundColor(Pulse.textPrimary)
                 .padding(10)
                 .background(Pulse.surfaceElevatedFallback)
@@ -169,10 +169,10 @@ struct RetroactiveWorkoutView: View {
             if !exercises.isEmpty {
                 HStack(spacing: 6) {
                     Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(Pulse.energy)
                     Text("EXERCISES (\(exercises.count))")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 11, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textTertiary)
                     Spacer()
                 }
@@ -193,9 +193,9 @@ struct RetroactiveWorkoutView: View {
         Button { showExercisePicker = true } label: {
             HStack(spacing: 8) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 16))
+                    .font(.pulse(size: 16))
                 Text("Add Exercise")
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.pulse(size: 15, weight: .semibold))
             }
             .foregroundColor(Pulse.energy)
             .frame(maxWidth: .infinity)
@@ -212,9 +212,9 @@ struct RetroactiveWorkoutView: View {
         Button { saveSession() } label: {
             HStack(spacing: 8) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 18))
+                    .font(.pulse(size: 18))
                 Text("Save \(exercises.count) Exercise\(exercises.count == 1 ? "" : "s")")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.pulse(size: 16, weight: .bold))
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
@@ -240,16 +240,16 @@ struct RetroactiveWorkoutView: View {
     private var savedOverlay: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 56))
+                .font(.pulse(size: 56))
                 .foregroundColor(Pulse.positive)
                 .shadow(color: Pulse.positive.opacity(0.3), radius: 16)
 
             Text("Workout Saved!")
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(.pulse(size: 20, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textPrimary)
 
             Text(selectedDate.formatted(.dateTime.month(.wide).day().year()))
-                .font(.system(size: 14, weight: .medium))
+                .font(.pulse(size: 14, weight: .medium))
                 .foregroundColor(Pulse.textSecondary)
         }
         .padding(40)
@@ -274,6 +274,7 @@ struct RetroactiveWorkoutView: View {
             notes: sessionNotes
         )
         session.sourceRaw = "manual"
+        if session.profileId == nil { session.profileId = ActiveProfile.id }
         modelContext.insert(session)
 
         for (orderIdx, entry) in exercises.enumerated() {
@@ -352,18 +353,18 @@ struct RetroExerciseCard: View {
                 HStack(spacing: 10) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(exercise.name)
-                            .font(.system(size: 14, weight: .bold))
+                            .font(.pulse(size: 14, weight: .bold))
                             .foregroundColor(Pulse.textPrimary)
                         if !exercise.muscleGroup.isEmpty {
                             Text(exercise.muscleGroup)
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.pulse(size: 11, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
                     Spacer()
 
                     Text("\(exercise.sets.count) sets")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.pulse(size: 11, weight: .semibold))
                         .foregroundColor(Pulse.energy)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -371,7 +372,7 @@ struct RetroExerciseCard: View {
                         .clipShape(Capsule())
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -389,7 +390,7 @@ struct RetroExerciseCard: View {
                         Text("REPS")
                             .frame(width: 60, alignment: .center)
                     }
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
 
                     ForEach($exercise.sets) { $set in
@@ -399,7 +400,7 @@ struct RetroExerciseCard: View {
 
                 // Note field
                 TextField("Note (optional)", text: $exercise.note)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(Pulse.textSecondary)
                     .padding(8)
                     .background(Pulse.surfaceElevatedFallback)
@@ -417,9 +418,9 @@ struct RetroExerciseCard: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "plus")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                             Text("Add Set")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.pulse(size: 11, weight: .semibold))
                         }
                         .foregroundColor(Pulse.energy)
                         .padding(.horizontal, 12)
@@ -433,9 +434,9 @@ struct RetroExerciseCard: View {
                     Button(action: onDelete) {
                         HStack(spacing: 4) {
                             Image(systemName: "trash")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                             Text("Remove")
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.pulse(size: 11, weight: .medium))
                         }
                         .foregroundColor(Pulse.critical)
                     }
@@ -454,14 +455,14 @@ struct RetroSetRow: View {
     var body: some View {
         HStack {
             Text("\(set.setNumber)")
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.pulse(size: 13, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 30, alignment: .leading)
 
             TextField("0", value: $set.weightKg, format: .number)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.center)
-                .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                .font(.pulse(size: 14, weight: .bold, design: .rounded).monospacedDigit())
                 .foregroundColor(Pulse.textPrimary)
                 .padding(.vertical, 8)
                 .background(Pulse.surfaceElevatedFallback)
@@ -470,7 +471,7 @@ struct RetroSetRow: View {
             TextField("0", value: $set.reps, format: .number)
                 .keyboardType(.numberPad)
                 .multilineTextAlignment(.center)
-                .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                .font(.pulse(size: 14, weight: .bold, design: .rounded).monospacedDigit())
                 .foregroundColor(Pulse.textPrimary)
                 .frame(width: 60)
                 .padding(.vertical, 8)
@@ -512,10 +513,10 @@ struct RetroExercisePickerView: View {
                         HStack(spacing: 10) {
                             VStack(spacing: 8) {
                                 TextField("Exercise name", text: $customName)
-                                    .font(.system(size: 14, weight: .medium))
+                                    .font(.pulse(size: 14, weight: .medium))
                                     .foregroundColor(Pulse.textPrimary)
                                 TextField("Muscle group", text: $customMuscle)
-                                    .font(.system(size: 12))
+                                    .font(.pulse(size: 12))
                                     .foregroundColor(Pulse.textSecondary)
                             }
                             Button {
@@ -524,7 +525,7 @@ struct RetroExercisePickerView: View {
                                 dismiss()
                             } label: {
                                 Text("Add")
-                                    .font(.system(size: 13, weight: .bold))
+                                    .font(.pulse(size: 13, weight: .bold))
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 16)
                                     .padding(.vertical, 8)
@@ -547,10 +548,10 @@ struct RetroExercisePickerView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(exercise.name)
-                                            .font(.system(size: 14, weight: .medium))
+                                            .font(.pulse(size: 14, weight: .medium))
                                             .foregroundColor(Pulse.textPrimary)
                                         Text(exercise.muscleGroup)
-                                            .font(.system(size: 11))
+                                            .font(.pulse(size: 11))
                                             .foregroundColor(Pulse.textTertiary)
                                     }
                                     Spacer()

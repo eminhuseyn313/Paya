@@ -166,12 +166,12 @@ struct ProfileEditorView: View {
                                     .fill(profile.color.opacity(0.15))
                                     .frame(width: 80, height: 80)
                                 Text(profile.initials)
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 28, weight: .bold, design: .rounded))
                                     .foregroundColor(profile.color)
                             }
                             .shadow(color: profile.color.opacity(0.2), radius: 16)
                             Text(profile.name.isEmpty ? "New Profile" : profile.name)
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 20, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
                         }
                         .padding(.top, 12)
@@ -222,9 +222,9 @@ struct ProfileEditorView: View {
                             } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: "arrow.triangle.2.circlepath")
-                                        .font(.system(size: 11))
+                                        .font(.pulse(size: 11))
                                     Text("Recompute targets")
-                                        .font(.system(size: 13, weight: .semibold))
+                                        .font(.pulse(size: 13, weight: .semibold))
                                 }
                                 .foregroundColor(Pulse.energy)
                                 .frame(maxWidth: .infinity)
@@ -239,7 +239,7 @@ struct ProfileEditorView: View {
                         PulseEditorSection(title: "Condition Tracking", icon: "heart.text.clipboard", color: Pulse.vitals) {
                             Toggle(isOn: $profile.hasInflammatoryCondition) {
                                 Text("Chronic condition")
-                                    .font(.system(size: 14, weight: .medium))
+                                    .font(.pulse(size: 14, weight: .medium))
                                     .foregroundColor(Pulse.textPrimary)
                             }
                             .tint(Pulse.vitals)
@@ -257,7 +257,7 @@ struct ProfileEditorView: View {
                             }
 
                             Text("Enables flare-risk detection and flare-day load reductions — watches HRV, sleep, joint pain across arthritis, lupus, fibromyalgia, ME/CFS, and more.")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                         }
 
@@ -280,7 +280,7 @@ struct ProfileEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Edit Profile")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -289,7 +289,7 @@ struct ProfileEditorView: View {
                         onSaved()
                         dismiss()
                     }
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.pulse(size: 15, weight: .bold))
                     .foregroundColor(profile.color)
                 }
             }
@@ -310,10 +310,10 @@ private struct PulseEditorSection<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 11))
+                    .font(.pulse(size: 11))
                     .foregroundColor(color)
                 Text(title.uppercased())
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 11, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textTertiary)
             }
             content()
@@ -329,11 +329,11 @@ private struct PulseTextField: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.system(size: 14, weight: .medium))
+                .font(.pulse(size: 14, weight: .medium))
                 .foregroundColor(Pulse.textPrimary)
             Spacer()
             TextField(label, text: $text)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.pulse(size: 14, weight: .semibold))
                 .foregroundColor(Pulse.textPrimary)
                 .multilineTextAlignment(.trailing)
         }
@@ -348,17 +348,17 @@ private struct PulseNumberRow: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.system(size: 14, weight: .medium))
+                .font(.pulse(size: 14, weight: .medium))
                 .foregroundColor(Pulse.textPrimary)
             Spacer()
             TextField(unit, value: $value, format: .number)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
-                .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                .font(.pulse(size: 14, weight: .bold, design: .rounded).monospacedDigit())
                 .foregroundColor(Pulse.textPrimary)
                 .frame(width: 70)
             Text(unit)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -374,11 +374,11 @@ private struct PulseStepperRow: View {
         Stepper(value: $value, in: range) {
             HStack {
                 Text(label)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.pulse(size: 14, weight: .medium))
                     .foregroundColor(Pulse.textPrimary)
                 Spacer()
                 Text("\(value) \(unit)")
-                    .font(.system(size: 14, weight: .bold, design: .rounded).monospacedDigit())
+                    .font(.pulse(size: 14, weight: .bold, design: .rounded).monospacedDigit())
                     .foregroundColor(Pulse.textPrimary)
             }
         }
@@ -398,7 +398,7 @@ private struct PulsePickerRow: View {
             }
         } label: {
             Text(label)
-                .font(.system(size: 14, weight: .medium))
+                .font(.pulse(size: 14, weight: .medium))
                 .foregroundColor(Pulse.textPrimary)
         }
         .tint(Pulse.hydration)
@@ -413,10 +413,10 @@ private struct PulseTargetPill: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded).monospacedDigit())
+                .font(.pulse(size: 16, weight: .bold, design: .rounded).monospacedDigit())
                 .foregroundColor(color)
             Text(label)
-                .font(.system(size: 9, weight: .medium))
+                .font(.pulse(size: 9, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)

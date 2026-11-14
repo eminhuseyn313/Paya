@@ -76,7 +76,7 @@ struct TrainingCoachView: View {
                     if profile.cachedCoachRecommendation == nil && !isGenerating {
                         VStack(spacing: 10) {
                             Image(systemName: "brain.head.profile")
-                                .font(.system(size: 36))
+                                .font(.pulse(size: 36))
                                 .foregroundColor(Pulse.hydration)
                             Text("Reads your stalled lifts, weekly volume per muscle, and deload status — grounded in the same data driving the rest of the app.")
                                 .font(.subheadline)

@@ -45,7 +45,7 @@ struct QuickHydrationCard: View {
                         .rotationEffect(.degrees(-90))
                         .animation(.spring(response: 0.4), value: progress)
                     Image(systemName: "drop.fill")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Pulse.recovery)
                 }
 
@@ -70,7 +70,7 @@ struct QuickHydrationCard: View {
                     withAnimation(.spring(response: 0.3)) { expanded.toggle() }
                 } label: {
                     Image(systemName: expanded ? "chevron.up" : "ellipsis")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.pulse(size: 12, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                         .frame(width: 28, height: 28)
                         .background(Pulse.surfaceElevatedFallback)
@@ -89,9 +89,9 @@ struct QuickHydrationCard: View {
                                 } label: {
                                     HStack(spacing: 4) {
                                         Image(systemName: type.icon)
-                                            .font(.system(size: 10))
+                                            .font(.pulse(size: 10))
                                         Text(type.displayName)
-                                            .font(.system(size: 11, weight: selectedDrink == type ? .bold : .medium))
+                                            .font(.pulse(size: 11, weight: selectedDrink == type ? .bold : .medium))
                                     }
                                     .foregroundColor(selectedDrink == type ? .white : Color(hex: type.colorHex))
                                     .padding(.horizontal, 10)
@@ -114,9 +114,9 @@ struct QuickHydrationCard: View {
                             Button { add(amount) } label: {
                                 HStack(spacing: 3) {
                                     Image(systemName: "plus.circle.fill")
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                     Text("\(amount)ml")
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .font(.pulse(size: 12, weight: .semibold))
                                 }
                                 .foregroundColor(btnColor)
                                 .frame(maxWidth: .infinity)
@@ -130,7 +130,7 @@ struct QuickHydrationCard: View {
                             DrinkManagementView()
                         } label: {
                             Image(systemName: "list.bullet")
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.pulse(size: 12, weight: .semibold))
                                 .foregroundColor(Pulse.textTertiary)
                                 .frame(width: 36, height: 30)
                                 .background(Pulse.surfaceElevatedFallback)
@@ -148,7 +148,7 @@ struct QuickHydrationCard: View {
     private func quickAddButton(ml: Int, label: String) -> some View {
         Button { add(ml) } label: {
             Text(label)
-                .font(.system(size: 11, weight: .bold))
+                .font(.pulse(size: 11, weight: .bold))
                 .foregroundColor(Pulse.recovery)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)

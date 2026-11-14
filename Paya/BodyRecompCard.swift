@@ -35,7 +35,7 @@ struct BodyRecompCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text(a.statusLabel)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
@@ -89,35 +89,35 @@ struct BodyRecompCard: View {
                         .chartXAxis {
                             AxisMarks {
                                 AxisValueLabel()
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                             }
                         }
                         .chartYAxis {
                             AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                                 AxisValueLabel()
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                             }
                         }
 
                         HStack(spacing: 12) {
                             HStack(spacing: 3) {
                                 Circle().fill(Pulse.nutrition).frame(width: 5, height: 5)
-                                Text("Weight").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
+                                Text("Weight").font(.pulse(size: 8)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
                                 Circle().fill(Pulse.hydration).frame(width: 5, height: 5)
-                                Text("Est. Lean Mass").font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
+                                Text("Est. Lean Mass").font(.pulse(size: 8)).foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
 
                     Text(a.insight)
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     Text("Estimate based on Katch-McArdle proxy: strength gains with stable weight suggest lean tissue accretion (Schoenfeld 2010). Not a DEXA replacement.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -129,10 +129,10 @@ struct BodyRecompCard: View {
     private func recompMetric(title: String, value: String, color: Color) -> some View {
         VStack(spacing: 3) {
             Text(value)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.pulse(size: 14, weight: .bold, design: .rounded))
                 .foregroundColor(color)
             Text(title)
-                .font(.system(size: 8, weight: .medium))
+                .font(.pulse(size: 8, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)

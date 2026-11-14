@@ -94,7 +94,7 @@ struct PulseNutritionView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Nutrition")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
             }
@@ -181,7 +181,9 @@ struct PulseNutritionView: View {
         let protein = vm.todaysLog?.totalProtein ?? 0
         let proteinTarget = vm.todaysLog?.proteinTarget ?? appState.profile.proteinTargetG
         let calories = vm.todaysLog?.totalCalories ?? 0
-        let calorieTarget = vm.todaysLog?.calorieTarget ?? 2200
+        // Fall back to the user's own configured target, never a literal 2200.
+        let calorieTarget = vm.todaysLog?.calorieTarget
+            ?? (appState.isTrainingDay ? appState.profile.trainingDayCalories : appState.profile.restDayCalories)
 
         return HStack(spacing: 24) {
             // Protein ring
@@ -196,18 +198,18 @@ struct PulseNutritionView: View {
                     )
                     VStack(spacing: 2) {
                         Text("\(Int(protein))")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                             .animation(Pulse.Motion.standard, value: Int(protein))
                         Text("/ \(Int(proteinTarget))g")
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.pulse(size: 10, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 Text("Protein")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.pulse(size: 12, weight: .semibold))
                     .foregroundColor(Pulse.nutrition)
             }
 
@@ -223,18 +225,18 @@ struct PulseNutritionView: View {
                     )
                     VStack(spacing: 2) {
                         Text("\(Int(calories))")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                             .animation(Pulse.Motion.standard, value: Int(calories))
                         Text("/ \(Int(calorieTarget))")
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.pulse(size: 10, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
                 Text("Calories")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.pulse(size: 12, weight: .semibold))
                     .foregroundColor(Pulse.energy)
             }
         }
@@ -249,6 +251,7 @@ struct PulseNutritionView: View {
 
     private var magicInputBar: some View {
         VStack(spacing: 12) {
+            if FeatureFlags.externalAI {
             // Primary: Voice log
             Button { showDescribeFood = true } label: {
                 HStack(spacing: 12) {
@@ -257,31 +260,34 @@ struct PulseNutritionView: View {
                             .fill(Pulse.ai.opacity(0.15))
                             .frame(width: 44, height: 44)
                         Image(systemName: "mic.fill")
-                            .font(.system(size: 18))
+                            .font(.pulse(size: 18))
                             .foregroundColor(Pulse.ai)
                     }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Voice log")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 15, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                         Text("\"I had two eggs and toast\" — we estimate the rest")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.pulse(size: 11, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                             .lineLimit(1)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .pulseSurfaceGlow(color: Pulse.ai, padding: 14)
             }
             .buttonStyle(PulsePress())
+            }
 
             // Secondary: Quick action chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    PulseChip(icon: "camera.fill", label: "Photo", color: Pulse.nutrition) { showPhotoEstimate = true }
+                    if FeatureFlags.externalAI {
+                        PulseChip(icon: "camera.fill", label: "Photo", color: Pulse.nutrition) { showPhotoEstimate = true }
+                    }
                     PulseChip(icon: "barcode.viewfinder", label: "Scan", color: Pulse.energy) { vm.showBarcodeScanner = true }
                     PulseChip(icon: "doc.text.viewfinder", label: "Label", color: Pulse.recovery) { showLabelScanner = true }
                     PulseChip(icon: "magnifyingglass", label: "Search", color: Pulse.hydration) { vm.showSearchSheet = true }
@@ -301,7 +307,7 @@ struct PulseNutritionView: View {
                     UISelectionFeedbackGenerator().selectionChanged()
                 } label: {
                     Text(s.rawValue)
-                        .font(.system(size: 13, weight: section == s ? .bold : .medium))
+                        .font(.pulse(size: 13, weight: section == s ? .bold : .medium))
                         .foregroundColor(section == s ? Pulse.nutrition : Pulse.textTertiary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
@@ -326,10 +332,10 @@ struct PulseNutritionView: View {
                     .tint(Pulse.nutrition)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Looking up product…")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                         .foregroundColor(Pulse.textPrimary)
                     Text("Scanning database")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.pulse(size: 11, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
@@ -340,10 +346,10 @@ struct PulseNutritionView: View {
         if let error = vm.lookupError {
             HStack(spacing: 10) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 14))
+                    .font(.pulse(size: 14))
                     .foregroundColor(Pulse.warning)
                 Text(error)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.pulse(size: 12, weight: .medium))
                     .foregroundColor(Pulse.warning)
             }
             .padding(12)
@@ -401,7 +407,9 @@ struct PulseNutritionView: View {
             SymptomDietCard(profile: profile, onOpen: { showSymptomDiet = true })
         }
         MealSuggestionCard(vm: vm, dietPreference: lifestyleProfile?.dietPreference ?? .omnivore, modelContext: modelContext)
-        AISuggestionCard(vm: vm, apiKey: appState.anthropicAPIKey, profile: appState.profile)
-            .requiresPro()
+        if FeatureFlags.externalAI {
+            AISuggestionCard(vm: vm, apiKey: appState.anthropicAPIKey, profile: appState.profile)
+                .requiresPro()
+        }
     }
 }

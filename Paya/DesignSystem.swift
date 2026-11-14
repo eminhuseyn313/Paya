@@ -119,7 +119,7 @@ struct HeroNumberText: View {
 
     var body: some View {
         Text(value)
-            .font(.system(size: size, weight: .bold, design: .rounded))
+            .font(.pulse(size: size, weight: .bold, design: .rounded))
             .foregroundColor(color)
             .monospacedDigit()
             .contentTransition(.numericText())
@@ -142,7 +142,7 @@ struct PillPicker<T: Hashable & CaseIterable & RawRepresentable>: View where T.R
                         withAnimation(PayaAnimation.tierTransition) { selection = item }
                     } label: {
                         Text(item.rawValue)
-                            .font(.system(size: 13, weight: selection == item ? .bold : .medium))
+                            .font(.pulse(size: 13, weight: selection == item ? .bold : .medium))
                             .foregroundColor(selection == item ? .white : .primary)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 7)
@@ -171,17 +171,17 @@ struct SummaryStatCell: View {
         Button(action: { action?() }) {
             VStack(spacing: 5) {
                 Image(systemName: icon)
-                    .font(.system(size: 11))
+                    .font(.pulse(size: 11))
                     .foregroundColor(color)
                 Text(value)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 18, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .foregroundColor(.primary)
                 Text(label)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(.secondary)
                     .lineLimit(1)
             }
@@ -210,24 +210,24 @@ struct ContextCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.pulse(size: 12, weight: .semibold))
                     .foregroundColor(iconColor)
                     .frame(width: 26, height: 26)
                     .background(iconColor.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 7))
                 Text(title)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.pulse(size: 14, weight: .semibold))
                 Spacer()
                 if let actionLabel = actionLabel, let action = action {
                     Button(action: action) {
                         Text(actionLabel)
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.pulse(size: 11, weight: .bold))
                             .foregroundColor(PayaColor.primary)
                     }
                 }
             }
             Text(body_text)
-                .font(.system(size: 13))
+                .font(.pulse(size: 13))
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }

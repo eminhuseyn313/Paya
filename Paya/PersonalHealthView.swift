@@ -455,7 +455,7 @@ struct BodySection: View {
                             AxisValueLabel {
                                 if let h = val.as(Int.self) {
                                     Text(h == 0 ? "12A" : h == 12 ? "12P" : h < 12 ? "\(h)A" : "\(h-12)P")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                 }
                             }
                         }
@@ -473,7 +473,7 @@ struct BodySection: View {
                             .fill(Pulse.ai.opacity(0.12))
                             .frame(width: 40, height: 40)
                         Image(systemName: "moon.fill")
-                            .font(.system(size: 16))
+                            .font(.pulse(size: 16))
                             .foregroundColor(Pulse.ai)
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -488,7 +488,7 @@ struct BodySection: View {
                     if let onset = overview.sleepOnsetHour {
                         VStack(alignment: .trailing, spacing: 2) {
                             Text("Bedtime")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                             let hr = Int(onset) % 24
                             let mn = Int((onset - Double(Int(onset))) * 60)
@@ -506,7 +506,7 @@ struct BodySection: View {
                             .fill(Pulse.ai.opacity(0.12))
                             .frame(width: 40, height: 40)
                         Image(systemName: "moon.fill")
-                            .font(.system(size: 16))
+                            .font(.pulse(size: 16))
                             .foregroundColor(Pulse.ai)
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -561,7 +561,7 @@ struct ActivitySection: View {
                             AxisValueLabel {
                                 if let h = val.as(Int.self) {
                                     Text(h == 0 ? "12A" : h == 12 ? "12P" : h < 12 ? "\(h)A" : "\(h-12)P")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                 }
                             }
                         }
@@ -579,7 +579,7 @@ struct ActivitySection: View {
                             .fill(Pulse.warning.opacity(0.12))
                             .frame(width: 36, height: 36)
                         Image(systemName: "sun.max.fill")
-                            .font(.system(size: 14))
+                            .font(.pulse(size: 14))
                             .foregroundColor(Pulse.warning)
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -650,7 +650,7 @@ struct EnvironmentSection: View {
                             AxisValueLabel {
                                 if let h = val.as(Int.self) {
                                     Text(h == 0 ? "12A" : h == 12 ? "12P" : h < 12 ? "\(h)A" : "\(h-12)P")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                 }
                             }
                         }
@@ -664,13 +664,13 @@ struct EnvironmentSection: View {
                             ForEach(weatherHours.filter { [6,8,10,12,14,16,18,20].contains($0.hour) }, id: \.hour) { w in
                                 VStack(spacing: 2) {
                                     Image(systemName: w.icon)
-                                        .font(.system(size: 11))
+                                        .font(.pulse(size: 11))
                                         .foregroundColor(w.sunny ? Pulse.warning : .secondary)
                                     Text("\(Int(w.temp))°")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                         .foregroundColor(Pulse.textTertiary)
                                     Text(hourLabel(w.hour))
-                                        .font(.system(size: 8))
+                                        .font(.pulse(size: 8))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                                 .frame(width: 36)
@@ -708,7 +708,7 @@ struct EnvironmentSection: View {
                             AxisValueLabel {
                                 if let h = val.as(Int.self) {
                                     Text(h == 0 ? "12A" : h == 12 ? "12P" : h < 12 ? "\(h)A" : "\(h-12)P")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                 }
                             }
                         }
@@ -777,16 +777,16 @@ struct WeeklyPatternsCard: View {
                     VStack(spacing: 3) {
                         if let sleep = day.sleepHours {
                             Text(String(format: "%.1fh", sleep))
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .foregroundColor(Pulse.ai)
                         } else {
                             Text("—")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         if let energy = day.checkInEnergy {
                             Image(systemName: energy >= 3 ? "bolt.fill" : "bolt.slash")
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                                 .foregroundColor(energy >= 3 ? Pulse.warning : .secondary)
                         }
                     }
@@ -917,9 +917,9 @@ struct DataChip: View {
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
             Text(text)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
         }
         .foregroundColor(Color(hex: color))
         .padding(.horizontal, 6)

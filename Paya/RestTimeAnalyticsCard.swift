@@ -19,7 +19,7 @@ struct RestTimeAnalyticsCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("Avg \(overallAvg)s")
-                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 10, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.hydration)
                     }
 
@@ -36,7 +36,7 @@ struct RestTimeAnalyticsCard: View {
                         .cornerRadius(4)
                         .annotation(position: .trailing, spacing: 4) {
                             Text("\(item.avgRestSeconds)s")
-                                .font(.system(size: 8, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 8, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -44,13 +44,13 @@ struct RestTimeAnalyticsCard: View {
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 4)) {
                             AxisValueLabel()
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
                     .chartYAxis {
                         AxisMarks {
                             AxisValueLabel()
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                         }
                     }
 
@@ -61,7 +61,7 @@ struct RestTimeAnalyticsCard: View {
                     }
 
                     Text("Average rest between sets per exercise over your last 10 sessions. Compounds typically need 2-3 min, isolations 60-90s.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
@@ -74,7 +74,7 @@ struct RestTimeAnalyticsCard: View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
             Text(label)
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

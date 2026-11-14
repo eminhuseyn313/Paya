@@ -91,7 +91,7 @@ struct StatusCard: View {
                     .fill(statusColor.opacity(0.15))
                     .frame(width: 80, height: 80)
                 Image(systemName: "heart.fill")
-                    .font(.system(size: 34))
+                    .font(.pulse(size: 34))
                     .foregroundColor(statusColor)
             }
             Text(statusText)
@@ -134,7 +134,7 @@ struct LiveHRDetailsCard: View {
                         value: pulse
                     )
                 Text("\(hr.currentBPM ?? 0)")
-                    .font(.system(size: 56, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 56, weight: .bold, design: .rounded))
                     .monospacedDigit()
                 VStack(alignment: .leading, spacing: 0) {
                     Text("BPM")

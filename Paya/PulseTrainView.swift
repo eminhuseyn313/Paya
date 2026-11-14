@@ -122,9 +122,9 @@ struct PulseTrainView: View {
                                     Button { showAddExerciseForToday = true } label: {
                                         HStack(spacing: 8) {
                                             Image(systemName: "plus.circle.fill")
-                                                .font(.system(size: 16))
+                                                .font(.pulse(size: 16))
                                             Text("Add exercise")
-                                                .font(.system(size: 14, weight: .semibold))
+                                                .font(.pulse(size: 14, weight: .semibold))
                                         }
                                         .foregroundColor(Pulse.energy)
                                         .frame(maxWidth: .infinity)
@@ -168,13 +168,13 @@ struct PulseTrainView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Train")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showProgramCheckup = true } label: {
                         Image(systemName: "wand.and.stars")
-                            .font(.system(size: 16))
+                            .font(.pulse(size: 16))
                             .foregroundColor(Pulse.textSecondary)
                             .frame(width: 36, height: 36)
                             .background(Pulse.surfaceFallback)
@@ -205,7 +205,7 @@ struct PulseTrainView: View {
                         .disabled(vm?.isSessionActive == true)
                     } label: {
                         Image(systemName: "ellipsis.circle")
-                            .font(.system(size: 16))
+                            .font(.pulse(size: 16))
                             .foregroundColor(Pulse.textSecondary)
                             .frame(width: 36, height: 36)
                             .background(Pulse.surfaceFallback)
@@ -217,7 +217,7 @@ struct PulseTrainView: View {
                         Button { showFlareToggle = true } label: {
                             Image(systemName: appState.isFlareDay ? "exclamationmark.triangle.fill" : "exclamationmark.triangle")
                                 .foregroundColor(appState.isFlareDay ? Pulse.warning : Pulse.textTertiary)
-                                .font(.system(size: 14))
+                                .font(.pulse(size: 14))
                                 .frame(width: 36, height: 36)
                                 .background(Pulse.surfaceFallback)
                                 .clipShape(Circle())
@@ -330,8 +330,23 @@ struct PulseTrainView: View {
             }
             if coachProfile == nil { coachProfile = ProfileStore.current(context: modelContext) }
             hasTodaysMobilityCheckIn = MobilityStore.todaysCheckIn(context: modelContext) != nil
-            WatchSessionManager.shared.onSetLogged = { [weak vm] w, r in vm?.logSetFromWatch(weightKg: w, reps: r) }
+            WatchSessionManager.shared.onSetLogged = { [weak vm] w, r in vm?.logSetFromWatch(weightKg: w, reps: r, context: modelContext) }
+            if let vm { WatchSessionManager.shared.pushPlan(dayName: vm.selectedDay.name, colorHex: vm.selectedDay.colorHex, exercises: vm.watchPlanPayload()) }
+            WatchSessionManager.shared.onAddWarmupsRequested = { [weak vm] in vm?.addWarmupsFromWatch() }
+            WatchSessionManager.shared.onNoteReceived = { [weak vm] text in vm?.appendWatchNote(text) }
+            WatchSessionManager.shared.pushPreferences(prefersLbs: appState.profile.prefersLbs)
             WatchSessionManager.shared.onSkipRestRequested = { RestTimerManager.shared.skip() }
+            WatchSessionManager.shared.onFlareDayRequested = { [weak vm] value in
+                guard appState.flareEngineEnabled else { return }
+                appState.isFlareDay = value
+                vm?.updateFlareDay(value)
+                vm?.pushWatchSnapshot()
+            }
+            WatchSessionManager.shared.onStartSessionRequested = { [weak vm] in
+                guard let vm, !vm.isSessionActive else { return false }
+                vm.startSession(appState: appState)
+                return true
+            }
             WatchSessionManager.shared.onEndSessionRequested = { [weak vm] in
                 guard let vm, vm.isSessionActive else { return }
                 vm.completeSession(context: modelContext)
@@ -345,6 +360,7 @@ struct PulseTrainView: View {
         .onReceive(timer) { _ in sessionDurationTicker += 1 }
         .onChange(of: appState.dataRefreshTrigger) { _, _ in
             vm?.reloadDays(context: modelContext)
+            if let vm { WatchSessionManager.shared.pushPlan(dayName: vm.selectedDay.name, colorHex: vm.selectedDay.colorHex, exercises: vm.watchPlanPayload()) }
             Task { await vm?.loadRecoveryContext(context: modelContext, appState: appState) }
         }
     }
@@ -386,9 +402,9 @@ struct PulseTrainView: View {
                     } label: {
                         VStack(spacing: 3) {
                             Text(day.code)
-                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 16, weight: .bold, design: .rounded))
                             Text(day.name.split(separator: " ").first.map(String.init) ?? day.name)
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .lineLimit(1)
                         }
                         .frame(width: 60, height: 52)
@@ -426,10 +442,10 @@ struct PulseTrainView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(vm.selectedDay.name)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 22, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                     Text(vm.selectedDay.focus)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.pulse(size: 13, weight: .medium))
                         .foregroundColor(vm.selectedDay.color)
                 }
 
@@ -451,7 +467,7 @@ struct PulseTrainView: View {
                     HStack(spacing: 6) {
                         ForEach(muscleGroups, id: \.self) { group in
                             Text(group)
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                                 .foregroundColor(vm.selectedDay.color)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
@@ -461,8 +477,8 @@ struct PulseTrainView: View {
 
                         if FocusModeManager.shared.isEnabled {
                             HStack(spacing: 4) {
-                                Image(systemName: "moon.fill").font(.system(size: 8))
-                                Text("Focus").font(.system(size: 10, weight: .semibold))
+                                Image(systemName: "moon.fill").font(.pulse(size: 8))
+                                Text("Focus").font(.pulse(size: 10, weight: .semibold))
                             }
                             .foregroundColor(Pulse.ai)
                             .padding(.horizontal, 10)
@@ -478,10 +494,10 @@ struct PulseTrainView: View {
             if appState.flareEngineEnabled && appState.isFlareDay && !appState.flareWarningText.isEmpty {
                 HStack(spacing: 6) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.warning)
                     Text(appState.flareWarningText)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.pulse(size: 11, weight: .semibold))
                         .foregroundColor(Pulse.warning)
                         .lineLimit(1)
                 }
@@ -495,14 +511,14 @@ struct PulseTrainView: View {
             if let glucoseAlert = vm.preWorkoutGlucoseAlert, glucoseAlert.level != .optimal {
                 HStack(spacing: 10) {
                     Image(systemName: glucoseAlert.level == .low ? "exclamationmark.triangle.fill" : "bolt.trianglebadge.exclamationmark.fill")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.pulse(size: 14, weight: .bold))
                         .foregroundColor(glucoseAlert.level == .low ? Pulse.warning : Pulse.critical)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(glucoseAlert.level == .low ? "Low glucose" : "High glucose")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                             .foregroundColor(Pulse.textPrimary)
                         Text(glucoseAlert.message)
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.pulse(size: 10, weight: .medium))
                             .foregroundColor(Pulse.textSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -524,10 +540,10 @@ struct PulseTrainView: View {
                 if (adjustment.severity == .caution || adjustment.severity == .deload) && vm.fullExerciseCountBeforeQuickMode == nil {
                     Button { vm.applyQuickSessionMode() } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: "bolt.fill").font(.system(size: 11)).foregroundColor(Pulse.ai)
-                            Text("Switch to 20-min compounds-only").font(.system(size: 11, weight: .semibold)).foregroundColor(Pulse.ai)
+                            Image(systemName: "bolt.fill").font(.pulse(size: 11)).foregroundColor(Pulse.ai)
+                            Text("Switch to 20-min compounds-only").font(.pulse(size: 11, weight: .semibold)).foregroundColor(Pulse.ai)
                             Spacer()
-                            Text("Switch").font(.system(size: 11, weight: .bold)).foregroundColor(.white)
+                            Text("Switch").font(.pulse(size: 11, weight: .bold)).foregroundColor(.white)
                                 .padding(.horizontal, 10).padding(.vertical, 5)
                                 .background(Pulse.ai).clipShape(Capsule())
                         }
@@ -547,11 +563,11 @@ struct PulseTrainView: View {
     private func trainStat(_ value: String, _ label: String) -> some View {
         VStack(spacing: 1) {
             Text(value)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.pulse(size: 14, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textPrimary)
                 .monospacedDigit()
             Text(label)
-                .font(.system(size: 9, weight: .medium))
+                .font(.pulse(size: 9, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -572,20 +588,20 @@ struct PulseTrainView: View {
             HStack(spacing: 12) {
                 HStack(spacing: 8) {
                     if vm.isSessionPaused {
-                        Image(systemName: "pause.fill").font(.system(size: 10)).foregroundColor(Pulse.warning)
+                        Image(systemName: "pause.fill").font(.pulse(size: 10)).foregroundColor(Pulse.warning)
                     } else {
                         Circle().fill(Pulse.positive).frame(width: 8, height: 8).modifier(PulseModifier())
                     }
                     let _ = sessionDurationTicker
                     Text(vm.sessionDurationFormatted)
-                        .font(.system(size: 32, weight: .bold, design: .rounded).monospacedDigit())
+                        .font(.pulse(size: 32, weight: .bold, design: .rounded).monospacedDigit())
                         .foregroundColor(vm.isSessionPaused ? Pulse.textSecondary : Pulse.textPrimary)
 
                     Button {
                         vm.isSessionPaused ? vm.resumeSession() : vm.pauseSession()
                     } label: {
                         Image(systemName: vm.isSessionPaused ? "play.fill" : "pause.fill")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.pulse(size: 13, weight: .semibold))
                             .foregroundColor(vm.isSessionPaused ? Pulse.positive : Pulse.textSecondary)
                             .frame(width: 34, height: 34)
                             .background((vm.isSessionPaused ? Pulse.positive : Color.white).opacity(0.12))
@@ -597,13 +613,13 @@ struct PulseTrainView: View {
 
                 VStack(alignment: .trailing, spacing: 2) {
                     HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill").font(.system(size: 11)).foregroundColor(Pulse.positive)
+                        Image(systemName: "checkmark.circle.fill").font(.pulse(size: 11)).foregroundColor(Pulse.positive)
                         Text("\(vm.totalCompletedSets)/\(totalSets)")
-                            .font(.system(size: 15, weight: .bold, design: .rounded).monospacedDigit())
+                            .font(.pulse(size: 15, weight: .bold, design: .rounded).monospacedDigit())
                             .foregroundColor(Pulse.textPrimary)
                     }
                     Text(String(format: "%.0f %@", totalVolume, appState.profile.prefersLbs ? "lbs" : "kg"))
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.pulse(size: 11, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
 
@@ -616,7 +632,7 @@ struct PulseTrainView: View {
             if let eta = vm.estimatedTimeRemaining {
                 let _ = sessionDurationTicker
                 Text("~\(eta) remaining")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.pulse(size: 11, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
@@ -691,30 +707,30 @@ struct PulseTrainView: View {
                                     .frame(width: 20, height: 20)
                                 if done {
                                     Image(systemName: "checkmark")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                         .foregroundColor(.white)
                                 } else {
                                     Text("\(index + 1)")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.pulse(size: 10, weight: .bold))
                                         .foregroundColor(active ? .white : Pulse.textSecondary)
                                 }
                             }
                             Spacer()
                             if let state, state.completedSetsCount > 0, !done {
                                 Text("\(state.completedSetsCount)/\(exercise.sets)")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .monospacedDigit()
                                     .foregroundColor(vm.selectedDayColor)
                             }
                         }
                         Text(exercise.name)
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                             .foregroundColor(done ? Pulse.textSecondary : Pulse.textPrimary)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Text(exercise.muscleGroup)
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.pulse(size: 9, weight: .semibold))
                             .foregroundColor(vm.selectedDayColor)
                             .lineLimit(1)
                     }
@@ -770,19 +786,19 @@ struct PulseTrainView: View {
                     HStack(spacing: 6) {
                         Circle().fill(Pulse.positive).frame(width: 7, height: 7).modifier(PulseModifier())
                         Text("\(vm.totalCompletedSets)/\(totalSets) sets")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.pulse(size: 13, weight: .semibold))
                             .monospacedDigit()
                             .foregroundColor(Pulse.textSecondary)
                         if vm.isSimpleMode {
                             Text("· Simple")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                                 .foregroundColor(Pulse.ai)
                         }
                     }
                     Spacer()
                     Button(action: { showDiscardConfirm = true }) {
                         Image(systemName: "xmark")
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.pulse(size: 13, weight: .bold))
                             .foregroundColor(Pulse.critical)
                             .frame(width: 40, height: 40)
                             .background(Pulse.critical.opacity(0.1))
@@ -791,9 +807,9 @@ struct PulseTrainView: View {
                     Button(action: { showCompleteSheet = true }) {
                         HStack(spacing: 6) {
                             Image(systemName: vm.allExercisesComplete ? "checkmark.circle.fill" : "flag.checkered")
-                                .font(.system(size: 13))
+                                .font(.pulse(size: 13))
                             Text(vm.allExercisesComplete ? "Complete" : "Finish")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.pulse(size: 14, weight: .bold))
                         }
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
@@ -809,9 +825,9 @@ struct PulseTrainView: View {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: "play.fill").font(.system(size: 14))
+                            Image(systemName: "play.fill").font(.pulse(size: 14))
                             Text("Start \(vm.selectedDay.code)")
-                                .font(.system(size: 16, weight: .bold))
+                                .font(.pulse(size: 16, weight: .bold))
                         }
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -845,19 +861,19 @@ struct PulseRecoveryBadge: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: adjustment.severity.icon)
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(adjustment.severity.color)
                     Text(adjustment.multiplier > 1.0 ? "Primed" : adjustment.severity.label)
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.pulse(size: 12, weight: .bold))
                         .foregroundColor(Pulse.textPrimary)
                     Text(adjustment.signedPercentLabel)
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.pulse(size: 12, weight: .bold))
                         .foregroundColor(adjustment.severity.color)
                     Spacer()
                     Text("\(adjustment.reasons.count) signal\(adjustment.reasons.count == 1 ? "" : "s")")
-                        .font(.system(size: 10)).foregroundColor(Pulse.textTertiary)
+                        .font(.pulse(size: 10)).foregroundColor(Pulse.textTertiary)
                     Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 9, weight: .bold)).foregroundColor(Pulse.textTertiary)
+                        .font(.pulse(size: 9, weight: .bold)).foregroundColor(Pulse.textTertiary)
                 }
             }
             .buttonStyle(PulsePress())
@@ -866,9 +882,9 @@ struct PulseRecoveryBadge: View {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(adjustment.reasons) { reason in
                         HStack(spacing: 8) {
-                            Image(systemName: reason.icon).font(.system(size: 10))
+                            Image(systemName: reason.icon).font(.pulse(size: 10))
                                 .foregroundColor(adjustment.severity.color).frame(width: 16)
-                            Text(reason.text).font(.system(size: 11)).foregroundColor(Pulse.textSecondary)
+                            Text(reason.text).font(.pulse(size: 11)).foregroundColor(Pulse.textSecondary)
                         }
                     }
                 }

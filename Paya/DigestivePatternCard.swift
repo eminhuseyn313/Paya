@@ -23,7 +23,7 @@ struct DigestivePatternCard: View {
                                 .fill(Pulse.hydration.opacity(0.15))
                                 .frame(width: 36, height: 36)
                             Image(systemName: "stomach")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.pulse(size: 14, weight: .semibold))
                                 .foregroundColor(Pulse.hydration)
                         }
                         VStack(alignment: .leading, spacing: 2) {
@@ -47,10 +47,10 @@ struct DigestivePatternCard: View {
                         } else if let r = report {
                             VStack(spacing: 2) {
                                 Text("\(r.digestiveScore)")
-                                    .font(.system(size: 18, weight: .black, design: .rounded))
+                                    .font(.pulse(size: 18, weight: .black, design: .rounded))
                                     .foregroundColor(scoreColor(r.digestiveScore))
                                 Text("gut score")
-                                    .font(.system(size: 7, weight: .bold))
+                                    .font(.pulse(size: 7, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -66,9 +66,9 @@ struct DigestivePatternCard: View {
                             ForEach(r.topTriggers.prefix(3)) { trigger in
                                 HStack(spacing: 3) {
                                     Image(systemName: trigger.icon)
-                                        .font(.system(size: 7))
+                                        .font(.pulse(size: 7))
                                     Text(trigger.label)
-                                        .font(.system(size: 8, weight: .medium))
+                                        .font(.pulse(size: 8, weight: .medium))
                                 }
                                 .foregroundColor(triggerColor(trigger.badOutcomeRate))
                                 .padding(.horizontal, 6)
@@ -157,10 +157,10 @@ struct DigestivePatternDetailView: View {
 
                 VStack(spacing: 1) {
                     Text("\(report.digestiveScore)")
-                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .font(.pulse(size: 28, weight: .black, design: .rounded))
                         .foregroundColor(scoreColor(report.digestiveScore))
                     Text("GUT")
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.pulse(size: 8, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -168,24 +168,24 @@ struct DigestivePatternDetailView: View {
             HStack(spacing: 16) {
                 VStack(spacing: 2) {
                     Text("\(report.idealDays)")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.positive)
                     Text("Ideal days")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 Divider().frame(height: 24)
                 VStack(spacing: 2) {
                     Text("\(report.totalTrackedDays)")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 16, weight: .bold, design: .rounded))
                     Text("Tracked days")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
 
             Text("Score = % of days with ideal stool (Bristol 3-4)")
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -205,7 +205,7 @@ struct DigestivePatternDetailView: View {
                             .fill(triggerColor(trigger.badOutcomeRate).opacity(0.12))
                             .frame(width: 32, height: 32)
                         Image(systemName: trigger.icon)
-                            .font(.system(size: 13))
+                            .font(.pulse(size: 13))
                             .foregroundColor(triggerColor(trigger.badOutcomeRate))
                     }
 
@@ -226,7 +226,7 @@ struct DigestivePatternDetailView: View {
                         .frame(height: 6)
 
                         Text("\(Int(trigger.badOutcomeRate * 100))% bad outcome rate · \(trigger.occurrences) days")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -247,21 +247,21 @@ struct DigestivePatternDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
                         Image(systemName: categoryIcon(pattern.category))
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(toneColor(pattern.tone))
                         Text(pattern.category.rawValue)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                             .textCase(.uppercase)
                         Spacer()
                         Text("\(pattern.sampleDays)d")
-                            .font(.system(size: 9, design: .monospaced))
+                            .font(.pulse(size: 9, design: .monospaced))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
                     HStack(spacing: 8) {
                         Text(pattern.metric)
-                            .font(.system(size: 16, weight: .black, design: .rounded))
+                            .font(.pulse(size: 16, weight: .black, design: .rounded))
                             .foregroundColor(toneColor(pattern.tone))
                         Text(pattern.headline)
                             .font(.caption.weight(.semibold))
@@ -270,7 +270,7 @@ struct DigestivePatternDetailView: View {
                     }
 
                     Text(pattern.detail)
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -302,12 +302,12 @@ struct DigestivePatternDetailView: View {
     private func methodRow(_ icon: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 14)
                 .padding(.top, 2)
             Text(text)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }

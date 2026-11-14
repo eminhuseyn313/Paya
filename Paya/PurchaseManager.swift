@@ -56,9 +56,13 @@ final class PurchaseManager {
     // Developer emails that always get Pro access.
     // These accounts see the full app exactly as a paying user would —
     // the paywall still shows for non-developer accounts.
+    #if DEBUG
     private static let developerEmails: Set<String> = [
         "eminhuseyn313@gmail.com"
     ]
+    #else
+    private static let developerEmails: Set<String> = []   // never ships a Pro bypass
+    #endif
 
     /// Returns true if the currently signed-in user is a developer.
     var isDeveloper: Bool {
@@ -218,6 +222,7 @@ final class PurchaseManager {
     ///   2. Normalize: uppercase, trim whitespace
     ///   3. Run: echo -n "PAYA-LAUNCH-2026" | shasum -a 256
     ///   4. Add the hash below
+    #if DEBUG
     private static let validPromoHashes: Set<String> = [
         // PAYA-REVIEW-2026
         "d123339e7d32c4fff8d645029e609b778bff3c9e49ad07a548b6e900370da7b9",
@@ -228,6 +233,10 @@ final class PurchaseManager {
         // PAYA-EMIN-DEV
         "20ad2161a9d783549f22c033f1c89dcee594b27dbb4aedaad4afc9e3d298b433",
     ]
+    #else
+    // Release: use App Store Connect Offer Codes (Guideline 3.1.1), not binary-embedded codes.
+    private static let validPromoHashes: Set<String> = []
+    #endif
 
     private static func sha256(_ input: String) -> String {
         let hash = SHA256.hash(data: Data(input.utf8))
@@ -279,16 +288,16 @@ struct ProGateModifier: ViewModifier {
                 .overlay {
                     VStack(spacing: 6) {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.pulse(size: 16, weight: .semibold))
                             .foregroundColor(Pulse.ai)
                         Text("Pro feature")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                             .foregroundColor(Pulse.ai)
                         Button {
                             showPaywall = true
                         } label: {
                             Text("Unlock")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 5)
@@ -331,13 +340,13 @@ struct ProGate<Content: View>: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "lock.fill")
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(Pulse.ai)
                     Text(featureName)
                         .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Text("PRO")
-                        .font(.system(size: 9, weight: .black))
+                        .font(.pulse(size: 9, weight: .black))
                         .foregroundColor(.white)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)

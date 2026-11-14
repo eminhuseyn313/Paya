@@ -347,7 +347,7 @@ struct ValueDisplay: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(label)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(isActive ? sessionColor : .secondary)
                     Spacer()
                     if isActive {
@@ -358,7 +358,7 @@ struct ValueDisplay: View {
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text(value.isEmpty ? "0" : value)
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.pulse(size: 28, weight: .bold))
                         .foregroundColor(Pulse.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
@@ -369,7 +369,7 @@ struct ValueDisplay: View {
                     }
                 }
                 Text(previousText ?? " ")
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textTertiary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -395,7 +395,7 @@ struct QuickChip: View {
     var body: some View {
         Button(action: action) {
             Text(text)
-                .font(.system(size: 14, weight: .bold))
+                .font(.pulse(size: 14, weight: .bold))
                 .foregroundColor(color)
                 .padding(.horizontal, 14)
                 // These get tapped repeatedly in a row (e.g. "+2.5" three
@@ -430,11 +430,11 @@ struct KeypadButton: View {
                     .frame(height: 54)
                 if let img = systemImage {
                     Image(systemName: img)
-                        .font(.system(size: 22, weight: .medium))
+                        .font(.pulse(size: 22, weight: .medium))
                         .foregroundColor(isPrimary ? .white : .primary)
                 } else {
                     Text(text)
-                        .font(.system(size: 26, weight: .medium))
+                        .font(.pulse(size: 26, weight: .medium))
                         .foregroundColor(isPrimary ? .white : .primary)
                 }
             }

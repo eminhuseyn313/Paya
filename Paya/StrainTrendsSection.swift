@@ -52,7 +52,7 @@ struct HRRecoveryCard: View {
                                 .fill(Color(hex: interpretation(point.hrr).colorHex).opacity(0.75))
                                 .frame(height: max(6, CGFloat(point.hrr) * 1.6))
                             Text(point.date.formatted(.dateTime.day()))
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .frame(maxWidth: .infinity)
@@ -174,7 +174,7 @@ struct WeeklyLoadCard: View {
     }
 
     var trendPercent: Int? {
-        guard lastWeekTrimp > 0 else { return nil }
+        guard lastWeekTrimp > 0, currentTrimp > 0 else { return nil }
         return Int(((currentTrimp - lastWeekTrimp) / lastWeekTrimp) * 100)
     }
 
@@ -201,7 +201,7 @@ struct WeeklyLoadCard: View {
                 if let trend = trendPercent {
                     HStack(spacing: 3) {
                         Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                         Text("\(abs(trend))% vs last week")
                             .font(.caption.weight(.bold))
                     }
@@ -217,6 +217,10 @@ struct WeeklyLoadCard: View {
 
             if weeks.allSatisfy({ $0.totalTrimp == 0 && $0.sessionCount == 0 }) {
                 EmptyChartHint(message: "No sessions logged yet")
+            } else if weeks.allSatisfy({ $0.totalTrimp == 0 }) {
+                // Sessions exist but none carried heart-rate data — plotting
+                // zero-height bars would read as "no load" rather than "not measured".
+                EmptyChartHint(message: "Needs heart-rate data (Apple Watch or BLE strap) during sessions to compute load")
             } else {
                 Chart {
                     ForEach(weeks) { week in
@@ -229,7 +233,7 @@ struct WeeklyLoadCard: View {
                         .annotation(position: .top) {
                             if week.sessionCount > 0 {
                                 Text("\(week.sessionCount)x")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -243,7 +247,7 @@ struct WeeklyLoadCard: View {
                         AxisValueLabel {
                             if let label = value.as(String.self) {
                                 Text(label)
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                             }
                         }
                     }
@@ -347,13 +351,13 @@ struct SessionBaselinesCard: View {
                             let delta = last - baseline.avgTrimp
                             VStack(alignment: .trailing, spacing: 1) {
                                 Text("Last")
-                                    .font(.system(size: 8, weight: .bold))
+                                    .font(.pulse(size: 8, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                                 Text("\(Int(last))")
                                     .font(.caption.weight(.bold))
                                 if abs(delta) >= 5 {
                                     Text(delta > 0 ? "+\(Int(delta))" : "\(Int(delta))")
-                                        .font(.system(size: 9, weight: .bold))
+                                        .font(.pulse(size: 9, weight: .bold))
                                         .foregroundColor(delta > 0
                                             ? Pulse.warning
                                             : Pulse.positive)
@@ -423,10 +427,10 @@ struct FeltVsMeasuredCard: View {
                             .foregroundColor(Pulse.ai)
                             .monospacedDigit()
                         Text("Felt")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                         Text("Your RPE")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     .frame(maxWidth: .infinity)
@@ -440,10 +444,10 @@ struct FeltVsMeasuredCard: View {
                             .foregroundColor(Pulse.critical)
                             .monospacedDigit()
                         Text("Measured")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                         Text("HR-derived")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     .frame(maxWidth: .infinity)
@@ -500,7 +504,7 @@ struct LegendDot: View {
                 .fill(color)
                 .frame(width: 7, height: 7)
             Text(label)
-                .font(.system(size: 10, weight: .bold))
+                .font(.pulse(size: 10, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

@@ -99,11 +99,11 @@ private struct BadgeCell: View {
                     .foregroundColor(Color(hex: badge.colorHex))
             }
             Text(badge.title)
-                .font(.system(size: 9, weight: .semibold))
+                .font(.pulse(size: 9, weight: .semibold))
                 .lineLimit(1)
                 .foregroundColor(Pulse.textPrimary)
             Text(badge.earnedAt.formatted(date: .abbreviated, time: .omitted))
-                .font(.system(size: 7))
+                .font(.pulse(size: 7))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

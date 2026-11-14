@@ -66,7 +66,7 @@ struct TodayTrainingDayCard: View {
                     HStack(spacing: 6) {
                         ForEach(exercises.prefix(4), id: \.self) { name in
                             Text(shortName(name))
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .foregroundColor(day.color)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 3)
@@ -75,7 +75,7 @@ struct TodayTrainingDayCard: View {
                         }
                         if exercises.count > 4 {
                             Text("+\(exercises.count - 4)")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 3)

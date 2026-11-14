@@ -304,17 +304,17 @@ struct ProgressCollapsible<Content: View>: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: icon)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.pulse(size: 11, weight: .semibold))
                         .foregroundColor(Color(hex: color))
                         .frame(width: 26, height: 26)
                         .background(Color(hex: color).opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 7))
                     Text(title)
-                        .font(.system(size: 13, weight: .bold))
+                        .font(.pulse(size: 13, weight: .bold))
                         .foregroundColor(Pulse.textPrimary)
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.horizontal, 14)
@@ -348,7 +348,7 @@ struct BodySignalsCard: View {
             ForEach(insights) { insight in
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: insight.icon)
-                        .font(.system(size: 13))
+                        .font(.pulse(size: 13))
                         .foregroundColor(Color(hex: insight.colorHex))
                         .padding(.top, 1)
                     Text(insight.text)
@@ -420,12 +420,12 @@ struct ProgressStatChip: View {
                     .font(.caption)
                     .foregroundColor(color)
                 Text(value)
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.pulse(size: 16, weight: .bold))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .foregroundColor(Pulse.textPrimary)
                 Text(label)
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.pulse(size: 9, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
                     .lineLimit(1)
             }
@@ -516,7 +516,7 @@ struct ProgressWeightChart: View {
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .day, count: 7)) {
                         AxisValueLabel(format: .dateTime.day().month())
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                     }
                 }
                 .chartYScale(domain: .automatic(includesZero: false))
@@ -524,7 +524,7 @@ struct ProgressWeightChart: View {
                     AxisMarks(position: .trailing,
                               values: .automatic(desiredCount: 4)) {
                         AxisValueLabel()
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                     }
                 }
             }
@@ -554,7 +554,7 @@ struct ProgressWeightChart: View {
                         .font(.caption2)
                         .foregroundColor(Pulse.textTertiary)
                     Text("If this pace continues: ~\(String(format: "%.1f", convert(projection.projectedIn4Weeks)))\(unit) in 4 weeks, ~\(String(format: "%.1f", convert(projection.projectedIn8Weeks)))\(unit) in 8. A straight-line estimate, not a guarantee.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -605,14 +605,14 @@ struct WeeklyVolumeChart: View {
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .weekOfYear)) {
                         AxisValueLabel(format: .dateTime.month().day())
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                     }
                 }
                 .chartYAxis {
                     AxisMarks(position: .trailing,
                               values: .automatic(desiredCount: 3)) {
                         AxisValueLabel()
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                     }
                 }
 
@@ -659,7 +659,7 @@ struct EmptyChartPlaceholder: View {
     var body: some View {
         VStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 32))
+                .font(.pulse(size: 32))
                 .foregroundColor(.secondary.opacity(0.3))
             Text(message)
                 .font(.caption)

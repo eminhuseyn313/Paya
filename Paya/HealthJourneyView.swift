@@ -186,7 +186,7 @@ struct HealthJourneyView: View {
                 }
 
                 Text("\(step + 1)/\(Self.totalSteps)")
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.pulse(size: 11, weight: .bold, design: .monospaced))
                     .foregroundColor(Pulse.textTertiary)
                     .frame(width: 36)
             }
@@ -247,7 +247,7 @@ struct HealthJourneyView: View {
                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                             } label: {
                                 Text(bt.isEmpty ? "Skip" : bt)
-                                    .font(.system(size: 14, weight: .bold))
+                                    .font(.pulse(size: 14, weight: .bold))
                                     .foregroundColor(bloodType == bt ? .white : Pulse.textSecondary)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
@@ -1054,7 +1054,7 @@ struct HealthJourneyView: View {
                     .fill(color.opacity(0.06))
                     .frame(width: 96, height: 96)
                 Image(systemName: icon)
-                    .font(.system(size: 30))
+                    .font(.pulse(size: 30))
                     .foregroundColor(color)
             }
 
@@ -1101,12 +1101,12 @@ struct HealthJourneyView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: isSelected ? "checkmark.circle.fill" : item.icon)
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.pulse(size: 13, weight: .semibold))
                             .foregroundColor(isSelected ? color : Pulse.textTertiary)
                             .frame(width: 18)
 
                         Text(item.name)
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.pulse(size: 12, weight: .semibold))
                             .foregroundColor(isSelected ? Pulse.textPrimary : Pulse.textSecondary)
                             .lineLimit(2)
                             .multilineTextAlignment(.leading)
@@ -1144,7 +1144,7 @@ struct HealthJourneyView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: option.icon)
-                            .font(.system(size: 14))
+                            .font(.pulse(size: 14))
                             .foregroundColor(isSelected ? color : Pulse.textTertiary)
                             .frame(width: 22)
 
@@ -1319,16 +1319,16 @@ struct HealthJourneyView: View {
                         .foregroundColor(Pulse.ai)
 
                     Text("Activated:")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
 
                     ForEach(active, id: \.2) { icon, count, label, color in
                         HStack(spacing: 3) {
                             Image(systemName: icon)
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(color)
                             Text("\(count) \(label)")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                                 .foregroundColor(Pulse.textSecondary)
                         }
                     }
@@ -1411,7 +1411,7 @@ struct ContraindicationPreviewSheet: View {
                     // Hero
                     VStack(spacing: 8) {
                         Image(systemName: "sparkles")
-                            .font(.system(size: 36))
+                            .font(.pulse(size: 36))
                             .foregroundColor(Pulse.ai)
                         Text("Your Health Insights")
                             .font(.title2.bold())
@@ -1505,7 +1505,7 @@ struct ContraindicationPreviewSheet: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(warning.source)
-                .font(.system(size: 9, weight: .medium))
+                .font(.pulse(size: 9, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
                 .italic()
         }
@@ -1523,7 +1523,7 @@ struct ContraindicationPreviewSheet: View {
     @ViewBuilder
     private func severityBadge(_ severity: HealthContraindicationEngine.Warning.Severity) -> some View {
         Text(severity.rawValue.uppercased())
-            .font(.system(size: 8, weight: .black))
+            .font(.pulse(size: 8, weight: .black))
             .foregroundColor(.white)
             .padding(.horizontal, 5)
             .padding(.vertical, 2)

@@ -27,16 +27,16 @@ struct CircadianCard: View {
             HStack {
                 Image(systemName: "clock.fill")
                     .foregroundColor(Pulse.nutrition)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text("Circadian profile")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 if let p = profile {
                     HStack(spacing: 3) {
                         Text(p.chronotype.emoji)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                         Text(p.chronotype.label)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                     }
                     .foregroundColor(Color(hex: p.chronotype.colorHex))
                     .padding(.horizontal, 7)
@@ -65,7 +65,7 @@ struct CircadianCard: View {
                     // Optimal windows
                     VStack(alignment: .leading, spacing: 6) {
                         Text("YOUR OPTIMAL WINDOWS")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
 
                         windowRow(icon: "dumbbell.fill", color: "059669",
@@ -86,22 +86,22 @@ struct CircadianCard: View {
                 // Consistency score
                 HStack(spacing: 8) {
                     Image(systemName: "chart.bar.fill")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(p.consistencyColor)
                     Text("Sleep consistency: \(p.consistencyLabel)")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(p.consistencyColor)
                     Spacer()
                     Text("±\(p.stdDevMinutes) min")
-                        .font(.system(size: 10, design: .rounded))
+                        .font(.pulse(size: 10, design: .rounded))
                         .foregroundColor(Pulse.textTertiary)
                 }
 
                 HStack(spacing: 4) {
                     Image(systemName: "book.closed.fill")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                     Text("Chronotype from sleep midpoint (Roenneberg 2003). Windows adjusted ±1h for your pattern.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                 }
                 .foregroundColor(Pulse.textTertiary)
             } else {
@@ -111,7 +111,7 @@ struct CircadianCard: View {
                     Text("Need 30+ days of sleep data")
                         .font(.caption.weight(.semibold))
                     Text("Wear your Apple Watch to sleep for a month to unlock your circadian profile.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
@@ -126,12 +126,12 @@ struct CircadianCard: View {
     private func chronoMetric(label: String, value: String, icon: String, color: String) -> some View {
         VStack(spacing: 3) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Color(hex: color))
             Text(value)
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.pulse(size: 13, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 8, weight: .medium))
+                .font(.pulse(size: 8, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -144,14 +144,14 @@ struct CircadianCard: View {
     private func windowRow(icon: String, color: String, label: String, time: String, note: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Color(hex: color))
                 .frame(width: 16)
             Text(label)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
             Spacer()
             Text(time)
-                .font(.system(size: 11, weight: .bold))
+                .font(.pulse(size: 11, weight: .bold))
                 .foregroundColor(Color(hex: color))
         }
     }

@@ -330,7 +330,7 @@ struct ProgressPhotoThumb: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 Text(photo.angle.displayName)
-                    .font(.system(size: 8, weight: .bold))
+                    .font(.pulse(size: 8, weight: .bold))
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
                     .background(.black.opacity(0.6))
@@ -486,7 +486,7 @@ struct PhotoCompareView: View {
                     .shadow(color: .black.opacity(0.3), radius: 4)
                     .overlay(
                         Image(systemName: "arrow.left.and.right")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                             .foregroundColor(Pulse.textPrimary)
                     )
                     .position(x: sliderPosition * geo.size.width, y: geo.size.height / 2)
@@ -521,7 +521,7 @@ struct PhotoCompareView: View {
                 .font(.caption.weight(.semibold))
             if let weightKg {
                 Text(String(format: "%.1f kg", weightKg))
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.pulse(size: 11, weight: .semibold))
                     .foregroundColor(Pulse.hydration)
             }
         }

@@ -90,7 +90,7 @@ struct HealthProfileSummaryView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "arrow.triangle.2.circlepath")
                             Text("Update Health Profile")
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(.pulse(size: 13, weight: .semibold))
                         }
                         .foregroundColor(Pulse.ai)
                         .frame(maxWidth: .infinity)
@@ -108,7 +108,7 @@ struct HealthProfileSummaryView: View {
 
                     if let date = profile.healthJourneyCompletedAt {
                         Text("Completed \(date.formatted(date: .abbreviated, time: .omitted))")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -136,16 +136,16 @@ struct HealthProfileSummaryView: View {
                     .fill(Pulse.positive.opacity(0.1))
                     .frame(width: 56, height: 56)
                 Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 24))
+                    .font(.pulse(size: 24))
                     .foregroundColor(Pulse.positive)
             }
 
             Text("Health Profile Active")
-                .font(.system(size: 14, weight: .bold))
+                .font(.pulse(size: 14, weight: .bold))
                 .foregroundColor(Pulse.textPrimary)
 
             Text("\(report.totalCount) safety rules · \(recommendations.count) personalized insights")
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Pulse.textTertiary)
                 .multilineTextAlignment(.center)
         }
@@ -168,7 +168,7 @@ struct HealthProfileSummaryView: View {
             FlowLayout(spacing: 6) {
                 ForEach(items, id: \.self) { item in
                     Text(item)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.pulse(size: 11, weight: .medium))
                         .foregroundColor(color)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
@@ -196,19 +196,19 @@ struct HealthProfileSummaryView: View {
             ForEach(report.allWarnings.sorted(by: { $0.severity > $1.severity }).prefix(8)) { warning in
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: severityIcon(warning.severity))
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(severityColor(warning.severity))
                         .frame(width: 16, alignment: .center)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(warning.title)
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.pulse(size: 12, weight: .semibold))
                             .foregroundColor(Pulse.textPrimary)
                         Text(warning.detail)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textSecondary)
                         Text(warning.source)
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
@@ -257,18 +257,18 @@ struct HealthProfileSummaryView: View {
                             .fill(domainColor(rec.domain).opacity(0.12))
                             .frame(width: 28, height: 28)
                         Image(systemName: rec.icon)
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.pulse(size: 12, weight: .semibold))
                             .foregroundColor(domainColor(rec.domain))
                     }
 
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 6) {
                             Text(rec.title)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.pulse(size: 12, weight: .semibold))
                                 .foregroundColor(Pulse.textPrimary)
                             Spacer()
                             Text(rec.domain)
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.pulse(size: 8, weight: .bold))
                                 .foregroundColor(domainColor(rec.domain))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -276,11 +276,11 @@ struct HealthProfileSummaryView: View {
                                 .clipShape(Capsule())
                         }
                         Text(rec.detail)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textSecondary)
                             .lineSpacing(2)
                         Text(rec.source)
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.top, 1)
                     }
@@ -332,13 +332,13 @@ struct HealthProfileSummaryView: View {
     private func lifestyleItem(icon: String, label: String, value: String) -> some View {
         HStack(spacing: 6) {
             Text(icon)
-                .font(.system(size: 14))
+                .font(.pulse(size: 14))
             VStack(alignment: .leading, spacing: 1) {
                 Text(label)
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.pulse(size: 9, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
                 Text(value)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.pulse(size: 11, weight: .semibold))
                     .foregroundColor(Pulse.textPrimary)
             }
             Spacer()

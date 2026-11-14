@@ -101,12 +101,12 @@ struct SymptomDietPlanView: View {
                     // Foods to limit
                     foodsToLimitSection
 
-                    // AI Coach Notes (optional enhancement)
-                    coachNotesSection
+                    // AI Coach Notes (optional enhancement) — hidden while external AI is off (v1)
+                    if FeatureFlags.externalAI { coachNotesSection }
 
                     // Disclaimer
                     Text("Nutrition guidance based on USDA data & Mediterranean diet research (Sköldstam 2003, Petersson 2018). Not medical advice.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 30)
@@ -133,7 +133,7 @@ struct SymptomDietPlanView: View {
             // Diet badge
             HStack(spacing: 6) {
                 Text(profile.dietPreference.displayName)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.pulse(size: 11, weight: .bold))
                     .foregroundColor(Pulse.recovery)
                     .textCase(.uppercase)
                     .tracking(0.8)
@@ -142,7 +142,7 @@ struct SymptomDietPlanView: View {
                     .foregroundColor(Pulse.textTertiary)
 
                 Text(profile.goal.displayName)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.pulse(size: 11, weight: .bold))
                     .foregroundColor(Color(hex: profile.goal.colorHex))
                     .textCase(.uppercase)
                     .tracking(0.8)
@@ -151,10 +151,10 @@ struct SymptomDietPlanView: View {
             // Big calorie number
             VStack(spacing: 2) {
                 Text("\(Int(selectedDayType == .training ? profile.trainingDayCalories : profile.restDayCalories))")
-                    .font(.system(size: 44, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 44, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                 Text("kcal target")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.pulse(size: 12, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -205,14 +205,14 @@ struct SymptomDietPlanView: View {
                     .frame(width: 50, height: 50)
                     .rotationEffect(.degrees(-90))
                 Image(systemName: icon)
-                    .font(.system(size: 14))
+                    .font(.pulse(size: 14))
                     .foregroundColor(color)
             }
             Text("\(grams)g")
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.pulse(size: 14, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textPrimary)
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -255,9 +255,9 @@ struct SymptomDietPlanView: View {
                 } label: {
                     VStack(spacing: 3) {
                         Image(systemName: type == .training ? "dumbbell.fill" : "bed.double.fill")
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                         Text(type.rawValue)
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.pulse(size: 11, weight: .semibold))
                     }
                     .foregroundColor(selectedDayType == type ? .white : Pulse.textTertiary)
                     .frame(maxWidth: .infinity)
@@ -292,14 +292,14 @@ struct SymptomDietPlanView: View {
             } label: {
                 HStack(spacing: 12) {
                     Text(meal.mealType.icon)
-                        .font(.system(size: 22))
+                        .font(.pulse(size: 22))
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(meal.name)
                             .font(.subheadline.weight(.semibold))
                             .foregroundColor(Pulse.textPrimary)
                         Text("\(meal.mealType.timeHint) · \(meal.totalCalories) kcal")
-                            .font(.system(size: 11))
+                            .font(.pulse(size: 11))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -313,7 +313,7 @@ struct SymptomDietPlanView: View {
                     }
 
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                         .rotationEffect(.degrees(isExpanded ? 180 : 0))
                 }
@@ -340,7 +340,7 @@ struct SymptomDietPlanView: View {
 
     private func macroChip(value: Int, label: String, color: Color) -> some View {
         Text("\(value)\(label)")
-            .font(.system(size: 9, weight: .bold, design: .rounded))
+            .font(.pulse(size: 9, weight: .bold, design: .rounded))
             .foregroundColor(color)
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
@@ -351,25 +351,25 @@ struct SymptomDietPlanView: View {
     private func foodRow(food: FoodItem, servings: Double) -> some View {
         HStack(spacing: 10) {
             Text(food.emoji)
-                .font(.system(size: 20))
+                .font(.pulse(size: 20))
                 .frame(width: 30)
 
             VStack(alignment: .leading, spacing: 1) {
                 Text(food.name)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.pulse(size: 13, weight: .medium))
                     .foregroundColor(Pulse.textPrimary)
                 HStack(spacing: 4) {
                     Text(servings == 1 ? food.servingSize : "\(String(format: "%.0f", servings))× \(food.servingSize)")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                     if food.tags.contains(.antiInflammatory) {
                         Image(systemName: "leaf.fill")
-                            .font(.system(size: 8))
+                            .font(.pulse(size: 8))
                             .foregroundColor(Pulse.recovery.opacity(0.6))
                     }
                     if food.tags.contains(.omega3Rich) {
                         Image(systemName: "drop.fill")
-                            .font(.system(size: 8))
+                            .font(.pulse(size: 8))
                             .foregroundColor(Pulse.hydration.opacity(0.6))
                     }
                 }
@@ -379,10 +379,10 @@ struct SymptomDietPlanView: View {
 
             HStack(spacing: 1) {
                 Text("\(Int(Double(food.calories) * servings))")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.pulse(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(Pulse.textSecondary)
                 Text(" kcal")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
         }
@@ -402,16 +402,16 @@ struct SymptomDietPlanView: View {
             }
 
             Text("Prioritize these to reduce systemic inflammation — Mediterranean diet evidence (Sköldstam 2003, Calder 2017)")
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(Pulse.textTertiary)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                 ForEach(FoodDatabase.antiInflammatoryFoods.prefix(6)) { food in
                     HStack(spacing: 6) {
                         Text(food.emoji)
-                            .font(.system(size: 16))
+                            .font(.pulse(size: 16))
                         Text(food.name)
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.pulse(size: 11, weight: .medium))
                             .foregroundColor(Pulse.textPrimary)
                             .lineLimit(1)
                         Spacer()
@@ -445,13 +445,13 @@ struct SymptomDietPlanView: View {
                 ForEach(FoodDatabase.foodsToLimit) { food in
                     HStack(spacing: 10) {
                         Text(food.emoji)
-                            .font(.system(size: 18))
+                            .font(.pulse(size: 18))
                         Text(food.name)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.pulse(size: 13, weight: .medium))
                             .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Text(limitReason(for: food))
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.critical.opacity(0.7))
                     }
                 }
@@ -475,7 +475,7 @@ struct SymptomDietPlanView: View {
                 // AI plan exists — show as collapsible coach notes
                 DisclosureGroup(isExpanded: $showCoachNotes) {
                     Text(plan)
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(Pulse.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 8)
@@ -490,7 +490,7 @@ struct SymptomDietPlanView: View {
                         if let date = profile.symptomDietPlanGeneratedAt {
                             Spacer()
                             Text(date.formatted(date: .abbreviated, time: .omitted))
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -515,7 +515,7 @@ struct SymptomDietPlanView: View {
                     Text(profile.cachedSymptomDietPlan == nil
                          ? "Get personalized AI coaching"
                          : "Refresh AI coaching")
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                 }
                 .foregroundColor(Pulse.ai)
                 .frame(maxWidth: .infinity)

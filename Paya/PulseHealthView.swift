@@ -51,51 +51,48 @@ struct PulseHealthView: View {
     // When no wearable data exists, falls back to manual-only scoring
     // so the ring is never empty for users without an Apple Watch.
     private var wellnessScore: CGFloat {
+        // Weighted average over ONLY the inputs that actually exist — a missing
+        // input is dropped and the remaining weights renormalized, never
+        // replaced by an assumed "neutral 50/60".
+        var parts: [(score: CGFloat, weight: CGFloat)] = []
+
         // Prefer ReadinessEngine (z-score based) over simple recovery score
-        let recovery = readinessReport?.score ?? vm.recoveryScore
+        if let recovery = readinessReport?.score ?? vm.recoveryScore {
+            parts.append((CGFloat(recovery), 0.6))
+        }
 
-        // If recovery score is available (requires wearable), blend it in
-        if let recovery {
-            var score = CGFloat(recovery) * 0.6  // 60% from biometrics
-
-            // Sleep contribution (20%)
-            if let sleep = vm.applHealthSleepHours {
-                let sleepScore: CGFloat = switch sleep {
-                    case 7...9:  100
-                    case 6..<7:  75 + CGFloat(sleep - 6) * 25
-                    case 9..<10: 100 - CGFloat(sleep - 9) * 25
-                    default:     max(30, 75 - abs(CGFloat(sleep) - 8) * 15)
-                }
-                score += sleepScore * 0.2
-            } else {
-                score += 50 * 0.2  // neutral if no sleep data
+        if let sleep = vm.applHealthSleepHours {
+            let sleepScore: CGFloat = switch sleep {
+                case 7...9:  100
+                case 6..<7:  75 + CGFloat(sleep - 6) * 25
+                case 9..<10: 100 - CGFloat(sleep - 9) * 25
+                default:     max(30, 75 - abs(CGFloat(sleep) - 8) * 15)
             }
+            parts.append((sleepScore, 0.2))
+        }
 
-            // Subjective signals (20%)
-            var subjective: CGFloat = 60  // neutral baseline
+        if hasManualWellnessInput {
+            var subjective: CGFloat = 60  // centre of the pain/energy scale
             if let pain = vm.todaysLog?.jointPainLevel, pain > 0 {
                 subjective -= CGFloat(pain) * 6  // pain is a strong negative
             }
             if let energy = vm.todaysLog?.energyLevel {
                 subjective += CGFloat(energy - 2) * 10  // energy 1=−10, 2=0, 3=+10
             }
-            score += max(0, min(100, subjective)) * 0.2
-
-            return max(0, min(100, score))
+            parts.append((max(0, min(100, subjective)), 0.2))
         }
 
-        // Manual-only fallback (no wearable)
-        var score: CGFloat = 50
-        if let sleep = vm.applHealthSleepHours {
-            score += min(CGFloat(sleep / 8.0) * 20, 20)
-        }
-        if let pain = vm.todaysLog?.jointPainLevel {
-            score -= CGFloat(pain) * 5
-        }
-        if let energy = vm.todaysLog?.energyLevel {
-            score += CGFloat(energy) * 3
-        }
-        return max(0, min(100, score))
+        let totalWeight = parts.reduce(0) { $0 + $1.weight }
+        guard totalWeight > 0 else { return 0 }
+        return max(0, min(100, parts.reduce(0) { $0 + $1.score * $1.weight } / totalWeight))
+    }
+
+    /// HealthLog rows are auto-created with defaults (pain 0, energy "ok"), so
+    /// their mere existence is NOT input. Treat it as logged only when the
+    /// user moved a value off the default.
+    private var hasManualWellnessInput: Bool {
+        guard let log = vm.todaysLog else { return false }
+        return log.jointPainLevel > 0 || log.energyLevel != 2
     }
 
     /// Whether the score is driven by real biometric data vs manual-only
@@ -103,7 +100,19 @@ struct PulseHealthView: View {
         readinessReport != nil || vm.recoveryScore != nil
     }
 
+    /// True only when at least one real input exists — otherwise the ring
+    /// must not invent a score.
+    private var hasAnyWellnessInput: Bool {
+        hasBiometricScore || vm.applHealthSleepHours != nil || hasManualWellnessInput
+    }
+
+    /// Number of independent inputs behind the score (for the early-estimate tag).
+    private var wellnessInputCount: Int {
+        (hasBiometricScore ? 1 : 0) + (vm.applHealthSleepHours != nil ? 1 : 0) + (hasManualWellnessInput ? 1 : 0)
+    }
+
     private var wellnessColor: Color {
+        if !hasAnyWellnessInput { return Pulse.textTertiary }
         if wellnessScore >= 75 { return Pulse.positive }
         if wellnessScore >= 50 { return Pulse.recovery }
         if wellnessScore >= 30 { return Pulse.warning }
@@ -111,6 +120,7 @@ struct PulseHealthView: View {
     }
 
     private var wellnessLabel: String {
+        if !hasAnyWellnessInput { return "No data yet" }
         if wellnessScore >= 75 { return "Thriving" }
         if wellnessScore >= 50 { return "Balanced" }
         if wellnessScore >= 30 { return "Taxed" }
@@ -159,7 +169,7 @@ struct PulseHealthView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Health")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
             }
@@ -229,20 +239,20 @@ struct PulseHealthView: View {
             } label: {
                 ZStack {
                     PulseRing(
-                        progress: wellnessScore / 100,
+                        progress: hasAnyWellnessInput ? wellnessScore / 100 : 0,
                         size: 140,
                         lineWidth: 12,
                         color: wellnessColor
                     )
 
                     VStack(spacing: 2) {
-                        Text("\(Int(wellnessScore))")
-                            .font(.system(size: 36, weight: .black, design: .rounded))
+                        Text(hasAnyWellnessInput ? "\(Int(wellnessScore))" : "—")
+                            .font(.pulse(size: 36, weight: .black, design: .rounded))
                             .foregroundColor(wellnessColor)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                         Text(wellnessLabel)
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 12, weight: .bold, design: .rounded))
                             .foregroundColor(wellnessColor.opacity(0.8))
                     }
                 }
@@ -268,19 +278,35 @@ struct PulseHealthView: View {
                 if let pain = vm.todaysLog?.jointPainLevel, pain > 0 {
                     healthQuickStat(icon: "bandage.fill", value: "\(pain)/10", label: "Pain", color: Pulse.warning)
                 }
-                if let energy = vm.todaysLog?.energyLevel, energy > 0 {
-                    healthQuickStat(icon: "bolt.fill", value: "\(energy)/5", label: "Energy", color: Pulse.energy)
+                if let energy = vm.todaysLog?.energyLevel, energy != 2 {
+                    // energyLevel is 1–3 and defaults to 2 ("ok") — hide the untouched default
+                    healthQuickStat(icon: "bolt.fill", value: ["Low", "OK", "High"][max(0, min(2, energy - 1))], label: "Energy", color: Pulse.energy)
                 }
+            }
+
+            if hasAnyWellnessInput && wellnessInputCount < 2 {
+                Text("Early estimate · based on \(wellnessInputCount) input")
+                    .font(.pulse(size: 10, weight: .medium))
+                    .foregroundColor(Pulse.textTertiary)
+            } else if !hasAnyWellnessInput {
+                Text("Needs ~7 days of Apple Watch data, or log pain/energy today")
+                    .font(.pulse(size: 10, weight: .medium))
+                    .foregroundColor(Pulse.textTertiary)
             }
 
             // Score source context
             if let report = readinessReport {
                 VStack(spacing: 4) {
                     Text(report.band.rawValue)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(wellnessColor)
+                    if let note = report.earlyEstimateNote {
+                        Text(note)
+                            .font(.pulse(size: 10, weight: .medium))
+                            .foregroundColor(Pulse.textTertiary)
+                    }
                     Text(report.recommendation)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.pulse(size: 10, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 16)
@@ -289,12 +315,12 @@ struct PulseHealthView: View {
             } else if hasBiometricScore {
                 if let recoveryVal = vm.recoveryScore {
                     Text("Recovery \(recoveryVal)/100 · HRV + heart rate + sleep")
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.pulse(size: 10, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
             } else if !vm.hasWearableData && vm.healthKitAuthorized {
                 Text("Based on manual logs only — connect a wearable for biometric-driven scoring")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
@@ -308,15 +334,15 @@ struct PulseHealthView: View {
     private func healthQuickStat(icon: String, value: String, label: String, color: Color) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(color)
             VStack(alignment: .leading, spacing: 0) {
                 Text(value)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                     .monospacedDigit()
                 Text(label)
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.pulse(size: 9, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
         }
@@ -476,7 +502,8 @@ struct PulseHealthView: View {
         let isLive = hasBLE || hasWatchHR
         let sourceLabel = hasBLE ? "BLE" : (hasWatchHR ? "Watch" : "—")
 
-        let statusColor = isLive ? Pulse.positive : (watch.isWatchReachable ? Pulse.hydration : (watch.isConnected ? Pulse.warning : Pulse.textTertiary))
+        let worn = watch.wearState == .worn
+        let statusColor = isLive ? Pulse.positive : (worn ? Pulse.hydration : (watch.isConnected ? Pulse.warning : Pulse.textTertiary))
 
         HStack(spacing: 10) {
             // Status dot — green=streaming, teal=connected, amber=paired, grey=none
@@ -484,28 +511,28 @@ struct PulseHealthView: View {
                 .fill(statusColor)
                 .frame(width: 8, height: 8)
 
-            Image(systemName: isLive ? "waveform.path.ecg" : (watch.isConnected ? "applewatch" : "applewatch.slash"))
-                .font(.system(size: 13))
-                .foregroundColor(isLive ? Pulse.positive : (watch.isConnected ? Pulse.hydration : Pulse.warning))
+            Image(systemName: isLive ? "waveform.path.ecg" : (worn ? "applewatch" : "applewatch.slash"))
+                .font(.pulse(size: 13))
+                .foregroundColor(isLive ? Pulse.positive : (worn ? Pulse.hydration : Pulse.warning))
 
             VStack(alignment: .leading, spacing: 1) {
                 if isLive {
                     Text("Live HR · \(sourceLabel)")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.pulse(size: 12, weight: .bold))
                         .foregroundColor(Pulse.positive)
                 } else {
                     Text(watch.hasActivated ? watch.connectionLabel : "Checking…")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.pulse(size: 12, weight: .semibold))
                         .foregroundColor(Pulse.textPrimary)
                 }
 
                 if !watch.isConnected && !isLive {
                     Text("Connect Apple Watch or BLE HR monitor for real-time data")
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
-                } else if watch.isConnected && !watch.isWatchReachable && !isLive {
-                    Text("Paired · not on wrist — wear your watch for live readings")
-                        .font(.system(size: 9, weight: .medium))
+                } else if watch.isConnected && !worn && !isLive {
+                    Text("No watch readings in the last 20 min — wear it to see live data")
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -550,7 +577,7 @@ struct PulseHealthView: View {
                     UISelectionFeedbackGenerator().selectionChanged()
                 } label: {
                     Text(s.rawValue)
-                        .font(.system(size: 13, weight: section == s ? .bold : .medium))
+                        .font(.pulse(size: 13, weight: section == s ? .bold : .medium))
                         .foregroundColor(section == s ? Pulse.recovery : Pulse.textTertiary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
@@ -574,14 +601,14 @@ struct PulseHealthView: View {
             Button { showSymptomDiet = true } label: {
                 HStack(spacing: 10) {
                     Image(systemName: "leaf.fill")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Pulse.nutrition)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Your diet plan")
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.pulse(size: 13, weight: .bold))
                             .foregroundColor(Pulse.textPrimary)
                         Text("Personalized nutrition based on your health profile")
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.pulse(size: 10, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                     Spacer()
@@ -629,6 +656,7 @@ struct PulseHealthView: View {
         // Risk & observations
         PulseCollapsible(title: "Risk & observations", icon: "exclamationmark.shield.fill", color: Pulse.warning) {
             FlareRiskFactorsCard()
+            MedicalDisclaimerFooter(kind: .flare)
             SorenessCorrelationCard()
                 .requiresPro()
             NotesCard(vm: vm, notesText: $notesText, modelContext: modelContext)
@@ -694,10 +722,10 @@ struct PulseHealthView: View {
                 Image(systemName: "book.pages")
                     .font(.caption)
                 Text("View trend journal")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.pulse(size: 12, weight: .semibold))
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.pulse(size: 10, weight: .bold))
             }
             .foregroundColor(Pulse.ai)
             .padding(.horizontal, 2)
@@ -729,8 +757,10 @@ struct PulseHealthView: View {
         SleepStagesCard()
         MindfulMinutesCard()
         WeeklyHealthGoalsCard(modelContext: modelContext)
-        SupplementAdviceCard(vm: vm, apiKey: appState.anthropicAPIKey, condition: ProfileStore.current(context: modelContext)?.chronicCondition ?? .rheumatoidArthritis)
-            .requiresPro()
+        if FeatureFlags.externalAI {
+            SupplementAdviceCard(vm: vm, apiKey: appState.anthropicAPIKey, condition: ProfileStore.current(context: modelContext)?.chronicCondition ?? .rheumatoidArthritis)
+                .requiresPro()
+        }
     }
 }
 
@@ -751,20 +781,20 @@ struct PulseCollapsible<Content: View>: View {
             } label: {
                 HStack(spacing: 10) {
                     Image(systemName: icon)
-                        .font(.system(size: 13))
+                        .font(.pulse(size: 13))
                         .foregroundColor(color)
                         .frame(width: 28, height: 28)
                         .background(color.opacity(0.12))
                         .clipShape(Circle())
 
                     Text(title)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.pulse(size: 14, weight: .semibold))
                         .foregroundColor(Pulse.textPrimary)
 
                     Spacer()
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.vertical, 14)

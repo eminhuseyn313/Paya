@@ -39,11 +39,11 @@ struct WeeklyReportCard: View {
                             ForEach(report.highlights, id: \.self) { highlight in
                                 HStack(alignment: .top, spacing: 6) {
                                     Image(systemName: "checkmark.circle.fill")
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                         .foregroundColor(Pulse.positive)
                                         .padding(.top, 1)
                                     Text(highlight)
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                         .foregroundColor(Pulse.textPrimary)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
@@ -53,11 +53,11 @@ struct WeeklyReportCard: View {
                                 ForEach(report.improvements, id: \.self) { improvement in
                                     HStack(alignment: .top, spacing: 6) {
                                         Image(systemName: "arrow.up.circle")
-                                            .font(.system(size: 10))
+                                            .font(.pulse(size: 10))
                                             .foregroundColor(Pulse.nutrition)
                                             .padding(.top, 1)
                                         Text(improvement)
-                                            .font(.system(size: 10))
+                                            .font(.pulse(size: 10))
                                             .foregroundColor(Pulse.textPrimary)
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
@@ -70,7 +70,7 @@ struct WeeklyReportCard: View {
                         withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
                     } label: {
                         Text(expanded ? "Show less" : "See details")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                             .foregroundColor(Pulse.hydration)
                             .frame(maxWidth: .infinity)
                     }
@@ -84,7 +84,7 @@ struct WeeklyReportCard: View {
 
     private func overallGradeBadge(_ grade: String) -> some View {
         Text(grade)
-            .font(.system(size: 14, weight: .heavy, design: .rounded))
+            .font(.pulse(size: 14, weight: .heavy, design: .rounded))
             .foregroundColor(.white)
             .frame(width: 32, height: 32)
             .background(colorForGrade(grade))
@@ -94,13 +94,13 @@ struct WeeklyReportCard: View {
     private func gradeColumn(title: String, grade: String, icon: String, color: String) -> some View {
         VStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Color(hex: color))
             Text(grade)
-                .font(.system(size: 18, weight: .heavy, design: .rounded))
+                .font(.pulse(size: 18, weight: .heavy, design: .rounded))
                 .foregroundColor(colorForGrade(grade))
             Text(title)
-                .font(.system(size: 8, weight: .medium))
+                .font(.pulse(size: 8, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)

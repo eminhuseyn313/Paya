@@ -202,7 +202,7 @@ struct FallbackIllustration: View {
                     .fill(sessionColor.opacity(0.15))
                     .frame(width: 80, height: 80)
                 Image(systemName: icon)
-                    .font(.system(size: 36))
+                    .font(.pulse(size: 36))
                     .foregroundColor(sessionColor)
             }
 

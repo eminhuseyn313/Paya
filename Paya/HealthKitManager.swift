@@ -253,6 +253,12 @@ class HealthKitManager {
     // available yet.
 
     func fetchLatestHR() async -> Int? {
+        await fetchLatestHRSample()?.bpm
+    }
+
+    /// Latest heart-rate sample with its timestamp, ignoring anything older
+    /// than 3 hours so a stale reading is never presented as current.
+    func fetchLatestHRSample() async -> (bpm: Int, date: Date)? {
         guard let hrType = HKObjectType.quantityType(forIdentifier: .heartRate) else {
             return nil
         }
@@ -265,7 +271,7 @@ class HealthKitManager {
         return await withCheckedContinuation { continuation in
             let query = HKSampleQuery(
                 sampleType: hrType,
-                predicate: nil,
+                predicate: HKQuery.predicateForSamples(withStart: Date().addingTimeInterval(-3 * 3600), end: nil),
                 limit: 1,
                 sortDescriptors: [sortDescriptor]
             ) { _, samples, _ in
@@ -274,7 +280,7 @@ class HealthKitManager {
                     return
                 }
                 let bpm = sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
-                continuation.resume(returning: Int(bpm.rounded()))
+                continuation.resume(returning: (Int(bpm.rounded()), sample.endDate))
             }
             healthStore.execute(query)
         }
@@ -737,7 +743,13 @@ class HealthKitManager {
         }
 
         let ownBundleId = Bundle.main.bundleIdentifier
-        return workouts.filter { $0.sourceRevision.source.bundleIdentifier != ownBundleId }
+        // The watch app saves under "<phone bundle>.watchkitapp"; its linked
+        // workouts are already Paya sessions, so skip both bundles.
+        return workouts.filter {
+            let id = $0.sourceRevision.source.bundleIdentifier
+            guard let own = ownBundleId else { return true }
+            return !(id == own || id.hasPrefix(own + "."))
+        }
     }
 
     // MARK: - Write body weight to Apple Health

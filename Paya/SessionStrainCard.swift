@@ -69,7 +69,7 @@ struct StatMini: View {
                 .foregroundColor(color)
                 .monospacedDigit()
             Text(label)
-                .font(.system(size: 9, weight: .bold))
+                .font(.pulse(size: 9, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -130,10 +130,10 @@ struct ZoneLegend: View {
                             .fill(colors[i])
                             .frame(width: 6, height: 6)
                         Text("Z\(i + 1)")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                         Text(SessionStrainCalculator.formatDuration(zoneSeconds[i]))
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }

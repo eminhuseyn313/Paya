@@ -28,7 +28,7 @@ struct GlucoseInsightsCard: View {
                                 .fill(glucoseAccent.opacity(0.15))
                                 .frame(width: 36, height: 36)
                             Image(systemName: "waveform.path.ecg")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.pulse(size: 14, weight: .semibold))
                                 .foregroundColor(glucoseAccent)
                         }
                         VStack(alignment: .leading, spacing: 2) {
@@ -78,10 +78,10 @@ struct GlucoseInsightsCard: View {
                     } else if !isLoading, let topInsight = overview?.insights.first {
                         HStack(spacing: 8) {
                             Text(topInsight.metric)
-                                .font(.system(size: 16, weight: .black, design: .rounded))
+                                .font(.pulse(size: 16, weight: .black, design: .rounded))
                                 .foregroundColor(toneColor(topInsight.metricTone))
                             Text(topInsight.headline)
-                                .font(.system(size: 10, weight: .medium))
+                                .font(.pulse(size: 10, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -108,14 +108,14 @@ struct GlucoseInsightsCard: View {
         VStack(spacing: 2) {
             HStack(alignment: .lastTextBaseline, spacing: 1) {
                 Text(value)
-                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .font(.pulse(size: 18, weight: .black, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                 Text(unit)
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.pulse(size: 9, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
             }
             Text(label)
-                .font(.system(size: 9, weight: .medium))
+                .font(.pulse(size: 9, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -210,10 +210,10 @@ struct GlucoseDetailView: View {
     private func statPill(label: String, value: String, color: Color) -> some View {
         VStack(spacing: 3) {
             Text(value)
-                .font(.system(size: 14, weight: .black, design: .rounded))
+                .font(.pulse(size: 14, weight: .black, design: .rounded))
                 .foregroundColor(color)
             Text(label)
-                .font(.system(size: 9, weight: .semibold))
+                .font(.pulse(size: 9, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -228,7 +228,7 @@ struct GlucoseDetailView: View {
                         withAnimation(.easeInOut(duration: 0.2)) { selectedTab = tab }
                     } label: {
                         Text(tab.rawValue)
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.pulse(size: 12, weight: .semibold))
                             .foregroundColor(selectedTab == tab ? Pulse.textPrimary : Pulse.textTertiary)
                             .padding(.horizontal, 14)
                             .padding(.vertical, 7)
@@ -274,20 +274,20 @@ struct GlucoseDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
                 Text(insight.category.rawValue)
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(glucoseAccent)
                     .textCase(.uppercase)
                     .tracking(0.5)
                 Spacer()
                 Text(insight.metric)
-                    .font(.system(size: 14, weight: .black, design: .rounded))
+                    .font(.pulse(size: 14, weight: .black, design: .rounded))
                     .foregroundColor(toneColor(insight.metricTone))
             }
             Text(insight.headline)
-                .font(.system(size: 13, weight: .bold))
+                .font(.pulse(size: 13, weight: .bold))
                 .foregroundColor(Pulse.textPrimary)
             Text(insight.detail)
-                .font(.system(size: 11, weight: .medium))
+                .font(.pulse(size: 11, weight: .medium))
                 .foregroundColor(Pulse.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -318,20 +318,20 @@ struct GlucoseDetailView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(curve.mealName)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(glucoseAccent)
                     Text(curve.foodDescription)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.pulse(size: 12, weight: .semibold))
                         .foregroundColor(Pulse.textPrimary)
                         .lineLimit(2)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(curve.mealTime, style: .date)
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                     Text(curve.mealTime, style: .time)
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -406,14 +406,14 @@ struct GlucoseDetailView: View {
         VStack(spacing: 1) {
             HStack(alignment: .lastTextBaseline, spacing: 1) {
                 Text(value)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 13, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                 Text(unit)
-                    .font(.system(size: 8, weight: .semibold))
+                    .font(.pulse(size: 8, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
             }
             Text(label)
-                .font(.system(size: 8, weight: .medium))
+                .font(.pulse(size: 8, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -427,7 +427,7 @@ struct GlucoseDetailView: View {
         } else {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Foods ranked by glucose spike (highest first)")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.pulse(size: 10, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
                     .padding(.bottom, 4)
 
@@ -441,17 +441,17 @@ struct GlucoseDetailView: View {
     private func rankingRow(_ ranking: GlucoseEngine.FoodGlucoseRanking, rank: Int) -> some View {
         HStack(spacing: 10) {
             Text("\(rank)")
-                .font(.system(size: 12, weight: .black, design: .rounded))
+                .font(.pulse(size: 12, weight: .black, design: .rounded))
                 .foregroundColor(rank <= 3 ? Pulse.critical : Pulse.textTertiary)
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(ranking.food)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.pulse(size: 12, weight: .semibold))
                     .foregroundColor(Pulse.textPrimary)
                     .lineLimit(1)
                 Text("\(ranking.occurrences) meals • peaks at \(ranking.avgTimeToPeak) min")
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.pulse(size: 9, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -459,10 +459,10 @@ struct GlucoseDetailView: View {
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text("+\(String(format: "%.0f", ranking.avgDelta))")
-                    .font(.system(size: 14, weight: .black, design: .rounded))
+                    .font(.pulse(size: 14, weight: .black, design: .rounded))
                     .foregroundColor(ranking.avgDelta > 40 ? Pulse.critical : ranking.avgDelta > 25 ? Pulse.warning : Pulse.positive)
                 Text(ranking.trend.rawValue)
-                    .font(.system(size: 8, weight: .bold))
+                    .font(.pulse(size: 8, weight: .bold))
                     .foregroundColor(ranking.trend == .improving ? Pulse.positive : ranking.trend == .worsening ? Pulse.critical : Pulse.textTertiary)
             }
         }
@@ -491,10 +491,10 @@ struct GlucoseDetailView: View {
                         if count > 0 {
                             VStack(spacing: 2) {
                                 Text("\(count)")
-                                    .font(.system(size: 16, weight: .black, design: .rounded))
+                                    .font(.pulse(size: 16, weight: .black, design: .rounded))
                                     .foregroundColor(zoneColor(zone))
                                 Text(zoneLabel(zone))
-                                    .font(.system(size: 8, weight: .semibold))
+                                    .font(.pulse(size: 8, weight: .semibold))
                                     .foregroundColor(Pulse.textTertiary)
                                     .multilineTextAlignment(.center)
                             }
@@ -521,10 +521,10 @@ struct GlucoseDetailView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(corr.sessionDate, style: .date)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.pulse(size: 11, weight: .semibold))
                     .foregroundColor(Pulse.textPrimary)
                 Text("Pre-workout: \(String(format: "%.0f", corr.preWorkoutGlucose)) mg/dL")
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.pulse(size: 9, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -532,11 +532,11 @@ struct GlucoseDetailView: View {
 
             VStack(alignment: .trailing, spacing: 2) {
                 Text("\(String(format: "%.0f", corr.sessionVolume)) kg")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.textPrimary)
                 if let rpe = corr.sessionRPE {
                     Text("RPE \(rpe)")
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -569,7 +569,7 @@ struct GlucoseDetailView: View {
     private var methodologySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Methodology")
-                .font(.system(size: 11, weight: .bold))
+                .font(.pulse(size: 11, weight: .bold))
                 .foregroundColor(Pulse.textSecondary)
 
             VStack(alignment: .leading, spacing: 6) {
@@ -589,10 +589,10 @@ struct GlucoseDetailView: View {
     private func methodLine(_ text: String, source: String) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(text)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textSecondary)
             Text(source)
-                .font(.system(size: 8, weight: .medium))
+                .font(.pulse(size: 8, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
                 .italic()
         }
@@ -611,13 +611,13 @@ struct GlucoseDetailView: View {
     private func emptyState(_ title: String, detail: String) -> some View {
         VStack(spacing: 8) {
             Image(systemName: "waveform.path.ecg")
-                .font(.system(size: 28))
+                .font(.pulse(size: 28))
                 .foregroundColor(Pulse.textTertiary.opacity(0.5))
             Text(title)
-                .font(.system(size: 13, weight: .bold))
+                .font(.pulse(size: 13, weight: .bold))
                 .foregroundColor(Pulse.textSecondary)
             Text(detail)
-                .font(.system(size: 11, weight: .medium))
+                .font(.pulse(size: 11, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
                 .multilineTextAlignment(.center)
         }

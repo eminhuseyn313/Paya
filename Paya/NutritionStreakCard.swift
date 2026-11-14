@@ -16,6 +16,7 @@ struct NutritionStreakCard: View {
     @State private var dayDots: [DayDot] = []
     @State private var proteinHitRate: Int = 0
     @State private var calorieHitRate: Int = 0
+    @State private var loggedDays: Int = 0
 
     var body: some View {
         Group {
@@ -55,7 +56,7 @@ struct NutritionStreakCard: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Last 14 days")
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.pulse(size: 8, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
 
                         HStack(spacing: 3) {
@@ -70,7 +71,7 @@ struct NutritionStreakCard: View {
                                         .fill(dot.calorieColor)
                                         .frame(width: 14, height: 14)
                                     Text(dot.dayLabel)
-                                        .font(.system(size: 6))
+                                        .font(.pulse(size: 6))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -79,25 +80,31 @@ struct NutritionStreakCard: View {
                         HStack(spacing: 12) {
                             HStack(spacing: 3) {
                                 Circle().fill(Pulse.hydration).frame(width: 5, height: 5)
-                                Text("Protein").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
+                                Text("Protein").font(.pulse(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
                                 Circle().fill(Pulse.nutrition).frame(width: 5, height: 5)
-                                Text("Calories").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
+                                Text("Calories").font(.pulse(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
                                 Circle().fill(Pulse.positive).frame(width: 5, height: 5)
-                                Text("Hit").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
+                                Text("Hit").font(.pulse(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 3) {
                                 Circle().fill(Pulse.critical.opacity(0.4)).frame(width: 5, height: 5)
-                                Text("Miss").font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
+                                Text("Miss").font(.pulse(size: 7)).foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
 
+                    if loggedDays < 7 {
+                        Text("Early estimate · \(loggedDays) day\(loggedDays == 1 ? "" : "s") logged — rates firm up after a week")
+                            .font(.pulse(size: 9, weight: .medium))
+                            .foregroundColor(Pulse.textTertiary)
+                    }
+
                     Text("Green = within 90% of target. Keep the streak alive — consistency matters more than perfection.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
@@ -109,15 +116,15 @@ struct NutritionStreakCard: View {
     private func streakStat(value: String, label: String, sublabel: String, color: Color, icon: String) -> some View {
         VStack(spacing: 3) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(color)
             Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.pulse(size: 18, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 8, weight: .medium))
+                .font(.pulse(size: 8, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
             Text(sublabel)
-                .font(.system(size: 7))
+                .font(.pulse(size: 7))
                 .foregroundColor(.secondary.opacity(0.7))
         }
         .frame(maxWidth: .infinity)
@@ -131,7 +138,11 @@ struct NutritionStreakCard: View {
         let descriptor = FetchDescriptor<NutritionLog>(
             predicate: #Predicate<NutritionLog> { $0.profileId == pid && $0.date >= fourteenDaysAgo }
         )
-        let logs = (try? modelContext.fetch(descriptor)) ?? []
+        // A NutritionLog row is auto-created whenever the tab is opened, so an
+        // empty row is "nothing logged", not a missed day — only days with
+        // actual food count toward streaks and hit rates.
+        let logs = ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { $0.totalCalories > 0 || !$0.meals.isEmpty }
         guard !logs.isEmpty else { return }
 
         let logsByDay: [Date: NutritionLog] = Dictionary(
@@ -188,6 +199,7 @@ struct NutritionStreakCard: View {
         }
 
         dayDots = dots
+        loggedDays = logged
         proteinStreak = pStreak
         calorieStreak = cStreak
         proteinHitRate = logged > 0 ? Int(Double(pHits) / Double(logged) * 100) : 0

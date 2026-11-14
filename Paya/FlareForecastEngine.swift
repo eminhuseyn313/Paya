@@ -127,7 +127,8 @@ enum FlareForecastEngine {
         let level: FlareRiskLevel = {
             if forecastScore >= 60 { return .high }
             if forecastScore >= 40 { return .elevated }
-            if forecastScore >= 20 { return .moderate }
+            // Momentum alone (no current signal) must be sizeable to count.
+            if forecastScore >= 20 && (todayAssessment.level != .low || forecastScore >= 30) { return .moderate }
             return .low
         }()
 

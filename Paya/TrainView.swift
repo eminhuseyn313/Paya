@@ -399,7 +399,7 @@ struct DayPickerBar: View {
                             Text(day.code)
                                 .font(.headline.bold())
                             Text(day.name.split(separator: " ").first.map(String.init) ?? day.name)
-                                .font(.system(size: 9, weight: .semibold))
+                                .font(.pulse(size: 9, weight: .semibold))
                                 .lineLimit(1)
                         }
                         .frame(width: 60, height: 50)
@@ -468,7 +468,7 @@ struct DayHeaderCard: View {
                                 .font(.subheadline.weight(.bold))
                                 .monospacedDigit()
                             Text("exercises")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         VStack(spacing: 1) {
@@ -476,7 +476,7 @@ struct DayHeaderCard: View {
                                 .font(.subheadline.weight(.bold))
                                 .monospacedDigit()
                             Text("sets")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         VStack(spacing: 1) {
@@ -484,7 +484,7 @@ struct DayHeaderCard: View {
                                 .font(.subheadline.weight(.bold))
                                 .monospacedDigit()
                             Text("est. time")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -496,7 +496,7 @@ struct DayHeaderCard: View {
                 HStack(spacing: 6) {
                     ForEach(muscleGroups, id: \.self) { group in
                         Text(group)
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                             .foregroundColor(vm.selectedDay.color)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -507,9 +507,9 @@ struct DayHeaderCard: View {
                     if focusMode.isEnabled {
                         HStack(spacing: 4) {
                             Image(systemName: "moon.fill")
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                             Text("Focus")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                         }
                         .foregroundColor(Pulse.ai)
                         .padding(.horizontal, 8)
@@ -524,10 +524,10 @@ struct DayHeaderCard: View {
             if isFlareDay && !flareText.isEmpty {
                 HStack(spacing: 6) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.warning)
                     Text(flareText)
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.pulse(size: 11, weight: .semibold))
                         .foregroundColor(Pulse.warning)
                         .lineLimit(1)
                 }
@@ -546,19 +546,19 @@ struct DayHeaderCard: View {
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: adjustment.severity.icon)
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                                 .foregroundColor(adjustment.severity.color)
                             Text(adjustment.multiplier > 1.0 ? "Primed" : adjustment.severity.label)
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.pulse(size: 12, weight: .bold))
                             Text(adjustment.signedPercentLabel)
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.pulse(size: 12, weight: .bold))
                                 .foregroundColor(adjustment.severity.color)
                             Spacer()
                             Text("\(adjustment.reasons.count) signal\(adjustment.reasons.count == 1 ? "" : "s")")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                             Image(systemName: recoveryExpanded ? "chevron.up" : "chevron.down")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -569,11 +569,11 @@ struct DayHeaderCard: View {
                             ForEach(adjustment.reasons) { reason in
                                 HStack(spacing: 8) {
                                     Image(systemName: reason.icon)
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                         .foregroundColor(adjustment.severity.color)
                                         .frame(width: 16)
                                     Text(reason.text)
-                                        .font(.system(size: 11))
+                                        .font(.pulse(size: 11))
                                         .foregroundColor(Pulse.textPrimary)
                                 }
                             }
@@ -595,27 +595,27 @@ struct DayHeaderCard: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 8) {
                             Image(systemName: ansZoneIcon(hrv.zone))
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                                 .foregroundColor(ansZoneColor(hrv.zone))
                             Text("ANS: \(ansZoneLabel(hrv.zone))")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.pulse(size: 12, weight: .bold))
                                 .foregroundColor(ansZoneColor(hrv.zone))
                             Spacer()
                             Text("\(hrv.dataPoints)d data")
-                                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                                .font(.pulse(size: 9, weight: .medium, design: .monospaced))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         Text(hrv.explanation)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if hrv.swapExplosiveForTempo {
                             HStack(spacing: 5) {
                                 Image(systemName: "arrow.triangle.2.circlepath")
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                                 Text("Explosive movements → controlled tempo")
-                                    .font(.system(size: 9, weight: .medium))
+                                    .font(.pulse(size: 9, weight: .medium))
                             }
                             .foregroundColor(Pulse.warning)
                         }
@@ -623,9 +623,9 @@ struct DayHeaderCard: View {
                         if hrv.intensityPushAvailable {
                             HStack(spacing: 5) {
                                 Image(systemName: "arrow.up.circle.fill")
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                                 Text("Intensity push unlocked — go heavier if you want")
-                                    .font(.system(size: 9, weight: .medium))
+                                    .font(.pulse(size: 9, weight: .medium))
                             }
                             .foregroundColor(Pulse.positive)
                         }
@@ -644,14 +644,14 @@ struct DayHeaderCard: View {
                     Button(action: onQuickSwitch) {
                         HStack(spacing: 8) {
                             Image(systemName: "bolt.fill")
-                                .font(.system(size: 11))
+                                .font(.pulse(size: 11))
                                 .foregroundColor(Pulse.ai)
                             Text("Switch to 20-min compounds-only session")
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.pulse(size: 11, weight: .semibold))
                                 .foregroundColor(Pulse.ai)
                             Spacer()
                             Text("Switch")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
@@ -730,7 +730,7 @@ struct SessionLiveHeader: View {
                 HStack(spacing: 8) {
                     if vm.isSessionPaused {
                         Image(systemName: "pause.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.nutrition)
                     } else {
                         Circle()
@@ -740,7 +740,7 @@ struct SessionLiveHeader: View {
                     }
                     let _ = ticker
                     Text(vm.sessionDurationFormatted)
-                        .font(.system(size: 24, weight: .bold).monospacedDigit())
+                        .font(.pulse(size: 24, weight: .bold).monospacedDigit())
                         .foregroundColor(vm.isSessionPaused ? .secondary : .primary)
 
                     Button {
@@ -751,7 +751,7 @@ struct SessionLiveHeader: View {
                         }
                     } label: {
                         Image(systemName: vm.isSessionPaused ? "play.fill" : "pause.fill")
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.pulse(size: 12, weight: .semibold))
                             .foregroundColor(vm.isSessionPaused ? Pulse.positive : .secondary)
                             .frame(width: 30, height: 30)
                             .background(
@@ -775,10 +775,10 @@ struct SessionLiveHeader: View {
                     VStack(alignment: .leading, spacing: 0) {
                         HStack(spacing: 4) {
                             Image(systemName: "scalemass.fill")
-                                .font(.system(size: 11))
+                                .font(.pulse(size: 11))
                                 .foregroundColor(vm.selectedDayColor)
                             Text(String(format: "%.0f", totalVolume))
-                                .font(.system(size: 14, weight: .bold).monospacedDigit())
+                                .font(.pulse(size: 14, weight: .bold).monospacedDigit())
                         }
                         if vm.previousSessionVolume > 0 {
                             let prevDisplay = appState.profile.prefersLbs ? vm.previousSessionVolume * 2.20462 : vm.previousSessionVolume
@@ -787,11 +787,11 @@ struct SessionLiveHeader: View {
                             Text(delta >= 0
                                  ? String(format: "+%.0f%%", pct)
                                  : String(format: "%.0f%%", pct))
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(delta >= 0 ? Pulse.positive : Pulse.critical)
                         } else {
                             Text(appState.profile.prefersLbs ? "lbs" : "kg")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -822,7 +822,7 @@ struct SessionLiveHeader: View {
                 if let eta = vm.estimatedTimeRemaining {
                     let _ = ticker
                     Text(eta)
-                        .font(.system(size: 9, weight: .semibold))
+                        .font(.pulse(size: 9, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                         .fixedSize()
                 }
@@ -847,13 +847,13 @@ private struct SessionLiveStat: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(color)
             VStack(alignment: .leading, spacing: 0) {
                 Text(value)
-                    .font(.system(size: 14, weight: .bold).monospacedDigit())
+                    .font(.pulse(size: 14, weight: .bold).monospacedDigit())
                 Text(label)
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
                     .foregroundColor(Pulse.textTertiary)
             }
         }
@@ -913,12 +913,12 @@ struct BottomActionBar: View {
                             .frame(width: 7, height: 7)
                             .modifier(PulseModifier())
                         Text("\(vm.totalCompletedSets)/\(totalSets) sets")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.pulse(size: 13, weight: .semibold))
                             .monospacedDigit()
                             .foregroundColor(Pulse.textTertiary)
                         if vm.isSimpleMode {
                             Text("· Simple")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                                 .foregroundColor(Pulse.ai)
                         }
                     }
@@ -927,7 +927,7 @@ struct BottomActionBar: View {
 
                     Button(action: onDiscard) {
                         Image(systemName: "xmark")
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.pulse(size: 13, weight: .bold))
                             .foregroundColor(.red)
                             .frame(width: 40, height: 40)
                             .background(Color.red.opacity(0.08))
@@ -937,7 +937,7 @@ struct BottomActionBar: View {
                     Button(action: onComplete) {
                         HStack(spacing: 6) {
                             Image(systemName: vm.allExercisesComplete ? "checkmark.circle.fill" : "flag.checkered")
-                                .font(.system(size: 13))
+                                .font(.pulse(size: 13))
                             Text(vm.allExercisesComplete ? "Complete" : "Finish")
                         }
                         .font(.subheadline.weight(.bold))
@@ -1015,7 +1015,7 @@ struct EmptyDayCard: View {
     var body: some View {
         VStack(spacing: 14) {
             Image(systemName: "square.stack.3d.up.slash")
-                .font(.system(size: 40))
+                .font(.pulse(size: 40))
                 .foregroundColor(Pulse.textTertiary)
             Text("\(dayName) has no exercises yet")
                 .font(.headline)
@@ -1100,10 +1100,10 @@ struct CompleteSessionSheet: View {
 
                         VStack(spacing: 4) {
                             Text("Session Complete")
-                                .font(.system(size: 24, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 24, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
                             Text(vm.selectedDay.name)
-                                .font(.system(size: 15, weight: .semibold))
+                                .font(.pulse(size: 15, weight: .semibold))
                                 .foregroundColor(vm.selectedDay.color)
                         }
 
@@ -1161,7 +1161,7 @@ struct CompleteSessionSheet: View {
                         VStack(spacing: 10) {
                             Button(action: onConfirm) {
                                 Text("Complete & Save")
-                                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 17, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 16)
@@ -1172,7 +1172,7 @@ struct CompleteSessionSheet: View {
 
                             Button(action: onCancel) {
                                 Text("Not yet — keep training")
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .font(.pulse(size: 15, weight: .semibold))
                                     .foregroundColor(Pulse.textTertiary)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
@@ -1200,15 +1200,15 @@ struct SummaryStatPill: View {
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 18))
+                .font(.pulse(size: 18))
                 .foregroundColor(color)
             Text(value)
-                .font(.system(size: 17, weight: .bold, design: .rounded))
+                .font(.pulse(size: 17, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textPrimary)
                 .monospacedDigit()
                 .contentTransition(.numericText())
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -1236,7 +1236,7 @@ struct ExerciseSummaryList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("EXERCISE BREAKDOWN")
-                .font(.system(size: 10, weight: .bold))
+                .font(.pulse(size: 10, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
                 .tracking(1.2)
 
@@ -1247,18 +1247,18 @@ struct ExerciseSummaryList: View {
                         HStack(spacing: 8) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(exercise.name)
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .font(.pulse(size: 12, weight: .semibold))
                                     .lineLimit(1)
                                 HStack(spacing: 6) {
                                     Text("\(completedSets.count) sets")
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                         .foregroundColor(Pulse.textTertiary)
 
                                     let vol = completedSets.reduce(0.0) { $0 + $1.weightKg * Double($1.reps) }
                                     if vol > 0 {
                                         let displayVol = useLbs ? vol * 2.20462 : vol
                                         Text(String(format: "%.0f %@", displayVol, useLbs ? "lbs" : "kg"))
-                                            .font(.system(size: 10, weight: .semibold))
+                                            .font(.pulse(size: 10, weight: .semibold))
                                             .foregroundColor(vm.selectedDayColor)
                                     }
 
@@ -1266,28 +1266,28 @@ struct ExerciseSummaryList: View {
                                     if !rpes.isEmpty {
                                         let avgRPE = Double(rpes.reduce(0, +)) / Double(rpes.count)
                                         Text(String(format: "RPE %.1f", avgRPE))
-                                            .font(.system(size: 9, weight: .bold))
+                                            .font(.pulse(size: 9, weight: .bold))
                                             .foregroundColor(avgRPE >= 9 ? Pulse.critical : avgRPE >= 7 ? Pulse.nutrition : Pulse.positive)
                                     }
 
                                     let drops = completedSets.filter { $0.setType == .dropSet }.count
                                     if drops > 0 {
                                         Text("\(drops) drop")
-                                            .font(.system(size: 9, weight: .bold))
+                                            .font(.pulse(size: 9, weight: .bold))
                                             .foregroundColor(Pulse.critical)
                                     }
 
                                     let amraps = completedSets.filter { $0.setType == .amrap }.count
                                     if amraps > 0 {
                                         Text("\(amraps) AMRAP")
-                                            .font(.system(size: 9, weight: .bold))
+                                            .font(.pulse(size: 9, weight: .bold))
                                             .foregroundColor(Pulse.ai)
                                     }
                                 }
                             }
                             Spacer()
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 14))
+                                .font(.pulse(size: 14))
                                 .foregroundColor(Pulse.positive)
                         }
                         .padding(.horizontal, 10)
@@ -1309,7 +1309,7 @@ struct FlareNotice: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Pulse.warning)
             Text(text)
                 .font(.caption2.weight(.semibold))
@@ -1362,7 +1362,7 @@ struct PreSessionContextSection: View {
                         .foregroundColor(Pulse.textTertiary)
                     Spacer()
                     Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.horizontal, 14)

@@ -319,7 +319,7 @@ class AppState {
     }
 
     var isTrainingDay: Bool {
-        todaySessionType != nil
+        ProgramData.isTodayTrainingDay
     }
 
     var todayCalorieTarget: Double {

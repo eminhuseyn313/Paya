@@ -70,7 +70,7 @@ struct FoodPhotoEstimateView: View {
                 if appState.geminiAPIKey.isEmpty {
                     VStack(spacing: 10) {
                         Image(systemName: "key.slash")
-                            .font(.system(size: 32))
+                            .font(.pulse(size: 32))
                             .foregroundColor(Pulse.textTertiary)
                         Text("Add a free Gemini API key in Settings to use this.")
                             .font(.subheadline)
@@ -117,7 +117,7 @@ struct FoodPhotoEstimateView: View {
                     } else if let errorText {
                         VStack(spacing: 12) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 24))
+                                .font(.pulse(size: 24))
                                 .foregroundColor(Pulse.warning)
                             Text(errorText)
                                 .font(.caption)
@@ -197,7 +197,7 @@ struct FoodPhotoEstimateView: View {
                         portionCount = p
                     } label: {
                         Text(p == 0.5 ? "½" : p == 1.0 ? "All" : "1/\(Int(p))")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.pulse(size: 13, weight: .semibold))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .background(portionCount == p ? Pulse.positive : Color(.tertiarySystemGroupedBackground))

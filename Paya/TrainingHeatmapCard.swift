@@ -41,7 +41,7 @@ struct TrainingHeatmapCard: View {
                 HStack(spacing: 4) {
                     Spacer()
                     Text("Less")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(Pulse.textTertiary)
                     ForEach([0, 1, 2, 3], id: \.self) { level in
                         RoundedRectangle(cornerRadius: 2)
@@ -49,7 +49,7 @@ struct TrainingHeatmapCard: View {
                             .frame(width: 10, height: 10)
                     }
                     Text("More")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .padding(.top, 4)
@@ -85,7 +85,7 @@ struct TrainingHeatmapCard: View {
         VStack(spacing: 2) {
             ForEach(["M","T","W","T","F","S","S"], id: \.self) { label in
                 Text(label)
-                    .font(.system(size: 7))
+                    .font(.pulse(size: 7))
                     .foregroundColor(Pulse.textTertiary)
                     .frame(width: 12, height: cellSize)
             }

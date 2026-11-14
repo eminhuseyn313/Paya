@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 // MARK: - Session Celebration View
 //
@@ -27,6 +28,7 @@ struct SessionCelebrationView: View {
     let onContinue: () -> Void
 
     @State private var showContent = false
+    @State private var showNotifPrompt = false
     @State private var showComparison = false
     @State private var showButton = false
     @State private var pulseScale: CGFloat = 1.0
@@ -90,7 +92,7 @@ struct SessionCelebrationView: View {
 
                 // Top label
                 Text("SESSION COMPLETE")
-                    .font(.system(size: 11, weight: .heavy, design: .rounded))
+                    .font(.pulse(size: 11, weight: .heavy, design: .rounded))
                     .tracking(3)
                     .foregroundColor(heroColor.opacity(0.7))
                     .opacity(showContent ? 1 : 0)
@@ -111,7 +113,7 @@ struct SessionCelebrationView: View {
                         .scaleEffect(pulseScale * 0.95)
 
                     Image(systemName: hasVolume ? comparison.sfSymbol : "figure.strengthtraining.traditional")
-                        .font(.system(size: 72, weight: .medium))
+                        .font(.pulse(size: 72, weight: .medium))
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [heroColor, heroColor.opacity(0.6)],
@@ -130,19 +132,19 @@ struct SessionCelebrationView: View {
                 VStack(spacing: 6) {
                     if hasVolume {
                         Text(volumeString)
-                            .font(.system(size: 52, weight: .black, design: .rounded))
+                            .font(.pulse(size: 52, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                             .contentTransition(.numericText())
                         Text("total \(useLbs ? "lbs" : "kg") moved")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.pulse(size: 15, weight: .medium))
                             .foregroundColor(Pulse.textSecondary)
                     } else {
                         Text("\(totalReps)")
-                            .font(.system(size: 52, weight: .black, design: .rounded))
+                            .font(.pulse(size: 52, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                             .contentTransition(.numericText())
                         Text("total reps crushed")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.pulse(size: 15, weight: .medium))
                             .foregroundColor(Pulse.textSecondary)
                     }
                 }
@@ -153,63 +155,18 @@ struct SessionCelebrationView: View {
 
                 // Comparison card — only for weighted sessions
                 if hasVolume {
-                    VStack(spacing: 12) {
-                        Text("That's like lifting")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(Pulse.textTertiary)
-
-                        HStack(spacing: 14) {
-                            HStack(spacing: -8) {
-                                ForEach(0..<min(max(Int(multiplier.rounded()), 1), 5), id: \.self) { i in
-                                    Image(systemName: comparison.sfSymbol)
-                                        .font(.system(size: 28, weight: .medium))
-                                        .foregroundColor(comparison.glowColor)
-                                        .background(
-                                            Circle()
-                                                .fill(Color.black)
-                                                .frame(width: 44, height: 44)
-                                        )
-                                        .offset(x: showComparison ? 0 : CGFloat(i) * -20)
-                                        .opacity(showComparison ? 1 : 0)
-                                        .animation(
-                                            .spring(response: 0.5, dampingFraction: 0.7)
-                                                .delay(Double(i) * 0.08),
-                                            value: showComparison
-                                        )
-                                }
-                            }
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(comparisonText)
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                Text(comparison.subtitle)
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(Pulse.textTertiary)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.06))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(heroColor.opacity(0.2), lineWidth: 1)
-                            )
-                    )
-                    .padding(.horizontal, 32)
-                    .scaleEffect(showComparison ? 1 : 0.9)
-                    .opacity(showComparison ? 1 : 0)
+                    LiftEquivalentCard(volumeKg: totalVolume, prefersLbs: appState.profile.prefersLbs)
+                        .padding(.horizontal, 24)
+                        .scaleEffect(showComparison ? 1 : 0.9)
+                        .opacity(showComparison ? 1 : 0)
                 } else {
                     // Bodyweight session encouragement
                     VStack(spacing: 8) {
                         Text("Pure bodyweight power")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 20, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                         Text("You moved your own body through \(totalReps) reps across \(totalSets) sets")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.pulse(size: 13, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                             .multilineTextAlignment(.center)
                     }
@@ -257,7 +214,26 @@ struct SessionCelebrationView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .alert("Get a nudge for your next session?", isPresented: $showNotifPrompt) {
+            Button("Turn on reminders") {
+                appState.profile.reminderEnabled = true
+                for cat in [NotificationCategory.training, .meal, .hydration, .recovery, .milestone, .weeklyDigest] {
+                    appState.profile.notificationCategoryEnabled[cat.rawValue] = true
+                }
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in }
+            }
+            Button("Not now", role: .cancel) {}
+        } message: {
+            Text("Paya can remind you about training days, meals and water. You can change this any time in Settings.")
+        }
         .onAppear {
+            // Ask for notifications after the user has felt the value (their
+            // first finished workout), not before they've seen anything.
+            if !UserDefaults.standard.bool(forKey: "notif_prompt_after_first_workout"),
+               !appState.profile.reminderEnabled {
+                UserDefaults.standard.set(true, forKey: "notif_prompt_after_first_workout")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { showNotifPrompt = true }
+            }
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true
             }
@@ -322,10 +298,10 @@ private struct StatPill: View {
     var body: some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 17, weight: .bold, design: .rounded))
+                .font(.pulse(size: 17, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
             Text(label)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.pulse(size: 10, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

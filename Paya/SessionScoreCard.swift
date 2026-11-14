@@ -26,7 +26,7 @@ struct SessionScoreCard: View {
                         .frame(width: 48, height: 48)
                         .rotationEffect(.degrees(-90))
                     Text("\(score.total)")
-                        .font(.system(size: 16, weight: .heavy, design: .rounded))
+                        .font(.pulse(size: 16, weight: .heavy, design: .rounded))
                         .foregroundColor(score.color)
                 }
 
@@ -34,7 +34,7 @@ struct SessionScoreCard: View {
                     Text("Session Score")
                         .font(.subheadline.weight(.semibold))
                     Text(score.grade)
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(score.color)
                 }
 
@@ -42,14 +42,14 @@ struct SessionScoreCard: View {
 
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(session.sessionType)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 2)
                         .background(score.color)
                         .clipShape(Capsule())
                     Text(dateLabel)
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -63,7 +63,7 @@ struct SessionScoreCard: View {
             }
 
             Text("Composite score from volume (30%), intensity (25%), duration (20%), effort (15%), and cardio (10%). Higher = harder session.")
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
@@ -89,10 +89,10 @@ struct SessionScoreCard: View {
                     .frame(width: 16, height: 28 * CGFloat(value) / CGFloat(max))
             }
             Text("\(value)")
-                .font(.system(size: 8, weight: .bold, design: .rounded))
+                .font(.pulse(size: 8, weight: .bold, design: .rounded))
                 .foregroundColor(score.color)
             Text(label)
-                .font(.system(size: 6, weight: .medium))
+                .font(.pulse(size: 6, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)

@@ -311,17 +311,17 @@ struct LogView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "scalemass.fill")
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(PayaColor.positive)
                 Text("Body weight")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.pulse(size: 14, weight: .semibold))
                 Spacer()
                 Button { showWeightEntry = true } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "plus")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                         Text("Log")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                     }
                     .foregroundColor(.white)
                     .padding(.horizontal, 12)

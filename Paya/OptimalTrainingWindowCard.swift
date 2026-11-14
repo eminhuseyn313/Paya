@@ -46,7 +46,7 @@ struct OptimalTrainingWindowCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text(chronotype)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.ai)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
@@ -59,12 +59,12 @@ struct OptimalTrainingWindowCard: View {
                         VStack(spacing: 4) {
                             HStack(alignment: .firstTextBaseline, spacing: 2) {
                                 Text(windowStart)
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 24, weight: .bold, design: .rounded))
                                 Text("–")
-                                    .font(.system(size: 18, weight: .bold))
+                                    .font(.pulse(size: 18, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                                 Text(windowEnd)
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 24, weight: .bold, design: .rounded))
                             }
 
                             if isInWindow {
@@ -73,17 +73,17 @@ struct OptimalTrainingWindowCard: View {
                                         .fill(Pulse.positive)
                                         .frame(width: 6, height: 6)
                                     Text("You're in the window now")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.pulse(size: 10, weight: .bold))
                                         .foregroundColor(Pulse.positive)
                                 }
                             } else if let hours = hoursUntilWindow {
                                 if hours > 0 {
                                     Text("In ~\(hours) hours")
-                                        .font(.system(size: 10, weight: .semibold))
+                                        .font(.pulse(size: 10, weight: .semibold))
                                         .foregroundColor(Pulse.textTertiary)
                                 } else {
                                     Text("Window passed for today")
-                                        .font(.system(size: 10, weight: .semibold))
+                                        .font(.pulse(size: 10, weight: .semibold))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -100,18 +100,18 @@ struct OptimalTrainingWindowCard: View {
                         HStack(spacing: 12) {
                             HStack(spacing: 4) {
                                 Image(systemName: "moon.fill")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.ai)
                                 Text(String(format: "%.1fh sleep", sleep))
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                             HStack(spacing: 4) {
                                 Image(systemName: "sunrise.fill")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.nutrition)
                                 Text("Woke ~\(wake)")
-                                    .font(.system(size: 10))
+                                    .font(.pulse(size: 10))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -121,18 +121,18 @@ struct OptimalTrainingWindowCard: View {
                     if let note = consistencyNote {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(note)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text("Chtourou & Souissi (2012): neuromuscular peak at body temp max. Sedliak et al. (2009): consistent training time → 22% better strength gains.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -161,11 +161,11 @@ struct OptimalTrainingWindowCard: View {
             }
             HStack {
                 Text("6am")
-                    .font(.system(size: 7))
+                    .font(.pulse(size: 7))
                     .foregroundColor(Pulse.textTertiary)
                 Spacer()
                 Text("10pm")
-                    .font(.system(size: 7))
+                    .font(.pulse(size: 7))
                     .foregroundColor(Pulse.textTertiary)
             }
             .frame(width: CGFloat((23 - 6) * 8))

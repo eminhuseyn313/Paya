@@ -32,11 +32,11 @@ struct MilestoneCelebrationCard: View {
                         Image(systemName: "trophy.fill")
                             .foregroundColor(Pulse.nutrition)
                         Text("Recent wins")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.pulse(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Text("\(recentAchievements.count) new")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.nutrition)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
@@ -55,9 +55,9 @@ struct MilestoneCelebrationCard: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                             Text("Share your wins")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                         }
                         .foregroundColor(Pulse.nutrition)
                         .frame(maxWidth: .infinity)
@@ -84,17 +84,17 @@ struct MilestoneCelebrationCard: View {
                     .fill(Color(hex: achievement.colorHex).opacity(0.15))
                     .frame(width: 36, height: 36)
                 Image(systemName: achievement.icon)
-                    .font(.system(size: 15))
+                    .font(.pulse(size: 15))
                     .foregroundColor(Color(hex: achievement.colorHex))
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(achievement.title)
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.pulse(size: 12, weight: .bold))
                     if isNew(achievement) {
                         Text("NEW")
-                            .font(.system(size: 7, weight: .black))
+                            .font(.pulse(size: 7, weight: .black))
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
@@ -103,14 +103,14 @@ struct MilestoneCelebrationCard: View {
                     }
                 }
                 Text(achievement.subtitle)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textTertiary)
             }
 
             Spacer(minLength: 0)
 
             Text(daysSince(achievement.earnedAt))
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .padding(8)
@@ -152,14 +152,14 @@ struct MilestoneCelebrationCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Paya")
-                        .font(.system(size: 24, weight: .black))
+                        .font(.pulse(size: 24, weight: .black))
                     Text("\(recentAchievements.count) achievements unlocked")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.pulse(size: 12, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 Spacer()
                 Image(systemName: "trophy.fill")
-                    .font(.system(size: 30))
+                    .font(.pulse(size: 30))
                     .foregroundColor(Pulse.warning)
             }
             .padding(20)
@@ -169,14 +169,14 @@ struct MilestoneCelebrationCard: View {
                 ForEach(recentAchievements) { a in
                     HStack(spacing: 10) {
                         Image(systemName: a.icon)
-                            .font(.system(size: 16))
+                            .font(.pulse(size: 16))
                             .foregroundColor(Color(hex: a.colorHex))
                             .frame(width: 24)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(a.title)
-                                .font(.system(size: 13, weight: .bold))
+                                .font(.pulse(size: 13, weight: .bold))
                             Text(a.subtitle)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         Spacer()

@@ -32,23 +32,23 @@ struct ProgressiveOverloadCard: View {
                                     .fill(item.isProgressing ? Pulse.positive.opacity(0.12) : Pulse.nutrition.opacity(0.12))
                                     .frame(width: 28, height: 28)
                                 Image(systemName: item.isProgressing ? "arrow.up" : "minus")
-                                    .font(.system(size: 11, weight: .bold))
+                                    .font(.pulse(size: 11, weight: .bold))
                                     .foregroundColor(item.isProgressing ? Pulse.positive : Pulse.nutrition)
                             }
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(item.name)
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .font(.pulse(size: 12, weight: .semibold))
                                     .lineLimit(1)
                                 HStack(spacing: 6) {
                                     let startW = useLbs ? item.startWeight * 2.20462 : item.startWeight
                                     let endW = useLbs ? item.endWeight * 2.20462 : item.endWeight
                                     Text(String(format: "%.0f→%.0f %@", startW, endW, useLbs ? "lbs" : "kg"))
-                                        .font(.system(size: 10, design: .rounded))
+                                        .font(.pulse(size: 10, design: .rounded))
                                         .foregroundColor(Pulse.textTertiary)
                                     if item.repsChange != 0 {
                                         Text(item.repsChange > 0 ? "+\(item.repsChange) reps" : "\(item.repsChange) reps")
-                                            .font(.system(size: 9, weight: .bold))
+                                            .font(.pulse(size: 9, weight: .bold))
                                             .foregroundColor(item.repsChange > 0 ? Pulse.positive : Pulse.critical)
                                     }
                                 }
@@ -58,11 +58,11 @@ struct ProgressiveOverloadCard: View {
 
                             if item.isProgressing {
                                 Text(String(format: "+%.0f%%", item.changePercent))
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(Pulse.positive)
                             } else {
                                 Text("Plateau")
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.pulse(size: 10, weight: .bold))
                                     .foregroundColor(Pulse.nutrition)
                             }
                         }

@@ -29,15 +29,15 @@ struct TrainingConsistencyBanner: View {
                                 .frame(width: 44, height: 44)
                             VStack(spacing: 0) {
                                 Image(systemName: "flame.fill")
-                                    .font(.system(size: 18))
+                                    .font(.pulse(size: 18))
                                     .foregroundColor(streakColor)
                                 Text("\(currentStreak)")
-                                    .font(.system(size: 10, weight: .black, design: .rounded))
+                                    .font(.pulse(size: 10, weight: .black, design: .rounded))
                                     .foregroundColor(streakColor)
                             }
                         }
                         Text("week streak")
-                            .font(.system(size: 7, weight: .semibold))
+                            .font(.pulse(size: 7, weight: .semibold))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -45,9 +45,9 @@ struct TrainingConsistencyBanner: View {
                         // Adherence bar
                         HStack(spacing: 3) {
                             Text("\(adherenceRate)%")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 14, weight: .bold, design: .rounded))
                             Text("adherence · 8 weeks")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                         }
 
@@ -62,7 +62,7 @@ struct TrainingConsistencyBanner: View {
 
                         if longestStreak > currentStreak {
                             Text("Best: \(longestStreak) weeks")
-                                .font(.system(size: 8, weight: .semibold))
+                                .font(.pulse(size: 8, weight: .semibold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }

@@ -70,7 +70,7 @@ struct TrainingCalendarV2: View {
             HStack(spacing: 4) {
                 ForEach(["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"], id: \.self) { day in
                     Text(day)
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(Pulse.textTertiary)
                         .frame(maxWidth: .infinity)
                 }
@@ -233,7 +233,7 @@ struct CalendarDayCell: View {
                       ? Pulse.surfaceElevatedFallback
                       : cellColor.opacity(isSelected ? 1.0 : 0.85))
             Text(dayNumber)
-                .font(.system(size: 12, weight: sessions.isEmpty ? .regular : .bold))
+                .font(.pulse(size: 12, weight: sessions.isEmpty ? .regular : .bold))
                 .foregroundColor(
                     sessions.isEmpty
                         ? (isFuture ? .secondary.opacity(0.35) : .secondary)
@@ -369,7 +369,7 @@ struct HistoryRowV2: View {
                     .frame(width: 36, height: 36)
                 if session.sourceRaw == "appleFitness" {
                     Image(systemName: "figure.run")
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.pulse(size: 15, weight: .semibold))
                         .foregroundColor(color)
                 } else {
                     Text(session.sessionType)
@@ -385,7 +385,7 @@ struct HistoryRowV2: View {
                         .foregroundColor(Pulse.textPrimary)
                     if session.sourceRaw == "appleFitness" {
                         Text("Apple Fitness")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -408,7 +408,7 @@ struct HistoryRowV2: View {
                 HStack(spacing: 4) {
                     if session.isFlareDay {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.warning)
                     }
                     Text("\(session.durationMinutes) min")

@@ -87,7 +87,7 @@ struct SessionIntensityCard: View {
                 .fill(Color(hex: zone.colorHex))
                 .frame(width: 6, height: 6)
             Text(zone.rawValue)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

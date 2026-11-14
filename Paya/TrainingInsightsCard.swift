@@ -38,7 +38,7 @@ struct TrainingInsightsCard: View {
                                     .fill(Color(hex: insight.colorHex).opacity(0.12))
                                     .frame(width: 32, height: 32)
                                 Image(systemName: insight.icon)
-                                    .font(.system(size: 13))
+                                    .font(.pulse(size: 13))
                                     .foregroundColor(Color(hex: insight.colorHex))
                             }
 
@@ -62,7 +62,7 @@ struct TrainingInsightsCard: View {
                                 Text(showAll ? "Show less" : "Show \(insights.count - 3) more")
                                     .font(.caption.weight(.medium))
                                 Image(systemName: showAll ? "chevron.up" : "chevron.down")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                             }
                             .foregroundColor(Pulse.ai)
                             .frame(maxWidth: .infinity)

@@ -21,7 +21,7 @@ struct ReadinessGlanceView: View {
                         ProgressView()
                             .tint(WatchPulse.ai)
                         Text("Reading vitals…")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.pulse(size: 11, weight: .medium))
                             .foregroundColor(WatchPulse.textSecondary)
                     }
                     .padding(.top, 20)
@@ -42,7 +42,7 @@ struct ReadinessGlanceView: View {
     private func scoreView(_ score: Int) -> some View {
         VStack(spacing: 6) {
             Text("READINESS")
-                .font(.system(size: 9, weight: .black, design: .rounded))
+                .font(.pulse(size: 9, weight: .black, design: .rounded))
                 .foregroundColor(WatchPulse.textTertiary)
                 .tracking(1)
 
@@ -66,10 +66,10 @@ struct ReadinessGlanceView: View {
 
                 VStack(spacing: 0) {
                     Text("\(score)")
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 34, weight: .bold, design: .rounded))
                         .foregroundColor(WatchPulse.textPrimary)
                     Text(band)
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 10, weight: .bold, design: .rounded))
                         .foregroundColor(bandColor)
                 }
             }
@@ -77,7 +77,7 @@ struct ReadinessGlanceView: View {
 
             if isPhoneScore, let rec = wc.phoneReadinessRecommendation, !rec.isEmpty {
                 Text(rec.components(separatedBy: ".").first ?? rec)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(WatchPulse.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
@@ -103,15 +103,15 @@ struct ReadinessGlanceView: View {
     private func metricRow(icon: String, label: String, value: String, color: Color) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(color)
                 .frame(width: 14)
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(WatchPulse.textSecondary)
             Spacer()
             Text(value)
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.pulse(size: 11, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundColor(WatchPulse.textPrimary)
         }
@@ -128,14 +128,14 @@ struct ReadinessGlanceView: View {
                     .fill(WatchPulse.surface)
                     .frame(width: 52, height: 52)
                 Image(systemName: "heart.text.clipboard")
-                    .font(.system(size: 22))
+                    .font(.pulse(size: 22))
                     .foregroundColor(WatchPulse.textTertiary)
             }
             Text("No data yet")
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.pulse(size: 13, weight: .bold, design: .rounded))
                 .foregroundColor(WatchPulse.textPrimary)
             Text("Wear your watch overnight to build a baseline.")
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(WatchPulse.textSecondary)
                 .multilineTextAlignment(.center)
         }

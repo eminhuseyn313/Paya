@@ -51,7 +51,7 @@ struct WearableHeaderCard: View {
                     .fill(Color(hex: "2563EB").opacity(0.12))
                     .frame(width: 72, height: 72)
                 Image(systemName: "applewatch.watchface")
-                    .font(.system(size: 36))
+                    .font(.pulse(size: 36))
                     .foregroundColor(Color(hex: "2563EB"))
             }
             Text("Wearable-agnostic")

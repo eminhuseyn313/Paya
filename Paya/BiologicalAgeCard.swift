@@ -31,13 +31,13 @@ struct BiologicalAgeCard: View {
             HStack {
                 Image(systemName: "heart.text.clipboard.fill")
                     .foregroundColor(Pulse.ai)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text("Biological age estimate")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 if bioAge != nil {
                     Text("Quarterly")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.ai)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
@@ -59,10 +59,10 @@ struct BiologicalAgeCard: View {
                     // Bio age
                     VStack(spacing: 2) {
                         Text("\(est.estimatedAge)")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 36, weight: .bold, design: .rounded))
                             .foregroundColor(est.deltaColor)
                         Text("Bio age")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -72,14 +72,14 @@ struct BiologicalAgeCard: View {
                             .font(.caption)
                         HStack(spacing: 4) {
                             Image(systemName: est.delta < 0 ? "arrow.down" : est.delta > 0 ? "arrow.up" : "equal")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                             Text(est.deltaText)
                                 .font(.caption.weight(.bold))
                         }
                         .foregroundColor(est.deltaColor)
 
                         Text(est.summaryText)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -87,25 +87,31 @@ struct BiologicalAgeCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 4)
 
+                if est.dataDays < 30 {
+                    Text("Early estimate · \(est.dataDays) days of data — firms up at 30+ days")
+                        .font(.pulse(size: 10, weight: .medium))
+                        .foregroundColor(Pulse.textTertiary)
+                }
+
                 // Component breakdown
                 VStack(spacing: 6) {
                     Text("COMPONENTS")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
 
                     ForEach(est.components) { comp in
                         HStack {
                             Image(systemName: comp.icon)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Color(hex: comp.colorHex))
                                 .frame(width: 20)
                             Text(comp.label)
-                                .font(.system(size: 11))
+                                .font(.pulse(size: 11))
                             Spacer()
                             Text(comp.valueText)
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.pulse(size: 11, weight: .medium))
                             Text(comp.impactText)
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                                 .foregroundColor(comp.impactColor)
                                 .frame(width: 40, alignment: .trailing)
                         }
@@ -115,9 +121,9 @@ struct BiologicalAgeCard: View {
                 // Disclaimer
                 HStack(spacing: 4) {
                     Image(systemName: "info.circle")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                     Text("Estimate from consumer wearable data, not clinical biomarkers. Not a diagnosis. Levine (2013) phenotypic age model adapted.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                 }
                 .foregroundColor(Pulse.textTertiary)
             } else {
@@ -126,8 +132,8 @@ struct BiologicalAgeCard: View {
                         .font(.title3).foregroundColor(Pulse.textTertiary)
                     Text("Not enough data")
                         .font(.caption.weight(.semibold))
-                    Text("Needs at least 30 days of HRV, resting HR, and sleep data to estimate biological age.")
-                        .font(.system(size: 10))
+                    Text("Needs ~14 days of Apple Watch HRV and resting HR (30+ for a firm estimate). Wear your watch to build this.")
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
@@ -269,7 +275,8 @@ struct BiologicalAgeCard: View {
             chronologicalAge: chronAge,
             delta: delta,
             summaryText: summaryText,
-            components: components
+            components: components,
+            dataDays: min(hrvValues.count, rhrValues.count)
         )
         isLoading = false
     }
@@ -283,6 +290,8 @@ private struct BiologicalAgeEstimate {
     let delta: Int
     let summaryText: String
     let components: [BioAgeComponent]
+    /// Days of HRV/RHR history behind the estimate (min of the two).
+    let dataDays: Int
 
     var deltaText: String {
         if delta < 0 { return "\(abs(delta)) years younger" }

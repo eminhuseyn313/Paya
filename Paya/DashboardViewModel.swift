@@ -53,6 +53,10 @@ class DashboardViewModel {
     // Apple Health
     var appleHealthSleep: Double? = nil
     var appleHealthHR: Int? = nil
+    /// True when `appleHealthHR` is a genuine resting-HR reading; false when it
+    /// is only the latest (activity-influenced) sample used as a fallback.
+    var appleHealthHRIsResting: Bool = false
+    var appleHealthHRDate: Date? = nil
     var appleHealthHRV: Double? = nil
     var appleHealthSteps: Int? = nil
     var recoveryScore: Int? = nil
@@ -183,7 +187,7 @@ class DashboardViewModel {
         async let hrv = manager.fetchHRV()
         async let appleWeight = manager.fetchLatestBodyWeight()
         async let steps = HealthMetricsProvider.shared.fetchStepsRobust()
-        async let latestHR = manager.fetchLatestHR()
+        async let latestHR = manager.fetchLatestHRSample()
 
         let (sleepVal, hrVal, hrvVal, weightData, stepsVal, latestHRVal) = await (sleep, hr, hrv, appleWeight, steps, latestHR)
 
@@ -191,7 +195,9 @@ class DashboardViewModel {
         // Prefer resting HR (clinically meaningful) but fall back to the
         // most recent heart-rate sample so the dashboard shows *something*
         // when the watch hasn't computed a resting value yet.
-        appleHealthHR = hrVal ?? latestHRVal
+        appleHealthHR = hrVal ?? latestHRVal?.bpm
+        appleHealthHRDate = hrVal == nil ? latestHRVal?.date : nil
+        appleHealthHRIsResting = hrVal != nil
         appleHealthHRV = hrvVal
         appleHealthSteps = stepsVal
         hasWearableData = hrVal != nil || latestHRVal != nil || hrvVal != nil || (sleepVal != nil && sleepVal! > 0)

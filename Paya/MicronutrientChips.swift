@@ -31,7 +31,7 @@ struct MicronutrientChips: View {
                             Text(String(format: chip.value < 10 ? "%.1f" : "%.0f", chip.value))
                                 .font(.caption.weight(.bold))
                             Text("\(chip.label) (\(chip.unit))")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         .padding(.horizontal, 10)

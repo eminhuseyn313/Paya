@@ -210,6 +210,7 @@ struct SettingsView: View {
                                         .font(.caption)
                                 }
 
+                if FeatureFlags.externalAI {
                 // MARK: - AI & Privacy
                 Section {
                     Toggle(isOn: Bindable(appState).hasConsentedToExternalAI) {
@@ -234,6 +235,7 @@ struct SettingsView: View {
                         iconColor: Color(hex: "8B5CF6"),
                         currentValue: { appState.geminiAPIKey },
                         save: { appState.geminiAPIKey = $0 },
+                        getKeyURL: URL(string: "https://aistudio.google.com/apikey"),
                         showAPIKeyField: $showGeminiAPIKeyField,
                         apiKeyInput: $geminiAPIKeyInput
                     )
@@ -245,6 +247,7 @@ struct SettingsView: View {
                         iconColor: Color(hex: "059669"),
                         currentValue: { appState.usdaAPIKey },
                         save: { appState.usdaAPIKey = $0 },
+                        getKeyURL: URL(string: "https://api.data.gov/signup/"),
                         showAPIKeyField: $showUSDAAPIKeyField,
                         apiKeyInput: $usdaAPIKeyInput
                     )
@@ -253,6 +256,8 @@ struct SettingsView: View {
                 } footer: {
                     Text("API keys stored in iOS Keychain. Claude: console.anthropic.com · Gemini (free): aistudio.google.com · USDA (free, adds government-verified whole-food data to search): api.data.gov/signup")
                         .font(.caption)
+                }
+
                 }
 
                 // MARK: - Notifications & Focus
@@ -404,7 +409,7 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Upgrade to Paya Pro")
                                         .foregroundColor(.primary)
-                                    Text("AI coaching, advanced analytics, unlimited history")
+                                    Text("Advanced analytics and deeper insights")
                                         .font(.caption2)
                                         .foregroundColor(.secondary)
                                 }
@@ -635,7 +640,7 @@ struct SettingsView: View {
                                 SupabaseClient.shared.signOut()
                             }
                         } message: {
-                            Text("Your local data stays on this device. You can sign back in anytime.")
+                            Text("Your data stays on this device. Sign back in with the same account to keep syncing.")
                         }
                         .alert("Delete Account", isPresented: $showDeleteAccountConfirm) {
                             Button("Cancel", role: .cancel) {}
@@ -650,7 +655,7 @@ struct SettingsView: View {
                                 }
                             }
                         } message: {
-                            Text("This permanently deletes your account and all cloud data. Your local data on this device will remain. This cannot be undone.")
+                            Text("This permanently deletes your account and all data stored in the cloud. Data already on this device remains until you delete the app. This cannot be undone.")
                         }
                         .alert("Account Error", isPresented: $showAccountError) {
                             Button("OK", role: .cancel) {}
@@ -985,10 +990,10 @@ struct TrainingDaysRow: View {
                     let isTraining = appState.profile.trainingDays.contains(weekday)
                     VStack(spacing: 3) {
                         Text(label)
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.pulse(size: 9, weight: .semibold))
                             .foregroundColor(.secondary)
                         Text(session)
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                             .frame(width: 32, height: 32)
                             .background(isTraining
                                 ? Color(hex: "2563EB")
@@ -1014,6 +1019,10 @@ struct APIKeyRow: View {
     var iconColor: Color = Color(hex: "B45309")
     var currentValue: (() -> String)? = nil
     var save: ((String) -> Void)? = nil
+    /// Where the user creates this key (opened in Safari; they copy it and
+    /// come back, then tap Paste — PasteButton avoids the iOS paste prompt).
+    var getKeyURL: URL? = URL(string: "https://console.anthropic.com/settings/keys")
+    @Environment(\.openURL) private var openURL
     @Binding var showAPIKeyField: Bool
     @Binding var apiKeyInput: String
     @State private var saved = false
@@ -1056,6 +1065,25 @@ struct APIKeyRow: View {
             if showAPIKeyField {
                 let trimmedInput = apiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
                 VStack(spacing: 10) {
+                    HStack(spacing: 8) {
+                        if let getKeyURL {
+                            Button {
+                                openURL(getKeyURL)
+                            } label: {
+                                Label("Get a key", systemImage: "arrow.up.right.square")
+                                    .font(.caption.weight(.semibold))
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        PasteButton(payloadType: String.self) { strings in
+                            if let first = strings.first {
+                                apiKeyInput = first.trimmingCharacters(in: .whitespacesAndNewlines)
+                            }
+                        }
+                        .buttonBorderShape(.capsule)
+                        .labelStyle(.titleAndIcon)
+                        Spacer(minLength: 0)
+                    }
                     TextField(placeholder, text: $apiKeyInput)
                         .font(.system(.caption, design: .monospaced))
                         .padding(10)
@@ -1375,7 +1403,7 @@ struct SettingsIcon: View {
                 .fill(color)
                 .frame(width: 28, height: 28)
             Image(systemName: icon)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.pulse(size: 13, weight: .semibold))
                 .foregroundColor(.white)
         }
     }

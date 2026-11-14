@@ -251,9 +251,9 @@ struct DailyRoutineCard: View {
                     if let uv = store.uvIndex, uv >= 3 {
                         HStack(spacing: 3) {
                             Image(systemName: "sun.max.fill")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                             Text("UV \(uv)")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                         }
                         .foregroundColor(uv >= 6 ? Pulse.critical : Pulse.nutrition)
                         .padding(.horizontal, 7)
@@ -266,7 +266,7 @@ struct DailyRoutineCard: View {
                         showSettings = true
                     } label: {
                         Image(systemName: "gearshape")
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -274,7 +274,7 @@ struct DailyRoutineCard: View {
                 ForEach(due) { routine in
                     HStack(spacing: 10) {
                         Image(systemName: routine.icon)
-                            .font(.system(size: 14))
+                            .font(.pulse(size: 14))
                             .foregroundColor(colorForCategory(routine.category))
                             .frame(width: 28, height: 28)
                             .background(colorForCategory(routine.category).opacity(0.12))
@@ -282,10 +282,10 @@ struct DailyRoutineCard: View {
 
                         VStack(alignment: .leading, spacing: 1) {
                             Text(routine.name)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.pulse(size: 12, weight: .semibold))
                             if routine.intervalMinutes > 0 {
                                 Text("Every \(routine.intervalMinutes / 60)h")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -295,7 +295,7 @@ struct DailyRoutineCard: View {
                         // Sun-specific: show UV info
                         if routine.category == "sun", let uv = store.uvIndex {
                             Text("UV \(uv)")
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                                 .foregroundColor(uv >= 6 ? Pulse.critical : Pulse.nutrition)
                         }
 
@@ -306,7 +306,7 @@ struct DailyRoutineCard: View {
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
                             Image(systemName: "checkmark.circle")
-                                .font(.system(size: 22))
+                                .font(.pulse(size: 22))
                                 .foregroundColor(Pulse.positive)
                         }
                     }
@@ -317,10 +317,10 @@ struct DailyRoutineCard: View {
                 if let uv = store.uvIndex, uv >= 6 {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.critical)
                         Text("UV index is \(uv) — reapply SPF 30+ every 2 hours outdoors (WHO 2024).")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.critical)
                             .fixedSize(horizontal: false, vertical: true)
                     }

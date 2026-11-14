@@ -33,7 +33,7 @@ struct PerformanceNutritionCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(pairs.count) sessions analyzed")
-                            .font(.system(size: 8))
+                            .font(.pulse(size: 8))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -69,18 +69,18 @@ struct PerformanceNutritionCard: View {
                     if let best = bestDriver {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(best)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text("Based on pairing your nutrition/sleep the day before each training session with that session's total volume. Requires 5+ paired data points.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -92,19 +92,19 @@ struct PerformanceNutritionCard: View {
     private func correlationRow(icon: String, label: String, correlation: CorrelationResult, color: Color) -> some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.pulse(size: 14))
                 .foregroundColor(color)
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.pulse(size: 11, weight: .semibold))
                 HStack(spacing: 4) {
                     Text(correlation.direction)
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(correlation.directionColor)
                     Text(String(format: "%.0f%% more volume on good days", correlation.percentDiff))
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }

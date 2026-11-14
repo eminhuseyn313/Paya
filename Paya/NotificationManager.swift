@@ -86,7 +86,12 @@ class NotificationManager {
     /// different weekdays) got a notification describing someone else's
     /// training day.
     func scheduleTrainingReminders(at time: Date, profile: UserProfile, context: ModelContext) async {
-        cancelAllTrainingReminders()
+        // Awaited removal — the old fire-and-forget cancel ran its
+        // completion AFTER the adds below and deleted the freshly scheduled
+        // requests (same identifiers), so reminders silently never existed.
+        let pending = await UNUserNotificationCenter.current().pendingNotificationRequests()
+        let stale = pending.map(\.identifier).filter { $0.hasPrefix(Self.trainingReminderPrefix) }
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: stale)
 
         guard isCategoryEnabled(.training, profile: profile) else { return }
 

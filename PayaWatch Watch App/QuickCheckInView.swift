@@ -22,13 +22,13 @@ struct QuickCheckInView: View {
         ScrollView {
             VStack(spacing: 10) {
                 Text("Check-in")
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(WatchPulse.textPrimary)
 
                 // Energy
                 VStack(spacing: 4) {
                     Text("ENERGY")
-                        .font(.system(size: 9, weight: .black, design: .rounded))
+                        .font(.pulse(size: 9, weight: .black, design: .rounded))
                         .foregroundColor(WatchPulse.textTertiary)
                         .tracking(0.5)
 
@@ -42,7 +42,7 @@ struct QuickCheckInView: View {
                 // Soreness
                 VStack(spacing: 4) {
                     Text("SORENESS")
-                        .font(.system(size: 9, weight: .black, design: .rounded))
+                        .font(.pulse(size: 9, weight: .black, design: .rounded))
                         .foregroundColor(WatchPulse.textTertiary)
                         .tracking(0.5)
 
@@ -53,7 +53,7 @@ struct QuickCheckInView: View {
                                 WKInterfaceDevice.current().play(.click)
                             } label: {
                                 Text("\(level)")
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 14, weight: .bold, design: .rounded))
                                     .frame(width: 28, height: 28)
                                     .background(soreness == level ? sorenessColor(level).opacity(0.2) : WatchPulse.surface)
                                     .foregroundColor(soreness == level ? sorenessColor(level) : WatchPulse.textTertiary)
@@ -64,7 +64,7 @@ struct QuickCheckInView: View {
                     }
 
                     Text(sorenessLabel)
-                        .font(.system(size: 9, weight: .medium))
+                        .font(.pulse(size: 9, weight: .medium))
                         .foregroundColor(WatchPulse.textSecondary)
                 }
 
@@ -75,9 +75,9 @@ struct QuickCheckInView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: hasSymptom ? "checkmark.circle.fill" : "circle")
-                            .font(.system(size: 12))
+                            .font(.pulse(size: 12))
                         Text("Feeling unwell")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.pulse(size: 11, weight: .medium))
                     }
                     .foregroundColor(hasSymptom ? WatchPulse.critical : WatchPulse.textTertiary)
                     .frame(maxWidth: .infinity)
@@ -92,7 +92,7 @@ struct QuickCheckInView: View {
                     submit()
                 } label: {
                     Text("Log")
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 15, weight: .bold, design: .rounded))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -112,14 +112,14 @@ struct QuickCheckInView: View {
                     .fill(WatchPulse.positive.opacity(0.15))
                     .frame(width: 48, height: 48)
                 Image(systemName: "checkmark")
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.pulse(size: 20, weight: .bold))
                     .foregroundColor(WatchPulse.positive)
             }
             Text("Logged")
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(.pulse(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(WatchPulse.textPrimary)
             Text("Energy \(energyLabel) · Soreness \(soreness)/5")
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(WatchPulse.textSecondary)
         }
         .padding(.top, 16)
@@ -135,9 +135,9 @@ struct QuickCheckInView: View {
         } label: {
             VStack(spacing: 2) {
                 Image(systemName: icon)
-                    .font(.system(size: 14))
+                    .font(.pulse(size: 14))
                 Text(label)
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 9, weight: .bold, design: .rounded))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)

@@ -22,6 +22,8 @@ struct WatchComplicationSnapshot: Codable {
     var waterMl: Int
     var waterTargetMl: Int
     var updatedAt: Date
+    var nextSetText: String? = nil
+    var briefing: String? = nil
 }
 
 struct ReadinessEntry: TimelineEntry {
@@ -78,7 +80,24 @@ struct ReadinessComplicationView: View {
     @Environment(\.widgetFamily) var family
 
     var body: some View {
-        if let snapshot = entry.snapshot, let score = snapshot.readinessScore {
+        if let next = entry.snapshot?.nextSetText, family == .accessoryRectangular || family == .accessoryInline {
+            // Active session: the most useful thing on the face is the next set.
+            if family == .accessoryInline {
+                Text("Next: \(next)")
+            } else {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("NEXT SET")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.secondary)
+                    Text(next)
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .lineLimit(2)
+                    if let label = entry.snapshot?.sessionLabel {
+                        Text(label).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                }
+            }
+        } else if let snapshot = entry.snapshot, let score = snapshot.readinessScore {
             switch family {
             case .accessoryCircular:
                 circular(score: score, band: snapshot.readinessBand)
@@ -129,11 +148,11 @@ struct ReadinessComplicationView: View {
                         .foregroundStyle(bandColor(band))
                 }
             }
-            if let label = snapshot.sessionLabel {
-                Text(label)
+            if let line = snapshot.briefing ?? snapshot.sessionLabel {
+                Text(line)
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                    .lineLimit(2)
             }
         }
     }

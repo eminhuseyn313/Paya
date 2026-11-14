@@ -228,7 +228,7 @@ struct RecommendedProgramCard: View {
                     ForEach(recommendation.rationale, id: \.self) { line in
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.ai)
                                 .padding(.top, 2)
                             Text(line)
@@ -250,7 +250,7 @@ struct RecommendedProgramCard: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "brain.head.profile.fill")
-                                .font(.system(size: 11))
+                                .font(.pulse(size: 11))
                             Text("The science")
                                 .font(.caption.weight(.semibold))
                         }
@@ -313,7 +313,7 @@ struct TemplateCardV2: View {
                             .foregroundColor(Pulse.textTertiary)
                         HStack(spacing: 3) {
                             Image(systemName: template.tier.icon)
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                             Text(template.tier.displayName)
                                 .font(.caption)
                         }

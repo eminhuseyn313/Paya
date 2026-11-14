@@ -16,6 +16,8 @@ enum LocalDataWiper {
 
     @MainActor
     static func wipeAll(context: ModelContext) {
+        WatchTelemetryStore.clear()
+        UserDefaults.standard.removeObject(forKey: "paya_imported_offline_sessions")
         let types: [any PersistentModel.Type] = [
             TrainingSession.self,
             ExerciseLog.self,

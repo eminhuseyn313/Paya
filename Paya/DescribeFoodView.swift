@@ -21,7 +21,7 @@ struct DescribeFoodCard: View {
                         .frame(width: 44, height: 44)
                         .scaleEffect(pulse ? 1.06 : 1.0)
                     Image(systemName: "mic.fill")
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.pulse(size: 18, weight: .semibold))
                         .foregroundColor(Pulse.ai)
                 }
                 .frame(width: 44, height: 44)
@@ -81,7 +81,7 @@ struct DescribeFoodView: View {
                 if appState.geminiAPIKey.isEmpty {
                     VStack(spacing: 10) {
                         Image(systemName: "key.slash")
-                            .font(.system(size: 32))
+                            .font(.pulse(size: 32))
                             .foregroundColor(Pulse.textTertiary)
                         Text("Add a free Gemini API key in Settings to use this.")
                             .font(.subheadline)

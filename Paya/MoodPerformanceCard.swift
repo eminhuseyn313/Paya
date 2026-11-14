@@ -76,7 +76,7 @@ struct PreSessionMoodCheck: View {
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("3 taps")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
             }
 
@@ -109,7 +109,7 @@ struct PreSessionMoodCheck: View {
                 onComplete()
             } label: {
                 Text("Start session")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.pulse(size: 12, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -123,7 +123,7 @@ struct PreSessionMoodCheck: View {
     private func moodRow(label: String, value: Binding<Int>, options: [(Int, String, String)], color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
-                .font(.system(size: 10, weight: .bold))
+                .font(.pulse(size: 10, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
             HStack(spacing: 6) {
                 ForEach(options, id: \.0) { option in
@@ -132,9 +132,9 @@ struct PreSessionMoodCheck: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: option.2)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                             Text(option.1)
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                         }
                         .foregroundColor(value.wrappedValue == option.0 ? .white : color)
                         .padding(.horizontal, 8)
@@ -183,7 +183,7 @@ struct MoodPerformanceCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(MoodDataStore.loadAll().count) sessions")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -195,18 +195,18 @@ struct MoodPerformanceCard: View {
                     if !bestState.isEmpty {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.nutrition)
                                 .padding(.top, 1)
                             Text(bestState)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textPrimary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text("Hackford et al. (2019): pre-exercise mood explains 15-20% of performance variance. Correlations from your own data — not population averages.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -218,19 +218,19 @@ struct MoodPerformanceCard: View {
     private func correlationRow(_ corr: MoodCorrelation) -> some View {
         HStack(spacing: 8) {
             Image(systemName: corr.icon)
-                .font(.system(size: 11))
+                .font(.pulse(size: 11))
                 .foregroundColor(corr.color)
                 .frame(width: 16)
 
             Text(corr.dimension)
-                .font(.system(size: 11, weight: .bold))
+                .font(.pulse(size: 11, weight: .bold))
                 .frame(width: 70, alignment: .leading)
 
             // Bar comparison
             VStack(spacing: 3) {
                 HStack(spacing: 4) {
                     Text(corr.lowLabel)
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(Pulse.textTertiary)
                         .frame(width: 30, alignment: .trailing)
                     GeometryReader { geo in
@@ -243,7 +243,7 @@ struct MoodPerformanceCard: View {
                 }
                 HStack(spacing: 4) {
                     Text(corr.highLabel)
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(Pulse.textTertiary)
                         .frame(width: 30, alignment: .trailing)
                     GeometryReader { geo in
@@ -259,7 +259,7 @@ struct MoodPerformanceCard: View {
             Spacer()
 
             Text(String(format: "%+.0f%%", corr.percentDiff))
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.pulse(size: 11, weight: .bold, design: .rounded))
                 .foregroundColor(corr.percentDiff > 0 ? Pulse.positive : Pulse.critical)
         }
     }

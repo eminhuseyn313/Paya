@@ -68,10 +68,10 @@ struct ExercisePreferenceCard: View {
                                 .foregroundColor(Pulse.textPrimary)
                             Spacer()
                             Text("Learned from \(suggestions.reduce(0) { $0 + $1.sessionCount }) sessions")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                             Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -81,7 +81,7 @@ struct ExercisePreferenceCard: View {
                         ForEach(suggestions) { day in
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(day.dayName)
-                                    .font(.system(size: 12, weight: .bold))
+                                    .font(.pulse(size: 12, weight: .bold))
                                     .foregroundColor(Pulse.positive)
 
                                 if !day.alwaysDo.isEmpty {
@@ -101,16 +101,16 @@ struct ExercisePreferenceCard: View {
 
                         HStack(spacing: 6) {
                             Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.nutrition)
                             Text("Exercises you rarely do might be worth swapping. Go to Manage → Customize Today's Exercises to update your program.")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
                         Text("Steele et al. (2017): exercise preference is one of the strongest predictors of long-term training adherence.")
-                            .font(.system(size: 8))
+                            .font(.pulse(size: 8))
                             .foregroundColor(.secondary.opacity(0.7))
                     }
                 }
@@ -123,16 +123,16 @@ struct ExercisePreferenceCard: View {
     private func exerciseRow(label: String, exercises: [ExerciseFrequency], color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label.uppercased())
-                .font(.system(size: 8, weight: .black))
+                .font(.pulse(size: 8, weight: .black))
                 .foregroundColor(color)
 
             FlowLayout(spacing: 4) {
                 ForEach(exercises) { ex in
                     HStack(spacing: 3) {
                         Text(ex.exerciseName)
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.pulse(size: 10, weight: .semibold))
                         Text(ex.frequencyLabel)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(color)
                     }
                     .padding(.horizontal, 7)

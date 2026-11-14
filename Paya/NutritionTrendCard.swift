@@ -74,7 +74,7 @@ struct NutritionTrendCard: View {
                         AxisValueLabel {
                             if let v = value.as(Double.self) {
                                 Text(metric == .calories ? "\(Int(v))" : "\(Int(v))g")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                             }
                         }
                         AxisGridLine()
@@ -85,7 +85,7 @@ struct NutritionTrendCard: View {
                         AxisValueLabel {
                             if let label = value.as(String.self) {
                                 Text(label)
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                             }
                         }
                     }
@@ -97,11 +97,11 @@ struct NutritionTrendCard: View {
                     legendDot(color: Pulse.nutrition, label: "Below target")
                     legendDot(color: Pulse.critical, label: "Target line", isDashed: true)
                 }
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
 
                 if let avg = averageValue {
-                    Text("7-day avg: \(metric == .calories ? "\(Int(avg)) kcal" : "\(Int(avg))g protein")")
+                    Text("\(loggedDayCount < 7 ? "Early estimate · " : "")\(loggedDayCount)-day avg: \(metric == .calories ? "\(Int(avg)) kcal" : "\(Int(avg))g protein")")
                         .font(.caption2.weight(.semibold))
                         .foregroundColor(Pulse.textTertiary)
                 }
@@ -109,6 +109,11 @@ struct NutritionTrendCard: View {
         }
         .payaCard(padding: 14)
         .onAppear { loadData() }
+    }
+
+    /// Days that actually have intake — the average is over these, not a fixed 7.
+    private var loggedDayCount: Int {
+        dataPoints.filter { ($0.calories > 0 && metric == .calories) || ($0.protein > 0 && metric == .protein) }.count
     }
 
     private var averageValue: Double? {

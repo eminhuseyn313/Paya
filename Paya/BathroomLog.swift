@@ -52,10 +52,10 @@ struct BathroomTrackingCard: View {
             // Header
             HStack {
                 Image(systemName: "drop.halffull")
-                    .font(.system(size: 13))
+                    .font(.pulse(size: 13))
                     .foregroundColor(Pulse.hydration)
                 Text("Bathroom")
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.pulse(size: 14, weight: .semibold))
                     .foregroundColor(Pulse.textPrimary)
                 Spacer()
             }
@@ -76,20 +76,20 @@ struct BathroomTrackingCard: View {
             if !todaysLogs.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("TODAY")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                         .tracking(1)
 
                     ForEach(todaysLogs.prefix(5)) { log in
                         HStack(spacing: 8) {
                             Text(log.type == "poop" ? "💩" : "💧")
-                                .font(.system(size: 12))
+                                .font(.pulse(size: 12))
                             Text(log.date, style: .time)
-                                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                .font(.pulse(size: 12, weight: .medium, design: .monospaced))
                                 .foregroundColor(Pulse.textSecondary)
                             if let bs = log.bristolScale {
                                 Text("Bristol \(bs)")
-                                    .font(.system(size: 10, weight: .medium))
+                                    .font(.pulse(size: 10, weight: .medium))
                                     .foregroundColor(bristolColor(bs))
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
@@ -98,7 +98,7 @@ struct BathroomTrackingCard: View {
                             }
                             if let note = log.note, !note.isEmpty {
                                 Text(note)
-                                    .font(.system(size: 11))
+                                    .font(.pulse(size: 11))
                                     .foregroundColor(Pulse.textTertiary)
                                     .lineLimit(1)
                             }
@@ -121,13 +121,13 @@ struct BathroomTrackingCard: View {
             VStack(spacing: 6) {
                 HStack(spacing: 6) {
                     Text(icon)
-                        .font(.system(size: 20))
+                        .font(.pulse(size: 20))
                     Text("\(count)")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 22, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 Text(label)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.pulse(size: 11, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             }
             .frame(maxWidth: .infinity)
@@ -171,9 +171,9 @@ struct BathroomLogSheet: View {
                     // Type indicator
                     VStack(spacing: 8) {
                         Text(isPoop ? "💩" : "💧")
-                            .font(.system(size: 48))
+                            .font(.pulse(size: 48))
                         Text("Log \(isPoop ? "bowel movement" : "urination")")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 18, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.textPrimary)
                     }
                     .padding(.top, 12)
@@ -183,13 +183,13 @@ struct BathroomLogSheet: View {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
                                 Text("Bristol Stool Scale")
-                                    .font(.system(size: 14, weight: .semibold))
+                                    .font(.pulse(size: 14, weight: .semibold))
                                     .foregroundColor(Pulse.textPrimary)
                                 Button {
                                     showBristolInfo.toggle()
                                 } label: {
                                     Image(systemName: "info.circle")
-                                        .font(.system(size: 13))
+                                        .font(.pulse(size: 13))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -217,7 +217,7 @@ struct BathroomLogSheet: View {
                                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                     } label: {
                                         Text("\(scale)")
-                                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                                            .font(.pulse(size: 14, weight: .bold, design: .rounded))
                                             .frame(width: 40, height: 40)
                                             .background(bristolScale == scale ? bristolColor(scale) : Pulse.surfaceFallback)
                                             .foregroundColor(bristolScale == scale ? .white : Pulse.textSecondary)
@@ -231,7 +231,7 @@ struct BathroomLogSheet: View {
                     // Note
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Note (optional)")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.pulse(size: 14, weight: .semibold))
                             .foregroundColor(Pulse.textPrimary)
                         TextField("Any observations...", text: $note)
                             .textFieldStyle(.plain)
@@ -249,7 +249,7 @@ struct BathroomLogSheet: View {
                     save()
                 } label: {
                     Text("Log")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.pulse(size: 16, weight: .bold))
                         .frame(maxWidth: .infinity)
                         .padding(14)
                         .background(Pulse.hydration)
@@ -285,13 +285,13 @@ struct BathroomLogSheet: View {
     private func bristolDesc(_ scale: Int, _ desc: String, _ color: Color) -> some View {
         HStack(spacing: 8) {
             Text("\(scale)")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.pulse(size: 11, weight: .bold, design: .rounded))
                 .frame(width: 20, height: 20)
                 .background(color.opacity(0.2))
                 .foregroundColor(color)
                 .clipShape(Circle())
             Text(desc)
-                .font(.system(size: 12))
+                .font(.pulse(size: 12))
                 .foregroundColor(Pulse.textSecondary)
         }
     }

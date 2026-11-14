@@ -104,7 +104,7 @@ struct PulseProgressView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Progress")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
             }
@@ -166,16 +166,16 @@ struct PulseProgressView: View {
             if viewModel.totalWeightChange != 0 {
                 HStack(spacing: 8) {
                     Image(systemName: viewModel.totalWeightChange > 0 ? "arrow.up.right" : "arrow.down.right")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.pulse(size: 11, weight: .bold))
                         .foregroundColor(Pulse.recovery)
                     Text(String(format: "%+.1f kg total", viewModel.totalWeightChange))
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.pulse(size: 13, weight: .semibold))
                         .foregroundColor(Pulse.textSecondary)
                     if viewModel.weeklyWeightChange != 0 {
                         Text("·")
                             .foregroundColor(Pulse.textTertiary)
                         Text(String(format: "%+.1f kg/week", viewModel.weeklyWeightChange))
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.pulse(size: 12, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -194,14 +194,14 @@ struct PulseProgressView: View {
     private func journeyStat(value: String, label: String, color: Color) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .font(.pulse(size: 26, weight: .bold, design: .rounded))
                 .foregroundColor(color)
                 .monospacedDigit()
                 .contentTransition(.numericText())
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -232,9 +232,9 @@ struct PulseProgressView: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: s.icon)
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                             Text(s.rawValue)
-                                .font(.system(size: 13, weight: section == s ? .bold : .medium))
+                                .font(.pulse(size: 13, weight: section == s ? .bold : .medium))
                         }
                         .foregroundColor(section == s ? s.color : Pulse.textTertiary)
                         .padding(.horizontal, 16)
@@ -314,15 +314,15 @@ struct PulseProgressView: View {
                                 .fill(Pulse.ai.opacity(0.15))
                                 .frame(width: 40, height: 40)
                             Image(systemName: "ruler.fill")
-                                .font(.system(size: 16))
+                                .font(.pulse(size: 16))
                                 .foregroundColor(Pulse.ai)
                         }
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Body Tracking")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.pulse(size: 14, weight: .semibold))
                                 .foregroundColor(Pulse.textPrimary)
                             Text("Measurements & progress photos")
-                                .font(.system(size: 11))
+                                .font(.pulse(size: 11))
                                 .foregroundColor(Pulse.textSecondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -330,7 +330,7 @@ struct PulseProgressView: View {
                         HStack {
                             Spacer()
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.pulse(size: 11, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
@@ -372,6 +372,10 @@ struct PulseProgressView: View {
             HRRecoveryCard(sessions: viewModel.allSessions)
         }
 
+        PulseCollapsible(title: "Apple Watch", icon: "applewatch", color: Pulse.recovery) {
+            WatchReportCard()
+        }
+
         PulseCollapsible(title: "Session trends", icon: "clock.fill", color: Pulse.recovery) {
             RPETrendCard(sessions: viewModel.allSessions)
             MoodPerformanceCard()
@@ -386,7 +390,7 @@ struct PulseProgressView: View {
     @ViewBuilder
     private var consistencySection: some View {
         WeeklySummaryShareCard()
-        ConsistencyScoreCard(sessions: viewModel.allSessions, plannedPerWeek: 3)
+        ConsistencyScoreCard(sessions: viewModel.allSessions, plannedPerWeek: TrainingDayStore.all(context: modelContext).count)
 
         PulseCollapsible(title: "Training patterns", icon: "calendar", color: Pulse.hydration) {
             TrainingTimeAnalysisCard()

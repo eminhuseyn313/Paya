@@ -209,7 +209,7 @@ struct CachedAsyncImage: View {
                     .aspectRatio(contentMode: contentMode)
             } else {
                 Image(systemName: "photo")
-                    .font(.system(size: 20))
+                    .font(.pulse(size: 20))
                     .foregroundColor(.secondary.opacity(0.5))
             }
         }

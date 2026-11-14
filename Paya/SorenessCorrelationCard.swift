@@ -109,7 +109,7 @@ struct SorenessCorrelationCard: View {
     private func legendDot(_ color: Color, _ label: String) -> some View {
         HStack(spacing: 4) {
             Circle().stroke(color, lineWidth: 2).frame(width: 8, height: 8)
-            Text(label).font(.system(size: 9)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 9)).foregroundColor(Pulse.textTertiary)
         }
     }
 

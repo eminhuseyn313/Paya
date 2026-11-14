@@ -34,9 +34,9 @@ struct WorkoutDensityCard: View {
                         if let t = trend {
                             HStack(spacing: 3) {
                                 Image(systemName: t >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                 Text(String(format: "%+.0f%%", t))
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.pulse(size: 10, weight: .bold))
                             }
                             .foregroundColor(t > 0 ? Pulse.positive : Pulse.critical)
                         }
@@ -83,18 +83,18 @@ struct WorkoutDensityCard: View {
                     .chartXAxis {
                         AxisMarks(values: .stride(by: .day, count: 7)) {
                             AxisValueLabel(format: .dateTime.day().month())
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
                     .chartYAxis {
                         AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                             AxisValueLabel()
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
 
                     Text("Volume ÷ duration. Higher density = more efficient sessions. Green bars are above your average.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)
@@ -106,12 +106,12 @@ struct WorkoutDensityCard: View {
     private func densityStat(title: String, value: String, subtitle: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.pulse(size: 16, weight: .bold, design: .rounded))
             Text(title)
-                .font(.system(size: 8, weight: .semibold))
+                .font(.pulse(size: 8, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
             Text(subtitle)
-                .font(.system(size: 7))
+                .font(.pulse(size: 7))
                 .foregroundColor(.secondary.opacity(0.7))
         }
         .frame(maxWidth: .infinity)

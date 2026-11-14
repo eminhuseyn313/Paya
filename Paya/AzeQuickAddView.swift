@@ -192,7 +192,7 @@ struct PortionSheet: View {
                 // Portion controls
                 VStack(spacing: 10) {
                     Text("\(Int(grams))g")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 40, weight: .bold, design: .rounded))
                         .monospacedDigit()
 
                     Slider(value: $grams, in: 20...500, step: 10)
@@ -248,7 +248,7 @@ struct MacroPill: View {
                 .foregroundColor(Color(hex: colorHex))
                 .monospacedDigit()
             Text(label)
-                .font(.system(size: 8, weight: .bold))
+                .font(.pulse(size: 8, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)

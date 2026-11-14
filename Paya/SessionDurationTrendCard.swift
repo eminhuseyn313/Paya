@@ -22,9 +22,9 @@ struct SessionDurationTrendCard: View {
                         if let t = trend {
                             HStack(spacing: 3) {
                                 Image(systemName: t >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                 Text(String(format: "%+.0f%%", t))
-                                    .font(.system(size: 10, weight: .bold))
+                                    .font(.pulse(size: 10, weight: .bold))
                             }
                             .foregroundColor(abs(t) < 15 ? Pulse.positive : Pulse.nutrition)
                         }
@@ -66,13 +66,13 @@ struct SessionDurationTrendCard: View {
                     .chartXAxis {
                         AxisMarks(values: .stride(by: .day, count: 7)) {
                             AxisValueLabel(format: .dateTime.day().month())
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
                     .chartYAxis {
                         AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                             AxisValueLabel()
-                                .font(.system(size: 8))
+                                .font(.pulse(size: 8))
                         }
                     }
 
@@ -80,7 +80,7 @@ struct SessionDurationTrendCard: View {
                         HStack(spacing: 4) {
                             Circle().fill(Pulse.recovery).frame(width: 5, height: 5)
                             Text("Avg: \(avgDuration) min")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                         HStack(spacing: 4) {
@@ -88,7 +88,7 @@ struct SessionDurationTrendCard: View {
                                 .fill(Color.secondary.opacity(0.3))
                                 .frame(width: 12, height: 1)
                             Text("Average line")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }

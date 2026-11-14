@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 // MARK: - Enums
 
@@ -463,6 +464,18 @@ enum ProgramData {
         case 7: return .c
         default: return nil
         }
+    }
+
+    /// True if today is a training day in the USER's own program
+    /// (TrainingDayConfig weekdays). Falls back to the legacy Tue/Thu/Sat
+    /// split only when no days are configured at all.
+    @MainActor
+    static var isTodayTrainingDay: Bool {
+        let ctx = ModelContext(SharedModelContainer.shared)
+        let days = TrainingDayStore.allSnapshots(context: ctx).filter { (1...7).contains($0.weekday) }
+        if days.isEmpty { return todaySessionType != nil }
+        let weekday = Calendar.current.component(.weekday, from: Date())
+        return days.contains { $0.weekday == weekday }
     }
 
     static var todaySessionType: SessionType? {

@@ -39,7 +39,7 @@ struct StrengthToWeightCard: View {
                         Spacer()
                         let bwDisplay = useLbs ? bw * 2.20462 : bw
                         Text(String(format: "@ %.0f %@", bwDisplay, useLbs ? "lbs" : "kg"))
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -47,10 +47,10 @@ struct StrengthToWeightCard: View {
                         VStack(spacing: 4) {
                             HStack {
                                 Text(ratio.liftName)
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(.pulse(size: 11, weight: .semibold))
                                 Spacer()
                                 Text(String(format: "%.2fx BW", ratio.ratio))
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 11, weight: .bold, design: .rounded))
                                     .foregroundColor(ratio.levelColor)
                             }
 
@@ -84,11 +84,11 @@ struct StrengthToWeightCard: View {
                             HStack {
                                 let e1rmDisplay = useLbs ? ratio.e1rm * 2.20462 : ratio.e1rm
                                 Text(String(format: "e1RM: %.0f %@", e1rmDisplay, useLbs ? "lbs" : "kg"))
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                                     .foregroundColor(Pulse.textTertiary)
                                 Spacer()
                                 Text(ratio.levelLabel)
-                                    .font(.system(size: 8, weight: .bold))
+                                    .font(.pulse(size: 8, weight: .bold))
                                     .foregroundColor(ratio.levelColor)
                             }
                         }
@@ -102,7 +102,7 @@ struct StrengthToWeightCard: View {
                     }
 
                     Text("Ratios based on population-normed strength standards. e1RM via Epley formula.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -114,7 +114,7 @@ struct StrengthToWeightCard: View {
     private func levelLegend(color: Color, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).font(.system(size: 8)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 8)).foregroundColor(Pulse.textTertiary)
         }
     }
 

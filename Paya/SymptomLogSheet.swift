@@ -88,7 +88,7 @@ struct SymptomLogSheet: View {
                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                             } label: {
                                 HStack(spacing: 5) {
-                                    Text(option.emoji).font(.system(size: 13))
+                                    Text(option.emoji).font(.pulse(size: 13))
                                     Text(option.label).font(.caption.weight(.semibold))
                                 }
                                 .padding(.horizontal, 10)
@@ -208,7 +208,7 @@ struct SymptomLogSheet: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         } label: {
             Text(label)
-                .font(.system(size: 11, weight: .semibold))
+                .font(.pulse(size: 11, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 6)
@@ -251,7 +251,7 @@ struct SymptomLogCard: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "plus")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                         Text("Log")
                             .font(.caption.weight(.bold))
                     }
@@ -273,7 +273,7 @@ struct SymptomLogCard: View {
                     let option = symptomOptions.first { $0.id == log.tag }
                     HStack(spacing: 8) {
                         Text(option?.emoji ?? "🩹")
-                            .font(.system(size: 14))
+                            .font(.pulse(size: 14))
                         VStack(alignment: .leading, spacing: 1) {
                             Text(option?.label ?? log.tag)
                                 .font(.caption.weight(.semibold))
@@ -320,7 +320,7 @@ struct SymptomTimelineCard: View {
                 Button { showSheet = true } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "plus")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                         Text("Log")
                             .font(.caption.weight(.bold))
                     }
@@ -342,7 +342,7 @@ struct SymptomTimelineCard: View {
                     let option = symptomOptions.first { $0.id == log.tag }
                     HStack(spacing: 8) {
                         Text(option?.emoji ?? "🩹")
-                            .font(.system(size: 14))
+                            .font(.pulse(size: 14))
                         VStack(alignment: .leading, spacing: 1) {
                             Text(option?.label ?? log.tag)
                                 .font(.caption.weight(.semibold))

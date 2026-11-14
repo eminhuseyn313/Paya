@@ -38,10 +38,29 @@ struct ACWRCard: View {
     @State private var hasData = false
     @State private var sleepFactor: String?
     @State private var sessionCountThisWeek = 0
+    /// Number of prior weeks (of the 4-week chronic window) that actually
+    /// exist in the user's history. < 4 → shown as an early estimate.
+    @State private var chronicWeeksUsed = 4
 
     var body: some View {
         Group {
-            if hasData {
+            if !hasData {
+                // Explicit empty state — never a fabricated ratio.
+                HStack(spacing: 10) {
+                    Image(systemName: "waveform.path.ecg")
+                        .foregroundColor(Pulse.textTertiary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Training load ratio · —")
+                            .font(.subheadline.weight(.semibold))
+                        Text("Needs ~3 weeks of logged sessions to compare this week against your baseline.")
+                            .font(.pulse(size: 11))
+                            .foregroundColor(Pulse.textTertiary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .payaCard(padding: 14)
+            } else {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: "waveform.path.ecg")
@@ -50,12 +69,18 @@ struct ACWRCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text(zone.label)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
                             .background(zone.color)
                             .clipShape(Capsule())
+                    }
+
+                    if chronicWeeksUsed < 4 {
+                        Text("Early estimate · \(chronicWeeksUsed)-week baseline")
+                            .font(.pulse(size: 10, weight: .medium))
+                            .foregroundColor(Pulse.textTertiary)
                     }
 
                     // Main ACWR display
@@ -72,9 +97,9 @@ struct ACWRCard: View {
                                 .rotationEffect(.degrees(-90))
                             VStack(spacing: 0) {
                                 Text(String(format: "%.2f", acwr))
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 18, weight: .bold, design: .rounded))
                                 Text("ACWR")
-                                    .font(.system(size: 8, weight: .bold))
+                                    .font(.pulse(size: 8, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -95,10 +120,10 @@ struct ACWRCard: View {
                             )
                             HStack(spacing: 4) {
                                 Image(systemName: "calendar")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                                 Text("\(sessionCountThisWeek) sessions this week")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -108,7 +133,7 @@ struct ACWRCard: View {
                     if weeklyHistory.count >= 3 {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("8-week trend")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
 
                             Chart {
@@ -142,13 +167,13 @@ struct ACWRCard: View {
                             .chartXAxis {
                                 AxisMarks(values: .stride(by: .weekOfYear, count: 2)) {
                                     AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                                        .font(.system(size: 8))
+                                        .font(.pulse(size: 8))
                                 }
                             }
                             .chartYAxis {
                                 AxisMarks(values: [0.5, 0.8, 1.0, 1.3, 1.5, 2.0]) {
                                     AxisValueLabel()
-                                        .font(.system(size: 8))
+                                        .font(.pulse(size: 8))
                                     AxisGridLine()
                                 }
                             }
@@ -164,11 +189,11 @@ struct ACWRCard: View {
                     // Recommendation
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "lightbulb.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(zone.color)
                             .padding(.top, 1)
                         Text(zone.recommendation(acwr: acwr, sessionsThisWeek: sessionCountThisWeek))
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -177,18 +202,18 @@ struct ACWRCard: View {
                     if let sleepNote = sleepFactor {
                         HStack(alignment: .top, spacing: 6) {
                             Image(systemName: "moon.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.ai)
                                 .padding(.top, 1)
                             Text(sleepNote)
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                                 .foregroundColor(Pulse.textTertiary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
 
                     Text("Gabbett (2016) ACWR framework. Uncoupled variant per Windt & Gabbett (2019). Sweet spot 0.8–1.3 minimizes injury risk while maintaining fitness gains.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -203,22 +228,22 @@ struct ACWRCard: View {
         let unit = useLbs ? "lbs" : "kg"
         return HStack(spacing: 6) {
             Image(systemName: icon)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(color)
                 .frame(width: 14)
             Text(label)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
             Spacer()
             Text(String(format: "%.0f %@", display, unit))
-                .font(.system(size: 10, weight: .bold))
+                .font(.pulse(size: 10, weight: .bold))
         }
     }
 
     private func legendDot(color: Color, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 7)).foregroundColor(Pulse.textTertiary)
         }
     }
 
@@ -269,12 +294,23 @@ struct ACWRCard: View {
         let acuteSessions = sessions.filter { $0.date >= sevenDaysAgo }
         let acute = acuteSessions.reduce(0.0) { $0 + sessionVolume($1) }
 
-        // Chronic: previous 4 weeks (uncoupled — excludes current week)
+        // Chronic: previous 4 weeks (uncoupled — excludes current week).
+        // Only weeks on/after the user's first logged session count — weeks
+        // before they started are "no history", not "rested", and averaging
+        // them in as zeros understates chronic load and fakes a spike.
+        let firstWeekStart = sortedWeeks.first ?? currentWeekStart
         var chronicWeeks: [Double] = []
         for weekOffset in 1...4 {
-            guard let weekStart = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: currentWeekStart) else { continue }
+            guard let weekStart = calendar.date(byAdding: .weekOfYear, value: -weekOffset, to: currentWeekStart),
+                  weekStart >= firstWeekStart else { continue }
             chronicWeeks.append(weeklyVolumes[weekStart] ?? 0)
         }
+        // Need ≥ 3 weeks of history before the ratio means anything.
+        guard chronicWeeks.count >= 3 else {
+            hasData = false
+            return
+        }
+        chronicWeeksUsed = chronicWeeks.count
 
         let chronic = chronicWeeks.isEmpty ? 0 : chronicWeeks.reduce(0, +) / Double(chronicWeeks.count)
 
@@ -302,9 +338,11 @@ struct ACWRCard: View {
             // Chronic for this week = avg of previous 4 weeks
             var prevWeeks: [Double] = []
             for j in 1...4 {
-                guard let prevWeekStart = calendar.date(byAdding: .weekOfYear, value: -j, to: weekStart) else { continue }
+                guard let prevWeekStart = calendar.date(byAdding: .weekOfYear, value: -j, to: weekStart),
+                      prevWeekStart >= firstWeekStart else { continue }
                 prevWeeks.append(weeklyVolumes[prevWeekStart] ?? 0)
             }
+            guard prevWeeks.count >= 3 else { continue }
             let weekChronic = prevWeeks.isEmpty ? 0 : prevWeeks.reduce(0, +) / Double(prevWeeks.count)
             if weekChronic > 0 {
                 history.append((weekStart, weekAcute / weekChronic))

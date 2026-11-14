@@ -84,6 +84,7 @@
 		3A7796AD30096520008D43AF /* PayaWatch-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PayaWatch-Bridging-Header.h"; sourceTree = "<group>"; };
 		3A77A302300EB067008D43AF /* PayaWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PayaWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A8B668D2FD74C1F0043404A /* Paya.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Paya.xcodeproj; sourceTree = SOURCE_ROOT; };
+		3AAFB06030A7AE37001EC0A6 /* Paya.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Paya.xcodeproj; sourceTree = SOURCE_ROOT; };
 		C660FF3256AC8849048203FD /* PayaWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PayaWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3BF4EE8D88EDA6F132AEF9D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		EC66B9615C057061049E7C21 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -93,6 +94,7 @@
 		3A502F512FFA4BD700CBCBBB /* Exceptions for "Paya" folder in "Paya" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Configuration/Secrets.xcconfig,
 				Info.plist,
 			);
 			target = 3A0DF4D52FCF6AE600B8591D /* Paya */;
@@ -111,6 +113,13 @@
 			);
 			target = 2014EE9CFC77706682A808B2 /* PayaWatchComplications */;
 		};
+		A1B2C3D4E5F60718293A4B5C /* Exceptions for "PayaWatch Watch App" folder in "PayaWatch Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3A77A301300EB067008D43AF /* PayaWatch Watch App */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -124,6 +133,9 @@
 		};
 		3A77A303300EB067008D43AF /* PayaWatch Watch App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A1B2C3D4E5F60718293A4B5C /* Exceptions for "PayaWatch Watch App" folder in "PayaWatch Watch App" target */,
+			);
 			path = "PayaWatch Watch App";
 			sourceTree = "<group>";
 		};
@@ -196,6 +208,7 @@
 		3A0DF4CD2FCF6AE600B8591D = {
 			isa = PBXGroup;
 			children = (
+				3AAFB06030A7AE37001EC0A6 /* Paya.xcodeproj */,
 				3A8B668D2FD74C1F0043404A /* Paya.xcodeproj */,
 				3A0DF4D82FCF6AE600B8591D /* Paya */,
 				3A8B66B32FDD64CF0043404A /* PayaWatch Watch App */,
@@ -224,6 +237,11 @@
 			isa = PBXGroup;
 			children = (
 			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3AAFB06130A7AE37001EC0A6 /* Products */ = {
+			isa = PBXGroup;
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -342,7 +360,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2660;
-				LastUpgradeCheck = 2660;
+				LastUpgradeCheck = 2720;
 				TargetAttributes = {
 					3A0DF4D52FCF6AE600B8591D = {
 						CreatedOnToolsVersion = 26.5;
@@ -368,6 +386,10 @@
 			productRefGroup = 3A0DF4D72FCF6AE600B8591D /* Products */;
 			projectDirPath = "";
 			projectReferences = (
+				{
+					ProductGroup = 3AAFB06130A7AE37001EC0A6 /* Products */;
+					ProjectRef = 3AAFB06030A7AE37001EC0A6 /* Paya.xcodeproj */;
+				},
 				{
 					ProductGroup = 3A502EDD2FF8528200CBCBBB /* Products */;
 					ProjectRef = 3A8B668D2FD74C1F0043404A /* Paya.xcodeproj */;
@@ -493,6 +515,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -523,7 +546,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = P3M6LQU895;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -559,6 +582,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -589,7 +613,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = P3M6LQU895;
+				DEVELOPMENT_TEAM = XYY5Y3F4W5;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -630,13 +654,13 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Paya connects to your Bluetooth heart rate monitor to track live intensity during training sessions.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Paya reads your calendar events to show them alongside your health data on the Personal Health Management timeline.";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Paya uses your camera to scan barcodes and nutrition labels so you can log food faster.";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Paya reads your sleep, steps, heart rate, and weight from Apple Health to personalize your training, recovery, and nutrition targets.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Paya uses your camera to scan barcodes and nutrition labels, and to take meal photos. If you use AI food recognition, the photo is sent to Google Gemini to estimate nutrition; it is not stored by Paya's servers.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Paya reads your sleep, steps, heart rate, heart rate variability, respiratory rate, blood oxygen, wrist temperature and weight from Apple Health to personalize your training, recovery, and nutrition targets. This is wellness information, not medical advice.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Paya writes your logged weight and completed workouts to Apple Health so they stay in sync with your other apps.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Paya uses your location to show local weather conditions on the Personal Health Management timeline — for example, whether you walked during sunny hours.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Paya uses your microphone so you can describe a food out loud instead of typing it.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Paya uses your microphone only while you dictate a food description, so you can log by voice instead of typing.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "Paya uses motion data as a fallback to estimate steps and sleep when Apple Health data is unavailable.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Paya converts your spoken food description to text to estimate its calories and protein.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Paya sends the audio of your spoken food description to Apple's speech recognition (and, for AI nutrition estimates, the resulting text to Google Gemini) to estimate calories and protein.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -675,13 +699,13 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Paya connects to your Bluetooth heart rate monitor to track live intensity during training sessions.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Paya reads your calendar events to show them alongside your health data on the Personal Health Management timeline.";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Paya uses your camera to scan barcodes and nutrition labels so you can log food faster.";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Paya reads your sleep, steps, heart rate, and weight from Apple Health to personalize your training, recovery, and nutrition targets.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Paya uses your camera to scan barcodes and nutrition labels, and to take meal photos. If you use AI food recognition, the photo is sent to Google Gemini to estimate nutrition; it is not stored by Paya's servers.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Paya reads your sleep, steps, heart rate, heart rate variability, respiratory rate, blood oxygen, wrist temperature and weight from Apple Health to personalize your training, recovery, and nutrition targets. This is wellness information, not medical advice.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Paya writes your logged weight and completed workouts to Apple Health so they stay in sync with your other apps.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Paya uses your location to show local weather conditions on the Personal Health Management timeline — for example, whether you walked during sunny hours.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Paya uses your microphone so you can describe a food out loud instead of typing it.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Paya uses your microphone only while you dictate a food description, so you can log by voice instead of typing.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "Paya uses motion data as a fallback to estimate steps and sleep when Apple Health data is unavailable.";
-				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Paya converts your spoken food description to text to estimate its calories and protein.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Paya sends the audio of your spoken food description to Apple's speech recognition (and, for AI nutrition estimates, the resulting text to Google Gemini) to estimate calories and protein.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -715,6 +739,7 @@
 				DEVELOPMENT_TEAM = XYY5Y3F4W5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "PayaWatch Watch App/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = PayaWatch;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "PayaWatch reads your heart rate, HRV, and sleep data to calculate a recovery readiness score on your wrist.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "PayaWatch writes completed workouts to Apple Health.";
@@ -752,6 +777,7 @@
 				DEVELOPMENT_TEAM = XYY5Y3F4W5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "PayaWatch Watch App/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = PayaWatch;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "PayaWatch reads your heart rate, HRV, and sleep data to calculate a recovery readiness score on your wrist.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "PayaWatch writes completed workouts to Apple Health.";

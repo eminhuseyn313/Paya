@@ -25,7 +25,7 @@ struct PRTimelineCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(events.count) PRs")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                             .foregroundColor(Pulse.warning)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
@@ -54,7 +54,7 @@ struct PRTimelineCard: View {
                                         .lineLimit(1)
                                     if event.isRecent {
                                         Text("NEW")
-                                            .font(.system(size: 7, weight: .black))
+                                            .font(.pulse(size: 7, weight: .black))
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 4)
                                             .padding(.vertical, 1)
@@ -63,17 +63,17 @@ struct PRTimelineCard: View {
                                     }
                                     Spacer()
                                     Text(event.date.formatted(.dateTime.month(.abbreviated).day()))
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                                 HStack(spacing: 8) {
                                     let w = useLbs ? event.weightKg * 2.20462 : event.weightKg
                                     Text(String(format: "%.0f %@ × %d", w, useLbs ? "lbs" : "kg", event.reps))
-                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                        .font(.pulse(size: 11, weight: .semibold, design: .rounded))
                                         .foregroundColor(Pulse.warning)
                                     let e1rm = useLbs ? event.e1RM * 2.20462 : event.e1RM
                                     Text(String(format: "e1RM %.0f", e1rm))
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -89,7 +89,7 @@ struct PRTimelineCard: View {
                                 Text(showAll ? "Show less" : "Show \(events.count - 5) more")
                                     .font(.caption.weight(.medium))
                                 Image(systemName: showAll ? "chevron.up" : "chevron.down")
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                             }
                             .foregroundColor(Pulse.warning)
                             .frame(maxWidth: .infinity)

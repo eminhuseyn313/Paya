@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 import SwiftData
 
@@ -95,3 +96,5 @@ enum SessionSeeder {
         UserDefaults.standard.set(true, forKey: key)
     }
 }
+
+#endif

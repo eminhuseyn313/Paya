@@ -18,7 +18,7 @@ struct MomentumCard: View {
             HStack {
                 Image(systemName: "flame.fill")
                     .foregroundColor(Pulse.nutrition)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text("Momentum")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -26,7 +26,7 @@ struct MomentumCard: View {
                 let activeCount = streaks.filter { $0.currentStreak > 0 }.count
                 if activeCount > 0 {
                     Text("\(activeCount) active")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(Pulse.positive)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
@@ -48,9 +48,9 @@ struct MomentumCard: View {
 
             HStack(spacing: 4) {
                 Image(systemName: "book.closed.fill")
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                 Text("66-day threshold from Lally et al. (2010), European Journal of Social Psychology")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
             }
             .foregroundColor(Pulse.textTertiary)
         }
@@ -71,12 +71,12 @@ struct MomentumCard: View {
                         .fill(Color(hex: streak.habit.colorHex).opacity(0.15))
                         .frame(width: 32, height: 32)
                     Image(systemName: streak.habit.icon)
-                        .font(.system(size: 13))
+                        .font(.pulse(size: 13))
                         .foregroundColor(Color(hex: streak.habit.colorHex))
                 }
                 if streak.todayDone {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 11))
+                        .font(.pulse(size: 11))
                         .foregroundColor(Pulse.positive)
                         .background(Circle().fill(.background).frame(width: 13, height: 13))
                         .offset(x: 2, y: 2)
@@ -89,11 +89,11 @@ struct MomentumCard: View {
                         .font(.caption.weight(.semibold))
                     if streak.hasPermanentBadge {
                         Image(systemName: "star.circle.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.ai)
                     } else if streak.hasFormedHabit {
                         Image(systemName: "checkmark.seal.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.nutrition)
                     }
                 }
@@ -101,11 +101,11 @@ struct MomentumCard: View {
                 // Streak text
                 if streak.currentStreak > 0 {
                     Text("\(streak.currentStreak)-day streak")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Color(hex: streak.habit.colorHex))
                 } else {
                     Text(streak.todayDone ? "Started today" : "Not active")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
@@ -130,10 +130,10 @@ struct MomentumCard: View {
                         .frame(width: 28, height: 28)
                         .rotationEffect(.degrees(-90))
                     Text("\(streak.currentStreak)")
-                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 9, weight: .bold, design: .rounded))
                 }
                 Text("/\(target)d")
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                     .foregroundColor(Pulse.textTertiary)
             }
         }
@@ -144,10 +144,10 @@ struct MomentumCard: View {
     private func legendItem(icon: String, label: String, color: String) -> some View {
         HStack(spacing: 3) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Color(hex: color))
             Text(label)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

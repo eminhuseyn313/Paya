@@ -13,7 +13,7 @@ struct OnboardingView: View {
 
     var onComplete: () -> Void
 
-    private static let stepCount = 8
+    private static let stepCount = 5
 
     @State private var step: Int = 0
 
@@ -83,12 +83,9 @@ struct OnboardingView: View {
             TabView(selection: $step) {
                 profileStep.tag(0)
                 goalStep.tag(1)
-                experienceStep.tag(2)
-                equipmentStep.tag(3)
-                injuriesStep.tag(4)
-                lifestyleStep.tag(5)
-                notificationStep.tag(6)
-                programStep.tag(7)
+                setupStep.tag(2)
+                injuriesStep.tag(3)
+                programStep.tag(4)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.spring(response: 0.35), value: step)
@@ -102,7 +99,7 @@ struct OnboardingView: View {
             VStack(spacing: 18) {
                 VStack(spacing: 6) {
                     Image(systemName: "figure.strengthtraining.traditional")
-                        .font(.system(size: 48))
+                        .font(.pulse(size: 48))
                         .foregroundColor(Color(hex: "2563EB"))
                     Text("Welcome to Paya")
                         .font(.title.bold())
@@ -319,7 +316,113 @@ struct OnboardingView: View {
         }
     }
 
-    // MARK: - Step 3: Experience
+    // MARK: - Step 3: Training setup (experience + equipment on one screen)
+    // Two former screens merged: both are one-tap choices that change the very
+    // first plan (starting weights, exercise selection), so they belong together.
+
+    var setupStep: some View {
+        ScrollView {
+            VStack(spacing: 14) {
+                VStack(spacing: 4) {
+                    Text("How long have you trained?")
+                        .font(.title2.bold())
+                    Text("Sets the starting weights and how hard sessions push you — not the exercises themselves.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 24)
+                .padding(.horizontal, 20)
+
+                ForEach(ExperienceLevel.allCases) { level in
+                    Button {
+                        withAnimation(.spring(response: 0.25)) { experience = level }
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(level.displayName.capitalized)
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundColor(.primary)
+                                Text(level == .beginner ? "0–1 year" : level == .intermediate ? "1–3 years" : "3+ years")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: experience == level ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(experience == level ? Color(hex: "2563EB") : .secondary.opacity(0.4))
+                        }
+                        .payaCard(padding: 14)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(experience == level ? Color(hex: "2563EB") : .clear, lineWidth: 2)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 20)
+                }
+
+                Spacer().frame(height: 10)
+
+                VStack(spacing: 4) {
+                    Text("What do you have access to?")
+                        .font(.title2.bold())
+                    Text("Every exercise in your plan is chosen to fit this — not swapped in after the fact.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 24)
+                .padding(.horizontal, 20)
+
+                ForEach(EquipmentAccess.allCases) { access in
+                    Button {
+                        withAnimation(.spring(response: 0.25)) { equipment = access }
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    } label: {
+                        HStack(spacing: 12) {
+                            SettingsIcon(icon: access.icon, color: Color(hex: "059669"))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(access.displayName)
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundColor(.primary)
+                                Text(access.subtitle)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: equipment == access ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(equipment == access ? Color(hex: "059669") : .secondary.opacity(0.4))
+                        }
+                        .payaCard(padding: 14)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(equipment == access ? Color(hex: "059669") : .clear, lineWidth: 2)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 20)
+                }
+
+                Button {
+                    withAnimation { step = 3 }
+                } label: {
+                    Text("Continue")
+                        .font(.headline.weight(.bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 15)
+                        .background(Color(hex: "2563EB"))
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .padding(.horizontal, 20)
+
+                Spacer().frame(height: 30)
+            }
+        }
+    }
+
+    // MARK: - (legacy) Step 3: Experience
 
     var experienceStep: some View {
         ScrollView {
@@ -484,7 +587,7 @@ struct OnboardingView: View {
                 .padding(.horizontal, 20)
 
                 Button {
-                    withAnimation { step = 5 }
+                    withAnimation { step = 4 }
                 } label: {
                     Text("Continue")
                         .font(.headline.weight(.bold))
@@ -581,9 +684,9 @@ struct OnboardingView: View {
                         }
                     }
                     HStack {
-                        Text("Low").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                        Text("Low").font(.pulse(size: 9, weight: .bold)).foregroundColor(.secondary)
                         Spacer()
-                        Text("High").font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                        Text("High").font(.pulse(size: 9, weight: .bold)).foregroundColor(.secondary)
                     }
                 }
                 .payaCard(padding: 14)
@@ -621,7 +724,7 @@ struct OnboardingView: View {
             VStack(spacing: 14) {
                 VStack(spacing: 6) {
                     Image(systemName: "bell.badge.fill")
-                        .font(.system(size: 44))
+                        .font(.pulse(size: 44))
                         .foregroundColor(Color(hex: "8B5CF6"))
                     Text("Stay on track")
                         .font(.title2.bold())
@@ -679,7 +782,7 @@ struct OnboardingView: View {
                     .frame(width: 40, height: 40)
                 Image(systemName: icon)
                     .foregroundColor(Color(hex: color))
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.pulse(size: 16, weight: .semibold))
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

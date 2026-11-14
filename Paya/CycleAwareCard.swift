@@ -23,7 +23,7 @@ struct CycleAwareCard: View {
                                 .fill(phaseColor.opacity(0.15))
                                 .frame(width: 36, height: 36)
                             Image(systemName: overview?.currentPhase.icon ?? "moon.stars.fill")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.pulse(size: 14, weight: .semibold))
                                 .foregroundColor(phaseColor)
                         }
                         VStack(alignment: .leading, spacing: 2) {
@@ -60,10 +60,10 @@ struct CycleAwareCard: View {
                     if !isLoading, let rec = overview?.recommendations.first {
                         HStack(spacing: 8) {
                             Image(systemName: rec.icon)
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                                 .foregroundColor(phaseColor)
                             Text(rec.title)
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                                 .foregroundColor(Pulse.textSecondary)
                                 .lineLimit(1)
                         }
@@ -205,7 +205,7 @@ struct CycleAwareDetailView: View {
         }()
 
         return Text(description)
-            .font(.system(size: 12, weight: .medium))
+            .font(.pulse(size: 12, weight: .medium))
             .foregroundColor(Pulse.textSecondary)
             .fixedSize(horizontal: false, vertical: true)
             .padding(12)
@@ -218,7 +218,7 @@ struct CycleAwareDetailView: View {
     private var recommendationsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Phase-Specific Guidance")
-                .font(.system(size: 13, weight: .bold))
+                .font(.pulse(size: 13, weight: .bold))
                 .foregroundColor(Pulse.textPrimary)
 
             ForEach(overview.recommendations) { rec in
@@ -234,24 +234,24 @@ struct CycleAwareDetailView: View {
                     .fill(categoryColor(rec.category).opacity(0.12))
                     .frame(width: 32, height: 32)
                 Image(systemName: rec.icon)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.pulse(size: 12, weight: .bold))
                     .foregroundColor(categoryColor(rec.category))
             }
 
             VStack(alignment: .leading, spacing: 3) {
                 HStack {
                     Text(rec.category.rawValue)
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.pulse(size: 8, weight: .bold))
                         .foregroundColor(categoryColor(rec.category))
                         .textCase(.uppercase)
                         .tracking(0.5)
                     Spacer()
                 }
                 Text(rec.title)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.pulse(size: 12, weight: .bold))
                     .foregroundColor(Pulse.textPrimary)
                 Text(rec.detail)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -279,7 +279,7 @@ struct CycleAwareDetailView: View {
     private func temperatureSection(_ trend: CycleAwareEngine.TempTrend) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Temperature Pattern")
-                .font(.system(size: 13, weight: .bold))
+                .font(.pulse(size: 13, weight: .bold))
                 .foregroundColor(Pulse.textPrimary)
 
             HStack(spacing: 16) {
@@ -291,7 +291,7 @@ struct CycleAwareDetailView: View {
             Text(trend.hasShift
                  ? "Biphasic pattern detected — consistent with ovulatory cycles (Barron & Fehring 2005). The \(String(format: "%.2f", trend.shift))°C rise confirms the luteal progesterone surge."
                  : "No clear biphasic shift yet. This may indicate anovulatory cycle or insufficient data. More nights with Apple Watch will clarify.")
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .padding(14)
@@ -302,10 +302,10 @@ struct CycleAwareDetailView: View {
     private func tempStat(label: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 14, weight: .black, design: .rounded))
+                .font(.pulse(size: 14, weight: .black, design: .rounded))
                 .foregroundColor(Pulse.textPrimary)
             Text(label)
-                .font(.system(size: 8, weight: .semibold))
+                .font(.pulse(size: 8, weight: .semibold))
                 .foregroundColor(Pulse.textTertiary)
         }
     }
@@ -315,22 +315,22 @@ struct CycleAwareDetailView: View {
     private var cycleHistorySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Recent Cycles")
-                .font(.system(size: 13, weight: .bold))
+                .font(.pulse(size: 13, weight: .bold))
                 .foregroundColor(Pulse.textPrimary)
 
             if overview.recentCycles.isEmpty {
                 Text("Not enough data to show cycle history yet.")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.pulse(size: 11, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
             } else {
                 ForEach(overview.recentCycles) { cycle in
                     HStack {
                         Text(cycle.startDate, style: .date)
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.pulse(size: 11, weight: .semibold))
                             .foregroundColor(Pulse.textPrimary)
                         Spacer()
                         Text("\(cycle.length) days")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 12, weight: .bold, design: .rounded))
                             .foregroundColor(cycle.length >= 24 && cycle.length <= 35 ? Pulse.positive : Pulse.warning)
                     }
                     .padding(.vertical, 6)
@@ -347,7 +347,7 @@ struct CycleAwareDetailView: View {
     private var methodologySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Research")
-                .font(.system(size: 11, weight: .bold))
+                .font(.pulse(size: 11, weight: .bold))
                 .foregroundColor(Pulse.textSecondary)
 
             VStack(alignment: .leading, spacing: 6) {
@@ -366,10 +366,10 @@ struct CycleAwareDetailView: View {
     private func methodLine(_ text: String, source: String) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(text)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textSecondary)
             Text(source)
-                .font(.system(size: 8, weight: .medium))
+                .font(.pulse(size: 8, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
                 .italic()
         }

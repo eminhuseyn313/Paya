@@ -23,7 +23,7 @@ struct VolumePRCard: View {
                         let recentCount = volumePRs.filter(\.isRecent).count
                         if recentCount > 0 {
                             Text("\(recentCount) NEW")
-                                .font(.system(size: 8, weight: .heavy))
+                                .font(.pulse(size: 8, weight: .heavy))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -46,18 +46,18 @@ struct VolumePRCard: View {
                                         : Pulse.surfaceElevatedFallback)
                                     .frame(width: 28, height: 28)
                                 Image(systemName: pr.isRecent ? "star.fill" : "checkmark")
-                                    .font(.system(size: 11, weight: .bold))
+                                    .font(.pulse(size: 11, weight: .bold))
                                     .foregroundColor(pr.isRecent ? Pulse.ai : .secondary)
                             }
 
                             VStack(alignment: .leading, spacing: 2) {
                                 HStack(spacing: 4) {
                                     Text(pr.exerciseName)
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .font(.pulse(size: 12, weight: .semibold))
                                         .lineLimit(1)
                                     if pr.isRecent {
                                         Text("NEW")
-                                            .font(.system(size: 7, weight: .heavy))
+                                            .font(.pulse(size: 7, weight: .heavy))
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 4)
                                             .padding(.vertical, 1)
@@ -66,7 +66,7 @@ struct VolumePRCard: View {
                                     }
                                 }
                                 Text(pr.dateLabel)
-                                    .font(.system(size: 9))
+                                    .font(.pulse(size: 9))
                                     .foregroundColor(Pulse.textTertiary)
                             }
 
@@ -76,7 +76,7 @@ struct VolumePRCard: View {
                             Text(vol >= 1000
                                 ? String(format: "%.1f%@", vol / 1000, useLbs ? "klbs" : "t")
                                 : String(format: "%.0f %@", vol, useLbs ? "lbs" : "kg"))
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 12, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.ai)
                         }
                         .padding(.vertical, 2)
@@ -87,7 +87,7 @@ struct VolumePRCard: View {
                             withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
                         } label: {
                             Text(expanded ? "Show less" : "Show all \(volumePRs.count)")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                                 .foregroundColor(Pulse.ai)
                                 .frame(maxWidth: .infinity)
                         }

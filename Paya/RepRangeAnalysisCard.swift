@@ -25,7 +25,7 @@ struct RepRangeAnalysisCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(totalSets) total sets")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -47,20 +47,20 @@ struct RepRangeAnalysisCard: View {
                                 }
 
                                 Text(String(format: "%.0f%%", zone.percent))
-                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 10, weight: .bold, design: .rounded))
                                     .foregroundColor(zone.color)
 
                                 Text(zone.label)
-                                    .font(.system(size: 8, weight: .semibold))
+                                    .font(.pulse(size: 8, weight: .semibold))
                                     .foregroundColor(Pulse.textPrimary)
                                     .lineLimit(1)
 
                                 Text(zone.repRange)
-                                    .font(.system(size: 7))
+                                    .font(.pulse(size: 7))
                                     .foregroundColor(Pulse.textTertiary)
 
                                 Text(zone.purpose)
-                                    .font(.system(size: 6, weight: .medium))
+                                    .font(.pulse(size: 6, weight: .medium))
                                     .foregroundColor(zone.color)
                             }
                             .frame(maxWidth: .infinity)
@@ -69,17 +69,17 @@ struct RepRangeAnalysisCard: View {
 
                     HStack(alignment: .top, spacing: 6) {
                         Image(systemName: "lightbulb.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.nutrition)
                             .padding(.top, 1)
                         Text(insight)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textPrimary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
                     Text("Based on Schoenfeld (2021) meta-analysis on rep ranges and training adaptations.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)

@@ -183,7 +183,7 @@ struct SessionEditHeader: View {
                     if session.isFlareDay {
                         HStack(spacing: 4) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 10))
+                                .font(.pulse(size: 10))
                             Text("Flare day")
                                 .font(.caption2.weight(.semibold))
                         }
@@ -353,7 +353,7 @@ struct EditableExerciseCard: View {
                             .frame(width: 32, alignment: .center)
                         Color.clear.frame(width: 28)
                     }
-                    .font(.system(size: 9, weight: .semibold))
+                    .font(.pulse(size: 9, weight: .semibold))
                     .foregroundColor(Pulse.textTertiary)
 
                     ForEach(sortedSets) { setLog in

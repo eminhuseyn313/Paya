@@ -26,7 +26,7 @@ struct ChronoNutritionCard: View {
                                 .fill(Pulse.nutrition.opacity(0.15))
                                 .frame(width: 36, height: 36)
                             Image(systemName: "fork.knife.circle.fill")
-                                .font(.system(size: 14, weight: .semibold))
+                                .font(.pulse(size: 14, weight: .semibold))
                                 .foregroundColor(Pulse.nutrition)
                         }
                         VStack(alignment: .leading, spacing: 2) {
@@ -57,10 +57,10 @@ struct ChronoNutritionCard: View {
                     if !isLoading, let top = insights.first {
                         HStack(spacing: 8) {
                             Text(top.metric)
-                                .font(.system(size: 16, weight: .black, design: .rounded))
+                                .font(.pulse(size: 16, weight: .black, design: .rounded))
                                 .foregroundColor(toneColor(top.metricColor))
                             Text(top.headline)
-                                .font(.system(size: 10, weight: .medium))
+                                .font(.pulse(size: 10, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -139,10 +139,10 @@ struct ChronoNutritionDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: categoryIcon(insight.category))
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(toneColor(insight.metricColor))
                 Text(insight.category.rawValue)
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.pulse(size: 10, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
                     .textCase(.uppercase)
                 Spacer()
@@ -151,27 +151,27 @@ struct ChronoNutritionDetailView: View {
                         .fill(confidenceColor(insight.confidence))
                         .frame(width: 5, height: 5)
                     Text(insight.confidence.rawValue)
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.pulse(size: 8, weight: .bold))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
 
             HStack(spacing: 10) {
                 Text(insight.metric)
-                    .font(.system(size: 20, weight: .black, design: .rounded))
+                    .font(.pulse(size: 20, weight: .black, design: .rounded))
                     .foregroundColor(toneColor(insight.metricColor))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(insight.headline)
                         .font(.caption.weight(.bold))
                         .foregroundColor(Pulse.textPrimary)
                     Text("\(insight.sampleDays) days analyzed")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
             }
 
             Text(insight.detail)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -201,12 +201,12 @@ struct ChronoNutritionDetailView: View {
     private func methodRow(_ icon: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 14)
                 .padding(.top, 2)
             Text(text)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }

@@ -22,7 +22,7 @@ struct AllostasisCard: View {
                             .fill(iconColor.opacity(0.15))
                             .frame(width: 36, height: 36)
                         Image(systemName: "gauge.with.dots.needle.50percent")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.pulse(size: 14, weight: .semibold))
                             .foregroundColor(iconColor)
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -48,10 +48,10 @@ struct AllostasisCard: View {
                     if let report {
                         HStack(spacing: 4) {
                             Text("\(report.score)")
-                                .font(.system(size: 22, weight: .black, design: .rounded))
+                                .font(.pulse(size: 22, weight: .black, design: .rounded))
                                 .foregroundColor(bandColor(report.band))
                             Image(systemName: report.trajectory.icon)
-                                .font(.system(size: 10, weight: .bold))
+                                .font(.pulse(size: 10, weight: .bold))
                                 .foregroundColor(trajectoryColor(report.trajectory))
                         }
                     } else if isLoading {
@@ -84,14 +84,14 @@ struct AllostasisCard: View {
                                 )
 
                                 Image(systemName: driver.icon)
-                                    .font(.system(size: 7))
+                                    .font(.pulse(size: 7))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
 
                     Text(report.recommendation)
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -189,13 +189,13 @@ struct AllostasisDetailView: View {
 
                 VStack(spacing: 2) {
                     Text("\(report.score)")
-                        .font(.system(size: 32, weight: .black, design: .rounded))
+                        .font(.pulse(size: 32, weight: .black, design: .rounded))
                         .foregroundColor(bandColor(report.band))
                     HStack(spacing: 3) {
                         Image(systemName: report.trajectory.icon)
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                         Text(report.trajectory.rawValue)
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                     }
                     .foregroundColor(trajectoryColor(report.trajectory))
                 }
@@ -226,7 +226,7 @@ struct AllostasisDetailView: View {
                             .fill(driverColor(driver.score).opacity(0.12))
                             .frame(width: 32, height: 32)
                         Image(systemName: driver.icon)
-                            .font(.system(size: 13))
+                            .font(.pulse(size: 13))
                             .foregroundColor(driverColor(driver.score))
                     }
 
@@ -237,7 +237,7 @@ struct AllostasisDetailView: View {
                                 .foregroundColor(Pulse.textPrimary)
                             Spacer()
                             Text("\(Int(driver.weight * 100))%")
-                                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                .font(.pulse(size: 9, weight: .bold, design: .monospaced))
                                 .foregroundColor(Pulse.textTertiary)
                         }
 
@@ -254,7 +254,7 @@ struct AllostasisDetailView: View {
                         .frame(height: 6)
 
                         Text(driver.detail)
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -306,12 +306,12 @@ struct AllostasisDetailView: View {
     private func methodRow(_ icon: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 14)
                 .padding(.top, 2)
             Text(text)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }

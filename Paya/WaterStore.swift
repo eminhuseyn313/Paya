@@ -54,8 +54,16 @@ enum WaterStore {
             // Create today's NutritionLog if one doesn't exist yet —
             // otherwise drinks logged before the Nutrition tab is opened
             // silently lose their nutritional data.
-            let isTraining = ProgramData.todaySessionType != nil
-            let newLog = NutritionLog(date: .now, isTrainingDay: isTraining, proteinTarget: 170, calorieTarget: isTraining ? 2200 : 1900)
+            let isTraining = ProgramData.isTodayTrainingDay
+            // Use the active profile's own targets — the literal 170/2200/1900 used here
+            // leaked into the Nutrition rings as if they were the user's goals.
+            let person = ProfileStore.current(context: context)
+            let newLog = NutritionLog(
+                date: .now,
+                isTrainingDay: isTraining,
+                proteinTarget: person?.proteinTargetG ?? 170,
+                calorieTarget: isTraining ? (person?.trainingDayCalories ?? 2200) : (person?.restDayCalories ?? 1900)
+            )
             newLog.profileId = pid
             context.insert(newLog)
             nutritionLog = newLog

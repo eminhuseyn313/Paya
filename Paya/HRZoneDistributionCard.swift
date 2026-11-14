@@ -18,7 +18,7 @@ struct HRZoneDistributionCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("Last 10 sessions")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -26,7 +26,7 @@ struct HRZoneDistributionCard: View {
                         ForEach(zones) { zone in
                             HStack(spacing: 8) {
                                 Text(zone.name)
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                     .foregroundColor(zone.color)
                                     .frame(width: 50, alignment: .leading)
 
@@ -38,7 +38,7 @@ struct HRZoneDistributionCard: View {
                                 .frame(height: 14)
 
                                 Text(String(format: "%.0f%%", zone.percent))
-                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                    .font(.pulse(size: 10, weight: .bold, design: .rounded))
                                     .monospacedDigit()
                                     .foregroundColor(Pulse.textTertiary)
                                     .frame(width: 34, alignment: .trailing)
@@ -51,14 +51,14 @@ struct HRZoneDistributionCard: View {
                             HStack(spacing: 3) {
                                 Circle().fill(zone.color).frame(width: 5, height: 5)
                                 Text("\(zone.bpmRange)")
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
                     }
 
                     Text("Based on standard HR zones (% of est. max HR). Higher Zone 3-4 time indicates effective hypertrophy stimulus.")
-                        .font(.system(size: 9))
+                        .font(.pulse(size: 9))
                         .foregroundColor(Pulse.textTertiary)
                 }
                 .payaCard(padding: 14)

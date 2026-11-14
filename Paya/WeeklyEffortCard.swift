@@ -18,7 +18,7 @@ struct WeeklyEffortCard: View {
                 Text("Weekly Effort · \(appState.profile.goal.displayName)")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                if let report = report {
+                if let report = report, report.hasScore {
                     Text(report.grade.label)
                         .font(.caption.weight(.bold))
                         .foregroundColor(.white)
@@ -43,16 +43,18 @@ struct WeeklyEffortCard: View {
                             .rotationEffect(.degrees(-90))
                             .animation(PayaAnimation.dataChange, value: report.score)
                         VStack(spacing: 0) {
-                            HeroNumberText(value: "\(report.score)", size: 22, color: Color(hex: report.grade.colorHex))
-                            Text("/100")
-                                .font(.caption2)
-                                .foregroundColor(Pulse.textTertiary)
+                            HeroNumberText(value: report.hasScore ? "\(report.score)" : "—", size: 22, color: report.hasScore ? Color(hex: report.grade.colorHex) : Pulse.textTertiary)
+                            if report.hasScore {
+                                Text("/100")
+                                    .font(.caption2)
+                                    .foregroundColor(Pulse.textTertiary)
+                            }
                         }
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("Weekly effort score \(report.score) of 100, grade \(report.grade.label)")
 
-                    Text(report.headline)
+                    Text(report.hasScore ? report.headline : "Needs a logged session, heart-rate data or nutrition logs to score your week.")
                         .font(.caption)
                         .foregroundColor(Pulse.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -77,9 +79,9 @@ struct WeeklyEffortCard: View {
                                     .foregroundColor(Pulse.textTertiary)
                             }
                             Spacer()
-                            Text("\(component.score)")
+                            Text(component.measured ? "\(component.score)" : "—")
                                 .font(.caption.weight(.bold))
-                                .foregroundColor(scoreColor(component.score))
+                                .foregroundColor(component.measured ? scoreColor(component.score) : Pulse.textTertiary)
                                 .monospacedDigit()
                         }
                     }

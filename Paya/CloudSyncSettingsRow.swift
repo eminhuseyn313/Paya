@@ -9,6 +9,8 @@ struct CloudSyncSettingsRow: View {
     @Environment(\.modelContext) private var modelContext
     private var client = SupabaseClient.shared
     @State private var showAuthSheet = false
+    @State private var isRestoring = false
+    @State private var restoreMessage: String?
 
     var body: some View {
         if client.isSignedIn {
@@ -97,6 +99,26 @@ struct CloudSyncSettingsRow: View {
             }
             .disabled(client.isSyncing)
 
+            // Restore from cloud (merge: inserts only rows missing locally)
+            Button {
+                Task { await performRestore() }
+            } label: {
+                HStack {
+                    SettingsIcon(icon: "icloud.and.arrow.down.fill", color: Color(hex: "10B981"))
+                    Text(isRestoring ? "Restoring..." : (restoreMessage ?? "Restore from cloud"))
+                        .foregroundColor(.primary)
+                    Spacer()
+                    if isRestoring {
+                        ProgressView().tint(Pulse.ai)
+                    } else {
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .disabled(client.isSyncing || isRestoring)
+
             // Error display
             if let error = client.syncError {
                 HStack {
@@ -121,6 +143,15 @@ struct CloudSyncSettingsRow: View {
                 }
             }
         }
+    }
+
+    private func performRestore() async {
+        isRestoring = true
+        let result = await CloudRestore.restore(context: modelContext)
+        isRestoring = false
+        restoreMessage = result.failedTables.isEmpty
+            ? "Restored \(result.inserted) missing records"
+            : "Restored \(result.inserted); \(result.failedTables.count) tables failed"
     }
 
     private func performSync() async {
@@ -178,7 +209,7 @@ struct CloudAuthView: View {
                         .fill(Pulse.positive.opacity(0.15))
                         .frame(width: 72, height: 72)
                     Image(systemName: "envelope.badge.fill")
-                        .font(.system(size: 30))
+                        .font(.pulse(size: 30))
                         .foregroundColor(Pulse.positive)
                 }
 
@@ -264,7 +295,7 @@ struct CloudAuthView: View {
                         .fill(Pulse.ai.opacity(0.15))
                         .frame(width: 72, height: 72)
                     Image(systemName: "icloud.fill")
-                        .font(.system(size: 30))
+                        .font(.pulse(size: 30))
                         .foregroundColor(Pulse.ai)
                 }
 

@@ -189,7 +189,7 @@ struct TargetPill: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
-                .font(.system(size: 8, weight: .bold))
+                .font(.pulse(size: 8, weight: .bold))
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity)

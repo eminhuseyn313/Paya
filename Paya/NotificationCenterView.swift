@@ -30,14 +30,14 @@ struct NotificationCenterView: View {
                     if records.isEmpty {
                         VStack(spacing: 16) {
                             Image(systemName: "bell.badge")
-                                .font(.system(size: 48))
+                                .font(.pulse(size: 48))
                                 .foregroundColor(Pulse.textTertiary)
                                 .shadow(color: Pulse.hydration.opacity(0.2), radius: 16)
                             Text("Nothing new yet")
-                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 18, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
                             Text("Paya will keep your training, nutrition, recovery, and progress updates here.")
-                                .font(.system(size: 13))
+                                .font(.pulse(size: 13))
                                 .foregroundColor(Pulse.textTertiary)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 40)
@@ -60,14 +60,14 @@ struct NotificationCenterView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Notifications")
-                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 17, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textPrimary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Mark all read") {
                         try? NotificationCenterStore.markAllRead(profileId: profileId, context: modelContext)
                     }
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.pulse(size: 13, weight: .semibold))
                     .foregroundColor(Pulse.hydration)
                     .disabled(records.allSatisfy { $0.readAt != nil })
                 }
@@ -79,7 +79,7 @@ struct NotificationCenterView: View {
     private func notificationSection(_ title: String, records: [NotificationRecord]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title.uppercased())
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .font(.pulse(size: 11, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textTertiary)
                 .padding(.leading, 4)
 
@@ -136,19 +136,19 @@ private struct NotificationCard: View {
                     .fill(record.category.color.opacity(0.13))
                     .frame(width: 40, height: 40)
                 Image(systemName: record.category.symbol)
-                    .font(.system(size: 16))
+                    .font(.pulse(size: 16))
                     .foregroundStyle(record.category.color)
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text(record.title)
-                    .font(.system(size: 14, weight: record.readAt == nil ? .bold : .regular))
+                    .font(.pulse(size: 14, weight: record.readAt == nil ? .bold : .regular))
                     .foregroundColor(Pulse.textPrimary)
                 Text(record.message)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(Pulse.textTertiary)
                     .lineLimit(2)
                 Text(record.createdAt, style: .relative)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textTertiary.opacity(0.6))
             }
             Spacer(minLength: 0)

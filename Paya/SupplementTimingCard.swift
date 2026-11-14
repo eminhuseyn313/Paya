@@ -50,7 +50,7 @@ struct SupplementTimingCard: View {
                         Spacer()
                         if appState.isTrainingDay {
                             Text("Training day")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.positive)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
@@ -58,7 +58,7 @@ struct SupplementTimingCard: View {
                                 .clipShape(Capsule())
                         } else {
                             Text("Rest day")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(Pulse.textTertiary)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
@@ -89,26 +89,26 @@ struct SupplementTimingCard: View {
                                 VStack(alignment: .leading, spacing: 3) {
                                     HStack(spacing: 6) {
                                         Text(entry.timeLabel)
-                                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                                            .font(.pulse(size: 10, weight: .bold, design: .rounded))
                                             .foregroundColor(entry.isPassed ? .secondary : entry.color)
                                             .frame(width: 50, alignment: .leading)
 
                                         Image(systemName: entry.icon)
-                                            .font(.system(size: 10))
+                                            .font(.pulse(size: 10))
                                             .foregroundColor(entry.color)
 
                                         Text(entry.name)
-                                            .font(.system(size: 11, weight: .bold))
+                                            .font(.pulse(size: 11, weight: .bold))
                                             .foregroundColor(entry.isPassed ? .secondary : .primary)
                                             .strikethrough(entry.isPassed)
 
                                         Text(entry.dose)
-                                            .font(.system(size: 10))
+                                            .font(.pulse(size: 10))
                                             .foregroundColor(Pulse.textTertiary)
                                     }
 
                                     Text(entry.rationale)
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                         .foregroundColor(.secondary.opacity(0.8))
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
@@ -120,7 +120,7 @@ struct SupplementTimingCard: View {
                     }
 
                     Text("Timing from ISSN position stands. Creatine: Kreider et al. 2017. Caffeine: Goldstein et al. 2010. Protein: Schoenfeld & Aragon 2018.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)

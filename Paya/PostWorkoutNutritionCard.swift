@@ -53,7 +53,7 @@ struct PostWorkoutNutritionCard: View {
                         .fill(Pulse.positive.opacity(0.12))
                         .frame(width: 32, height: 32)
                     Image(systemName: "fork.knife")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(Pulse.positive)
                 }
                 VStack(alignment: .leading, spacing: 1) {
@@ -65,7 +65,7 @@ struct PostWorkoutNutritionCard: View {
                 }
                 Spacer()
                 Text(intensity.label)
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 2)
@@ -81,7 +81,7 @@ struct PostWorkoutNutritionCard: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Suggested meals")
-                    .font(.system(size: 10, weight: .bold))
+                    .font(.pulse(size: 10, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
 
                 ForEach(mealSuggestions, id: \.self) { meal in
@@ -90,7 +90,7 @@ struct PostWorkoutNutritionCard: View {
                             .fill(Pulse.positive)
                             .frame(width: 4, height: 4)
                         Text(meal)
-                            .font(.system(size: 11))
+                            .font(.pulse(size: 11))
                             .foregroundColor(Pulse.textPrimary)
                     }
                 }
@@ -98,7 +98,7 @@ struct PostWorkoutNutritionCard: View {
             .padding(.top, 2)
 
             Text("Prioritize fast-digesting protein + carbs. Delay fat to avoid slowing absorption.")
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .payaCard(padding: 14)
@@ -107,12 +107,12 @@ struct PostWorkoutNutritionCard: View {
     private func macroBlock(value: String, label: String, color: Color, icon: String) -> some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.pulse(size: 14))
                 .foregroundColor(color)
             Text(value)
-                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .font(.pulse(size: 14, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)

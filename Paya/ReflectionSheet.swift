@@ -343,15 +343,15 @@ struct RPESection: View {
 
             HStack {
                 Text("Easy")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
                 Spacer()
                 Text("Moderate")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
                 Spacer()
                 Text("Max")
-                    .font(.system(size: 9, weight: .bold))
+                    .font(.pulse(size: 9, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
             }
             .padding(.horizontal, 4)
@@ -434,7 +434,7 @@ struct TagSection: View {
                         HStack(spacing: 4) {
                             if isSelected {
                                 Image(systemName: "checkmark")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                             }
                             Text(tag.label)
                                 .font(.caption.weight(.semibold))

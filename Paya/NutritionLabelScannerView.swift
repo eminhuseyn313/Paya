@@ -78,7 +78,7 @@ struct NutritionLabelScannerView: View {
                 if cameraError != nil {
                     VStack(spacing: 12) {
                         Image(systemName: "camera.fill.badge.ellipsis")
-                            .font(.system(size: 44))
+                            .font(.pulse(size: 44))
                             .foregroundColor(.white)
                         Text(cameraError ?? "Camera unavailable")
                             .font(.subheadline)

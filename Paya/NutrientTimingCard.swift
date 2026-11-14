@@ -29,13 +29,13 @@ struct NutrientTimingCard: View {
             HStack {
                 Image(systemName: "clock.arrow.2.circlepath")
                     .foregroundColor(Pulse.nutrition)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                 Text("Nutrient timing")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 if let a = analysis, a.grade != .unknown {
                     Text(a.grade.label)
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.pulse(size: 9, weight: .bold))
                         .foregroundColor(a.grade.color)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
@@ -91,10 +91,10 @@ struct NutrientTimingCard: View {
                 if a.missedPostWorkoutCount > 0 {
                     HStack(spacing: 6) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.nutrition)
                         Text("\(a.missedPostWorkoutCount) of your last \(a.totalSessionsAnalyzed) sessions had no meal within 3 hours.")
-                            .font(.system(size: 10))
+                            .font(.pulse(size: 10))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -105,7 +105,7 @@ struct NutrientTimingCard: View {
                     Text("Not enough data yet")
                         .font(.caption.weight(.semibold))
                     Text("Log meals with timestamps and complete training sessions to unlock timing insights.")
-                        .font(.system(size: 10))
+                        .font(.pulse(size: 10))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                 }
@@ -115,9 +115,9 @@ struct NutrientTimingCard: View {
             // Source
             HStack(spacing: 4) {
                 Image(systemName: "book.closed.fill")
-                    .font(.system(size: 8))
+                    .font(.pulse(size: 8))
                 Text("Based on ISSN nutrient timing guidelines (Kerksick et al. 2017)")
-                    .font(.system(size: 9))
+                    .font(.pulse(size: 9))
             }
             .foregroundColor(Pulse.textTertiary)
         }
@@ -133,7 +133,7 @@ struct NutrientTimingCard: View {
                     .fill(Color(hex: color).opacity(0.15))
                     .frame(width: 30, height: 30)
                 Image(systemName: icon)
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(Color(hex: color))
             }
             VStack(alignment: .leading, spacing: 2) {
@@ -146,7 +146,7 @@ struct NutrientTimingCard: View {
                         .foregroundColor(Color(hex: color))
                 }
                 Text(subtitle)
-                    .font(.system(size: 10))
+                    .font(.pulse(size: 10))
                     .foregroundColor(Pulse.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }

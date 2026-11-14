@@ -80,7 +80,7 @@ struct WorkoutIntensityScoreCard: View {
                 Spacer()
                 if let latest = recentScores.last {
                     Text(scoreLabel(latest.score))
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.pulse(size: 10, weight: .bold))
                         .foregroundColor(scoreColor(latest.score))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -100,7 +100,7 @@ struct WorkoutIntensityScoreCard: View {
                     ForEach(recentScores) { point in
                         VStack(spacing: 4) {
                             Text(String(format: "%.0f", point.score))
-                                .font(.system(size: 8, weight: .bold))
+                                .font(.pulse(size: 8, weight: .bold))
                                 .foregroundColor(scoreColor(point.score))
 
                             RoundedRectangle(cornerRadius: 4)
@@ -114,7 +114,7 @@ struct WorkoutIntensityScoreCard: View {
                                 .frame(height: max(8, CGFloat(point.score) * 0.8))
 
                             Text(point.label)
-                                .font(.system(size: 7))
+                                .font(.pulse(size: 7))
                                 .foregroundColor(Pulse.textTertiary)
                                 .lineLimit(1)
                         }
@@ -129,7 +129,7 @@ struct WorkoutIntensityScoreCard: View {
                     IntensityLegend(color: Pulse.nutrition, label: "50–74 Optimal")
                     IntensityLegend(color: Pulse.critical, label: "75+ Hard")
                 }
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
             }
         }
         .payaCard(padding: 14)

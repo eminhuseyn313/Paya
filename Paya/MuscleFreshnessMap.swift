@@ -24,7 +24,7 @@ struct MuscleFreshnessMap: View {
                         Spacer()
                         let fresh = muscles.filter { $0.status == .fresh }.count
                         Text("\(fresh)/\(muscles.count) ready")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(Pulse.positive)
                     }
 
@@ -53,7 +53,7 @@ struct MuscleFreshnessMap: View {
                     }
 
                     Text("Recovery estimates: large muscles 72h, medium 56h, small 48h. Adjusted by volume.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -69,7 +69,7 @@ struct MuscleFreshnessMap: View {
                 .frame(width: 10, height: 10)
 
             Text(muscle.name)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.pulse(size: 10, weight: .semibold))
                 .lineLimit(1)
 
             Spacer()
@@ -86,7 +86,7 @@ struct MuscleFreshnessMap: View {
             .frame(width: 40, height: 6)
 
             Text(muscle.hoursLabel)
-                .font(.system(size: 8, weight: .bold, design: .rounded))
+                .font(.pulse(size: 8, weight: .bold, design: .rounded))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 28, alignment: .trailing)
         }
@@ -95,7 +95,7 @@ struct MuscleFreshnessMap: View {
     private func statusLegend(color: Color, label: String) -> some View {
         HStack(spacing: 3) {
             Circle().fill(color).frame(width: 5, height: 5)
-            Text(label).font(.system(size: 7)).foregroundColor(Pulse.textTertiary)
+            Text(label).font(.pulse(size: 7)).foregroundColor(Pulse.textTertiary)
         }
     }
 

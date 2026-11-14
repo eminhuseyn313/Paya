@@ -21,7 +21,7 @@ struct CorrelationInsightsCard: View {
                             .fill(Pulse.ai.opacity(0.15))
                             .frame(width: 36, height: 36)
                         Image(systemName: "point.3.connected.trianglepath.dotted")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.pulse(size: 14, weight: .semibold))
                             .foregroundColor(Pulse.ai)
                     }
                     VStack(alignment: .leading, spacing: 2) {
@@ -57,7 +57,7 @@ struct CorrelationInsightsCard: View {
                     }
                     if insights.count > 1 {
                         Text("+\(insights.count - 1) more pattern\(insights.count > 2 ? "s" : "")")
-                            .font(.system(size: 10, weight: .medium))
+                            .font(.pulse(size: 10, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                     }
                 }
@@ -91,7 +91,7 @@ struct CorrelationInsightsCard: View {
                 .foregroundColor(Pulse.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
             Text(advice.actionTip)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.positive)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -173,7 +173,7 @@ struct CorrelationDetailView: View {
                         .fill(accentPurple.opacity(0.15))
                         .frame(width: 52, height: 52)
                     Image(systemName: "point.3.connected.trianglepath.dotted")
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.pulse(size: 20, weight: .semibold))
                         .foregroundColor(accentPurple)
                 }
                 VStack(alignment: .leading, spacing: 4) {
@@ -242,13 +242,13 @@ struct CorrelationDetailView: View {
                                 )
                                 .overlay(alignment: .leading) {
                                     Text(String(format: "%.2f", insight.r))
-                                        .font(.system(size: 9, weight: .bold, design: .monospaced))
+                                        .font(.pulse(size: 9, weight: .bold, design: .monospaced))
                                         .foregroundColor(.white)
                                         .padding(.leading, 6)
                                 }
 
                             Text("\(insight.metricA.label) × \(insight.metricB.label)")
-                                .font(.system(size: 10, weight: .medium))
+                                .font(.pulse(size: 10, weight: .medium))
                                 .foregroundColor(Pulse.textPrimary)
                                 .lineLimit(1)
                                 .padding(.leading, 8)
@@ -256,7 +256,7 @@ struct CorrelationDetailView: View {
                             Spacer()
 
                             Image(systemName: insight.r > 0 ? "arrow.up.right" : "arrow.down.right")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                                 .foregroundColor(insight.r > 0 ? Pulse.positive : Pulse.critical)
                         }
                         .padding(.vertical, 2)
@@ -305,14 +305,14 @@ struct CorrelationDetailView: View {
                     AxisMarks(position: .bottom) { _ in
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 0.3))
                         AxisValueLabel()
-                            .font(.system(size: 8))
+                            .font(.pulse(size: 8))
                     }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading) { _ in
                         AxisGridLine(stroke: StrokeStyle(lineWidth: 0.3))
                         AxisValueLabel()
-                            .font(.system(size: 8))
+                            .font(.pulse(size: 8))
                     }
                 }
             }
@@ -327,7 +327,7 @@ struct CorrelationDetailView: View {
                 Label(strengthLabel(insight.r), systemImage: "gauge.with.dots.needle.33percent")
                 Label(insight.r > 0 ? "Positive" : "Inverse", systemImage: insight.r > 0 ? "arrow.up.right" : "arrow.down.right")
             }
-            .font(.system(size: 9, weight: .medium))
+            .font(.pulse(size: 9, weight: .medium))
             .foregroundColor(Pulse.textTertiary)
 
             Button {
@@ -351,7 +351,7 @@ struct CorrelationDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "lightbulb.fill")
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(Pulse.nutrition)
                 Text("WHAT TO TRY THIS WEEK")
                     .font(.caption.weight(.bold))
@@ -387,7 +387,7 @@ struct CorrelationDetailView: View {
             ForEach(Array(actionable.enumerated()), id: \.offset) { _, item in
                 HStack(alignment: .top, spacing: 10) {
                     Image(systemName: item.icon)
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(item.color)
                         .frame(width: 24)
                         .padding(.top, 2)
@@ -440,7 +440,7 @@ struct CorrelationDetailView: View {
     private var emptyStateSection: some View {
         VStack(spacing: 14) {
             Image(systemName: "chart.dots.scatter")
-                .font(.system(size: 40))
+                .font(.pulse(size: 40))
                 .foregroundColor(.secondary.opacity(0.4))
             Text("No patterns found yet")
                 .font(.headline)
@@ -467,7 +467,7 @@ struct CorrelationDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "clock.arrow.2.circlepath")
-                    .font(.system(size: 12))
+                    .font(.pulse(size: 12))
                     .foregroundColor(Pulse.warning)
                 Text("DELAYED EFFECTS")
                     .font(.caption.weight(.bold))
@@ -484,7 +484,7 @@ struct CorrelationDetailView: View {
 
             if laggedInsights.count > 6 {
                 Text("+\(laggedInsights.count - 6) more delayed pattern\(laggedInsights.count > 7 ? "s" : "")")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.pulse(size: 10, weight: .medium))
                     .foregroundColor(Pulse.textTertiary)
                     .padding(.top, 2)
             }
@@ -498,13 +498,13 @@ struct CorrelationDetailView: View {
                 // Cause → Effect arrow badge
                 HStack(spacing: 4) {
                     Text(lagged.cause.label)
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(Pulse.textPrimary)
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.pulse(size: 8, weight: .bold))
                         .foregroundColor(Pulse.warning)
                     Text(lagged.effect.label)
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(Pulse.textPrimary)
                 }
 
@@ -512,7 +512,7 @@ struct CorrelationDetailView: View {
 
                 // Lag badge
                 Text("+\(lagged.lagDays)d")
-                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .font(.pulse(size: 9, weight: .bold, design: .rounded))
                     .foregroundColor(Pulse.warning)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -521,12 +521,12 @@ struct CorrelationDetailView: View {
 
                 // R-value
                 Text(String(format: "r=%.2f", lagged.r))
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .font(.pulse(size: 9, weight: .bold, design: .monospaced))
                     .foregroundColor(barColor(lagged.r))
             }
 
             Text(lagged.text)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -549,7 +549,7 @@ struct CorrelationDetailView: View {
                         .fill(accentTeal.opacity(0.15))
                         .frame(width: 36, height: 36)
                     Image(systemName: "chart.xyaxis.line")
-                        .font(.system(size: 14))
+                        .font(.pulse(size: 14))
                         .foregroundColor(accentTeal)
                 }
                 VStack(alignment: .leading, spacing: 2) {
@@ -594,12 +594,12 @@ struct CorrelationDetailView: View {
     private func methodologyRow(_ icon: String, _ text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 9))
+                .font(.pulse(size: 9))
                 .foregroundColor(Pulse.textTertiary)
                 .frame(width: 14)
                 .padding(.top, 2)
             Text(text)
-                .font(.system(size: 10))
+                .font(.pulse(size: 10))
                 .foregroundColor(Pulse.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }

@@ -18,7 +18,7 @@ struct ExerciseAlternativesCard: View {
                             .font(.subheadline.weight(.semibold))
                         Spacer()
                         Text("\(suggestions.count) suggestions")
-                            .font(.system(size: 9))
+                            .font(.pulse(size: 9))
                             .foregroundColor(Pulse.textTertiary)
                     }
 
@@ -35,16 +35,16 @@ struct ExerciseAlternativesCard: View {
                                         .fill(Pulse.nutrition.opacity(0.12))
                                         .frame(width: 26, height: 26)
                                     Image(systemName: "minus")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.pulse(size: 10, weight: .bold))
                                         .foregroundColor(Pulse.nutrition)
                                 }
 
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(suggestion.exerciseName)
-                                        .font(.system(size: 12, weight: .semibold))
+                                        .font(.pulse(size: 12, weight: .semibold))
                                         .lineLimit(1)
                                     Text("Plateaued for \(suggestion.plateauSessions) sessions")
-                                        .font(.system(size: 9))
+                                        .font(.pulse(size: 9))
                                         .foregroundColor(Pulse.nutrition)
                                 }
 
@@ -53,13 +53,13 @@ struct ExerciseAlternativesCard: View {
 
                             HStack(spacing: 6) {
                                 Image(systemName: "arrow.right.arrow.left")
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                                     .foregroundColor(Pulse.recovery)
                                 Text("Try: ")
-                                    .font(.system(size: 10, weight: .semibold))
+                                    .font(.pulse(size: 10, weight: .semibold))
                                     .foregroundColor(Pulse.textTertiary)
                                 Text(suggestion.alternatives.joined(separator: " · "))
-                                    .font(.system(size: 10, weight: .medium))
+                                    .font(.pulse(size: 10, weight: .medium))
                                     .foregroundColor(Pulse.recovery)
                                     .lineLimit(1)
                             }
@@ -73,7 +73,7 @@ struct ExerciseAlternativesCard: View {
                             withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
                         } label: {
                             Text(expanded ? "Show less" : "Show all \(suggestions.count)")
-                                .font(.system(size: 10, weight: .semibold))
+                                .font(.pulse(size: 10, weight: .semibold))
                                 .foregroundColor(Pulse.recovery)
                                 .frame(maxWidth: .infinity)
                         }

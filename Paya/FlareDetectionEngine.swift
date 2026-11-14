@@ -224,7 +224,11 @@ class FlareDetectionEngine {
         }
 
         // Signal 3: Sleep
-        if let sleep = biometrics.today?.sleepHours {
+        // Sleep under 3h is almost always an incomplete night (watch not
+        // worn / not synced), not real sleep — treating missing data as
+        // "slept badly" produced phantom risk for people who simply took
+        // the watch off.
+        if let sleep = biometrics.today?.sleepHours, sleep >= 3 {
             if sleep < thresholds.minSleepHours {
                 let sev = sleep < (thresholds.minSleepHours - 1) ? 3 : 2
                 score += sev * 10
@@ -507,7 +511,10 @@ class FlareDetectionEngine {
         let level: FlareRiskLevel = {
             if score >= 60 { return .high }
             if score >= 40 { return .elevated }
-            if score >= 20 { return .moderate }
+            // Moderate needs corroboration: one weak signal alone (a noisy
+            // afternoon, one short night) is not a forecast. Require either
+            // two independent signals or a score of 30+.
+            if score >= 20 && (factors.count >= 2 || score >= 30) { return .moderate }
             return .low
         }()
 

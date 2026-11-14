@@ -156,7 +156,7 @@ struct TrainingProfileView: View {
                 } header: {
                     SectionHeader(title: "Lifestyle", icon: "sparkles")
                 } footer: {
-                    Text("Feeds your AI-generated nutrition, supplement, and recovery plan in Nutrition.")
+                    Text("Feeds your personalized nutrition, supplement, and recovery plan in Nutrition.")
                 }
             }
             .navigationTitle("Training Profile")

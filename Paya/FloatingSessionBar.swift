@@ -41,26 +41,26 @@ struct FloatingSessionBar: View {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 4) {
                             Text(appState.isSessionPaused ? "Paused" : "In progress")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.pulse(size: 12, weight: .bold))
                                 .foregroundColor(Pulse.textPrimary)
                             Text("·")
                                 .foregroundColor(Pulse.textTertiary)
                             Text(appState.activeSessionLabel)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.pulse(size: 12, weight: .semibold))
                                 .foregroundColor(appState.activeSessionColor)
                                 .lineLimit(1)
                         }
                         .lineLimit(1)
                         HStack(spacing: 6) {
                             Image(systemName: "timer")
-                                .font(.system(size: 9))
+                                .font(.pulse(size: 9))
                             Text(appState.sessionDurationDisplay)
                                 .monospacedDigit()
                             Text("·")
                             Text("\(appState.completedSetsInSession)/\(appState.totalSetsInSession) sets")
                                 .monospacedDigit()
                         }
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.pulse(size: 10, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                         .lineLimit(1)
                     }
@@ -69,10 +69,10 @@ struct FloatingSessionBar: View {
 
                     HStack(spacing: 4) {
                         Text("Resume")
-                            .font(.system(size: 12, weight: .bold))
+                            .font(.pulse(size: 12, weight: .bold))
                             .foregroundColor(appState.activeSessionColor)
                         Image(systemName: "arrow.right")
-                            .font(.system(size: 10, weight: .bold))
+                            .font(.pulse(size: 10, weight: .bold))
                             .foregroundColor(appState.activeSessionColor)
                     }
                     .padding(.horizontal, 12)

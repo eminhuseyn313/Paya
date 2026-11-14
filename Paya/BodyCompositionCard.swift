@@ -48,7 +48,7 @@ struct BodyCompositionCard: View {
                         Spacer()
                         if let cat = category {
                             Text(cat)
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.pulse(size: 9, weight: .bold))
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 7)
                                 .padding(.vertical, 2)
@@ -72,14 +72,14 @@ struct BodyCompositionCard: View {
                                         .rotationEffect(.degrees(-90))
                                     VStack(spacing: 0) {
                                         Text(String(format: "%.1f", bf))
-                                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                                            .font(.pulse(size: 18, weight: .bold, design: .rounded))
                                         Text("%")
-                                            .font(.system(size: 9))
+                                            .font(.pulse(size: 9))
                                             .foregroundColor(Pulse.textTertiary)
                                     }
                                 }
                                 Text("Body fat")
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .foregroundColor(Pulse.textTertiary)
                             }
                         }
@@ -138,19 +138,19 @@ struct BodyCompositionCard: View {
                         .chartXAxis {
                             AxisMarks(values: .stride(by: .month)) {
                                 AxisValueLabel(format: .dateTime.month(.abbreviated))
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                             }
                         }
                         .chartYAxis {
                             AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                                 AxisValueLabel()
-                                    .font(.system(size: 8))
+                                    .font(.pulse(size: 8))
                             }
                         }
                     }
 
                     Text("Hodgdon & Beckett (1984) Navy circumference method — ±3-4% vs hydrostatic weighing. Log neck + waist measurements regularly for best tracking.")
-                        .font(.system(size: 8))
+                        .font(.pulse(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 .payaCard(padding: 14)
@@ -169,11 +169,11 @@ struct BodyCompositionCard: View {
                 .fill(color)
                 .frame(width: 8, height: 8)
             Text(label)
-                .font(.system(size: 10, weight: .bold))
+                .font(.pulse(size: 10, weight: .bold))
                 .foregroundColor(Pulse.textTertiary)
             Spacer()
             Text(String(format: "%.1f %@", display, unit))
-                .font(.system(size: 13, weight: .bold, design: .rounded))
+                .font(.pulse(size: 13, weight: .bold, design: .rounded))
         }
     }
 

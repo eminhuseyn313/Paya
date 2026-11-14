@@ -32,7 +32,7 @@ struct ExerciseSparklineCard: View {
                                     }
                                 } label: {
                                     Text(data.shortName)
-                                        .font(.system(size: 11, weight: selectedExercise == data.name ? .bold : .medium))
+                                        .font(.pulse(size: 11, weight: selectedExercise == data.name ? .bold : .medium))
                                         .foregroundColor(selectedExercise == data.name ? .white : .primary)
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 5)
@@ -57,9 +57,9 @@ struct ExerciseSparklineCard: View {
                                 if let trend = selected.trend {
                                     HStack(spacing: 3) {
                                         Image(systemName: trend >= 0 ? "arrow.up.right" : "arrow.down.right")
-                                            .font(.system(size: 9, weight: .bold))
+                                            .font(.pulse(size: 9, weight: .bold))
                                         Text(String(format: "%+.0f%%", trend))
-                                            .font(.system(size: 11, weight: .bold))
+                                            .font(.pulse(size: 11, weight: .bold))
                                     }
                                     .foregroundColor(trend >= 0 ? Pulse.positive : Pulse.critical)
                                 }
@@ -97,13 +97,13 @@ struct ExerciseSparklineCard: View {
                             .chartXAxis {
                                 AxisMarks(values: .stride(by: .day, count: 7)) {
                                     AxisValueLabel(format: .dateTime.day().month())
-                                        .font(.system(size: 8))
+                                        .font(.pulse(size: 8))
                                 }
                             }
                             .chartYAxis {
                                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                                     AxisValueLabel()
-                                        .font(.system(size: 8))
+                                        .font(.pulse(size: 8))
                                 }
                             }
 
@@ -137,9 +137,9 @@ struct ExerciseSparklineCard: View {
     private func miniStat(label: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(.pulse(size: 12, weight: .bold, design: .rounded))
             Text(label)
-                .font(.system(size: 8))
+                .font(.pulse(size: 8))
                 .foregroundColor(Pulse.textTertiary)
         }
     }

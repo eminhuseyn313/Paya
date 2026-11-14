@@ -79,15 +79,111 @@ struct PulseDashboardView: View {
         viewModel.readiness?.score ?? viewModel.recoveryScore ?? 0
     }
 
+    /// True only when a real readiness/recovery value exists. `readinessScore`
+    /// coerces nil to 0, so every "is it low/high" check MUST gate on this
+    /// first — otherwise a user with no data reads as "Recovery day / 0".
+    private var hasReadiness: Bool {
+        viewModel.readiness != nil || viewModel.recoveryScore != nil
+    }
+
+    /// Qualifier shown under the score when it rests on thin data.
+    private var readinessEarlyNote: String? {
+        if let report = viewModel.readiness { return report.earlyEstimateNote }
+        if viewModel.recoveryScore != nil {
+            return "Early estimate · no personal baseline yet"
+        }
+        return nil
+    }
+
     private var readinessBand: String {
         viewModel.readiness?.band.rawValue ?? (readinessScore >= 80 ? "Primed" : readinessScore >= 60 ? "Steady" : readinessScore >= 40 ? "Caution" : "Recover")
     }
 
     private var stateColor: Color {
+        if !hasReadiness { return Pulse.textTertiary }
         if readinessScore >= 80 { return Pulse.positive }
         if readinessScore >= 60 { return Pulse.recovery }
         if readinessScore >= 40 { return Pulse.warning }
         return Pulse.critical
+    }
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage("home_more_expanded") private var moreExpanded = false
+
+    // MARK: - One next action
+    // Home answers one question first — "what should I do right now?" — with a
+    // single card, in priority order: a health warning, then the morning
+    // check-in, then today's training/rest focus. Everything else is one tap
+    // away under "More for today" (progressive disclosure, as Oura's Today tab
+    // and WHOOP's tiered home do) instead of stacking ten cards.
+
+    private enum NextAction { case flare, checkIn, focus }
+
+    private var flareNeeded: Bool {
+        guard appState.flareEngineEnabled, let a = viewModel.flareAssessment else { return false }
+        return a.level != .low || viewModel.flareForecast?.trajectory == .worsening
+    }
+
+    private var checkInDue: Bool {
+        appState.morningCheckInEnabled && !viewModel.hasCheckedInToday
+            && Calendar.current.component(.hour, from: .now) < 12
+    }
+
+    private var nextAction: NextAction {
+        if flareNeeded { return .flare }
+        if checkInDue { return .checkIn }
+        return .focus
+    }
+
+    @ViewBuilder
+    private var nextActionCard: some View {
+        switch nextAction {
+        case .flare:
+            if let assessment = viewModel.flareAssessment {
+                flareAlert(assessment, forecast: viewModel.flareForecast)
+            }
+        case .checkIn:
+            heroInsightCard
+        case .focus:
+            todayFocus
+        }
+    }
+
+    private var moreToday: some View {
+        VStack(spacing: 16) {
+            Button {
+                withAnimation(Pulse.Motion.standard) { moreExpanded.toggle() }
+                UISelectionFeedbackGenerator().selectionChanged()
+            } label: {
+                HStack {
+                    Text("More for today")
+                        .font(.pulse(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundColor(Pulse.textPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.pulse(size: 13, weight: .bold))
+                        .foregroundColor(Pulse.textSecondary)
+                        .rotationEffect(.degrees(moreExpanded ? 180 : 0))
+                }
+                .padding(.horizontal, 16)
+                .frame(minHeight: 52)
+                .background(RoundedRectangle(cornerRadius: Pulse.Radius.sm).fill(Pulse.surfaceFallback))
+            }
+            .buttonStyle(PulsePress())
+            .accessibilityLabel("More for today")
+            .accessibilityValue(moreExpanded ? "Expanded" : "Collapsed")
+            .accessibilityHint("Shows insights, daily actions and health shortcuts")
+
+            if moreExpanded {
+                VStack(spacing: 24) {
+                    if nextAction != .checkIn { heroInsightCard }
+                    if nextAction != .focus { todayFocus }
+                    DailyActionCard()
+                    healthSummaryEntry
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
     }
 
     var body: some View {
@@ -99,60 +195,26 @@ struct PulseDashboardView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 24) {
 
-                        // ━━━ 1. Greeting Bar ━━━
+                        // 1. Greeting
                         greetingBar
                             .padding(.top, 8)
 
-                        // ━━━ 1.5 Connection Status ━━━
+                        // 2. Hero: the one number, with its basis right beneath it
+                        heroReadiness
                         watchConnectionPill
 
-                        // ━━━ 2. Hero Readiness ━━━
-                        heroReadiness
+                        // 3. The single next action
+                        nextActionCard
 
-                        // ━━━ 3. Vitals Orbs ━━━
+                        // 4. Vitals at a glance
                         vitalsOrbs
 
-                        // ━━━ 4. Flare Alert — most urgent, leads everything
-                        // below it. Previously this rendered after the health
-                        // journey banner and nudge cards, so a genuine health
-                        // warning had the SAME visual weight (and lower
-                        // position) as routine prompts like "complete your
-                        // health journey" — urgency wasn't legible from
-                        // position or treatment alone.
-                        if appState.flareEngineEnabled,
-                           let assessment = viewModel.flareAssessment,
-                           // Surface the card when TODAY is elevated, OR when
-                           // today looks fine but the forecast says it won't
-                           // stay that way — the entire point of a leading
-                           // indicator is catching this case, which the old
-                           // `assessment.level != .low` check couldn't.
-                           assessment.level != .low || viewModel.flareForecast?.trajectory == .worsening {
-                            flareAlert(assessment, forecast: viewModel.flareForecast)
-                        }
-
-                        // ━━━ 5. Hero Insight ━━━
-                        heroInsightCard
-
-                        // ━━━ 6. Today's Focus ━━━
-                        todayFocus
-
-                        // ━━━ 7. Daily Actions ━━━
-                        DailyActionCard()
-
-                        // ━━━ 8. Health — collapsed to ONE entry point.
-                        // Previously up to 3 separate full-width cards
-                        // (journey banner, profile badge, up to 2 nudge
-                        // cards) stacked here regardless of urgency — all
-                        // routine/informational, none as time-critical as the
-                        // flare alert above, so they don't need to compete
-                        // for the same "full card" attention budget.
-                        healthSummaryEntry
-
-                        // ━━━ 9. Week Pulse ━━━
+                        // 5. Consistency + fast logging
                         weekPulse
-
-                        // ━━━ 10. Quick Actions ━━━
                         quickActions
+
+                        // 6. Everything else, one tap deeper
+                        moreToday
 
                         Spacer().frame(height: 56)
                     }
@@ -226,6 +288,8 @@ struct PulseDashboardView: View {
                         recommendation: "Limited biometric history — check back tomorrow for a baseline-relative score.",
                         journeyNotes: []
                     ))
+                } else {
+                    ReadinessEmptySheet()
                 }
             }
             .sheet(isPresented: $showWeightEntry) {
@@ -320,25 +384,25 @@ struct PulseDashboardView: View {
                             .fill(Pulse.ai.opacity(0.15))
                             .frame(width: 44, height: 44)
                         Text(profileInitials)
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .font(.pulse(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(Pulse.ai)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(greetingText)
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.pulse(size: 14, weight: .medium))
                             .foregroundColor(Pulse.textTertiary)
                         HStack(spacing: 8) {
                             Text(appState.profile.name.isEmpty ? "Athlete" : appState.profile.name.components(separatedBy: " ").first ?? "Athlete")
-                                .font(.system(size: 26, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 26, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
 
                             if trainingStreak >= 2 {
                                 HStack(spacing: 3) {
                                     Image(systemName: "flame.fill")
-                                        .font(.system(size: 10))
+                                        .font(.pulse(size: 10))
                                     Text("\(trainingStreak)")
-                                        .font(.system(size: 11, weight: .black, design: .rounded))
+                                        .font(.pulse(size: 11, weight: .black, design: .rounded))
                                 }
                                 .foregroundColor(Pulse.energy)
                                 .padding(.horizontal, 7)
@@ -351,6 +415,7 @@ struct PulseDashboardView: View {
                 }
             }
             .buttonStyle(PulsePress())
+            .accessibilityLabel("Profile and switch profile")
 
             Spacer()
 
@@ -358,15 +423,15 @@ struct PulseDashboardView: View {
             Button { showNotifications = true } label: {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "bell.fill")
-                        .font(.system(size: 16))
+                        .font(.pulse(size: 16))
                         .foregroundColor(Pulse.textSecondary)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
                         .background(Pulse.surfaceFallback)
                         .clipShape(Circle())
 
                     if unreadNotificationCount > 0 {
                         Text("\(min(unreadNotificationCount, 99))")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.pulse(size: 9, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
@@ -376,16 +441,18 @@ struct PulseDashboardView: View {
                     }
                 }
             }
+            .accessibilityLabel(unreadNotificationCount > 0 ? "Notifications, \(unreadNotificationCount) unread" : "Notifications")
 
             // Settings
             Button { showSettings = true } label: {
                 Image(systemName: "gearshape.fill")
-                    .font(.system(size: 16))
+                    .font(.pulse(size: 16))
                     .foregroundColor(Pulse.textSecondary)
-                    .frame(width: 40, height: 40)
+                    .frame(width: 44, height: 44)
                     .background(Pulse.surfaceFallback)
                     .clipShape(Circle())
             }
+            .accessibilityLabel("Settings")
         }
     }
 
@@ -395,7 +462,7 @@ struct PulseDashboardView: View {
         Button { showReadinessDetail = true } label: {
             VStack(spacing: 16) {
                 ZStack {
-                    if viewModel.hasWearableData || readinessScore > 0 {
+                    if hasReadiness {
                         // The ring
                         PulseRing(
                             progress: CGFloat(readinessScore) / 100.0,
@@ -408,15 +475,15 @@ struct PulseDashboardView: View {
                         VStack(spacing: 4) {
                             PulseCounter(
                                 value: readinessScore,
-                                font: .system(size: 56, weight: .bold, design: .rounded),
+                                font: .pulse(size: 56, weight: .bold, design: .rounded),
                                 color: stateColor
                             )
                             Text("Readiness")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.pulse(size: 12, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     } else {
-                        // No wearable — show placeholder ring
+                        // No real readiness input — empty ring, never a number
                         PulseRing(
                             progress: 0,
                             size: 180,
@@ -425,29 +492,35 @@ struct PulseDashboardView: View {
                         )
                         VStack(spacing: 6) {
                             Image(systemName: "applewatch.slash")
-                                .font(.system(size: 28))
+                                .font(.pulse(size: 28))
                                 .foregroundColor(Pulse.textTertiary)
                             Text("Readiness")
-                                .font(.system(size: 12, weight: .medium))
+                                .font(.pulse(size: 12, weight: .medium))
                                 .foregroundColor(Pulse.textTertiary)
                         }
                     }
                 }
 
-                if viewModel.hasWearableData || readinessScore > 0 {
+                if hasReadiness {
                     // Band label
                     Text(readinessBand)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(stateColor)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 6)
                         .background(stateColor.opacity(0.12))
                         .clipShape(Capsule())
 
+                    if let note = readinessEarlyNote {
+                        Text(note)
+                            .font(.pulse(size: 11, weight: .medium))
+                            .foregroundColor(Pulse.textTertiary)
+                    }
+
                     // One-line recommendation
                     if let recommendation = viewModel.readiness?.recommendation {
                         Text(recommendation.components(separatedBy: ".").first ?? recommendation)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.pulse(size: 13, weight: .medium))
                             .foregroundColor(Pulse.textSecondary)
                             .multilineTextAlignment(.center)
                             .lineLimit(2)
@@ -458,20 +531,20 @@ struct PulseDashboardView: View {
                     // Shows what's driving the score up or down at a glance
                     // without tapping into the detail sheet.
                     if let drivers = viewModel.readiness?.drivers, !drivers.isEmpty {
-                        readinessDriverStrip(drivers: drivers)
+                        heldBackLine(drivers: drivers)
                     }
                 } else {
                     // No wearable explanation
-                    Text("Connect a wearable")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                    Text("—")
+                        .font(.pulse(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(Pulse.textSecondary)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 6)
                         .background(Pulse.surfaceFallback)
                         .clipShape(Capsule())
 
-                    Text("Pair an Apple Watch or sync a wearable via Apple Health to get your personalized readiness score.")
-                        .font(.system(size: 13, weight: .medium))
+                    Text("Needs ~7 days of Apple Watch data, or log a morning check-in, to estimate readiness.")
+                        .font(.pulse(size: 13, weight: .medium))
                         .foregroundColor(Pulse.textTertiary)
                         .multilineTextAlignment(.center)
                         .lineLimit(3)
@@ -481,8 +554,32 @@ struct PulseDashboardView: View {
             .padding(.vertical, 12)
         }
         .buttonStyle(PulsePress())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(hasReadiness
+            ? "Readiness \(readinessScore), \(readinessBand)"
+            : "Readiness not available yet")
+        .accessibilityHint("Opens the readiness breakdown")
         .opacity(hasAppeared ? 1 : 0)
-        .scaleEffect(hasAppeared ? 1 : 0.9)
+        .scaleEffect(hasAppeared || reduceMotion ? 1 : 0.9)
+    }
+
+    // MARK: - Held-back line
+    // Replaces the four-bar driver strip (10–11 pt text, ~5 numbers competing
+    // with the score). One glanceable sentence says what matters; the full
+    // breakdown is one tap away in the readiness sheet.
+
+    @ViewBuilder
+    private func heldBackLine(drivers: [ReadinessEngine.Driver]) -> some View {
+        let low = drivers.filter { $0.score < 70 }.sorted { $0.score < $1.score }.prefix(2).map(\.label)
+        HStack(spacing: 6) {
+            Image(systemName: low.isEmpty ? "checkmark.circle.fill" : "arrow.down.circle.fill")
+                .font(.pulse(size: 13, weight: .semibold))
+                .foregroundColor(low.isEmpty ? Pulse.positive : Pulse.warning)
+            Text(low.isEmpty ? "All signals in range" : "Held back by \(low.joined(separator: " and "))")
+                .font(.pulse(size: 13, weight: .medium))
+                .foregroundColor(Pulse.textSecondary)
+        }
+        .padding(.top, 2)
     }
 
     // MARK: - Readiness Driver Strip
@@ -497,12 +594,12 @@ struct PulseDashboardView: View {
                 HStack(spacing: 8) {
                     // Semantic icon per driver type
                     Image(systemName: driverIcon(for: driver.id))
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.pulse(size: 10, weight: .semibold))
                         .foregroundColor(driverColor(for: driver.id))
                         .frame(width: 14)
 
                     Text(driver.label)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.pulse(size: 11, weight: .medium))
                         .foregroundColor(Pulse.textSecondary)
                         .frame(width: 72, alignment: .leading)
 
@@ -521,7 +618,7 @@ struct PulseDashboardView: View {
                     .frame(height: 4)
 
                     Text("\(Int(driver.score))")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .font(.pulse(size: 10, weight: .bold, design: .rounded))
                         .foregroundColor(driverBarColor(score: driver.score))
                         .monospacedDigit()
                         .frame(width: 24, alignment: .trailing)
@@ -584,15 +681,15 @@ struct PulseDashboardView: View {
             HStack(spacing: 8) {
                 // Connection dot — green when reachable, amber when paired but not on wrist
                 Circle()
-                    .fill(watch.isWatchReachable ? Pulse.positive : (watch.isConnected ? Pulse.warning : Pulse.textTertiary))
+                    .fill(watch.wearState == .worn ? Pulse.positive : (watch.isConnected ? Pulse.warning : Pulse.textTertiary))
                     .frame(width: 6, height: 6)
 
-                Image(systemName: watch.isConnected ? "applewatch" : "applewatch.slash")
-                    .font(.system(size: 11))
-                    .foregroundColor(watch.isWatchReachable ? Pulse.positive : Pulse.textTertiary)
+                Image(systemName: watch.wearState == .worn ? "applewatch" : "applewatch.slash")
+                    .font(.pulse(size: 11))
+                    .foregroundColor(watch.wearState == .worn ? Pulse.positive : Pulse.textTertiary)
 
                 Text(watch.connectionLabel)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.pulse(size: 11, weight: .medium))
                     .foregroundColor(Pulse.textSecondary)
 
                 // Live HR source indicator
@@ -609,7 +706,7 @@ struct PulseDashboardView: View {
                     .overlay(
                         Capsule()
                             .stroke(
-                                (watch.isWatchReachable ? Pulse.positive : Pulse.textTertiary).opacity(0.15),
+                                (watch.wearState == .worn ? Pulse.positive : Pulse.textTertiary).opacity(0.15),
                                 lineWidth: 0.5
                             )
                     )
@@ -632,7 +729,9 @@ struct PulseDashboardView: View {
         let protein = viewModel.todaysNutrition?.totalProtein ?? 0
         let proteinTarget = viewModel.todaysNutrition?.proteinTarget ?? appState.profile.proteinTargetG
         let calories = viewModel.todaysNutrition?.totalCalories ?? 0
-        let calorieTarget = viewModel.todaysNutrition?.calorieTarget ?? 2200
+        // No hardcoded 2200 fallback: use the user's own configured target.
+        let calorieTarget = viewModel.todaysNutrition?.calorieTarget
+            ?? (appState.isTrainingDay ? appState.profile.trainingDayCalories : appState.profile.restDayCalories)
         let waterMl = WaterStore.todayTotal(context: modelContext)
         let waterTarget: Double = Double(WaterStore.dailyTargetMl)
         let proteinProgress = proteinTarget > 0 ? protein / proteinTarget : 0
@@ -703,11 +802,19 @@ struct PulseDashboardView: View {
                     MetricOrb(
                         value: "\(hr)",
                         unit: "bpm",
-                        label: "Heart",
+                        label: viewModel.appleHealthHRIsResting ? "Resting HR" : "Last HR",
                         color: Pulse.vitals,
-                        // Inverted: lower resting HR = better (Reimers et al. 2013)
-                        progress: 1.0 - max(0, min((Double(hr) - 45) / 55, 1.0)),
-                        action: { selectedTab = 3 }
+                        // Inverted: lower resting HR = better (Reimers et al. 2013).
+                        // Only meaningful for a true RESTING reading — a latest-sample
+                        // fallback is activity-influenced, so no ring rather than a made-up one.
+                        progress: viewModel.appleHealthHRIsResting
+                            ? 1.0 - max(0, min((Double(hr) - 45) / 55, 1.0))
+                            : nil,
+                        action: { selectedTab = 3 },
+                        freshness: viewModel.appleHealthHRDate.map {
+                            let m = max(1, Int(Date().timeIntervalSince($0) / 60))
+                            return m < 60 ? "\(m)m ago" : "\(m / 60)h ago"
+                        }
                     )
                 }
             }
@@ -751,14 +858,14 @@ struct PulseDashboardView: View {
                     accentColor: Pulse.positive,
                     action: { selectedTab = 4 }
                 )
-            } else if readinessScore >= 80 {
+            } else if hasReadiness && readinessScore >= 80 {
                 HeroInsight(
                     emoji: "🟢",
                     headline: "You're ready to push",
                     detail: "Readiness is high. Your body is primed for progression — consider adding intensity or volume.",
                     accentColor: Pulse.positive
                 )
-            } else if readinessScore < 40 {
+            } else if hasReadiness && readinessScore < 40 {
                 HeroInsight(
                     emoji: "🔴",
                     headline: "Recovery needs attention",
@@ -794,17 +901,18 @@ struct PulseDashboardView: View {
         return Button { showFlareRiskDetail = true } label: {
             HStack(spacing: 12) {
                 Image(systemName: isForecastLed ? "chart.line.uptrend.xyaxis" : "exclamationmark.triangle.fill")
-                    .font(.system(size: 20))
+                    .font(.pulse(size: 20))
                     .foregroundColor(color)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(isForecastLed ? "Flare risk rising" : "Flare risk: \(assessment.level.rawValue)")
-                        .font(.system(size: 14, weight: .bold))
+                    Text((isForecastLed ? "Flare risk rising" : "Flare risk: \(assessment.level.rawValue)")
+                         + (assessment.confidence == .learning ? " · early estimate" : ""))
+                        .font(.pulse(size: 14, weight: .bold))
                         .foregroundColor(Pulse.textPrimary)
                     Text(isForecastLed
                          ? (forecast?.summary ?? "")
                          : (assessment.recommendation.components(separatedBy: ".").first ?? ""))
-                        .font(.system(size: 12))
+                        .font(.pulse(size: 12))
                         .foregroundColor(Pulse.textSecondary)
                         .lineLimit(2)
                 }
@@ -812,7 +920,7 @@ struct PulseDashboardView: View {
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.pulse(size: 11, weight: .bold))
                     .foregroundColor(Pulse.textTertiary)
             }
             .pulseSurfaceGlow(
@@ -835,17 +943,17 @@ struct PulseDashboardView: View {
                                 .fill(Pulse.energy.opacity(0.15))
                                 .frame(width: 52, height: 52)
                             Image(systemName: "figure.strengthtraining.traditional")
-                                .font(.system(size: 22))
+                                .font(.pulse(size: 22))
                                 .foregroundColor(Pulse.energy)
                         }
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Start training")
-                                .font(.system(size: 17, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 17, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
                             if let dayName = todayTrainingDay?.name {
                                 Text(dayName)
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.pulse(size: 13, weight: .medium))
                                     .foregroundColor(Pulse.textSecondary)
                             }
                         }
@@ -853,7 +961,7 @@ struct PulseDashboardView: View {
                         Spacer()
 
                         Image(systemName: "arrow.right.circle.fill")
-                            .font(.system(size: 28))
+                            .font(.pulse(size: 28))
                             .foregroundColor(Pulse.energy)
                     }
                     .pulseSurfaceGlow(color: Pulse.energy, padding: 16)
@@ -867,16 +975,16 @@ struct PulseDashboardView: View {
                                 .fill(Pulse.recovery.opacity(0.15))
                                 .frame(width: 52, height: 52)
                             Image(systemName: "leaf.fill")
-                                .font(.system(size: 22))
+                                .font(.pulse(size: 22))
                                 .foregroundColor(Pulse.recovery)
                         }
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Rest day")
-                                .font(.system(size: 17, weight: .bold, design: .rounded))
+                                .font(.pulse(size: 17, weight: .bold, design: .rounded))
                                 .foregroundColor(Pulse.textPrimary)
                             Text("Recovery + nutrition focus")
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.pulse(size: 13, weight: .medium))
                                 .foregroundColor(Pulse.textSecondary)
                         }
 
@@ -886,7 +994,7 @@ struct PulseDashboardView: View {
                             showAdHocPicker = true
                         } label: {
                             Text("Train anyway")
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(.pulse(size: 12, weight: .semibold))
                                 .foregroundColor(Pulse.energy)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
@@ -923,7 +1031,7 @@ struct PulseDashboardView: View {
                         ForEach(weekDayStatuses) { day in
                             VStack(spacing: 6) {
                                 Text(day.label)
-                                    .font(.system(size: 9, weight: .bold))
+                                    .font(.pulse(size: 9, weight: .bold))
                                     .foregroundColor(day.isToday ? Pulse.textPrimary : Pulse.textTertiary)
 
                                 ZStack {
@@ -933,7 +1041,7 @@ struct PulseDashboardView: View {
 
                                     if day.trained {
                                         Image(systemName: "checkmark")
-                                            .font(.system(size: 10, weight: .black))
+                                            .font(.pulse(size: 10, weight: .black))
                                             .foregroundColor(Pulse.positive)
                                     } else if day.isToday {
                                         Circle()
@@ -991,13 +1099,13 @@ struct PulseDashboardView: View {
     private func weekStat(value: String, label: String, color: Color) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.pulse(size: 18, weight: .bold, design: .rounded))
                 .foregroundColor(color)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
-                .font(.system(size: 10, weight: .medium))
+                .font(.pulse(size: 10, weight: .medium))
                 .foregroundColor(Pulse.textTertiary)
         }
         .frame(maxWidth: .infinity)
@@ -1022,8 +1130,10 @@ struct PulseDashboardView: View {
                 PulseChip(icon: "chart.line.uptrend.xyaxis", label: "Insights", color: Pulse.ai) {
                     selectedTab = 4
                 }
-                PulseChip(icon: "sparkles", label: "Ask Paya", color: Pulse.ai) {
-                    showAskPaya = true
+                if FeatureFlags.externalAI {
+                    PulseChip(icon: "sparkles", label: "Ask Paya", color: Pulse.ai) {
+                        showAskPaya = true
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -1072,7 +1182,7 @@ struct PulseDashboardView: View {
                         .fill(Pulse.ai.opacity(0.15))
                         .frame(width: 44, height: 44)
                     Image(systemName: "heart.text.clipboard.fill")
-                        .font(.system(size: 20))
+                        .font(.pulse(size: 20))
                         .foregroundColor(Pulse.ai)
                 }
 
@@ -1133,7 +1243,7 @@ struct PulseDashboardView: View {
                             VStack(spacing: 8) {
                                 HStack(spacing: 10) {
                                     Image(systemName: "heart.text.clipboard")
-                                        .font(.system(size: 16, weight: .semibold))
+                                        .font(.pulse(size: 16, weight: .semibold))
                                         .foregroundColor(accentColor)
                                         .frame(width: 32, height: 32)
                                         .background(accentColor.opacity(0.12))
@@ -1141,10 +1251,10 @@ struct PulseDashboardView: View {
 
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text("Health")
-                                            .font(.system(size: 12, weight: .bold))
+                                            .font(.pulse(size: 12, weight: .bold))
                                             .foregroundColor(Pulse.textPrimary)
                                         Text(topWarning.map { $0.title } ?? "\(report.totalCount) personalized rules active")
-                                            .font(.system(size: 10))
+                                            .font(.pulse(size: 10))
                                             .foregroundColor(Pulse.textTertiary)
                                             .lineLimit(2)
                                     }
@@ -1152,7 +1262,7 @@ struct PulseDashboardView: View {
                                     Spacer()
 
                                     Image(systemName: "chevron.right")
-                                        .font(.system(size: 10, weight: .bold))
+                                        .font(.pulse(size: 10, weight: .bold))
                                         .foregroundColor(Pulse.textTertiary)
                                 }
                             }
@@ -1171,7 +1281,7 @@ struct PulseDashboardView: View {
                                     } label: {
                                         HStack {
                                             Text("+\(extraCount) more insight\(extraCount == 1 ? "" : "s")")
-                                                .font(.system(size: 11, weight: .semibold))
+                                                .font(.pulse(size: 11, weight: .semibold))
                                                 .foregroundColor(Pulse.ai)
                                             Spacer()
                                         }
@@ -1200,7 +1310,7 @@ struct PulseDashboardView: View {
         return HStack(alignment: .top, spacing: 12) {
             // Icon
             Image(systemName: nudge.icon)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.pulse(size: 14, weight: .semibold))
                 .foregroundColor(accentColor)
                 .frame(width: 30, height: 30)
                 .background(accentColor.opacity(0.12))
@@ -1209,11 +1319,11 @@ struct PulseDashboardView: View {
             // Content
             VStack(alignment: .leading, spacing: 4) {
                 Text(nudge.title)
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.pulse(size: 13, weight: .bold))
                     .foregroundColor(Pulse.textPrimary)
 
                 Text(nudge.detail)
-                    .font(.system(size: 11.5))
+                    .font(.pulse(size: 11.5))
                     .foregroundColor(Pulse.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -1222,7 +1332,7 @@ struct PulseDashboardView: View {
                         handleNudgeAction(nudge.action)
                     } label: {
                         Text(actionLabel)
-                            .font(.system(size: 11, weight: .bold))
+                            .font(.pulse(size: 11, weight: .bold))
                             .foregroundColor(accentColor)
                     }
                     .padding(.top, 2)
@@ -1312,6 +1422,13 @@ struct PulseDashboardView: View {
                     flareForecast: viewModel.flareForecast,
                     wellnessInsights: wellness
                 ) {
+                    WatchHealthPush.cacheBriefing(narrative.headline.text)
+                    WatchHealthPush.pushFlareAndBriefing(
+                        assessment: viewModel.flareAssessment,
+                        forecast: viewModel.flareForecast,
+                        flareEnabled: appState.flareEngineEnabled,
+                        weightKg: viewModel.latestWeight
+                    )
                     await NotificationManager.shared.scheduleDailyBriefing(
                         headline: narrative.headline.text,
                         context: modelContext,
@@ -1336,6 +1453,12 @@ struct PulseDashboardView: View {
                     recommendation: readiness.recommendation
                 )
             }
+            WatchHealthPush.pushFlareAndBriefing(
+                assessment: viewModel.flareAssessment,
+                forecast: viewModel.flareForecast,
+                flareEnabled: appState.flareEngineEnabled,
+                weightKg: viewModel.latestWeight
+            )
             if appState.isTrainingDay {
                 let day = Calendar.current.startOfDay(for: Date()).timeIntervalSince1970
                 NotificationManager.shared.recordInInbox(
