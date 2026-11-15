@@ -30,8 +30,6 @@ struct WatchSessionSnapshot {
     var adjustPct: Int = 0          // signed recovery/progression nudge on the suggested weight
     var isFlareDay: Bool = false
     var flareEnabled: Bool = false
-    var roundLabel: String? = nil        // "Round 2 of 3 · B" for superset members
-    var supersetNext: String? = nil      // partner exercise that follows
 }
 
 @MainActor
@@ -215,8 +213,6 @@ final class WatchSessionManager: NSObject {
             context["adjustPct"] = snapshot.adjustPct
             context["isFlareDay"] = snapshot.isFlareDay
             context["flareEnabled"] = snapshot.flareEnabled
-            if let r = snapshot.roundLabel { context["roundLabel"] = r } else { context.removeValue(forKey: "roundLabel") }
-            if let n = snapshot.supersetNext { context["supersetNext"] = n } else { context.removeValue(forKey: "supersetNext") }
             context["volumeKg"] = snapshot.volumeKg
             context["prefersLbs"] = prefersLbs
             context["repOffset"] = WatchTelemetryStore.repOffset

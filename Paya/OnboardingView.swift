@@ -44,6 +44,13 @@ struct OnboardingView: View {
     @State private var priorityMuscle: MusclePriority = .none
 
     var body: some View {
+        ZStack {
+            Pulse.canvasFallback.ignoresSafeArea()
+            onboardingContent
+        }
+    }
+
+    private var onboardingContent: some View {
         VStack(spacing: 0) {
 
             HStack(spacing: 12) {
@@ -98,24 +105,26 @@ struct OnboardingView: View {
         ScrollView {
             VStack(spacing: 18) {
                 VStack(spacing: 6) {
-                    Image(systemName: "figure.strengthtraining.traditional")
-                        .font(.pulse(size: 48))
-                        .foregroundColor(Color(hex: "2563EB"))
+                    PayaMark(size: 92)
                     Text("Welcome to Paya")
                         .font(.title.bold())
-                    Text("Let's set you up in under a minute.")
+                        .foregroundColor(Pulse.textPrimary)
+                    Text("A few quick questions so your first plan fits you.")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Pulse.textSecondary)
                     Button {
                         prefillFromHealthKit()
                     } label: {
-                        Label("Auto-fill from Apple Health", systemImage: "heart.fill")
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(Color(hex: "DC2626"))
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color(hex: "DC2626").opacity(0.1))
-                            .clipShape(Capsule())
+                        HStack(spacing: 8) {
+                            Image(systemName: "heart.fill").foregroundColor(Color(hex: "F87171"))
+                            Text("Fill in from Apple Health")
+                                .foregroundColor(Pulse.textPrimary)
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 16)
+                        .frame(minHeight: 44)
+                        .background(Capsule().fill(Pulse.surfaceFallback))
+                        .overlay(Capsule().stroke(Color.white.opacity(0.14), lineWidth: 1))
                     }
                 }
                 .padding(.top, 30)

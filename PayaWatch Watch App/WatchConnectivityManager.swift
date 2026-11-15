@@ -48,8 +48,6 @@ final class WatchConnectivityManager: NSObject {
     var hrvMs: Double = 0
     var restingHR: Int = 0
     var latestWeightKg: Double = 0
-    var roundLabel: String?
-    var supersetNext: String?
 
     var prefersLbs: Bool = false
     var maxHR: Int? = nil
@@ -404,8 +402,6 @@ final class WatchConnectivityManager: NSObject {
             prBanner = text
         }
         adjustPct = context["adjustPct"] as? Int ?? 0
-        roundLabel = context["roundLabel"] as? String
-        supersetNext = context["supersetNext"] as? String
         repOffset = context["repOffset"] as? Int ?? repOffset
         isFlareDay = context["isFlareDay"] as? Bool ?? isFlareDay
         flareEnabled = context["flareEnabled"] as? Bool ?? flareEnabled

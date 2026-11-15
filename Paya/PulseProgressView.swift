@@ -153,7 +153,7 @@ struct PulseProgressView: View {
                 journeyStat(
                     value: "\(viewModel.currentStreak)w",
                     label: "Streak",
-                    color: Pulse.positive
+                    color: viewModel.currentStreak > 0 ? Pulse.positive : Pulse.textTertiary
                 )
                 journeyStat(
                     value: totalVolumeFormatted,
@@ -255,8 +255,9 @@ struct PulseProgressView: View {
 
     @ViewBuilder
     private var strengthSection: some View {
-        TrophyCaseCard()
+        // Substance first (where your strength stands), badges after.
         StrengthStandardsCard(sessions: viewModel.allSessions)
+        TrophyCaseCard()
 
         PulseCollapsible(title: "Personal records", icon: "trophy.fill", color: Pulse.nutrition) {
             PersonalBestTimelineCard()

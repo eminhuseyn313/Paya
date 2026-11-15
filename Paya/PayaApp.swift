@@ -35,10 +35,12 @@ struct PayaApp: App {
                     PayaNotificationDelegate.registerActionCategories()
                     // Re-schedule training reminders on every launch so they persist
                     // across app updates and settings changes.
-                    if appState.profile.reminderEnabled {
-                        // Ask once (no-op after the first answer) so a user who
-                        // never touched the Settings toggle still gets reminders.
-                        _ = await NotificationManager.shared.requestAuthorization()
+                    // Never show the system permission prompt at launch — the user
+                    // hasn't seen any value yet. It's requested after their first
+                    // finished workout (or from Settings). Here we only re-schedule
+                    // if they've already answered.
+                    let notifStatus = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+                    if appState.profile.reminderEnabled, notifStatus != .notDetermined {
                         await NotificationManager.shared.scheduleTrainingReminders(
                             at: appState.profile.reminderTime,
                             profile: appState.profile,

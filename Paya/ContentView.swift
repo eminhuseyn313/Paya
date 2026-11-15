@@ -211,12 +211,18 @@ struct ContentView: View {
 
     private var restoringView: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            VStack(spacing: 16) {
+            Pulse.canvasFallback.ignoresSafeArea()
+            VStack(spacing: 18) {
+                PayaMark(size: 84)
                 ProgressView().tint(Pulse.hydration)
                 Text("Restoring your data…")
-                    .font(.subheadline)
-                    .foregroundColor(Pulse.textSecondary)
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundColor(Pulse.textPrimary)
+                Text("Bringing back your workouts, meals and settings from your account backup.")
+                    .font(.footnote)
+                    .foregroundColor(Pulse.textTertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
                 if restoreIsSlow {
                     Text("This is taking longer than usual. Check your connection — or continue and set up fresh. Your cloud backup stays safe.")
                         .font(.footnote)
@@ -240,10 +246,8 @@ struct ContentView: View {
     /// own dark canvas so it reads as a beat of loading, not as a screen.
     private var launchSplash: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-            Image(systemName: "figure.strengthtraining.traditional")
-                .font(.pulse(size: 48, weight: .medium))
-                .foregroundColor(Pulse.hydration)
+            Pulse.canvasFallback.ignoresSafeArea()
+            PayaMark(size: 96)
         }
     }
 

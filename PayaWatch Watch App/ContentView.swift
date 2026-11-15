@@ -899,7 +899,7 @@ private struct LogSetPage: View {
     private var logContent: some View {
         VStack(spacing: 5) {
             HStack(spacing: 4) {
-                Text((wc.roundLabel ?? wc.setLabel).replacingOccurrences(of: " of ", with: "/")
+                Text(wc.setLabel.replacingOccurrences(of: " of ", with: "/")
                      + (detector.detectedReps.map { " · ≈\(max(1, $0 + wc.repOffset)) detected" } ?? lastHint.map { " · \($0)" } ?? ""))
                     .font(.pulse(size: 10, weight: .black, design: .rounded))
                     .foregroundColor(color)
@@ -920,12 +920,7 @@ private struct LogSetPage: View {
                 .foregroundColor(WatchPulse.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-            if let next = wc.supersetNext {
-                Text("then → \(next)")
-                    .font(.pulse(size: 10, weight: .semibold))
-                    .foregroundColor(WatchPulse.textSecondary)
-                    .lineLimit(1)
-            } else if isLastSet {
+            if isLastSet {
                 Text("LAST SET")
                     .font(.pulse(size: 10, weight: .black, design: .rounded))
                     .foregroundColor(WatchPulse.warning)
